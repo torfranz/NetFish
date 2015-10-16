@@ -17,6 +17,17 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Windows binaries
+*.dll
+*.exe
+*.pdb
+*.cache
+*.bak
+
+# Test temporary directories
+obj
+bin
+
 # =========================
 # Operating System Files
 # =========================
