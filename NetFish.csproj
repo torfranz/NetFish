@@ -43,8 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitCount.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\Bitboard.cs" />
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />
     <Compile Include="Types\Rank.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Types\Score.cs" />
     <Compile Include="Types\Depth.cs" />
     <Compile Include="Types\Value.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
