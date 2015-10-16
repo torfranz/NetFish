@@ -196,21 +196,92 @@ static class Utils
         }
     }
 
-    /*
-    /// pop_lsb() finds and clears the least significant bit in a non-zero bitboard
-    inline Square pop_lsb(Bitboard* b)
+    // De Bruijn sequences. See chessprogramming.wikispaces.com/BitScan
+    const ulong DeBruijn64 = 0x3F79D71B4CB0A89UL;
+    const ulong DeBruijn32 = 0x783A9B23;
+
+    static int[] MSBTable = new int[256];            // To implement software msb()
+    static Square[] BSFTable = new Square[Square.SQUARE_NB];   // To implement software bitscan
+    static Bitboard[] RookTable = new Bitboard[0x19000];  // To store rook attacks
+    static Bitboard[] BishopTable = new Bitboard[0x1480]; // To store bishop attacks
+
+    internal delegate uint Fn(Square s, Bitboard occ);
+    
+    // bsf_index() returns the index into BSFTable[] to look up the bitscan. Uses
+    // Matt Taylor's folding for 32 bit case, extended to 64 bit by Kim Walisch.
+
+    static uint bsf_index(Bitboard b)
     {
-        const Square s = lsb(*b);
-        *b &= *b - 1;
-        return s;
+        var value = b.Value;
+        value ^= value - 1;
+#if X64
+        return (uint)((value * DeBruijn64) >> 58);
+#else
+        return (uint)((value ^ (value >> 32)) * DeBruijn32) >> 26;
+#endif
     }
 
+    static Square lsb(Bitboard b)
+    {
+        return BSFTable[bsf_index(b)];
+    }
 
+    static Square msb(Bitboard b)
+    {
+        var value = b.Value;
+        uint b32;
+        int result = 0;
+
+        if (value > 0xFFFFFFFF)
+        {
+            value >>= 32;
+            result = 32;
+        }
+
+        b32 = (uint)value;
+
+        if (b32 > 0xFFFF)
+        {
+            b32 >>= 16;
+            result += 16;
+        }
+
+        if (b32 > 0xFF)
+        {
+            b32 >>= 8;
+            result += 8;
+        }
+
+        return new Square(result + MSBTable[b32]);
+    }
+
+    /// pop_lsb() finds and clears the least significant bit in a non-zero bitboard
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Square pop_lsb(ref Bitboard b)
+    {
+        Square s = lsb(b);
+
+        var value = b.Value;
+        value &= value - 1;
+        b = new Bitboard(value);
+        return s;
+    }
+    
     /// frontmost_sq() and backmost_sq() return the square corresponding to the
     /// most/least advanced bit relative to the given color.
 
-    inline Square frontmost_sq(Color c, Bitboard b) { return c == WHITE ? msb(b) : lsb(b); }
-    inline Square  backmost_sq(Color c, Bitboard b) { return c == WHITE ? lsb(b) : msb(b); }
-    */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Square frontmost_sq(Color c, Bitboard b)
+    {
+        return c.Value == Color.WHITE ? msb(b) : lsb(b);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Square backmost_sq(Color c, Bitboard b)
+    {
+        return c.Value == Color.WHITE ? lsb(b) : msb(b);
+    }
+    
 }
 
