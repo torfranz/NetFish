@@ -17,7 +17,7 @@ public struct Move
 
     public const int MOVE_NULL = 65;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -34,6 +34,17 @@ public struct Move
     }
 
     #endregion
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Move v1, Move v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Move v1, Move v2)
+    {
+        return v1.Value != v2.Value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Square from_sq()
@@ -62,18 +73,18 @@ public struct Move
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Move make_move(Square from, Square to)
     {
-        return new Move(to.Value | (from.Value << 6));
+        return new Move(to | (from << 6));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Move make(MoveType moveType, Square from, Square to, PieceType pt)
     {
-        return new Move(to.Value | (from.Value << 6) | (int)moveType | ((pt.Value - PieceType.KNIGHT) << 12));
+        return new Move(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool is_ok()
     {
-        return this.from_sq().Value != this.to_sq().Value; // Catch MOVE_NULL and MOVE_NONE
+        return this.from_sq() != this.to_sq(); // Catch MOVE_NULL and MOVE_NONE
     }
 }

@@ -21,7 +21,7 @@ public struct PieceType
 
     public const int PIECE_TYPE_NB = 8;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -73,6 +73,28 @@ public struct PieceType
         return new PieceType(v1.Value - v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (PieceType pt)
+    {
+        return pt.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(PieceType v1, PieceType v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(PieceType v1, PieceType v2)
+    {
+        return v1.Value != v2.Value;
+    }
+
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PieceType operator -(PieceType v1)

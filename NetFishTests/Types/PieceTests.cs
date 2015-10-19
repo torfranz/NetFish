@@ -18,19 +18,19 @@ namespace Tests
             var v1 = new Piece(new Piece(1));
             var v2 = new Piece(2);
             var v3 = v1 + v2;
-            Assert.AreEqual(3, v3.Value);
+            Assert.AreEqual(3, v3);
 
             var v4 = v3 + 1;
-            Assert.AreEqual(4, v4.Value);
+            Assert.AreEqual(4, v4);
 
             var v5 = 1 + v4;
-            Assert.AreEqual(5, v5.Value);
+            Assert.AreEqual(5, v5);
 
             var v6 = v5 - v1;
-            Assert.AreEqual(4, v6.Value);
+            Assert.AreEqual(4, v6);
 
             var v7 = v6 - 1;
-            Assert.AreEqual(3, v7.Value);
+            Assert.AreEqual(3, v7);
             /*
             Assert.AreEqual(-3, -v7.Value);
 
@@ -52,24 +52,24 @@ namespace Tests
         public void MakePieceTest()
         {
             var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
-            Assert.AreEqual(Piece.W_BISHOP, v1.Value);
+            Assert.AreEqual(Piece.W_BISHOP, v1);
 
             var v2 = Piece.make_piece(new Color(Color.BLACK), new PieceType(PieceType.KNIGHT));
-            Assert.AreEqual(Piece.B_KNIGHT, v2.Value);
+            Assert.AreEqual(Piece.B_KNIGHT, v2);
         }
 
         [TestMethod()]
         public void TypeOfTests()
         {
             var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
-            Assert.AreEqual(PieceType.BISHOP, v1.type_of().Value);
+            Assert.AreEqual(PieceType.BISHOP, v1.type_of());
         }
 
         [TestMethod()]
         public void ColorOfTests()
         {
             var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
-            Assert.AreEqual(Color.WHITE, v1.color_of().Value);
+            Assert.AreEqual(Color.WHITE, v1.color_of());
         }
     }
 }

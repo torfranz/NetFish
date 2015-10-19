@@ -31,7 +31,7 @@ public struct Piece
 
     public const int PIECE_NB = 16;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -85,6 +85,28 @@ public struct Piece
         return new Piece(v1.Value - v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Piece p)
+    {
+        return p.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Piece v1, Piece v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Piece v1, Piece v2)
+    {
+        return v1.Value != v2.Value;
+    }
+
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Piece operator -(Piece v1)
@@ -138,6 +160,6 @@ public struct Piece
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Piece make_piece(Color c, PieceType pt)
     {
-        return new Piece((c.Value << 3) | pt.Value);
+        return new Piece((c << 3) | pt);
     }
 }

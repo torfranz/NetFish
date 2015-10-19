@@ -11,7 +11,7 @@ public struct Color
 
     public const int COLOR_NB = 2;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -62,6 +62,23 @@ public struct Color
         return new Color(v1.Value - v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Color c)
+    {
+        return c.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Color v1, Color v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Color v1, Color v2)
+    {
+        return v1.Value != v2.Value;
+    }
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color operator -(Color v1)

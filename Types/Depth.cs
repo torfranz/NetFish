@@ -16,7 +16,7 @@ public struct Depth
 
     public const int DEPTH_MAX = _.MAX_PLY;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -84,6 +84,23 @@ public struct Depth
         return new Depth(v1.Value * v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Depth d)
+    {
+        return d.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Depth v1, Depth v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Depth v1, Depth v2)
+    {
+        return v1.Value != v2.Value;
+    }
     #endregion
 
     #region extended operators

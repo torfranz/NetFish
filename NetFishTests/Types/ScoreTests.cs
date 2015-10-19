@@ -18,27 +18,27 @@ namespace Tests
             var v1 = new Score(new Score(1));
             var v2 = new Score(2);
             var v3 = v1 + v2;
-            Assert.AreEqual(3, v3.Value);
+            Assert.AreEqual(3, v3);
 
             var v4 = v3 + 1;
-            Assert.AreEqual(4, v4.Value);
+            Assert.AreEqual(4, v4);
 
             var v5 = 1 + v4;
-            Assert.AreEqual(5, v5.Value);
+            Assert.AreEqual(5, v5);
 
             var v6 = v5 - v1;
-            Assert.AreEqual(4, v6.Value);
+            Assert.AreEqual(4, v6);
 
             var v7 = v6 - 1;
-            Assert.AreEqual(3, v7.Value);
+            Assert.AreEqual(3, v7);
 
-            Assert.AreEqual(-3, -v7.Value);
+            Assert.AreEqual(-3, -v7);
 
             var v8 = v7 * 2;
-            Assert.AreEqual(6, v8.Value);
+            Assert.AreEqual(6, v8);
 
             var v9 = 2 * v8;
-            Assert.AreEqual(12, v9.Value);
+            Assert.AreEqual(12, v9);
         }
 
         [TestMethod()]
@@ -47,8 +47,8 @@ namespace Tests
             var v1 = Score.make_score(1234, 5678);
             var mg = v1.mg_value();
             var eg = v1.eg_value();
-            Assert.AreEqual(1234, mg.value);
-            Assert.AreEqual(5678, eg.value);
+            Assert.AreEqual(1234, mg);
+            Assert.AreEqual(5678, eg);
         }
     }
 }

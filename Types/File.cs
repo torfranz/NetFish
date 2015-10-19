@@ -21,7 +21,7 @@ public struct File
 
     public const int FILE_NB = 8;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -35,7 +35,7 @@ public struct File
     public File(int value)
     {
         this.Value = value;
-        Debug.Assert(this.Value >= 0 && this.Value <= 8);
+        Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
     #endregion
@@ -90,6 +90,28 @@ public struct File
         return new File(v1.Value * v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (File f)
+    {
+        return f.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(File v1, File v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(File v1, File v2)
+    {
+        return v1.Value != v2.Value;
+    }
+
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
     #endregion
 
     #region extended operators

@@ -154,7 +154,7 @@ public struct Square
 
     public const int DELTA_NW = DELTA_N + DELTA_W;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -223,6 +223,16 @@ public struct Square
         return new Square(v1.Value * v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Square s)
+    {
+        return s.Value;
+    }
+
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
     #endregion
 
     #region extended operators
@@ -245,6 +255,17 @@ public struct Square
         return new Square(c.Value ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Square v1, Square v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Square v1, Square v2)
+    {
+        return v1.Value != v2.Value;
+    }
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -263,13 +284,13 @@ public struct Square
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Square relative_square(Color c)
     {
-        return new Square(this.Value ^ (c.Value * 56));
+        return new Square(this.Value ^ (c * 56));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Square make_square(File f, Rank r)
     {
-        return new Square((r.Value << 3) | f.Value);
+        return new Square((r << 3) | f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -287,6 +308,6 @@ public struct Square
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Square pawn_push(Color c)
     {
-        return c.Value == Color.WHITE ? new Square(DELTA_N) : new Square(DELTA_S);
+        return c == Color.WHITE ? new Square(DELTA_N) : new Square(DELTA_S);
     }
 }

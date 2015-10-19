@@ -16,8 +16,8 @@ namespace Tests
         public void MakeMoveTests()
         {
             var v1 = Move.make_move(new Square(Square.SQ_A1), new Square(Square.SQ_H8));
-            Assert.AreEqual(Square.SQ_A1, v1.from_sq().Value);
-            Assert.AreEqual(Square.SQ_H8, v1.to_sq().Value);
+            Assert.AreEqual(Square.SQ_A1, v1.from_sq());
+            Assert.AreEqual(Square.SQ_H8, v1.to_sq());
             Assert.AreEqual(MoveType.NORMAL, v1.type_of());
         }
 
@@ -25,10 +25,10 @@ namespace Tests
         public void MakeTests()
         {
             var v1 = Move.make(MoveType.CASTLING, new Square(Square.SQ_A1), new Square(Square.SQ_H8), new PieceType(PieceType.BISHOP));
-            Assert.AreEqual(Square.SQ_A1, v1.from_sq().Value);
-            Assert.AreEqual(Square.SQ_H8, v1.to_sq().Value);
+            Assert.AreEqual(Square.SQ_A1, v1.from_sq());
+            Assert.AreEqual(Square.SQ_H8, v1.to_sq());
             Assert.AreEqual(MoveType.CASTLING, v1.type_of());
-            Assert.AreEqual(PieceType.BISHOP, v1.promotion_type().Value);
+            Assert.AreEqual(PieceType.BISHOP, v1.promotion_type());
         }
 
         [TestMethod()]

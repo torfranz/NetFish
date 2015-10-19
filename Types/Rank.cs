@@ -21,7 +21,7 @@ public struct Rank
 
     public const int RANK_NB = 8;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -35,7 +35,7 @@ public struct Rank
     public Rank(int value)
     {
         this.Value = value;
-        Debug.Assert(this.Value >= 0 && this.Value <= 8);
+        Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
     #endregion
@@ -90,6 +90,28 @@ public struct Rank
         return new Rank(v1.Value * v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Rank r)
+    {
+        return r.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Rank v1, Rank v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Rank v1, Rank v2)
+    {
+        return v1.Value != v2.Value;
+    }
+
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
     #endregion
 
     #region extended operators
@@ -111,7 +133,7 @@ public struct Rank
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Rank relative_rank(Color c, Rank r)
     {
-        return new Rank(r.Value ^ (c.Value * 7));
+        return new Rank(r.Value ^ (c * 7));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

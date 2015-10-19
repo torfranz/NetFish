@@ -63,25 +63,25 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard rank_bb(Rank r)
     {
-        return new Bitboard(RankBB[r.Value]);
+        return new Bitboard(RankBB[r]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard rank_bb(Square s)
     {
-        return new Bitboard(RankBB[s.rank_of().Value]);
+        return new Bitboard(RankBB[s.rank_of()]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard file_bb(File f)
     {
-        return new Bitboard(FileBB[f.Value]);
+        return new Bitboard(FileBB[f]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard file_bb(Square s)
     {
-        return new Bitboard(FileBB[s.file_of().Value]);
+        return new Bitboard(FileBB[s.file_of()]);
     }
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -89,7 +89,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard adjacent_files_bb(File f)
     {
-        return new Bitboard(AdjacentFilesBB[f.Value]);
+        return new Bitboard(AdjacentFilesBB[f]);
     }
 
     /// between_bb() returns a bitboard representing all the squares between the two
@@ -99,7 +99,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard between_bb(Square s1, Square s2)
     {
-        return new Bitboard(BetweenBB[s1.Value, s2.Value]);
+        return new Bitboard(BetweenBB[s1, s2]);
     }
 
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
@@ -108,7 +108,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard in_front_bb(Color c, Rank r)
     {
-        return new Bitboard(InFrontBB[c.Value, r.Value]);
+        return new Bitboard(InFrontBB[c, r]);
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -117,7 +117,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard forward_bb(Color c, Square s)
     {
-        return new Bitboard(ForwardBB[c.Value, s.Value]);
+        return new Bitboard(ForwardBB[c, s]);
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -127,7 +127,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return new Bitboard(PawnAttackSpan[c.Value, s.Value]);
+        return new Bitboard(PawnAttackSpan[c, s]);
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -136,7 +136,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return new Bitboard(PassedPawnMask[c.Value, s.Value]);
+        return new Bitboard(PassedPawnMask[c, s]);
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -144,7 +144,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool aligned(Square s1, Square s2, Square s3)
     {
-        return (LineBB[s1.Value, s2.Value] & s3).Value != 0;
+        return LineBB[s1, s2] & s3;
     }
 
     /// distance() functions return the distance between x and y, defined as the
@@ -152,19 +152,23 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int distance_Square(Square x, Square y)
     {
-        return SquareDistance[x.Value, y.Value];
+        return SquareDistance[x, y];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int file_distance(Square x, Square y)
     {
-        return Math.Abs(x.file_of().Value - y.file_of().Value);
+        int xFile = x.file_of();
+        int yFile = y.file_of();
+        return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int rank_distance(Square x, Square y)
     {
-        return Math.Abs(x.rank_of().Value - y.rank_of().Value);
+        int xRank = x.rank_of();
+        int yRank = y.rank_of();
+        return xRank > yRank ? xRank - yRank : yRank - xRank;
     }
 
     public static uint magic_index_Rook(Square s, Bitboard occupied)
@@ -182,31 +186,31 @@ public static class Utils
     /// looks up the index using the 'magic bitboards' approach.
     public static uint magic_index(PieceType Pt, Square s, Bitboard occupied)
     {
-        var Masks = Pt.Value == PieceType.ROOK ? RookMasks : BishopMasks;
-        var Magics = Pt.Value == PieceType.ROOK ? RookMagics : BishopMagics;
-        var Shifts = Pt.Value == PieceType.ROOK ? RookShifts : BishopShifts;
+        var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
+        var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
+        var Shifts = Pt == PieceType.ROOK ? RookShifts : BishopShifts;
 
 #if X64
-        return (uint)(((occupied.Value & Masks[s.Value].Value) * Magics[s.Value].Value) >> (int)Shifts[s.Value]);
+        return (uint)((((occupied & Masks[s.Value]) * Magics[s.Value]) >> (int)Shifts[s.Value]).Value;
 #else
 
-        var lo = (uint)(occupied.Value) & (uint)(Masks[s.Value].Value);
-        var hi = (uint)(occupied.Value >> 32) & (uint)(Masks[s.Value].Value >> 32);
-        return (lo * (uint)(Magics[s.Value].Value) ^ hi * (uint)(Magics[s.Value].Value >> 32)) >> (int)Shifts[s.Value];
+        var lo = (uint)((occupied & Masks[s]));
+        var hi = (uint)((occupied >> 32) & (Masks[s] >> 32));
+        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> (int)Shifts[s];
 #endif
     }
 
     public static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
-        return Pt.Value == PieceType.ROOK
-                   ? RookAttacks[s.Value][magic_index(Pt, s, occupied)]
-                   : BishopAttacks[s.Value][magic_index(Pt, s, occupied)];
+        return Pt == PieceType.ROOK
+                   ? RookAttacks[s][magic_index(Pt, s, occupied)]
+                   : BishopAttacks[s][magic_index(Pt, s, occupied)];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
-        switch (pc.type_of().Value)
+        switch (pc.type_of())
         {
             case PieceType.BISHOP:
                 return attacks_bb(new PieceType(PieceType.BISHOP), s, occupied);
@@ -214,11 +218,10 @@ public static class Utils
                 return attacks_bb(new PieceType(PieceType.ROOK), s, occupied);
             case PieceType.QUEEN:
                 return
-                    new Bitboard(
-                        attacks_bb(new PieceType(PieceType.BISHOP), s, occupied).Value
-                        | attacks_bb(new PieceType(PieceType.ROOK), s, occupied).Value);
+                    attacks_bb(new PieceType(PieceType.BISHOP), s, occupied)
+                  | attacks_bb(new PieceType(PieceType.ROOK), s, occupied);
             default:
-                return StepAttacksBB[pc.Value, s.Value];
+                return StepAttacksBB[pc, s];
         }
     }
 
@@ -227,7 +230,7 @@ public static class Utils
 
     public static uint bsf_index(Bitboard b)
     {
-        var value = b.Value;
+        ulong value = b;
         value ^= value - 1;
 #if X64
         return (uint)((value * DeBruijn64) >> 58);
@@ -243,7 +246,7 @@ public static class Utils
 
     private static Square msb(Bitboard b)
     {
-        var value = b.Value;
+        ulong value = b;
         uint b32;
         var result = 0;
 
@@ -276,7 +279,7 @@ public static class Utils
     {
         var s = lsb(b);
 
-        var value = b.Value;
+        ulong value = b;
         value &= value - 1;
         b = new Bitboard(value);
         return s;
@@ -287,12 +290,12 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Square frontmost_sq(Color c, Bitboard b)
     {
-        return c.Value == Color.WHITE ? msb(b) : lsb(b);
+        return c == Color.WHITE ? msb(b) : lsb(b);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Square backmost_sq(Color c, Bitboard b)
     {
-        return c.Value == Color.WHITE ? lsb(b) : msb(b);
+        return c == Color.WHITE ? lsb(b) : msb(b);
     }
 }

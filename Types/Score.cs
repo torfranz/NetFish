@@ -7,7 +7,7 @@ public struct Score
 {
     public const int SCORE_ZERO = 0;
 
-    public int Value { get; }
+    private int Value { get; }
 
     #region constructors
 
@@ -74,6 +74,23 @@ public struct Score
         return new Score(v1.Value * v2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Score s)
+    {
+        return s.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Score v1, Score v2)
+    {
+        return v1.Value == v2.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Score v1, Score v2)
+    {
+        return v1.Value != v2.Value;
+    }
     #endregion
 
     #region extended operators
@@ -110,11 +127,5 @@ public struct Score
     public static Score make_score(int mg, int eg)
     {
         return new Score((mg << 16) + eg);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Score make_score(Value mg, Value eg)
-    {
-        return make_score(mg.value, eg.value);
     }
 }

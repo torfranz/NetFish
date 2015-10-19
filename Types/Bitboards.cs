@@ -17,28 +17,27 @@ public static class Bitboards
 
         for (var f = File.FILE_A; f <= File.FILE_H; ++f)
         {
-            Utils.FileBB[f] = new Bitboard(f > File.FILE_A ? Utils.FileBB[f - 1].Value << 1 : Bitboard.FileABB);
+            Utils.FileBB[f] = f > File.FILE_A ? Utils.FileBB[f - 1] << 1 : new Bitboard(Bitboard.FileABB);
         }
 
         for (var r = Rank.RANK_1; r <= Rank.RANK_8; ++r)
         {
-            Utils.RankBB[r] = new Bitboard(r > Rank.RANK_1 ? Utils.RankBB[r - 1].Value << 8 : Bitboard.Rank1BB);
+            Utils.RankBB[r] = r > Rank.RANK_1 ? Utils.RankBB[r - 1] << 8 : new Bitboard(Bitboard.Rank1BB);
         }
 
         for (var f = File.FILE_A; f <= File.FILE_H; ++f)
         {
             Utils.AdjacentFilesBB[f] =
-                new Bitboard(
-                    (f > File.FILE_A ? Utils.FileBB[f - 1] : new Bitboard(0)).Value
-                    | (f < File.FILE_H ? Utils.FileBB[f + 1] : new Bitboard(0)).Value);
+                      (f > File.FILE_A ? Utils.FileBB[f - 1] : new Bitboard(0))
+                    | (f < File.FILE_H ? Utils.FileBB[f + 1] : new Bitboard(0));
         }
 
         for (var r = Rank.RANK_1; r < Rank.RANK_8; ++r)
         {
             var value =
                 (Utils.InFrontBB[Color.BLACK, r + 1] =
-                 new Bitboard(Utils.InFrontBB[Color.BLACK, r].Value | Utils.RankBB[r].Value));
-            Utils.InFrontBB[Color.WHITE, r] = new Bitboard(~value.Value);
+                 Utils.InFrontBB[Color.BLACK, r] | Utils.RankBB[r]);
+            Utils.InFrontBB[Color.WHITE, r] = ~value;
         }
 
         for (var c = Color.WHITE; c <= Color.BLACK; ++c)
@@ -46,15 +45,12 @@ public static class Bitboards
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 Utils.ForwardBB[c, s] =
-                    new Bitboard(
-                        Utils.InFrontBB[c, new Square(s).rank_of().Value].Value
-                        & Utils.FileBB[new Square(s).file_of().Value].Value);
+                      Utils.InFrontBB[c, new Square(s).rank_of()]
+                    & Utils.FileBB[new Square(s).file_of()];
                 Utils.PawnAttackSpan[c, s] =
-                    new Bitboard(
-                        Utils.InFrontBB[c, new Square(s).rank_of().Value].Value
-                        & Utils.AdjacentFilesBB[new Square(s).file_of().Value].Value);
-                Utils.PassedPawnMask[c, s] = new Bitboard(
-                    Utils.ForwardBB[c, s].Value | Utils.PawnAttackSpan[c, s].Value);
+                      Utils.InFrontBB[c, new Square(s).rank_of()]
+                    & Utils.AdjacentFilesBB[new Square(s).file_of()];
+                Utils.PassedPawnMask[c, s] = Utils.ForwardBB[c, s] | Utils.PawnAttackSpan[c, s];
             }
         }
 
@@ -92,7 +88,7 @@ public static class Bitboards
 
                         if (to.is_ok() && Utils.distance_Square(new Square(s), to) < 3)
                         {
-                            Utils.StepAttacksBB[Piece.make_piece(new Color(c), new PieceType(pt)).Value, s] |= to;
+                            Utils.StepAttacksBB[Piece.make_piece(new Color(c), new PieceType(pt)), s] |= to;
                         }
                     }
                 }
@@ -133,24 +129,21 @@ public static class Bitboards
             var bb =
                 Utils.PseudoAttacks[PieceType.ROOK, s1] =
                 Utils.attacks_bb(new PieceType(PieceType.ROOK), new Square(s1), new Bitboard(0));
-            Utils.PseudoAttacks[PieceType.QUEEN, s1] =
-                new Bitboard(Utils.PseudoAttacks[PieceType.QUEEN, s1].Value | bb.Value);
+            Utils.PseudoAttacks[PieceType.QUEEN, s1] = Utils.PseudoAttacks[PieceType.QUEEN, s1] | bb;
 
             for (var pc = Piece.W_BISHOP; pc <= Piece.W_ROOK; ++pc)
             {
                 for (var s2 = Square.SQ_A1; s2 <= Square.SQ_H8; ++s2)
                 {
-                    if ((Utils.PseudoAttacks[pc, s1] & new Square(s2)).Value == 0)
+                    if (!(Utils.PseudoAttacks[pc, s1] & new Square(s2)))
                     {
                         continue;
                     }
 
                     Utils.LineBB[s1, s2] =
-                        new Bitboard((Utils.attacks_bb(new PieceType(pc), new Square(s1), new Bitboard(0)).Value & Utils.attacks_bb(new PieceType(pc), new Square(s2), new Bitboard(0)).Value)) | new Square(s1) | new Square(s2);
+                        (Utils.attacks_bb(new PieceType(pc), new Square(s1), new Bitboard(0)) & Utils.attacks_bb(new PieceType(pc), new Square(s2), new Bitboard(0))) | new Square(s1) | new Square(s2);
                     Utils.BetweenBB[s1, s2] =
-                        new Bitboard(
-                            Utils.attacks_bb(new PieceType(pc), new Square(s1), Utils.SquareBB[s2]).Value
-                            & Utils.attacks_bb(new PieceType(pc), new Square(s2), Utils.SquareBB[s1]).Value);
+                        Utils.attacks_bb(new PieceType(pc), new Square(s1), Utils.SquareBB[s2]) & Utils.attacks_bb(new PieceType(pc), new Square(s2), Utils.SquareBB[s1]);
                 }
             }
         }
@@ -166,7 +159,7 @@ public static class Bitboards
             {
                 attack |= s;
 
-                if ((occupied & s).Value != 0)
+                if (occupied & s)
                 {
                     break;
                 }
@@ -200,43 +193,43 @@ public static class Bitboards
 
         var age = new int[4096];
         int current = 0, i;
-        ulong edges;
+        Bitboard edges;
 
         for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
         {
             // Board edges are not considered in the relevant occupancies
-            edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb(new Square(s)).Value)
-                    | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb(new Square(s)).Value);
+            edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb(new Square(s))
+                    | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb(new Square(s))));
 
             // Given a square 's', the mask is the bitboard of sliding attacks from
             // 's' computed on an empty board. The index must be big enough to contain
             // all the attacks for each possible subset of the mask and so is 2 power
             // the number of 1s of the mask. Hence we deduce the size of the shift to
             // apply to the 64 or 32 bits word to get the index.
-            masks[s] = new Bitboard(sliding_attack(deltas, new Square(s), new Bitboard(0)).Value & ~edges);
+            masks[s] = sliding_attack(deltas, new Square(s), new Bitboard(0)) & ~edges;
 
 #if X64
-            shifts[s] = (uint)(64 - Bitcount.popcount_Max15(masks[s].Value));
+            shifts[s] = (uint)(64 - Bitcount.popcount_Max15(masks[s]));
 #else
-            shifts[s] = (uint)(32 - Bitcount.popcount_Max15(masks[s].Value));
+            shifts[s] = (uint)(32 - Bitcount.popcount_Max15(masks[s]));
 #endif
 
             // Use Carry-Rippler trick to enumerate all subsets of masks[s] and
             // store the corresponding sliding attack bitboard in reference[].
-            ulong b = 0;
+            Bitboard b = new Bitboard(0);
             var size = 0;
             do
             {
-                occupancy[size] = new Bitboard(b);
+                occupancy[size] = b;
                 reference[size] = sliding_attack(deltas, new Square(s), new Bitboard(b));
 
                 // if (HasPext)
                 // attacks[s][pext(b, masks[s])] = reference[size];
 
                 size++;
-                b = (b - masks[s].Value) & masks[s].Value;
+                b = (b - masks[s]) & masks[s];
             }
-            while (b != 0);
+            while (b);
 
             // Set the offset for the table of the next square. We have individual
             // table sizes for each square with "Fancy Magic Bitboards".
@@ -245,7 +238,7 @@ public static class Bitboards
             // if (HasPext)
             //  continue;
 
-            var rankValue = new Square(s).rank_of().Value;
+            var rankValue = new Square(s).rank_of();
 #if X64
             var rng = new PRNG((ulong)seeds[1][rankValue]);
 #else
@@ -257,7 +250,7 @@ public static class Bitboards
             do
             {
                 do magics[s] = new Bitboard(rng.sparse_rand());
-                while (Bitcount.popcount_Max15((magics[s].Value * masks[s].Value) >> 56) < 6);
+                while (Bitcount.popcount_Max15((magics[s] * masks[s]) >> 56) < 6);
 
                 Array.Clear(attacks[s], 0, size);
 
@@ -274,7 +267,7 @@ public static class Bitboards
                         age[idx] = current;
                         attacks[s][idx] = reference[i];
                     }
-                    else if (attacks[s][idx].Value != reference[i].Value)
+                    else if (attacks[s][idx] != reference[i])
                     {
                         break;
                     }

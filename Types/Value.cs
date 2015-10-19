@@ -30,7 +30,7 @@ public struct Value
 
     public const int MidgameLimit = 15581, EndgameLimit = 3998;
 
-    public int value { get; }
+    private int value { get; }
 
     #region constructors
 
@@ -97,7 +97,23 @@ public struct Value
     {
         return new Value(v1.value * v2);
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Value v)
+    {
+        return v.value;
+    }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Value v1, Value v2)
+    {
+        return v1.value == v2.value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Value v1, Value v2)
+    {
+        return v1.value != v2.value;
+    }
     #endregion
 
     #region extended operators

@@ -18,19 +18,19 @@ namespace Tests
             var v1 = new PieceType(new PieceType(1));
             var v2 = new PieceType(2);
             var v3 = v1 + v2;
-            Assert.AreEqual(3, v3.Value);
+            Assert.AreEqual(3, v3);
 
             var v4 = v3 + 1;
-            Assert.AreEqual(4, v4.Value);
+            Assert.AreEqual(4, v4);
 
             var v5 = 1 + v4;
-            Assert.AreEqual(5, v5.Value);
+            Assert.AreEqual(5, v5);
 
             var v6 = v5 - v1;
-            Assert.AreEqual(4, v6.Value);
+            Assert.AreEqual(4, v6);
 
             var v7 = v6 - 1;
-            Assert.AreEqual(3, v7.Value);
+            Assert.AreEqual(3, v7);
 
             /*
             Assert.AreEqual(-3, -v7.Value);

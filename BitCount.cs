@@ -39,7 +39,7 @@ public static class Bitcount
         v = ((v >> 2) & 0x33333333) + (v & 0x33333333); // 0-4 in 4 bits
         w = ((w >> 2) & 0x33333333) + (w & 0x33333333);
         v = ((v >> 4) + v + (w >> 4) + w) & 0x0F0F0F0F;
-        return (int)(v * 0x01010101) >> 24;
+        return (int)((v * 0x01010101) >> 24);
 #endif
     }
 
