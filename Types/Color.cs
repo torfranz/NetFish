@@ -22,6 +22,12 @@ public struct Color
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Color(uint value)
+        : this((int)value)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Color(int value)
     {
         this.Value = value;

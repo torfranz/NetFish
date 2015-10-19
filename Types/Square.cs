@@ -165,6 +165,12 @@ public struct Square
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Square(uint value)
+        : this((int)value)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Square(int value)
     {
         this.Value = value;

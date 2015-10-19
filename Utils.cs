@@ -275,7 +275,7 @@ public static class Utils
 
     /// pop_lsb() finds and clears the least significant bit in a non-zero bitboard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Square pop_lsb(ref Bitboard b)
+    public static Square pop_lsb(ref Bitboard b)
     {
         var s = lsb(b);
 

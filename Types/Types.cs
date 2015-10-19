@@ -24,6 +24,14 @@ internal struct _
     internal const int MAX_PLY = 128;
 }
 
+public enum Result
+{
+    INVALID = 0,
+    UNKNOWN = 1,
+    DRAW = 2,
+    WIN = 4
+};
+
 public enum MoveType
 {
     NORMAL,

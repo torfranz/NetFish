@@ -32,6 +32,12 @@ public struct File
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public File(uint value)
+        : this((int)value)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public File(int value)
     {
         this.Value = value;

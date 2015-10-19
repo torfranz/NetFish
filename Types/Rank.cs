@@ -32,6 +32,12 @@ public struct Rank
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rank(uint value)
+        : this((int)value)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rank(int value)
     {
         this.Value = value;
