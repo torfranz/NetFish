@@ -44,9 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitCount.cs" />
+    <Compile Include="PRNG.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\Bitboard.cs" />
+    <Compile Include="Types\Bitboards.cs" />
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />
     <Compile Include="Types\Rank.cs" />

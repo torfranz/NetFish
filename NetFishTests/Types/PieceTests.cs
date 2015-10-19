@@ -49,26 +49,26 @@ namespace Tests
         }
 
         [TestMethod()]
-        public void ConstructorTest()
+        public void MakePieceTest()
         {
-            var v1 = new Piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
             Assert.AreEqual(Piece.W_BISHOP, v1.Value);
 
-            var v2 = new Piece(new Color(Color.BLACK), new PieceType(PieceType.KNIGHT));
+            var v2 = Piece.make_piece(new Color(Color.BLACK), new PieceType(PieceType.KNIGHT));
             Assert.AreEqual(Piece.B_KNIGHT, v2.Value);
         }
 
         [TestMethod()]
         public void TypeOfTests()
         {
-            var v1 = new Piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
             Assert.AreEqual(PieceType.BISHOP, v1.type_of().Value);
         }
 
         [TestMethod()]
         public void ColorOfTests()
         {
-            var v1 = new Piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
             Assert.AreEqual(Color.WHITE, v1.color_of().Value);
         }
     }

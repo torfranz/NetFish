@@ -158,6 +158,16 @@ static class Utils
         return Math.Abs(x.rank_of().Value - y.rank_of().Value);
     }
 
+    public static uint magic_index_Rook(Square s, Bitboard occupied)
+    {
+        return magic_index(new PieceType(PieceType.ROOK), s, occupied);
+    }
+
+    public static uint magic_index_Bishop(Square s, Bitboard occupied)
+    {
+        return magic_index(new PieceType(PieceType.BISHOP), s, occupied);
+    }
+
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
@@ -200,17 +210,17 @@ static class Utils
     const ulong DeBruijn64 = 0x3F79D71B4CB0A89UL;
     const ulong DeBruijn32 = 0x783A9B23;
 
-    static int[] MSBTable = new int[256];            // To implement software msb()
-    static Square[] BSFTable = new Square[Square.SQUARE_NB];   // To implement software bitscan
-    static Bitboard[] RookTable = new Bitboard[0x19000];  // To store rook attacks
-    static Bitboard[] BishopTable = new Bitboard[0x1480]; // To store bishop attacks
+    public static int[] MSBTable = new int[256];            // To implement software msb()
+    public static Square[] BSFTable = new Square[Square.SQUARE_NB];   // To implement software bitscan
+    public static Bitboard[] RookTable = new Bitboard[0x19000];  // To store rook attacks
+    public static Bitboard[] BishopTable = new Bitboard[0x1480]; // To store bishop attacks
 
-    internal delegate uint Fn(Square s, Bitboard occ);
-    
+    public delegate uint Fn(Square s, Bitboard occ);
+
     // bsf_index() returns the index into BSFTable[] to look up the bitscan. Uses
     // Matt Taylor's folding for 32 bit case, extended to 64 bit by Kim Walisch.
 
-    static uint bsf_index(Bitboard b)
+    public static uint bsf_index(Bitboard b)
     {
         var value = b.Value;
         value ^= value - 1;

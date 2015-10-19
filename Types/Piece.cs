@@ -51,12 +51,6 @@ public struct Piece
         Debug.Assert(this.Value != 15);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Piece(Color c, PieceType pt)
-        : this((c.Value << 3) | pt.Value)
-    {
-    }
-
     #endregion
 
     #region base operators
@@ -139,5 +133,11 @@ public struct Piece
     public Color color_of()
     {
         return new Color(this.Value >> 3);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static public Piece make_piece(Color c, PieceType pt)
+    {
+        return new Piece((c.Value << 3) | pt.Value);
     }
 }
