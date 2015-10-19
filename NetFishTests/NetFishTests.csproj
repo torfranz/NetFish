@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="BitcountTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\BitbasesTests.cs" />
     <Compile Include="Types\BitboardsTest.cs" />
     <Compile Include="Types\ColorTests.cs" />
     <Compile Include="Types\MoveTests.cs" />

@@ -46,7 +46,7 @@ public class KPKPosition
         return position.result;
     }
 
-    Result classify(KPKPosition[] db)
+    public Result classify(KPKPosition[] db)
     {
         return us == Color.WHITE ? classify(new Color(Color.WHITE), db) : classify(new Color(Color.BLACK), db);
     }
@@ -71,44 +71,24 @@ public class KPKPosition
         Bitboard b = Utils.StepAttacksBB[PieceType.KING, ksq[Us]];
 
         while (b)
-            r |= Us == Color.WHITE ? db[index(Them, ksq[Them], Utils.pop_lsb(ref b), psq)]
-                             : db[index(Them, Utils.pop_lsb(ref b), ksq[Them], psq)];
+            r |= Us == Color.WHITE ? db[Bitbases.index(Them, ksq[Them], Utils.pop_lsb(ref b), psq)]
+                             : db[Bitbases.index(Them, Utils.pop_lsb(ref b), ksq[Them], psq)];
 
         if (Us == Color.WHITE)
         {
             if (psq.rank_of() < Rank.RANK_7)      // Single push
-                r |= db[index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N)];
+                r |= db[Bitbases.index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N)];
 
             if (psq.rank_of() == Rank.RANK_2   // Double push
                 && psq + Square.DELTA_N != ksq[Us]
                 && psq + Square.DELTA_N != ksq[Them])
-                r |= db[index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N + Square.DELTA_N)];
+                r |= db[Bitbases.index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N + Square.DELTA_N)];
         }
 
         return result = (r & Good) != 0 ? Good : (r & Result.UNKNOWN) != 0 ? Result.UNKNOWN : Bad;
     }
 
-    // There are 24 possible pawn squares: the first 4 files and ranks from 2 to 7
-    const uint MAX_INDEX = 2 * 24 * 64 * 64; // stm * psq * wksq * bksq = 196608
-
-    // Each uint32_t stores results of 32 positions, one per bit
-    static public uint[] KPKBitbase = new uint[MAX_INDEX / 32];
-
-    // A KPK bitbase index is an integer in [0, IndexMax] range
-    //
-    // Information is mapped in a way that minimizes the number of iterations:
-    //
-    // bit  0- 5: white king square (from SQ_A1 to SQ_H8)
-    // bit  6-11: black king square (from SQ_A1 to SQ_H8)
-    // bit    12: side to move (WHITE or BLACK)
-    // bit 13-14: white pawn file (from FILE_A to FILE_D)
-    // bit 15-17: white pawn RANK_7 - rank (from RANK_7 - RANK_7 to RANK_7 - RANK_2)
-    uint index(Color us, Square bksq, Square wksq, Square psq)
-    {
-        return (uint)(wksq | (bksq << 6) | (us << 12) | (psq.file_of() << 13) | ((new Rank(Rank.RANK_7) - psq.rank_of()) << 15));
-    }
-
-    private Color us;
+        private Color us;
     private Square[] ksq = new Square[Color.COLOR_NB];
     private Square psq;
     private Result result;
