@@ -17,7 +17,7 @@ using Result = System.Int32;
 using ScaleFactor = System.Int32;
 using Phase = System.Int32;
 
-internal static class Bitcount
+public static class Bitcount
 {
     /// count_1s() counts the number of nonzero bits in a bitboard.
     /// We have different optimized versions according if platform
@@ -25,13 +25,13 @@ internal static class Bitcount
     /// We also support hardware popcnt instruction. See Readme.txt
     /// on how to pgo compile with popcnt support.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static int popcount_Full(ulong b)
+    public static int popcount_Full(ulong b)
     {
 #if X64
             b -=  (b >> 1) & 0x5555555555555555UL;
          b  = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
         b  = ((b >> 4) + b) & 0x0F0F0F0F0F0F0F0FUL;
-         return (int)(b * 0x0101010101010101UL) >> 56;
+         return (int)((b * 0x0101010101010101UL) >> 56);
 #else
         uint w = (uint)(b >> 32), v = (uint)b;
         v -= (v >> 1) & 0x55555555; // 0-2 in 2 bits
@@ -44,7 +44,7 @@ internal static class Bitcount
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static int popcount_Max15(ulong b)
+    public static int popcount_Max15(ulong b)
     {
 #if X64
             b -=  (b >> 1) & 0x5555555555555555UL;
@@ -60,4 +60,3 @@ internal static class Bitcount
 #endif
     }
 }
-

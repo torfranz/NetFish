@@ -136,7 +136,7 @@ public struct Piece
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static public Piece make_piece(Color c, PieceType pt)
+    public static Piece make_piece(Color c, PieceType pt)
     {
         return new Piece((c.Value << 3) | pt.Value);
     }
