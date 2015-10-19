@@ -37,26 +37,33 @@ using System.Diagnostics;
     
     public static void init()
     {
-
         KPKPosition[] db = new KPKPosition[MAX_INDEX];
         uint idx, repeat = 1;
 
         // Initialize db with known win / draw positions
         for (idx = 0; idx < MAX_INDEX; ++idx)
+        {
             db[idx] = new KPKPosition(idx);
+        }
 
         // Iterate through the positions until none of the unknown positions can be
         // changed to either wins or draws (15 cycles needed).
         while (repeat != 0)
+        {
             for (repeat = idx = 0; idx < MAX_INDEX; ++idx)
             {
                 repeat |= ((db[idx] == Result.UNKNOWN && db[idx].classify(db) != Result.UNKNOWN)) ? 1u : 0;
             }
+        }
 
         // Map 32 results into one KPKBitbase[] entry
         for (idx = 0; idx < MAX_INDEX; ++idx)
+        {
             if (db[idx] == Result.WIN)
+            {
                 KPKBitbase[idx / 32] |= (uint)(1 << (int)(idx & 0x1F));
+            }
+        }
     }
 }
 

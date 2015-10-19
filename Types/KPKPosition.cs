@@ -89,7 +89,7 @@ public class KPKPosition
     }
 
         private Color us;
-    private Square[] ksq = new Square[Color.COLOR_NB];
-    private Square psq;
-    private Result result;
+        private Square[] ksq = new Square[Color.COLOR_NB];
+        private Square psq;
+        private Result result;
   };
