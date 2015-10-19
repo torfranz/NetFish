@@ -56,7 +56,7 @@ internal static class Bitcount
         w -= (w >> 1) & 0x55555555;
         v = ((v >> 2) & 0x33333333) + (v & 0x33333333); // 0-4 in 4 bits
         w = ((w >> 2) & 0x33333333) + (w & 0x33333333);
-        return (int)((v + w) * 0x11111111) >> 28;
+        return (int)(((v + w) * 0x11111111) >> 28);
 #endif
     }
 }

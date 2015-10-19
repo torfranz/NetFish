@@ -169,7 +169,7 @@ public struct Square
     public Square(int value)
     {
         this.Value = value;
-        Debug.Assert(this.Value >= -9 && this.Value <= 64);
+        // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
     #endregion

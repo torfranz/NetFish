@@ -11,12 +11,12 @@ static class Utils
 
     public static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB];
     public static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB];
-    public static List<Bitboard[]> RookAttacks = new List<Bitboard[]>();
+    public static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB][];
     public static uint[] RookShifts = new uint[Square.SQUARE_NB];
 
     public static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB];
     public static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB];
-    public static List<Bitboard[]> BishopAttacks = new List<Bitboard[]>();
+    public static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB][];
     public static uint[] BishopShifts = new uint[Square.SQUARE_NB];
 
     public static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB];

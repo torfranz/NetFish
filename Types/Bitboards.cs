@@ -48,7 +48,7 @@ using System.Threading.Tasks;
                     Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] |= new Square(s2);
                 }
 
-        int[][] steps = new[]{
+        int[][] steps = {
             new []{0, 0, 0, 0, 0, 0, 0, 0, 0},
             new []{7, 9, 0, 0, 0, 0, 0, 0, 0 },
             new []{17, 15, 10, 6, -6, -10, -15, -17, 0 },
@@ -117,7 +117,7 @@ using System.Threading.Tasks;
     // chessprogramming.wikispaces.com/Magic+Bitboards. In particular, here we
     // use the so called "fancy" approach.
 
-    static void init_magics(Bitboard[] table, List<Bitboard[]> attacks, Bitboard[] magics,
+    static void init_magics(Bitboard[] table, Bitboard[][] attacks, Bitboard[] magics,
                      Bitboard[] masks, uint[] shifts, Square[] deltas, Utils.Fn index)
     {
 
@@ -130,9 +130,6 @@ using System.Threading.Tasks;
         var age = new int[4096];
         int current = 0, i;
         ulong edges;
-
-    // attacks[s] is a pointer to the beginning of the attacks table for square 's'
-    attacks[Square.SQ_A1] = table;
 
     for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
     {
@@ -169,8 +166,7 @@ using System.Threading.Tasks;
 
             // Set the offset for the table of the next square. We have individual
             // table sizes for each square with "Fancy Magic Bitboards".
-            if (s < Square.SQ_H8)
-                attacks[s + 1] = attacks[s + size];
+            attacks[s] = new Bitboard[size];
 
             // if (HasPext)
             //  continue;
@@ -188,6 +184,8 @@ using System.Threading.Tasks;
                 do
                     magics[s] = new Bitboard(rng.sparse_rand());
                 while (Bitcount.popcount_Max15((magics[s].Value * masks[s].Value) >> 56) < 6);
+
+                Array.Clear(attacks[s], 0, size);
 
                 // A good magic must map every possible occupancy to an index that
                 // looks up the correct sliding attack in the attacks[s] database.
