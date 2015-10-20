@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 public static class Utils
 {
@@ -294,5 +297,57 @@ public static class Utils
     private static Square backmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
+    }
+
+    /// engine_info() returns the full name of the current Stockfish version.
+    /// This will be either "Portfish YYMMDD" (where YYMMDD is the date when
+    /// the program was compiled) or "Portfish
+    /// <version number>
+    ///     ", depending
+    ///     on whether Version is empty.
+    public static string engine_info(bool to_uci = false)
+    {
+#if X64
+        const string cpu64 = " 64bit";
+#else
+        const string cpu64 = "";
+#endif
+    // Assembly and file version
+        var assembly = Assembly.GetExecutingAssembly();
+        Version fileVersion = null;
+        var attribs = assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
+        if (attribs.Length > 0)
+        {
+            var fileVersionRaw = (AssemblyFileVersionAttribute)(attribs[0]);
+            fileVersion = new Version(fileVersionRaw.Version);
+        }
+
+        // Extract version/build date
+        var fullName = assembly.FullName;
+        var vspos = fullName.IndexOf("Version=");
+        var vepos = fullName.IndexOf(",", vspos);
+        var versionRaw = fullName.Substring(vspos + 8, vepos - vspos - 8);
+        var version = new Version(versionRaw);
+        var buildDateTime =
+            new DateTime(2000, 1, 1).Add(
+                new TimeSpan(
+                    TimeSpan.TicksPerDay * version.Build + // days since 1 January 2000
+                    TimeSpan.TicksPerSecond * 2 * version.Revision));
+        // seconds since midnight, (multiply by 2 to get original)
+
+        // Get version info
+        var versionInfo = buildDateTime.Year + buildDateTime.Month.ToString().PadLeft(2, '0')
+                          + buildDateTime.Day.ToString().PadLeft(2, '0');
+        if (fileVersion != null)
+        {
+            versionInfo = fileVersion.ToString();
+        }
+
+        // Create version
+        var sb = new StringBuilder();
+        sb.Append("Netfish ").Append(versionInfo).Append(cpu64);
+        sb.Append(to_uci ? "\nid author " : " by ")
+            .Append("TF");
+        return sb.ToString();
     }
 }
