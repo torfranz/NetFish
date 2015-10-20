@@ -3,33 +3,27 @@ using System.Runtime.CompilerServices;
 
 public struct Rank
 {
-    public const int RANK_1 = 0;
+    public static Rank RANK_1 = new Rank(0);
 
-    public const int RANK_2 = 1;
+    public static Rank RANK_2 = new Rank(1);
 
-    public const int RANK_3 = 2;
+    public static Rank RANK_3 = new Rank(2);
 
-    public const int RANK_4 = 3;
+    public static Rank RANK_4 = new Rank(3);
 
-    public const int RANK_5 = 4;
+    public static Rank RANK_5 = new Rank(4);
 
-    public const int RANK_6 = 5;
+    public static Rank RANK_6 = new Rank(5);
 
-    public const int RANK_7 = 6;
+    public static Rank RANK_7 = new Rank(6);
 
-    public const int RANK_8 = 7;
+    public static Rank RANK_8 = new Rank(7);
 
-    public const int RANK_NB = 8;
+    public static Rank RANK_NB = new Rank(8);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Rank(Rank rank)
-        : this(rank.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Rank(uint value)
@@ -97,7 +91,7 @@ public struct Rank
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Rank r)
+    public static implicit operator int(Rank r)
     {
         return r.Value;
     }
@@ -114,10 +108,17 @@ public struct Rank
         return v1.Value != v2.Value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Rank operator ++(Rank v1)
+    {
+        return new Rank(v1.Value + 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
     }
+
     #endregion
 
     #region extended operators

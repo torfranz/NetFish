@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 public static class Utils
 {
@@ -63,25 +62,25 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard rank_bb(Rank r)
     {
-        return new Bitboard(RankBB[r]);
+        return RankBB[r];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard rank_bb(Square s)
     {
-        return new Bitboard(RankBB[s.rank_of()]);
+        return RankBB[s.rank_of()];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard file_bb(File f)
     {
-        return new Bitboard(FileBB[f]);
+        return FileBB[f];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard file_bb(Square s)
     {
-        return new Bitboard(FileBB[s.file_of()]);
+        return FileBB[s.file_of()];
     }
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -89,7 +88,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard adjacent_files_bb(File f)
     {
-        return new Bitboard(AdjacentFilesBB[f]);
+        return AdjacentFilesBB[f];
     }
 
     /// between_bb() returns a bitboard representing all the squares between the two
@@ -99,7 +98,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard between_bb(Square s1, Square s2)
     {
-        return new Bitboard(BetweenBB[s1, s2]);
+        return BetweenBB[s1, s2];
     }
 
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
@@ -108,7 +107,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard in_front_bb(Color c, Rank r)
     {
-        return new Bitboard(InFrontBB[c, r]);
+        return InFrontBB[c, r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -117,7 +116,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard forward_bb(Color c, Square s)
     {
-        return new Bitboard(ForwardBB[c, s]);
+        return ForwardBB[c, s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -127,7 +126,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return new Bitboard(PawnAttackSpan[c, s]);
+        return PawnAttackSpan[c, s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -136,7 +135,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return new Bitboard(PassedPawnMask[c, s]);
+        return PassedPawnMask[c, s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -173,12 +172,12 @@ public static class Utils
 
     public static uint magic_index_Rook(Square s, Bitboard occupied)
     {
-        return magic_index(new PieceType(PieceType.ROOK), s, occupied);
+        return magic_index(PieceType.ROOK, s, occupied);
     }
 
     public static uint magic_index_Bishop(Square s, Bitboard occupied)
     {
-        return magic_index(new PieceType(PieceType.BISHOP), s, occupied);
+        return magic_index(PieceType.BISHOP, s, occupied);
     }
 
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
@@ -212,14 +211,12 @@ public static class Utils
     {
         switch (pc.type_of())
         {
-            case PieceType.BISHOP:
-                return attacks_bb(new PieceType(PieceType.BISHOP), s, occupied);
-            case PieceType.ROOK:
-                return attacks_bb(new PieceType(PieceType.ROOK), s, occupied);
-            case PieceType.QUEEN:
-                return
-                    attacks_bb(new PieceType(PieceType.BISHOP), s, occupied)
-                  | attacks_bb(new PieceType(PieceType.ROOK), s, occupied);
+            case PieceType.BISHOP_C:
+                return attacks_bb(PieceType.BISHOP, s, occupied);
+            case PieceType.ROOK_C:
+                return attacks_bb(PieceType.ROOK, s, occupied);
+            case PieceType.QUEEN_C:
+                return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
             default:
                 return StepAttacksBB[pc, s];
         }

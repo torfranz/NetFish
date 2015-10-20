@@ -15,8 +15,8 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new Rank(new Rank(1));
-            var v2 = new Rank(2);
+            var v1 = Rank.RANK_2;
+            var v2 = Rank.RANK_3;
             var v3 = v1 + v2;
             Assert.AreEqual(3, v3);
 

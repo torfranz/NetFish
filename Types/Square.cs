@@ -2,157 +2,157 @@
 
 public struct Square
 {
-    public const int SQ_A1 = 0;
+    public static Square SQ_A1 = new Square(0);
 
-    public const int SQ_B1 = 1;
+    public static Square SQ_B1 = new Square(1);
 
-    public const int SQ_C1 = 2;
+    public static Square SQ_C1 = new Square(2);
 
-    public const int SQ_D1 = 3;
+    public static Square SQ_D1 = new Square(3);
 
-    public const int SQ_E1 = 4;
+    public static Square SQ_E1 = new Square(4);
 
-    public const int SQ_F1 = 5;
+    public static Square SQ_F1 = new Square(5);
 
-    public const int SQ_G1 = 6;
+    public static Square SQ_G1 = new Square(6);
 
-    public const int SQ_H1 = 7;
+    public static Square SQ_H1 = new Square(7);
 
-    public const int SQ_A2 = 8;
+    public static Square SQ_A2 = new Square(8);
 
-    public const int SQ_B2 = 9;
+    public static Square SQ_B2 = new Square(9);
 
-    public const int SQ_C2 = 10;
+    public static Square SQ_C2 = new Square(10);
 
-    public const int SQ_D2 = 11;
+    public static Square SQ_D2 = new Square(11);
 
-    public const int SQ_E2 = 12;
+    public static Square SQ_E2 = new Square(12);
 
-    public const int SQ_F2 = 13;
+    public static Square SQ_F2 = new Square(13);
 
-    public const int SQ_G2 = 14;
+    public static Square SQ_G2 = new Square(14);
 
-    public const int SQ_H2 = 15;
+    public static Square SQ_H2 = new Square(15);
 
-    public const int SQ_A3 = 16;
+    public static Square SQ_A3 = new Square(16);
 
-    public const int SQ_B3 = 17;
+    public static Square SQ_B3 = new Square(17);
 
-    public const int SQ_C3 = 18;
+    public static Square SQ_C3 = new Square(18);
 
-    public const int SQ_D3 = 19;
+    public static Square SQ_D3 = new Square(19);
 
-    public const int SQ_E3 = 20;
+    public static Square SQ_E3 = new Square(20);
 
-    public const int SQ_F3 = 21;
+    public static Square SQ_F3 = new Square(21);
 
-    public const int SQ_G3 = 22;
+    public static Square SQ_G3 = new Square(22);
 
-    public const int SQ_H3 = 23;
+    public static Square SQ_H3 = new Square(23);
 
-    public const int SQ_A4 = 24;
+    public static Square SQ_A4 = new Square(24);
 
-    public const int SQ_B4 = 25;
+    public static Square SQ_B4 = new Square(25);
 
-    public const int SQ_C4 = 26;
+    public static Square SQ_C4 = new Square(26);
 
-    public const int SQ_D4 = 27;
+    public static Square SQ_D4 = new Square(27);
 
-    public const int SQ_E4 = 28;
+    public static Square SQ_E4 = new Square(28);
 
-    public const int SQ_F4 = 29;
+    public static Square SQ_F4 = new Square(29);
 
-    public const int SQ_G4 = 30;
+    public static Square SQ_G4 = new Square(30);
 
-    public const int SQ_H4 = 31;
+    public static Square SQ_H4 = new Square(31);
 
-    public const int SQ_A5 = 32;
+    public static Square SQ_A5 = new Square(32);
 
-    public const int SQ_B5 = 33;
+    public static Square SQ_B5 = new Square(33);
 
-    public const int SQ_C5 = 34;
+    public static Square SQ_C5 = new Square(34);
 
-    public const int SQ_D5 = 35;
+    public static Square SQ_D5 = new Square(35);
 
-    public const int SQ_E5 = 36;
+    public static Square SQ_E5 = new Square(36);
 
-    public const int SQ_F5 = 37;
+    public static Square SQ_F5 = new Square(37);
 
-    public const int SQ_G5 = 38;
+    public static Square SQ_G5 = new Square(38);
 
-    public const int SQ_H5 = 39;
+    public static Square SQ_H5 = new Square(39);
 
-    public const int SQ_A6 = 40;
+    public static Square SQ_A6 = new Square(40);
 
-    public const int SQ_B6 = 41;
+    public static Square SQ_B6 = new Square(41);
 
-    public const int SQ_C6 = 42;
+    public static Square SQ_C6 = new Square(42);
 
-    public const int SQ_D6 = 43;
+    public static Square SQ_D6 = new Square(43);
 
-    public const int SQ_E6 = 44;
+    public static Square SQ_E6 = new Square(44);
 
-    public const int SQ_F6 = 45;
+    public static Square SQ_F6 = new Square(45);
 
-    public const int SQ_G6 = 46;
+    public static Square SQ_G6 = new Square(46);
 
-    public const int SQ_H6 = 47;
+    public static Square SQ_H6 = new Square(47);
 
-    public const int SQ_A7 = 48;
+    public static Square SQ_A7 = new Square(48);
 
-    public const int SQ_B7 = 49;
+    public static Square SQ_B7 = new Square(49);
 
-    public const int SQ_C7 = 50;
+    public static Square SQ_C7 = new Square(50);
 
-    public const int SQ_D7 = 51;
+    public static Square SQ_D7 = new Square(51);
 
-    public const int SQ_E7 = 52;
+    public static Square SQ_E7 = new Square(52);
 
-    public const int SQ_F7 = 53;
+    public static Square SQ_F7 = new Square(53);
 
-    public const int SQ_G7 = 54;
+    public static Square SQ_G7 = new Square(54);
 
-    public const int SQ_H7 = 55;
+    public static Square SQ_H7 = new Square(55);
 
-    public const int SQ_A8 = 56;
+    public static Square SQ_A8 = new Square(56);
 
-    public const int SQ_B8 = 57;
+    public static Square SQ_B8 = new Square(57);
 
-    public const int SQ_C8 = 58;
+    public static Square SQ_C8 = new Square(58);
 
-    public const int SQ_D8 = 59;
+    public static Square SQ_D8 = new Square(59);
 
-    public const int SQ_E8 = 60;
+    public static Square SQ_E8 = new Square(60);
 
-    public const int SQ_F8 = 61;
+    public static Square SQ_F8 = new Square(61);
 
-    public const int SQ_G8 = 62;
+    public static Square SQ_G8 = new Square(62);
 
-    public const int SQ_H8 = 63;
+    public static Square SQ_H8 = new Square(63);
 
-    public const int SQ_NONE = 64;
+    public static Square SQ_NONE = new Square(64);
 
-    public const int SQUARE_NB = 64;
+    public static Square SQUARE_NB = new Square(64);
 
-    public const int DELTA_N = 8;
+    public static Square DELTA_N = new Square(8);
 
-    public const int DELTA_E = 1;
+    public static Square DELTA_E = new Square(1);
 
-    public const int DELTA_S = -8;
+    public static Square DELTA_S = new Square(-8);
 
-    public const int DELTA_W = -1;
+    public static Square DELTA_W = new Square(-1);
 
-    public const int DELTA_NN = DELTA_N + DELTA_N;
+    public static Square DELTA_NN = new Square(DELTA_N + DELTA_N);
 
-    public const int DELTA_NE = DELTA_N + DELTA_E;
+    public static Square DELTA_NE = new Square(DELTA_N + DELTA_E);
 
-    public const int DELTA_SE = DELTA_S + DELTA_E;
+    public static Square DELTA_SE = new Square(DELTA_S + DELTA_E);
 
-    public const int DELTA_SS = DELTA_S + DELTA_S;
+    public static Square DELTA_SS = new Square(DELTA_S + DELTA_S);
 
-    public const int DELTA_SW = DELTA_S + DELTA_W;
+    public static Square DELTA_SW = new Square(DELTA_S + DELTA_W);
 
-    public const int DELTA_NW = DELTA_N + DELTA_W;
+    public static Square DELTA_NW = new Square(DELTA_N + DELTA_W);
 
     private int Value { get; }
 
@@ -230,15 +230,22 @@ public struct Square
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Square s)
+    public static implicit operator int(Square s)
     {
         return s.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Square operator ++(Square v1)
+    {
+        return new Square(v1.Value + 1);
     }
 
     public override string ToString()
     {
         return this.Value.ToString();
     }
+
     #endregion
 
     #region extended operators
@@ -272,6 +279,7 @@ public struct Square
     {
         return v1.Value != v2.Value;
     }
+
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

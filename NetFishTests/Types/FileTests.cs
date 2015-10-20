@@ -15,8 +15,8 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new File(new File(1));
-            var v2 = new File(2);
+            var v1 = File.FILE_B;
+            var v2 = File.FILE_C;
             var v3 = v1 + v2;
             Assert.AreEqual(3, v3);
 

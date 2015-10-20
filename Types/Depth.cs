@@ -2,29 +2,23 @@
 
 public struct Depth
 {
-    public const int ONE_PLY = 1;
+    public static Depth ONE_PLY = new Depth(1);
 
-    public const int DEPTH_ZERO = 0;
+    public static Depth DEPTH_ZERO = new Depth(0);
 
-    public const int DEPTH_QS_CHECKS = 0;
+    public static Depth DEPTH_QS_CHECKS = new Depth(0);
 
-    public const int DEPTH_QS_NO_CHECKS = -1;
+    public static Depth DEPTH_QS_NO_CHECKS = new Depth(-1);
 
-    public const int DEPTH_QS_RECAPTURES = -5;
+    public static Depth DEPTH_QS_RECAPTURES = new Depth(-5);
 
-    public const int DEPTH_NONE = -6;
+    public static Depth DEPTH_NONE = new Depth(-6);
 
-    public const int DEPTH_MAX = _.MAX_PLY;
+    public static Depth DEPTH_MAX = new Depth(_.MAX_PLY);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Depth(Depth depth)
-        : this(depth.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Depth(int value)
@@ -85,7 +79,7 @@ public struct Depth
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Depth d)
+    public static implicit operator int(Depth d)
     {
         return d.Value;
     }
@@ -101,6 +95,7 @@ public struct Depth
     {
         return v1.Value != v2.Value;
     }
+
     #endregion
 
     #region extended operators

@@ -3,23 +3,17 @@ using System.Runtime.CompilerServices;
 
 public struct Color
 {
-    public const int WHITE = 0;
+    public static Color WHITE = new Color(0);
 
-    public const int BLACK = 1;
+    public static Color BLACK = new Color(1);
 
-    public const int NO_COLOR = 2;
+    public static Color NO_COLOR = new Color(2);
 
-    public const int COLOR_NB = 2;
+    public static Color COLOR_NB = new Color(2);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Color(Color value)
-        : this(value.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Color(uint value)
@@ -69,7 +63,7 @@ public struct Color
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Color c)
+    public static implicit operator int(Color c)
     {
         return c.Value;
     }
@@ -85,6 +79,13 @@ public struct Color
     {
         return v1.Value != v2.Value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Color operator ++(Color v1)
+    {
+        return new Color(v1.Value + 1);
+    }
+
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color operator -(Color v1)

@@ -2,43 +2,49 @@
 
 public struct Value
 {
-    public const int VALUE_ZERO = 0;
+    public static Value VALUE_ZERO = new Value(0);
 
-    public const int VALUE_DRAW = 0;
+    public static Value VALUE_DRAW = new Value(0);
 
-    public const int VALUE_KNOWN_WIN = 10000;
+    public static Value VALUE_KNOWN_WIN = new Value(10000);
 
-    public const int VALUE_MATE = 32000;
+    public static Value VALUE_MATE = new Value(32000);
 
-    public const int VALUE_INFINITE = 32001;
+    public static Value VALUE_INFINITE = new Value(32001);
 
-    public const int VALUE_NONE = 32002;
+    public static Value VALUE_NONE = new Value(32002);
 
-    public const int VALUE_MATE_IN_MAX_PLY = VALUE_MATE - 2 * _.MAX_PLY;
+    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2 * _.MAX_PLY);
 
-    public const int VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * _.MAX_PLY;
+    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2 * _.MAX_PLY);
 
-    public const int PawnValueMg = 198, PawnValueEg = 258;
+    public static Value PawnValueMg = new Value(198);
 
-    public const int KnightValueMg = 817, KnightValueEg = 846;
+    public static Value PawnValueEg = new Value(258);
 
-    public const int BishopValueMg = 836, BishopValueEg = 857;
+    public static Value KnightValueMg = new Value(817);
 
-    public const int RookValueMg = 1270, RookValueEg = 1281;
+    public static Value KnightValueEg = new Value(846);
 
-    public const int QueenValueMg = 2521, QueenValueEg = 2558;
+    public static Value BishopValueMg = new Value(836);
 
-    public const int MidgameLimit = 15581, EndgameLimit = 3998;
+    public static Value BishopValueEg = new Value(857);
+
+    public static Value RookValueMg = new Value(1270);
+
+    public static Value RookValueEg = new Value(1281);
+
+    public static Value QueenValueMg = new Value(2521);
+
+    public static Value QueenValueEg = new Value(2558);
+
+    public static Value MidgameLimit = new Value(15581);
+
+    public static Value EndgameLimit = new Value(3998);
 
     private int value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Value(Value value)
-        : this(value.value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Value(int value)
@@ -97,8 +103,9 @@ public struct Value
     {
         return new Value(v1.value * v2);
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Value v)
+    public static implicit operator int(Value v)
     {
         return v.value;
     }
@@ -114,6 +121,7 @@ public struct Value
     {
         return v1.value != v2.value;
     }
+
     #endregion
 
     #region extended operators

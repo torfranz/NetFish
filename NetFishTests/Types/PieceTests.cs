@@ -15,8 +15,8 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new Piece(new Piece(1));
-            var v2 = new Piece(2);
+            var v1 = Piece.W_PAWN;
+            var v2 = Piece.W_KNIGHT;
             var v3 = v1 + v2;
             Assert.AreEqual(3, v3);
 
@@ -51,24 +51,24 @@ namespace Tests
         [TestMethod()]
         public void MakePieceTest()
         {
-            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(Color.WHITE, PieceType.BISHOP);
             Assert.AreEqual(Piece.W_BISHOP, v1);
 
-            var v2 = Piece.make_piece(new Color(Color.BLACK), new PieceType(PieceType.KNIGHT));
+            var v2 = Piece.make_piece(Color.BLACK, PieceType.KNIGHT);
             Assert.AreEqual(Piece.B_KNIGHT, v2);
         }
 
         [TestMethod()]
         public void TypeOfTests()
         {
-            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(Color.WHITE, PieceType.BISHOP);
             Assert.AreEqual(PieceType.BISHOP, v1.type_of());
         }
 
         [TestMethod()]
         public void ColorOfTests()
         {
-            var v1 = Piece.make_piece(new Color(Color.WHITE), new PieceType(PieceType.BISHOP));
+            var v1 = Piece.make_piece(Color.WHITE, PieceType.BISHOP);
             Assert.AreEqual(Color.WHITE, v1.color_of());
         }
     }

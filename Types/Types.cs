@@ -27,8 +27,11 @@ internal struct _
 public enum Result
 {
     INVALID = 0,
+
     UNKNOWN = 1,
+
     DRAW = 2,
+
     WIN = 4
 };
 

@@ -3,40 +3,39 @@ using System.Runtime.CompilerServices;
 
 public struct PieceType
 {
-    public const int NO_PIECE_TYPE = 0;
+    public const int BISHOP_C = 3;
 
-    public const int PAWN = 1;
+    public const int ROOK_C = 4;
 
-    public const int KNIGHT = 2;
+    public const int QUEEN_C = 5;
 
-    public const int BISHOP = 3;
+    public static PieceType NO_PIECE_TYPE = new PieceType(0);
 
-    public const int ROOK = 4;
+    public static PieceType PAWN = new PieceType(1);
 
-    public const int QUEEN = 5;
+    public static PieceType KNIGHT = new PieceType(2);
 
-    public const int KING = 6;
+    public static PieceType BISHOP = new PieceType(BISHOP_C);
 
-    public const int ALL_PIECES = 0;
+    public static PieceType ROOK = new PieceType(ROOK_C);
 
-    public const int PIECE_TYPE_NB = 8;
+    public static PieceType QUEEN = new PieceType(QUEEN_C);
+
+    public static PieceType KING = new PieceType(6);
+
+    public static PieceType ALL_PIECES = new PieceType(0);
+
+    public static PieceType PIECE_TYPE_NB = new PieceType(8);
 
     private int Value { get; }
 
     #region constructors
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PieceType(PieceType value)
-        : this(value.Value)
-    {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PieceType(int value)
     {
         this.Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 8);
-        Debug.Assert(this.Value != 7);
     }
 
     #endregion
@@ -74,7 +73,7 @@ public struct PieceType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (PieceType pt)
+    public static implicit operator int(PieceType pt)
     {
         return pt.Value;
     }
@@ -91,10 +90,17 @@ public struct PieceType
         return v1.Value != v2.Value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PieceType operator ++(PieceType v1)
+    {
+        return new PieceType(v1.Value + 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
     }
+
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static PieceType operator -(PieceType v1)

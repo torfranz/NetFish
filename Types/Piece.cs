@@ -3,33 +3,33 @@ using System.Runtime.CompilerServices;
 
 public struct Piece
 {
-    public const int NO_PIECE = 0;
+    public static Piece NO_PIECE = new Piece(0);
 
-    public const int W_PAWN = 1;
+    public static Piece W_PAWN = new Piece(1);
 
-    public const int W_KNIGHT = 2;
+    public static Piece W_KNIGHT = new Piece(2);
 
-    public const int W_BISHOP = 3;
+    public static Piece W_BISHOP = new Piece(3);
 
-    public const int W_ROOK = 4;
+    public static Piece W_ROOK = new Piece(4);
 
-    public const int W_QUEEN = 5;
+    public static Piece W_QUEEN = new Piece(5);
 
-    public const int W_KING = 6;
+    public static Piece W_KING = new Piece(6);
 
-    public const int B_PAWN = 9;
+    public static Piece B_PAWN = new Piece(9);
 
-    public const int B_KNIGHT = 10;
+    public static Piece B_KNIGHT = new Piece(10);
 
-    public const int B_BISHOP = 11;
+    public static Piece B_BISHOP = new Piece(11);
 
-    public const int B_ROOK = 12;
+    public static Piece B_ROOK = new Piece(12);
 
-    public const int B_QUEEN = 13;
+    public static Piece B_QUEEN = new Piece(13);
 
-    public const int B_KING = 14;
+    public static Piece B_KING = new Piece(14);
 
-    public const int PIECE_NB = 16;
+    public static Piece PIECE_NB = new Piece(16);
 
     private int Value { get; }
 
@@ -86,7 +86,7 @@ public struct Piece
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Piece p)
+    public static implicit operator int(Piece p)
     {
         return p.Value;
     }
@@ -103,10 +103,17 @@ public struct Piece
         return v1.Value != v2.Value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Piece operator ++(Piece v1)
+    {
+        return new Piece(v1.Value + 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
     }
+
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Piece operator -(Piece v1)

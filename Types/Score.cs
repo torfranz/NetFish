@@ -5,17 +5,11 @@
 /// and the upper 16 bits are used to store the middlegame value.
 public struct Score
 {
-    public const int SCORE_ZERO = 0;
+    public static Score SCORE_ZERO = new Score(0);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Score(Score value)
-        : this(value.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Score(int value)
@@ -75,7 +69,7 @@ public struct Score
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (Score s)
+    public static implicit operator int(Score s)
     {
         return s.Value;
     }
@@ -91,6 +85,7 @@ public struct Score
     {
         return v1.Value != v2.Value;
     }
+
     #endregion
 
     #region extended operators

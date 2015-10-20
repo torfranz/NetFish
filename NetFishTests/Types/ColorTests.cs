@@ -15,8 +15,8 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new Color(new Color(Color.WHITE));
-            var v2 = new Color(Color.BLACK);
+            var v1 = Color.WHITE;
+            var v2 = Color.BLACK;
             var v3 = v1 + v2;
             Assert.AreEqual(Color.BLACK, v3);
 
@@ -53,7 +53,7 @@ namespace Tests
         [TestMethod()]
         public void FlipTests()
         {
-            var v1 = new Color(new Color(Color.BLACK));
+            var v1 = Color.BLACK;
             var v2 = ~v1;
             Assert.AreEqual(Color.WHITE, v2);
             var v3 = ~v2;

@@ -15,7 +15,7 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new Value(new Value(1));
+            var v1 = new Value(1);
             var v2 = new Value(2);
             var v3 = v1 + v2;
             Assert.AreEqual(3, v3);

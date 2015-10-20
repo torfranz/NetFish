@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-    public static class Bitbases
-    {
+public static class Bitbases
+{
     // There are 24 possible pawn squares: the first 4 files and ranks from 2 to 7
-    const uint MAX_INDEX = 2 * 24 * 64 * 64; // stm * psq * wksq * bksq = 196608
+    private const uint MAX_INDEX = 2 * 24 * 64 * 64; // stm * psq * wksq * bksq = 196608
 
     // Each uint32_t stores results of 32 positions, one per bit
-    static public uint[] KPKBitbase = new uint[MAX_INDEX / 32];
+    public static uint[] KPKBitbase = new uint[MAX_INDEX / 32];
 
     // A KPK bitbase index is an integer in [0, IndexMax] range
     //
@@ -24,20 +19,20 @@ using System.Diagnostics;
     // bit 15-17: white pawn RANK_7 - rank (from RANK_7 - RANK_7 to RANK_7 - RANK_2)
     public static uint index(Color us, Square bksq, Square wksq, Square psq)
     {
-        return (uint)(wksq | (bksq << 6) | (us << 12) | (psq.file_of() << 13) | ((new Rank(Rank.RANK_7) - psq.rank_of()) << 15));
+        return (uint)(wksq | (bksq << 6) | (us << 12) | (psq.file_of() << 13) | ((Rank.RANK_7 - psq.rank_of()) << 15));
     }
 
     public static bool probe(Square wksq, Square wpsq, Square bksq, Color us)
     {
         Debug.Assert(wpsq.file_of() <= File.FILE_D);
 
-        uint idx = index(us, bksq, wksq, wpsq);
+        var idx = index(us, bksq, wksq, wpsq);
         return (KPKBitbase[idx / 32] & (1 << (int)(idx & 0x1F))) != 0;
     }
-    
+
     public static void init()
     {
-        KPKPosition[] db = new KPKPosition[MAX_INDEX];
+        var db = new KPKPosition[MAX_INDEX];
         uint idx, repeat = 1;
 
         // Initialize db with known win / draw positions
@@ -66,4 +61,3 @@ using System.Diagnostics;
         }
     }
 }
-

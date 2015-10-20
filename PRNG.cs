@@ -14,7 +14,6 @@
 /// 
 /// For further analysis see
 /// <http:// vigna.di.unimi.it/ ftp/ papers/ xorshift.pdf>
-
 public class PRNG
 {
     private ulong s;

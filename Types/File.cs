@@ -3,33 +3,27 @@ using System.Runtime.CompilerServices;
 
 public struct File
 {
-    public const int FILE_A = 0;
+    public static File FILE_A = new File(0);
 
-    public const int FILE_B = 1;
+    public static File FILE_B = new File(1);
 
-    public const int FILE_C = 2;
+    public static File FILE_C = new File(2);
 
-    public const int FILE_D = 3;
+    public static File FILE_D = new File(3);
 
-    public const int FILE_E = 4;
+    public static File FILE_E = new File(4);
 
-    public const int FILE_F = 5;
+    public static File FILE_F = new File(5);
 
-    public const int FILE_G = 6;
+    public static File FILE_G = new File(6);
 
-    public const int FILE_H = 7;
+    public static File FILE_H = new File(7);
 
-    public const int FILE_NB = 8;
+    public static File FILE_NB = new File(8);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public File(File file)
-        : this(file.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public File(uint value)
@@ -97,7 +91,7 @@ public struct File
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int (File f)
+    public static implicit operator int(File f)
     {
         return f.Value;
     }
@@ -114,10 +108,17 @@ public struct File
         return v1.Value != v2.Value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static File operator ++(File v1)
+    {
+        return new File(v1.Value + 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
     }
+
     #endregion
 
     #region extended operators

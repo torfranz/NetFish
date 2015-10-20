@@ -19,9 +19,11 @@ namespace Tests
             Bitbases.init();
                         
             // check some BSFTable fields
-            Assert.AreEqual(4294901759, Bitbases.KPKBitbase[27]);
-            Assert.AreEqual(4280229663, Bitbases.KPKBitbase[28]);
-            Assert.AreEqual(4294901759, Bitbases.KPKBitbase[29]);
+            Assert.AreEqual(522133503u, Bitbases.KPKBitbase[44]);
+            Assert.AreEqual(4294901759u, Bitbases.KPKBitbase[45]);
+            Assert.AreEqual(1061109759u, Bitbases.KPKBitbase[46]);
+            Assert.AreEqual(4294901759u, Bitbases.KPKBitbase[47]);
+            Assert.AreEqual(4244439039u, Bitbases.KPKBitbase[48]);
         }
     }
 }

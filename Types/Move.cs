@@ -13,19 +13,13 @@
 /// while MOVE_NONE and MOVE_NULL have the same origin and destination square.
 public struct Move
 {
-    public const int MOVE_NONE = 0;
+    public static Move MOVE_NONE = new Move(0);
 
-    public const int MOVE_NULL = 65;
+    public static Move MOVE_NULL = new Move(65);
 
     private int Value { get; }
 
     #region constructors
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Move(Move move)
-        : this(move.Value)
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Move(int value)
@@ -34,6 +28,7 @@ public struct Move
     }
 
     #endregion
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Move v1, Move v2)
     {

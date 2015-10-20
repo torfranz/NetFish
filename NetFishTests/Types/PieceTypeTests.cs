@@ -15,8 +15,8 @@ namespace Tests
         [TestMethod()]
         public void OperatorTests()
         {
-            var v1 = new PieceType(new PieceType(1));
-            var v2 = new PieceType(2);
+            var v1 = PieceType.PAWN;
+            var v2 = PieceType.KNIGHT;
             var v3 = v1 + v2;
             Assert.AreEqual(3, v3);
 
