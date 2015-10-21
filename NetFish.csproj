@@ -48,6 +48,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSQT.cs" />
+    <Compile Include="TTEntry.cs" />
+    <Compile Include="TT.cs" />
     <Compile Include="Types\Bitbases.cs" />
     <Compile Include="Types\Bitboard.cs" />
     <Compile Include="Types\Bitboards.cs" />

@@ -30,6 +30,12 @@ public struct Move
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int (Move m)
+    {
+        return m.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Move v1, Move v2)
     {
         return v1.Value == v2.Value;

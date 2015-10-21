@@ -20,5 +20,15 @@ internal class Program
         Bitboards.init();
         //Position.init();
         Bitbases.init();
+        //Search::init();
+        //Eval::init();
+        //Pawns::init();
+        //Threads.init();
+        //Tablebases::init(Options["SyzygyPath"]);
+        //TT.resize(Options["Hash"]);
+
+        //UCI::loop(argc, argv);
+
+        //Threads.exit();
     }
 }

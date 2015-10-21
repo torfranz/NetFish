@@ -244,7 +244,7 @@ public static class Utils
         return BSFTable[bsf_index(b)];
     }
 
-    private static Square msb(Bitboard b)
+    public static Square msb(Bitboard b)
     {
         ulong value = b;
         uint b32;
