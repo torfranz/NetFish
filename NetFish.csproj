@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitCount.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="PRNG.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Types\Depth.cs" />
     <Compile Include="Types\Value.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Zobrist.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

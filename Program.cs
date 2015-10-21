@@ -18,7 +18,7 @@ internal class Program
         //UCI.init(Options);
         PSQT.init();
         Bitboards.init();
-        //Position.init();
+        Position.init();
         Bitbases.init();
         //Search::init();
         //Eval::init();
