@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetFish", "NetFish.csproj",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetFishTests", "NetFishTests\NetFishTests.csproj", "{E71938E5-34E4-411E-8348-8D6BBF5CEC94}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stockfish", "..\Stockfish\Stockfish.vcxproj", "{6771E03D-9702-4F1E-87F0-C2B63D0EB521}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stockfish-master", "..\Stockfish\Stockfish-master.vcxproj", "{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,16 +43,16 @@ Global
 		{E71938E5-34E4-411E-8348-8D6BBF5CEC94}.Release|x64.Build.0 = Release|Any CPU
 		{E71938E5-34E4-411E-8348-8D6BBF5CEC94}.Release|x86.ActiveCfg = Release|Any CPU
 		{E71938E5-34E4-411E-8348-8D6BBF5CEC94}.Release|x86.Build.0 = Release|Any CPU
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Debug|x64.ActiveCfg = Debug|x64
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Debug|x64.Build.0 = Debug|x64
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Debug|x86.ActiveCfg = Debug|Win32
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Debug|x86.Build.0 = Debug|Win32
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Release|Any CPU.ActiveCfg = Release|Win32
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Release|x64.ActiveCfg = Release|x64
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Release|x64.Build.0 = Release|x64
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Release|x86.ActiveCfg = Release|Win32
-		{6771E03D-9702-4F1E-87F0-C2B63D0EB521}.Release|x86.Build.0 = Release|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Debug|x64.ActiveCfg = Debug|x64
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Debug|x64.Build.0 = Debug|x64
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Debug|x86.ActiveCfg = Debug|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Debug|x86.Build.0 = Debug|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Release|x64.ActiveCfg = Release|x64
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Release|x64.Build.0 = Release|x64
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Release|x86.ActiveCfg = Release|Win32
+		{1FAC490E-2020-41E6-B5A4-6F5F6EEFA154}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
