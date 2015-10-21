@@ -241,6 +241,12 @@ public struct Square
         return new Square(v1.Value + 1);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Square operator --(Square v1)
+    {
+        return new Square(v1.Value - 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
@@ -263,9 +269,9 @@ public struct Square
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Square operator ~(Square c)
+    public static Square operator ~(Square s)
     {
-        return new Square(c.Value ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
+        return new Square(s.Value ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

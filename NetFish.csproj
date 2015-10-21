@@ -68,6 +68,7 @@
     <Compile Include="Types\Score.cs" />
     <Compile Include="Types\Depth.cs" />
     <Compile Include="Types\Value.cs" />
+    <Compile Include="UCI.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Zobrist.cs" />
   </ItemGroup>

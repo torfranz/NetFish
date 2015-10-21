@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 /// Position class stores information regarding the board representation as
 /// pieces, side to move, hash keys, castling info, etc. Important methods are
@@ -12,29 +14,29 @@ public class Position
     public const string PieceToChar = " PNBRQK  pnbrqk";
 
     // Data members
-    private readonly Piece[] board = new Piece[Square.SQUARE_NB];
+    private Piece[] board = new Piece[Square.SQUARE_NB];
 
-    private readonly Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
+    private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
 
-    private readonly Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+    private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-    private readonly Bitboard[] castlingPath = new Bitboard[(int)CastlingRight.CASTLING_RIGHT_NB];
+    private Bitboard[] castlingPath = new Bitboard[(int)CastlingRight.CASTLING_RIGHT_NB];
 
-    private readonly int[] castlingRightsMask = new int[Square.SQUARE_NB];
+    private int[] castlingRightsMask = new int[Square.SQUARE_NB];
 
-    private readonly Square[] castlingRookSquare = new Square[(int)CastlingRight.CASTLING_RIGHT_NB];
-
-    private readonly int[] index = new int[Square.SQUARE_NB];
-
-    private readonly int[,] pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
-
-    private readonly Square[,,] pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+    private Square[] castlingRookSquare = new Square[(int)CastlingRight.CASTLING_RIGHT_NB];
 
     private bool chess960;
 
     private int gamePly;
 
+    private int[] index = new int[Square.SQUARE_NB];
+
     private uint nodes;
+
+    private int[,] pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
+
+    private Square[,,] pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
 
     private Color sideToMove;
 
@@ -918,7 +920,7 @@ public class Position
 
         this.sideToMove = ~this.sideToMove;
 
-        Debug.Assert(pos_is_ok());
+        Debug.Assert(this.pos_is_ok());
     }
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
@@ -980,7 +982,7 @@ public class Position
         this.st = this.st.previous;
         --this.gamePly;
 
-        Debug.Assert(pos_is_ok());
+        Debug.Assert(this.pos_is_ok());
     }
 
     /// Position::do_castling() is a helper used to do/undo a castling move. This
@@ -1038,7 +1040,7 @@ public class Position
 
         this.sideToMove = ~this.sideToMove;
 
-        Debug.Assert(pos_is_ok());
+        Debug.Assert(this.pos_is_ok());
     }
 
     private void undo_null_move()
@@ -1322,6 +1324,314 @@ public class Position
         return true;
     }
 
+    public string fen()
+    {
+        int emptyCnt;
+        var ss = new StringBuilder();
+
+        for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
+        {
+            for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+            {
+                for (emptyCnt = 0; f <= File.FILE_H && this.empty(Square.make_square(f, r)); ++f)
+                {
+                    ++emptyCnt;
+                }
+
+                if (emptyCnt != 0)
+                {
+                    ss.Append(emptyCnt);
+                }
+
+                if (f <= File.FILE_H)
+                {
+                    ss.Append(PieceToChar[this.piece_on(Square.make_square(f, r))]);
+                }
+            }
+
+            if (r > Rank.RANK_1)
+            {
+                ss.Append('/');
+            }
+        }
+
+        ss.Append((this.sideToMove == Color.WHITE ? " w " : " b "));
+
+        if (this.can_castle(CastlingRight.WHITE_OO) != 0)
+        {
+            ss.Append(
+                (this.chess960
+                     ? (char)('A' + Square.file_of(this.castling_rook_square(Color.WHITE | CastlingSide.KING_SIDE)))
+                     : 'K'));
+        }
+
+        if (this.can_castle(CastlingRight.WHITE_OOO) != 0)
+        {
+            ss.Append(
+                (this.chess960
+                     ? (char)('A' + Square.file_of(this.castling_rook_square(Color.WHITE | CastlingSide.QUEEN_SIDE)))
+                     : 'Q'));
+        }
+
+        if (this.can_castle(CastlingRight.BLACK_OO) != 0)
+        {
+            ss.Append(
+                (this.chess960
+                     ? (char)('a' + Square.file_of(this.castling_rook_square(Color.BLACK | CastlingSide.KING_SIDE)))
+                     : 'k'));
+        }
+
+        if (this.can_castle(CastlingRight.BLACK_OOO) != 0)
+        {
+            ss.Append(
+                (this.chess960
+                     ? (char)('a' + Square.file_of(this.castling_rook_square(Color.BLACK | CastlingSide.QUEEN_SIDE)))
+                     : 'q'));
+        }
+
+        if (this.can_castle(Color.WHITE) == 0 && this.can_castle(Color.BLACK) == 0)
+        {
+            ss.Append('-');
+        }
+
+        ss.Append((this.ep_square() == Square.SQ_NONE ? " - " : " " + UCI.square(this.ep_square()) + " "));
+        ss.Append(this.st.rule50);
+        ss.Append(" ");
+        ss.Append(1 + (this.gamePly - (this.sideToMove == Color.BLACK ? 1 : 0)) / 2);
+
+        return ss.ToString();
+    }
+
+    private ulong exclusion_key()
+    {
+        return this.st.key ^ Zobrist.exclusion;
+    }
+
+    private static bool isdigit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
+
+    private static bool islower(char token)
+    {
+        return token.ToString().ToLowerInvariant() == token.ToString();
+    }
+
+    private static char toupper(char token)
+    {
+        return token.ToString().ToUpperInvariant()[0];
+    }
+
+    private static char tolower(char token)
+    {
+        return token.ToString().ToLowerInvariant()[0];
+    }
+
+    private static Stack<string> CreateStack(string input)
+    {
+        var lines = input.Trim().Split(' ');
+        var stack = new Stack<string>(); // LIFO
+        for (var i = (lines.Length - 1); i >= 0; i--)
+        {
+            var line = lines[i];
+            if (!string.IsNullOrEmpty(line))
+            {
+                line = line.Trim();
+                stack.Push(line);
+            }
+        }
+        return stack;
+    }
+
+    /// Position::set() initializes the position object with the given FEN string.
+    /// This function is not very robust - make sure that input FENs are correct,
+    /// this is assumed to be the responsibility of the GUI.
+    private void set(string fenStr, bool isChess960 /*, Thread th*/)
+    {
+        /*
+           A FEN string defines a particular position using only the ASCII character set.
+
+           A FEN string contains six fields separated by a space. The fields are:
+
+           1) Piece placement (from white's perspective). Each rank is described, starting
+              with rank 8 and ending with rank 1. Within each rank, the contents of each
+              square are described from file A through file H. Following the Standard
+              Algebraic Notation (SAN), each piece is identified by a single letter taken
+              from the standard English names. White pieces are designated using upper-case
+              letters ("PNBRQK") whilst Black uses lowercase ("pnbrqk"). Blank squares are
+              noted using digits 1 through 8 (the number of blank squares), and "/"
+              separates ranks.
+
+           2) Active color. "w" means white moves next, "b" means black.
+
+           3) Castling availability. If neither side can castle, this is "-". Otherwise,
+              this has one or more letters: "K" (White can castle kingside), "Q" (White
+              can castle queenside), "k" (Black can castle kingside), and/or "q" (Black
+              can castle queenside).
+
+           4) En passant target square (in algebraic notation). If there's no en passant
+              target square, this is "-". If a pawn has just made a 2-square move, this
+              is the position "behind" the pawn. This is recorded regardless of whether
+              there is a pawn in position to make an en passant capture.
+
+           5) Halfmove clock. This is the number of halfmoves since the last pawn advance
+              or capture. This is used to determine if a draw can be claimed under the
+              fifty-move rule.
+
+           6) Fullmove number. The number of the full move. It starts at 1, and is
+              incremented after Black's move.
+        */
+        char col, row, token;
+        int p;
+        var sq = Square.SQ_A8;
+
+        var fen = fenStr.ToCharArray();
+        var fenPos = 0;
+        this.clear();
+
+        // 1. Piece placement
+        while ((token = fen[fenPos++]) != ' ')
+        {
+            if (isdigit(token))
+            {
+                sq += (token - '0'); // Advance the given number of files
+            }
+            else if (token == '/')
+            {
+                sq -= 16;
+            }
+            else
+            {
+                p = PieceToChar.IndexOf(token);
+                if (p > -1)
+                {
+                    this.put_piece(Piece.color_of(new Piece(p)), Piece.type_of(new Piece(p)), sq);
+                    sq++;
+                }
+            }
+        }
+
+        // 2. Active color
+        token = fen[fenPos++];
+        this.sideToMove = (token == 'w' ? Color.WHITE : Color.BLACK);
+        token = fen[fenPos++];
+
+        // 3. Castling availability. Compatible with 3 standards: Normal FEN standard,
+        // Shredder-FEN that uses the letters of the columns on which the rooks began
+        // the game instead of KQkq and also X-FEN standard that, in case of Chess960,
+        // if an inner rook is associated with the castling right, the castling tag is
+        // replaced by the file letter of the involved rook, as for the Shredder-FEN.
+        while ((token = fen[fenPos++]) != ' ')
+        {
+            Square rsq;
+            var c = islower(token) ? Color.BLACK : Color.WHITE;
+            token = toupper(token);
+
+            if (token == 'K')
+            {
+                for (rsq = Square.relative_square(c, Square.SQ_H1);
+                     Piece.type_of(this.piece_on(rsq)) != PieceType.ROOK;
+                     rsq--)
+                {
+                }
+            }
+            else if (token == 'Q')
+            {
+                for (rsq = Square.relative_square(c, Square.SQ_A1);
+                     Piece.type_of(this.piece_on(rsq)) != PieceType.ROOK;
+                     rsq++)
+                {
+                }
+            }
+            else if (token >= 'A' && token <= 'H')
+            {
+                rsq = new Square((token - 'A') | Rank.relative_rank(c, Rank.RANK_1));
+            }
+            else
+            {
+                continue;
+            }
+
+            this.set_castling_right(c, rsq);
+        }
+
+        if (fenPos < fenStr.Length)
+        {
+            col = fen[fenPos++];
+            if (fenPos < fenStr.Length)
+            {
+                row = fen[fenPos++];
+
+                // 4. En passant square. Ignore if no pawn capture is possible
+                if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
+                {
+                    this.st.epSquare = Square.make_square(new File(col - 'a'), new Rank(row - '1'));
+
+                    if ((this.attackers_to(this.st.epSquare) & this.pieces(this.sideToMove, PieceType.PAWN)) == 0)
+                    {
+                        this.st.epSquare = Square.SQ_NONE;
+                    }
+                }
+            }
+        }
+
+        // 5-6. Halfmove clock and fullmove number
+        var tokens = CreateStack(fenStr.Substring(fenPos));
+        if (tokens.Count > 0)
+        {
+            this.st.rule50 = int.Parse(tokens.Pop());
+        }
+        if (tokens.Count > 0)
+        {
+            this.gamePly = int.Parse(tokens.Pop());
+        }
+
+        // Convert from fullmove starting from 1 to ply starting from 0,
+        // handle also common incorrect FEN with fullmove = 0.
+        this.gamePly = Math.Max(2 * (this.gamePly - 1), 0) + ((this.sideToMove == Color.BLACK) ? 1 : 0);
+
+        this.chess960 = isChess960;
+        //this.thisThread = th;
+        this.set_state(this.st);
+
+        Debug.Assert(this.pos_is_ok());
+    }
+
+    /// clear() erases the position object to a pristine state, with an
+    /// empty board, white to move, and no castling rights.
+    internal void clear()
+    {
+        this.board = new Piece[Square.SQUARE_NB];
+
+        this.byColorBB = new Bitboard[Color.COLOR_NB];
+
+        this.byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+
+        this.castlingPath = new Bitboard[(int)CastlingRight.CASTLING_RIGHT_NB];
+
+        this.castlingRightsMask = new int[Square.SQUARE_NB];
+
+        this.castlingRookSquare = new Square[(int)CastlingRight.CASTLING_RIGHT_NB];
+
+        this.index = new int[Square.SQUARE_NB];
+
+        this.pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
+
+        this.pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+
+        this.chess960 = false;
+
+        this.gamePly = 0;
+
+        this.nodes = 0;
+
+        this.sideToMove = Color.WHITE;
+
+        // thisThread = ;
+        this.startState = new StateInfo();
+        this.st = startState;
+    }
+
     /// Position::pos_is_ok() performs some consistency checks for the position object.
     /// This is meant to be helpful when debugging.
     private enum CheckStep
@@ -1338,6 +1648,56 @@ public class Position
 
         Castling
     };
+
+    /// Position::flip() flips position with the white and black sides reversed. This
+    /// is only useful for debugging e.g. for finding evaluation symmetry bugs.
+    internal void flip()
+    {
+        // Make a copy of current position before to start changing
+        var pos = new Position(this);
+        this.clear();
+
+        this.sideToMove = ~pos.sideToMove;
+        //this.thisThread = pos.this_thread();
+        this.nodes = pos.nodes;
+        this.chess960 = pos.chess960;
+        this.gamePly = pos.game_ply();
+
+        for (var s = Square.SQ_A1; s <= Square.SQ_H8; s++)
+        {
+            if (!pos.empty(s))
+            {
+                var piece = pos.piece_on(s);
+                this.put_piece(Piece.color_of(piece), Piece.type_of(piece), ~s);
+            }
+        }
+
+        if (pos.can_castle(CastlingRight.WHITE_OO) != 0)
+        {
+            this.set_castling_right(Color.BLACK, pos.castling_rook_square(CastlingRight.BLACK_OO));
+        }
+        if (pos.can_castle(CastlingRight.WHITE_OOO) != 0)
+        {
+            this.set_castling_right(Color.BLACK, pos.castling_rook_square(CastlingRight.BLACK_OOO));
+        }
+        if (pos.can_castle(CastlingRight.BLACK_OO) != 0)
+        {
+            this.set_castling_right(Color.WHITE, pos.castling_rook_square(CastlingRight.WHITE_OO));
+        }
+        if (pos.can_castle(CastlingRight.BLACK_OOO) != 0)
+        {
+            this.set_castling_right(Color.WHITE, pos.castling_rook_square(CastlingRight.WHITE_OOO));
+        }
+
+        if (pos.st.epSquare != Square.SQ_NONE)
+        {
+            this.st.epSquare = ~pos.st.epSquare;
+        }
+
+        set_state(st);
+
+        Debug.Assert(this.pos_is_ok());
+    }
 
     /*
     /// Position::flip() flips position with the white and black sides reversed. This
@@ -1387,20 +1747,5 @@ public:
   Position(const Position& pos, Thread* th) { *this = pos; thisThread = th; }
   Position(const std::string& f, bool c960, Thread* th) { set(f, c960, th); }
   Position& operator=(const Position&); // To assign RootPos from UCI
-
-  // FEN string input/output
-  void set(const std::string& fenStr, bool isChess960, Thread* th);
-  const std::string fen() const;
-           
-  bool gives_check(Move m, const CheckInfo& ci) const;
-    
-  // Accessing hash keys
-  
-    Key exclusion_key() const;
-      
-  // Position consistency check, for debugging
-  bool pos_is_ok(int* failedStep = nullptr) const;
-  void clear();
-  
   
 */

@@ -114,6 +114,12 @@ public struct Rank
         return new Rank(v1.Value + 1);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Rank operator --(Rank v1)
+    {
+        return new Rank(v1.Value - 1);
+    }
+
     public override string ToString()
     {
         return this.Value.ToString();
