@@ -72,17 +72,17 @@ public enum CastlingRight
     CASTLING_RIGHT_NB = 16
 };
 
-public struct Phase
+public enum Phase
 {
-    public const int PHASE_ENDGAME = 0;
+    PHASE_ENDGAME = 0,
 
-    public const int PHASE_MIDGAME = 128;
+    PHASE_MIDGAME = 128,
 
-    public const int MG = 0;
+    MG = 0,
 
-    public const int EG = 1;
+    EG = 1,
 
-    public const int PHASE_NB = 2;
+    PHASE_NB = 2
 };
 
 public enum ScaleFactor

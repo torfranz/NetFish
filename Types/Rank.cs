@@ -146,6 +146,6 @@ public struct Rank
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Rank relative_rank(Color c, Square s)
     {
-        return relative_rank(c, s.rank_of());
+        return relative_rank(c, Square.rank_of(s));
     }
 }

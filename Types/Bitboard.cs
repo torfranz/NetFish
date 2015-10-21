@@ -146,15 +146,21 @@ public struct Bitboard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator ^(Bitboard b1, Bitboard b2)
+    {
+        return new Bitboard(b1.Value ^ b2.Value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard operator ^(Bitboard b, Square s)
     {
         return new Bitboard(b.Value ^ Utils.SquareBB[s].Value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool more_than_one()
+    public static bool more_than_one(Bitboard b)
     {
-        return (this.Value & (this.Value - 1)) != 0;
+        return (b.Value & (b.Value - 1)) != 0;
     }
 
     /// shift_bb() moves a bitboard one step along direction Delta. Mainly for pawns

@@ -26,7 +26,7 @@ public class KPKPosition
         }
 
         // Immediate win if a pawn can be promoted without getting captured
-        else if (this.us == Color.WHITE && this.psq.rank_of() == Rank.RANK_7
+        else if (this.us == Color.WHITE && Square.rank_of(this.psq) == Rank.RANK_7
                  && this.ksq[this.us] != this.psq + Square.DELTA_N
                  && (Utils.distance_Square(this.ksq[~this.us], this.psq + Square.DELTA_N) > 1
                      || (Utils.StepAttacksBB[PieceType.KING, this.ksq[this.us]] & (this.psq + Square.DELTA_N))))
@@ -91,12 +91,12 @@ public class KPKPosition
 
         if (Us == Color.WHITE)
         {
-            if (this.psq.rank_of() < Rank.RANK_7) // Single push
+            if (Square.rank_of(this.psq) < Rank.RANK_7) // Single push
             {
                 r |= db[Bitbases.index(Them, this.ksq[Them], this.ksq[Us], this.psq + Square.DELTA_N)];
             }
 
-            if (this.psq.rank_of() == Rank.RANK_2 // Double push
+            if (Square.rank_of(this.psq) == Rank.RANK_2 // Double push
                 && this.psq + Square.DELTA_N != this.ksq[Us] && this.psq + Square.DELTA_N != this.ksq[Them])
             {
                 r |= db[Bitbases.index(Them, this.ksq[Them], this.ksq[Us], this.psq + Square.DELTA_N + Square.DELTA_N)];

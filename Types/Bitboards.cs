@@ -12,7 +12,7 @@ public static class Bitboards
 
         for (ulong b = 2; b < 256; ++b)
         {
-            Utils.MSBTable[b] = Utils.MSBTable[b - 1] + (!(new Bitboard(b).more_than_one()) ? 1 : 0);
+            Utils.MSBTable[b] = Utils.MSBTable[b - 1] + (!(Bitboard.more_than_one(new Bitboard(b))) ? 1 : 0);
         }
 
         for (var f = File.FILE_A; f <= File.FILE_H; ++f)
@@ -41,8 +41,8 @@ public static class Bitboards
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                Utils.ForwardBB[c, s] = Utils.InFrontBB[c, s.rank_of()] & Utils.FileBB[s.file_of()];
-                Utils.PawnAttackSpan[c, s] = Utils.InFrontBB[c, s.rank_of()] & Utils.AdjacentFilesBB[s.file_of()];
+                Utils.ForwardBB[c, s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[Square.file_of(s)];
+                Utils.PawnAttackSpan[c, s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.AdjacentFilesBB[Square.file_of(s)];
                 Utils.PassedPawnMask[c, s] = Utils.ForwardBB[c, s] | Utils.PawnAttackSpan[c, s];
             }
         }
@@ -221,7 +221,7 @@ public static class Bitboards
 #if X64
             var rng = new PRNG((ulong)seeds[1][s.rank_of()]);
 #else
-            var rng = new PRNG((ulong)seeds[0][s.rank_of()]);
+            var rng = new PRNG((ulong)seeds[0][Square.rank_of(s)]);
 #endif
 
             // Find a magic for square 's' picking up an (almost) random number

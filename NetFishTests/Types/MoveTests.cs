@@ -16,29 +16,29 @@ namespace Tests
         public void MakeMoveTests()
         {
             var v1 = Move.make_move(Square.SQ_A1, Square.SQ_H8);
-            Assert.AreEqual(Square.SQ_A1, v1.from_sq());
-            Assert.AreEqual(Square.SQ_H8, v1.to_sq());
-            Assert.AreEqual(MoveType.NORMAL, v1.type_of());
+            Assert.AreEqual(Square.SQ_A1, Move.from_sq(v1));
+            Assert.AreEqual(Square.SQ_H8, Move.to_sq(v1));
+            Assert.AreEqual(MoveType.NORMAL, Move.type_of(v1));
         }
 
         [TestMethod()]
         public void MakeTests()
         {
             var v1 = Move.make(MoveType.CASTLING, Square.SQ_A1, Square.SQ_H8, PieceType.BISHOP);
-            Assert.AreEqual(Square.SQ_A1, v1.from_sq());
-            Assert.AreEqual(Square.SQ_H8, v1.to_sq());
-            Assert.AreEqual(MoveType.CASTLING, v1.type_of());
-            Assert.AreEqual(PieceType.BISHOP, v1.promotion_type());
+            Assert.AreEqual(Square.SQ_A1, Move.from_sq(v1));
+            Assert.AreEqual(Square.SQ_H8, Move.to_sq(v1));
+            Assert.AreEqual(MoveType.CASTLING, Move.type_of(v1));
+            Assert.AreEqual(PieceType.BISHOP, Move.promotion_type(v1));
         }
 
         [TestMethod()]
         public void IsOkTests()
         {
             var v1 = Move.make(MoveType.ENPASSANT, Square.SQ_A1, Square.SQ_H8, PieceType.BISHOP);
-            Assert.IsTrue(v1.is_ok());
+            Assert.IsTrue(Move.is_ok(v1));
 
             var v2 = Move.make(MoveType.PROMOTION, Square.SQ_A1, Square.SQ_A1, PieceType.BISHOP);
-            Assert.IsFalse(v2.is_ok());
+            Assert.IsFalse(Move.is_ok(v2));
         }
     }
 }

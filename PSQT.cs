@@ -84,15 +84,15 @@ public static class PSQT
         for (PieceType pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
         {
             var piece = Piece.make_piece(Color.BLACK, pt);
-            Value.PieceValue[Phase.MG][piece] = Value.PieceValue[Phase.MG][pt];
-            Value.PieceValue[Phase.EG][piece] = Value.PieceValue[Phase.EG][pt];
+            Value.PieceValue[(int)Phase.MG][piece] = Value.PieceValue[(int)Phase.MG][pt];
+            Value.PieceValue[(int)Phase.EG][piece] = Value.PieceValue[(int)Phase.EG][pt];
 
-            Score v = Score.make_score(Value.PieceValue[Phase.MG][pt], Value.PieceValue[Phase.EG][pt]);
+            Score v = Score.make_score(Value.PieceValue[(int)Phase.MG][pt], Value.PieceValue[(int)Phase.EG][pt]);
 
             for (Square s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                int edgeDistance = s.file_of() < File.FILE_E ? s.file_of() : File.FILE_H - s.file_of();
-                psq[Color.BLACK, pt, ~s] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][s.rank_of()][edgeDistance]);
+                int edgeDistance = Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
+                psq[Color.BLACK, pt, ~s] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }

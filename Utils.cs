@@ -71,7 +71,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard rank_bb(Square s)
     {
-        return RankBB[s.rank_of()];
+        return RankBB[Square.rank_of(s)];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,7 +83,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard file_bb(Square s)
     {
-        return FileBB[s.file_of()];
+        return FileBB[Square.file_of(s)];
     }
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -160,16 +160,16 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int file_distance(Square x, Square y)
     {
-        int xFile = x.file_of();
-        int yFile = y.file_of();
+        int xFile = Square.file_of(x);
+        int yFile = Square.file_of(y);
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int rank_distance(Square x, Square y)
     {
-        int xRank = x.rank_of();
-        int yRank = y.rank_of();
+        int xRank = Square.rank_of(x);
+        int yRank = Square.rank_of(y);
         return xRank > yRank ? xRank - yRank : yRank - xRank;
     }
 
@@ -212,7 +212,7 @@ public static class Utils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
-        switch (pc.type_of())
+        switch (Piece.type_of(pc))
         {
             case PieceType.BISHOP_C:
                 return attacks_bb(PieceType.BISHOP, s, occupied);
@@ -239,7 +239,7 @@ public static class Utils
 #endif
     }
 
-    private static Square lsb(Bitboard b)
+    public static Square lsb(Bitboard b)
     {
         return BSFTable[bsf_index(b)];
     }

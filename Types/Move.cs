@@ -48,27 +48,27 @@ public struct Move
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Square from_sq()
+    public static Square from_sq(Move m)
     {
-        return new Square((this.Value >> 6) & 0x3F);
+        return new Square((m.Value >> 6) & 0x3F);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Square to_sq()
+    public static Square to_sq(Move m)
     {
-        return new Square(this.Value & 0x3F);
+        return new Square(m.Value & 0x3F);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveType type_of()
+    public static MoveType type_of(Move m)
     {
-        return (MoveType)(this.Value & (3 << 14));
+        return (MoveType)(m.Value & (3 << 14));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PieceType promotion_type()
+    public static PieceType promotion_type(Move m)
     {
-        return new PieceType(((this.Value >> 12) & 3) + PieceType.KNIGHT);
+        return new PieceType(((m.Value >> 12) & 3) + PieceType.KNIGHT);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,8 +84,8 @@ public struct Move
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool is_ok()
+    public static bool is_ok(Move m)
     {
-        return this.from_sq() != this.to_sq(); // Catch MOVE_NULL and MOVE_NONE
+        return from_sq(m) != to_sq(m); // Catch MOVE_NULL and MOVE_NONE
     }
 }

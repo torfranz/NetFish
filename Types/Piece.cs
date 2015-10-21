@@ -153,15 +153,15 @@ public struct Piece
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PieceType type_of()
+    public static PieceType type_of(Piece p)
     {
-        return new PieceType(this.Value & 7);
+        return new PieceType(p.Value & 7);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Color color_of()
+    public static Color color_of(Piece p)
     {
-        return new Color(this.Value >> 3);
+        return new Color(p.Value >> 3);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

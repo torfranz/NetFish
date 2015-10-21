@@ -62,14 +62,14 @@ namespace Tests
         public void TypeOfTests()
         {
             var v1 = Piece.make_piece(Color.WHITE, PieceType.BISHOP);
-            Assert.AreEqual(PieceType.BISHOP, v1.type_of());
+            Assert.AreEqual(PieceType.BISHOP, Piece.type_of(v1));
         }
 
         [TestMethod()]
         public void ColorOfTests()
         {
             var v1 = Piece.make_piece(Color.WHITE, PieceType.BISHOP);
-            Assert.AreEqual(Color.WHITE, v1.color_of());
+            Assert.AreEqual(Color.WHITE, Piece.color_of(v1));
         }
     }
 }

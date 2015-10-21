@@ -78,17 +78,17 @@ namespace Tests
         {
             var v1 = Square.SQ_A7;
             var v2 = Square.SQ_A6;
-            Assert.IsTrue(v1.opposite_colors(v2));
+            Assert.IsTrue(Square.opposite_colors(v1, v2));
 
             var v3 = Square.SQ_A5;
-            Assert.IsFalse(v1.opposite_colors(v3));
+            Assert.IsFalse(Square.opposite_colors(v1, v3));
         }
 
         [TestMethod()]
         public void RelativeSquareTests()
         {
             var v1 = Square.SQ_A7;
-            Assert.AreEqual(Square.SQ_A2, v1.relative_square(Color.BLACK));
+            Assert.AreEqual(Square.SQ_A2, Square.relative_square(Color.BLACK, v1));
         }
 
         [TestMethod()]
@@ -102,8 +102,8 @@ namespace Tests
         public void FileAndRankOfTests()
         {
             var v1 = Square.make_square(File.FILE_C, Rank.RANK_3);
-            Assert.AreEqual(File.FILE_C, v1.file_of());
-            Assert.AreEqual(Rank.RANK_3, v1.rank_of());
+            Assert.AreEqual(File.FILE_C, Square.file_of(v1));
+            Assert.AreEqual(Rank.RANK_3, Square.rank_of(v1));
         }
     }
 }

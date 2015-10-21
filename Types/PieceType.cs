@@ -96,6 +96,11 @@ public struct PieceType
         return new PieceType(v1.Value + 1);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator bool (PieceType pt)
+    {
+        return pt.Value != 0;
+    }
     public override string ToString()
     {
         return this.Value.ToString();

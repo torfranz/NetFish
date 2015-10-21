@@ -54,7 +54,9 @@
     <Compile Include="Types\Bitbases.cs" />
     <Compile Include="Types\Bitboard.cs" />
     <Compile Include="Types\Bitboards.cs" />
+    <Compile Include="Types\Checkinfo.cs" />
     <Compile Include="Types\KPKPosition.cs" />
+    <Compile Include="Types\StateInfo.cs" />
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />
     <Compile Include="Types\Rank.cs" />

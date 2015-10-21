@@ -289,16 +289,16 @@ public struct Square
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool opposite_colors(Square other)
+    public static bool opposite_colors(Square s1, Square s2)
     {
-        var s = this.Value ^ other.Value;
+        var s = s1.Value ^ s2.Value;
         return (((s >> 3) ^ s) & 1) != 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Square relative_square(Color c)
+    public static Square relative_square(Color c, Square s)
     {
-        return new Square(this.Value ^ (c * 56));
+        return new Square(s.Value ^ (c * 56));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -308,15 +308,15 @@ public struct Square
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public File file_of()
+    public static File file_of(Square s)
     {
-        return new File(this.Value & 7);
+        return new File(s.Value & 7);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Rank rank_of()
+    public static Rank rank_of(Square s)
     {
-        return new Rank(this.Value >> 3);
+        return new Rank(s.Value >> 3);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
