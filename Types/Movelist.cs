@@ -2,13 +2,11 @@
 /// in handy to use this class instead of the low level generate() function.
 public class MoveList
 {
-    private readonly int last;
-
-    private readonly ExtMove[] moveList = new ExtMove[_.MAX_MOVES];
+    private readonly PositionArray moveList = new PositionArray(new ExtMove[_.MAX_MOVES]);
 
     public MoveList(GenType Type, Position pos)
     {
-        Movegen.generate(Type, pos, this.moveList, ref this.last);
+        Movegen.generate(Type, pos, this.moveList);
     }
 
     public int begin()
@@ -18,17 +16,17 @@ public class MoveList
 
     public int end()
     {
-        return this.last;
+        return this.moveList.current;
     }
 
     public int size()
     {
-        return this.last;
+        return this.moveList.current;
     }
 
     public bool contains(Move move)
     {
-        for (var idx = 0; idx < this.last; idx++)
+        for (var idx = 0; idx < this.moveList.current; idx++)
         {
             if (this.moveList[idx] == move)
             {

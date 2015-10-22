@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class PositionArray
+public struct PositionArray
 {
-    private ExtMove[] table;
+    public ExtMove[] table;
 
-    public int current = 0;
+    public int current;
 
     public PositionArray(ExtMove[] table)
         : this(table, 0)

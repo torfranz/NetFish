@@ -124,19 +124,22 @@ public class MovePicker
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
-    private void insertion_sort(ExtMove[] moves, int begin, int end)
+    private void insertion_sort(PositionArray begin, PositionArray end)
     {
+        Debug.Assert(begin == end);
+        Debug.Assert(begin.current < end.current);
+
         var equalityComparer = Comparer<ExtMove>.Default;
-        for (var counter = begin; counter < end - 1; counter++)
+        for (var counter = begin.current; counter < end.current - 1; counter++)
         {
             var index = counter + 1;
             while (index > 0)
             {
-                if (equalityComparer.Compare(moves[index - 1], moves[index]) > 0)
+                if (equalityComparer.Compare(begin.table[index - 1], begin.table[index]) > 0)
                 {
-                    var temp = moves[index - 1];
-                    moves[index - 1] = moves[index];
-                    moves[index] = temp;
+                    var temp = begin.table[index - 1];
+                    begin.table[index - 1] = begin.table[index];
+                    begin.table[index] = temp;
                 }
                 index--;
             }
@@ -275,7 +278,7 @@ public class MovePicker
                 //killers[1] = ss.killers[1];
                 killers[2].move = countermove;
                 cur.set(killers);
-                endMoves = 2 + ((countermove != killers[0] && countermove != killers[1]) ? 1 : 0);
+                endMoves = cur + 2 + ((countermove != killers[0] && countermove != killers[1]) ? 1 : 0);
                 break;
 
             case Stages.GOOD_QUIETS:
@@ -286,7 +289,7 @@ public class MovePicker
 
                     // TODO: find solution
                     // endMoves = std::partition(cur, endMoves, [](const ExtMove&m) { return m.value > Value.VALUE_ZERO; });
-                    insertion_sort(cur, 0, endMoves);
+                    insertion_sort(cur, endMoves);
                 }
                 break;
 
@@ -294,30 +297,26 @@ public class MovePicker
                 cur = endMoves;
                 endMoves = endQuiets;
                 if (depth >= 3 * Depth.ONE_PLY)
-                    insertion_sort(cur, 0, endMoves);
+                    insertion_sort(cur, endMoves);
                 break;
 
             case Stages.BAD_CAPTURES:
                 // Just pick them in reverse order to get correct ordering
-                cur = _.MAX_MOVES - 1;
+                cur = new PositionArray(moves) + (_.MAX_MOVES - 1);
                 endMoves = endBadCaptures;
                 break;
 
             case Stages.ALL_EVASIONS:
                 {
-                    var movelistPos = 0;
-                    Movegen.generate(GenType.EVASIONS, pos, moves, ref movelistPos);
-                    endMoves = movelistPos;
-
-                    if (endMoves > 1) score(GenType.EVASIONS);
+                    endMoves = Movegen.generate(GenType.EVASIONS, pos, new PositionArray(moves));
+                    
+                    if (endMoves.current > 1) score(GenType.EVASIONS);
                 }
                 break;
 
             case Stages.CHECKS:
                 {
-                    var movelistPos = 0;
-                    Movegen.generate(GenType.QUIET_CHECKS, pos, moves, ref movelistPos);
-                    endMoves = movelistPos;
+                    endMoves = Movegen.generate(GenType.QUIET_CHECKS, pos, new PositionArray(moves));
                 }
                 break;
 
