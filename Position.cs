@@ -121,7 +121,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Piece moved_piece(Move m)
+    public Piece moved_piece(Move m)
     {
         return this.board[Move.from_sq(m)];
     }
@@ -453,7 +453,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool capture(Move m)
+    public bool capture(Move m)
     {
         // Castling is encoded as "king captures the rook"
         Debug.Assert(Move.is_ok(m));
@@ -725,7 +725,7 @@ public class Position
     /// Position::pseudo_legal() takes a random move and tests whether the move is
     /// pseudo legal. It is used to validate moves from TT that can be corrupted
     /// due to SMP concurrent access or hash position key aliasing.
-    private bool pseudo_legal(Move m)
+    public bool pseudo_legal(Move m)
     {
         var us = this.sideToMove;
         var from = Move.from_sq(m);
@@ -1225,7 +1225,7 @@ public class Position
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
     /// material gain or loss resulting from a move.
-    private Value see_sign(Move m)
+    public Value see_sign(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1241,7 +1241,7 @@ public class Position
         return this.see(m);
     }
 
-    private Value see(Move m)
+    public Value see(Move m)
     {
         Square from, to;
         Bitboard occupied, attackers, stmAttackers;

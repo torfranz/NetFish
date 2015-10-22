@@ -45,11 +45,13 @@
   <ItemGroup>
     <Compile Include="BitCount.cs" />
     <Compile Include="Movegen.cs" />
+    <Compile Include="Movepicker.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="PRNG.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSQT.cs" />
+    <Compile Include="Stats.cs" />
     <Compile Include="TTEntry.cs" />
     <Compile Include="TT.cs" />
     <Compile Include="Types\Bitbases.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="Types\ExtMove.cs" />
     <Compile Include="Types\KPKPosition.cs" />
     <Compile Include="Types\Movelist.cs" />
+    <Compile Include="Types\PositionArray.cs" />
     <Compile Include="Types\StateInfo.cs" />
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />

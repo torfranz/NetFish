@@ -23,4 +23,14 @@ public struct ExtMove
     {
         return f.value > s.value;
     }
+
+    public static bool operator ==(ExtMove f, ExtMove s)
+    {
+        return f.move == s.move;
+    }
+
+    public static bool operator !=(ExtMove f, ExtMove s)
+    {
+        return f.move != s.move;
+    }
 };
