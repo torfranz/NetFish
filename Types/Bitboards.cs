@@ -42,7 +42,8 @@ public static class Bitboards
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 Utils.ForwardBB[c, s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[Square.file_of(s)];
-                Utils.PawnAttackSpan[c, s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.AdjacentFilesBB[Square.file_of(s)];
+                Utils.PawnAttackSpan[c, s] = Utils.InFrontBB[c, Square.rank_of(s)]
+                                             & Utils.AdjacentFilesBB[Square.file_of(s)];
                 Utils.PassedPawnMask[c, s] = Utils.ForwardBB[c, s] | Utils.PawnAttackSpan[c, s];
             }
         }

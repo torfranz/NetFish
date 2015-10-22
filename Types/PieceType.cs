@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 public struct PieceType
 {
@@ -31,7 +30,10 @@ public struct PieceType
 
     #region constructors
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public PieceType(int value)
     {
         this.Value = value;
@@ -42,84 +44,121 @@ public struct PieceType
 
     #region base operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator +(PieceType v1, PieceType v2)
     {
         return new PieceType(v1.Value + v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator +(PieceType v1, int v2)
     {
         return new PieceType(v1.Value + v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator +(int v1, PieceType v2)
     {
         return new PieceType(v1 + v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator -(PieceType v1, PieceType v2)
     {
         return new PieceType(v1.Value - v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator -(PieceType v1, int v2)
     {
         return new PieceType(v1.Value - v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator int(PieceType pt)
     {
         return pt.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator ==(PieceType v1, PieceType v2)
     {
         return v1.Value == v2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator !=(PieceType v1, PieceType v2)
     {
         return v1.Value != v2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static PieceType operator ++(PieceType v1)
     {
         return new PieceType(v1.Value + 1);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator bool (PieceType pt)
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public static implicit operator bool(PieceType pt)
     {
         return pt.Value != 0;
     }
+
     public override string ToString()
     {
         return this.Value.ToString();
     }
 
     /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static PieceType operator -(PieceType v1)
     {
         return new PieceType(-v1.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static PieceType operator *(int v1, PieceType v2)
     {
         return new PieceType(v1 * v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static PieceType operator *(PieceType v1, int v2)
     {
         return new PieceType(v1.value * v2);
@@ -129,13 +168,17 @@ public struct PieceType
 
     #region extended operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static int operator /(PieceType v1, PieceType v2)
     {
         return v1.value / v2.value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static PieceType operator /(PieceType v1, int v2)
     {
         return new PieceType(v1.value / v2);

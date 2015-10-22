@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 /// Position class stores information regarding the board representation as
@@ -41,7 +40,7 @@ public class Position
     private Color sideToMove;
 
     // Thread* thisThread;
-    private StateInfo st;
+    public StateInfo st;
 
     private StateInfo startState;
 
@@ -82,73 +81,109 @@ public class Position
         Zobrist.exclusion = rng.rand();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces()
     {
         return this.byTypeBB[PieceType.ALL_PIECES];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Color side_to_move()
     {
         return this.sideToMove;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool empty(Square s)
     {
         return this.board[s] == Piece.NO_PIECE;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Piece piece_on(Square s)
     {
         return this.board[s];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Piece moved_piece(Move m)
     {
         return this.board[Move.from_sq(m)];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces(PieceType pt)
     {
         return this.byTypeBB[pt];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces(PieceType pt1, PieceType pt2)
     {
         return this.byTypeBB[pt1] | this.byTypeBB[pt2];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces(Color c)
     {
         return this.byColorBB[c];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces(Color c, PieceType pt)
     {
         return this.byColorBB[c] & this.byTypeBB[pt];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
         return this.byColorBB[c] & (this.byTypeBB[pt1] | this.byTypeBB[pt2]);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private int count(PieceType Pt, Color c)
     {
         return this.pieceCount[c, Pt];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Square[] squares(PieceType Pt, Color c)
     {
         //TODO: find solution
@@ -156,44 +191,65 @@ public class Position
         return null;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Square square(PieceType Pt, Color c)
     {
         Debug.Assert(this.pieceCount[c, Pt] == 1);
         return this.pieceList[c, Pt, 0];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Square ep_square()
     {
         return this.st.epSquare;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private int can_castle(CastlingRight cr)
     {
         return this.st.castlingRights & (int)cr;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private int can_castle(Color c)
     {
         return this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool castling_impeded(CastlingRight cr)
     {
         return this.byTypeBB[PieceType.ALL_PIECES] & this.castlingPath[(int)cr];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Square castling_rook_square(CastlingRight cr)
     {
         return this.castlingRookSquare[(int)cr];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard attacks_from(PieceType Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
@@ -203,111 +259,165 @@ public class Position
                          : Utils.StepAttacksBB[Pt, s];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard attacks_from(PieceType Pt, Square s, Color c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard attacks_from(Piece pc, Square s)
     {
         return Utils.attacks_bb(pc, s, this.byTypeBB[PieceType.ALL_PIECES]);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Bitboard attackers_to(Square s)
     {
         return this.attackers_to(s, this.byTypeBB[PieceType.ALL_PIECES]);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Bitboard checkers()
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public Bitboard checkers()
     {
         return this.st.checkersBB;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard discovered_check_candidates()
     {
         return this.check_blockers(this.sideToMove, ~this.sideToMove);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard pinned_pieces(Color c)
     {
         return this.check_blockers(c, c);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool pawn_passed(Color c, Square s)
     {
         return !(this.pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(this.moved_piece(m)) == PieceType.PAWN
                && Rank.relative_rank(this.sideToMove, Move.from_sq(m)) > Rank.RANK_4;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private ulong key()
     {
         return this.st.key;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private ulong pawn_key()
     {
         return this.st.pawnKey;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private ulong material_key()
     {
         return this.st.materialKey;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Score psq_score()
     {
         return this.st.psq;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private Value non_pawn_material(Color c)
     {
         return this.st.nonPawnMaterial[c];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private int game_ply()
     {
         return this.gamePly;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private int rule50_count()
     {
         return this.st.rule50;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private ulong nodes_searched()
     {
         return this.nodes;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private void set_nodes_searched(ulong n)
     {
         this.nodes = (uint)n;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool opposite_bishops()
     {
         return this.pieceCount[Color.WHITE, PieceType.BISHOP] == 1
@@ -317,20 +427,29 @@ public class Position
                    this.square(PieceType.BISHOP, Color.BLACK));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool is_chess960()
     {
         return this.chess960;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool capture_or_promotion(Move m)
     {
         Debug.Assert(Move.is_ok(m));
         return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !this.empty(Move.to_sq(m));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private bool capture(Move m)
     {
         // Castling is encoded as "king captures the rook"
@@ -339,20 +458,28 @@ public class Position
                || Move.type_of(m) == MoveType.ENPASSANT;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private PieceType captured_piece_type()
     {
         return this.st.capturedType;
     }
 
     /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     Thread this_thread() {
   return thisThread;
 }
 */
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private void put_piece(Color c, PieceType pt, Square s)
     {
         this.board[s] = Piece.make_piece(c, pt);
@@ -364,7 +491,10 @@ public class Position
         this.pieceCount[c, PieceType.ALL_PIECES]++;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private void remove_piece(Color c, PieceType pt, Square s)
     {
         // WARNING: This is not a reversible operation. If we remove a piece in
@@ -382,7 +512,10 @@ public class Position
         this.pieceCount[c, PieceType.ALL_PIECES]--;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private void move_piece(Color c, PieceType pt, Square from, Square to)
     {
         // index[from] is not updated and becomes stale. This works as long as index[]
@@ -753,15 +886,7 @@ public class Position
         // Copy some fields of the old state to our new StateInfo object except the
         // ones which are going to be recalculated from scratch anyway and then switch
         // our state pointer to point to the new (ready to be updated) state.
-        newSt.pawnKey = this.st.pawnKey;
-        newSt.materialKey = this.st.materialKey;
-        newSt.nonPawnMaterial[0] = this.st.nonPawnMaterial[0];
-        newSt.nonPawnMaterial[1] = this.st.nonPawnMaterial[1];
-        newSt.castlingRights = this.st.castlingRights;
-        newSt.rule50 = this.st.rule50;
-        newSt.pliesFromNull = this.st.pliesFromNull;
-        newSt.psq = this.st.psq;
-        newSt.epSquare = this.st.epSquare;
+        newSt.copyFrom(this.st);
 
         newSt.previous = this.st;
         this.st = newSt;
@@ -1010,19 +1135,7 @@ public class Position
         Debug.Assert(!this.checkers());
         Debug.Assert(newSt != this.st);
 
-        newSt.pawnKey = this.st.pawnKey;
-        newSt.materialKey = this.st.materialKey;
-        newSt.nonPawnMaterial[0] = this.st.nonPawnMaterial[0];
-        newSt.nonPawnMaterial[1] = this.st.nonPawnMaterial[1];
-        newSt.castlingRights = this.st.castlingRights;
-        newSt.rule50 = this.st.rule50;
-        newSt.pliesFromNull = this.st.pliesFromNull;
-        newSt.psq = this.st.psq;
-        newSt.epSquare = this.st.epSquare;
-        newSt.key = this.st.key;
-        newSt.checkersBB = this.st.checkersBB;
-        newSt.capturedType = this.st.capturedType;
-        newSt.previous = this.st.previous;
+        newSt.copyFrom(this.st);
 
         newSt.previous = this.st;
         this.st = newSt;
@@ -1236,11 +1349,23 @@ public class Position
         {
             if (step == (int)CheckStep.Default)
             {
-                if ((this.sideToMove != Color.WHITE && this.sideToMove != Color.BLACK)
-                    || this.piece_on(this.square(PieceType.KING, Color.WHITE)) != Piece.W_KING
-                    || this.piece_on(this.square(PieceType.KING, Color.BLACK)) != Piece.B_KING
-                    || (this.ep_square() != Square.SQ_NONE
-                        && Rank.relative_rank(this.sideToMove, this.ep_square()) != Rank.RANK_6))
+                if (this.sideToMove != Color.WHITE && this.sideToMove != Color.BLACK)
+                {
+                    return false;
+                }
+
+                if (this.piece_on(this.square(PieceType.KING, Color.WHITE)) != Piece.W_KING)
+                {
+                    return false;
+                }
+
+                if (this.piece_on(this.square(PieceType.KING, Color.BLACK)) != Piece.B_KING)
+                {
+                    return false;
+                }
+
+                var relRank = Rank.relative_rank(this.sideToMove, this.ep_square());
+                if (this.ep_square() != Square.SQ_NONE && relRank != Rank.RANK_6)
                 {
                     return false;
                 }
@@ -1629,7 +1754,8 @@ public class Position
 
         // thisThread = ;
         this.startState = new StateInfo();
-        this.st = startState;
+
+        this.st = this.startState;
     }
 
     /// Position::pos_is_ok() performs some consistency checks for the position object.
@@ -1651,52 +1777,109 @@ public class Position
 
     /// Position::flip() flips position with the white and black sides reversed. This
     /// is only useful for debugging e.g. for finding evaluation symmetry bugs.
-    internal void flip()
+    public void flip()
     {
-        // Make a copy of current position before to start changing
-        var pos = new Position(this);
-        this.clear();
+        var tokens = CreateStack(this.fen());
+        Debug.Assert(tokens.Count == 6);
 
-        this.sideToMove = ~pos.sideToMove;
-        //this.thisThread = pos.this_thread();
-        this.nodes = pos.nodes;
-        this.chess960 = pos.chess960;
-        this.gamePly = pos.game_ply();
-
-        for (var s = Square.SQ_A1; s <= Square.SQ_H8; s++)
+        var flippedFen = new StringBuilder();
+        // 1.Position
+        var ranks = tokens.Pop().Split('/');
+        Debug.Assert(ranks.Length == 8);
+        for (var idx = ranks.Length - 1; idx >= 0; idx--)
         {
-            if (!pos.empty(s))
+            foreach (var posValue in ranks[idx].ToCharArray())
             {
-                var piece = pos.piece_on(s);
-                this.put_piece(Piece.color_of(piece), Piece.type_of(piece), ~s);
+                flippedFen.Append(islower(posValue) ? toupper(posValue) : tolower(posValue));
+            }
+
+            flippedFen.Append(idx > 0 ? '/' : ' ');
+        }
+
+        // 2. Color
+        flippedFen.Append(tokens.Pop() == "w" ? "b " : "w ");
+
+        // 3. Castling
+        var castling = tokens.Pop();
+        for (var idx = castling.Length - 1; idx >= 0; idx--)
+        {
+            foreach (var castlingValue in castling.ToCharArray())
+            {
+                flippedFen.Append(islower(castlingValue) ? toupper(castlingValue) : tolower(castlingValue));
             }
         }
+        flippedFen.Append(' ');
 
-        if (pos.can_castle(CastlingRight.WHITE_OO) != 0)
+        // 4. Enpassant
+        var ep = tokens.Pop();
+        foreach (var epValue in ep.ToCharArray())
         {
-            this.set_castling_right(Color.BLACK, pos.castling_rook_square(CastlingRight.BLACK_OO));
+            flippedFen.Append(epValue == '3' ? '6' : epValue == '6' ? '3' : epValue);
         }
-        if (pos.can_castle(CastlingRight.WHITE_OOO) != 0)
-        {
-            this.set_castling_right(Color.BLACK, pos.castling_rook_square(CastlingRight.BLACK_OOO));
-        }
-        if (pos.can_castle(CastlingRight.BLACK_OO) != 0)
-        {
-            this.set_castling_right(Color.WHITE, pos.castling_rook_square(CastlingRight.WHITE_OO));
-        }
-        if (pos.can_castle(CastlingRight.BLACK_OOO) != 0)
-        {
-            this.set_castling_right(Color.WHITE, pos.castling_rook_square(CastlingRight.WHITE_OOO));
-        }
+        flippedFen.Append(' ');
 
-        if (pos.st.epSquare != Square.SQ_NONE)
-        {
-            this.st.epSquare = ~pos.st.epSquare;
-        }
+        // 5. Halfmoves
+        flippedFen.Append(tokens.Pop());
+        flippedFen.Append(' ');
 
-        set_state(st);
+        // 6. FullMoves
+        flippedFen.Append(tokens.Pop());
+        flippedFen.Append(' ');
+
+        this.set(flippedFen.ToString(), this.chess960);
+    }
+
+    public Position(Position other)
+    {
+        Array.Copy(other.board, this.board, other.board.Length);
+        Array.Copy(other.byColorBB, this.byColorBB, other.byColorBB.Length);
+        Array.Copy(other.byTypeBB, this.byTypeBB, other.byTypeBB.Length);
+        Array.Copy(other.castlingPath, this.castlingPath, other.castlingPath.Length);
+        Array.Copy(other.castlingRightsMask, this.castlingRightsMask, other.castlingRightsMask.Length);
+        Array.Copy(other.castlingRookSquare, this.castlingRookSquare, other.castlingRookSquare.Length);
+        Array.Copy(other.index, this.index, other.index.Length);
+        Array.Copy(other.pieceCount, this.pieceCount, other.pieceCount.Length);
+        Array.Copy(other.pieceList, this.pieceList, other.pieceList.Length);
+
+        this.chess960 = other.chess960;
+        this.gamePly = other.gamePly;
+        this.sideToMove = other.sideToMove;
+
+        // thisThread = other.thisThread;
+        this.startState = new StateInfo();
+        this.startState.copyFrom(other.st);
+        this.st = this.startState;
 
         Debug.Assert(this.pos_is_ok());
+    }
+
+    public Position(string f, bool c960 /*, Thread* th*/)
+    {
+        this.set(f, c960 /*, th*/);
+    }
+
+    public string displayString()
+    {
+        var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
+        for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
+        {
+            for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+            {
+                sb.Append(" | ");
+                sb.Append(PieceToChar[this.piece_on(Square.make_square(f, r))]);
+            }
+
+            sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");
+        }
+
+        sb.Append($"\nFen: {this.fen()}\nKey: {this.st.key}\nCheckers: ");
+
+        for (var b = this.checkers(); b;)
+        {
+            sb.Append(UCI.square(Utils.pop_lsb(ref b)) + " ");
+        }
+
+        return sb.ToString();
     }
 
     /*
@@ -1735,17 +1918,3 @@ void Position::flip() {
 }
     */
 }
-
-/*
-friend std::ostream& operator<<(std::ostream&, const Position&);
-
-public:
-  
-
-  Position() = default; // To define the global object RootPos
-  Position(const Position&) = delete;
-  Position(const Position& pos, Thread* th) { *this = pos; thisThread = th; }
-  Position(const std::string& f, bool c960, Thread* th) { set(f, c960, th); }
-  Position& operator=(const Position&); // To assign RootPos from UCI
-  
-*/

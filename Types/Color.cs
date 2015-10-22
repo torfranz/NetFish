@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 public struct Color
 {
@@ -15,13 +14,19 @@ public struct Color
 
     #region constructors
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Color(uint value)
         : this((int)value)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Color(int value)
     {
         this.Value = value;
@@ -32,74 +37,107 @@ public struct Color
 
     #region base operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator +(Color v1, Color v2)
     {
         return new Color(v1.Value + v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator +(Color v1, int v2)
     {
         return new Color(v1.Value + v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator +(int v1, Color v2)
     {
         return new Color(v1 + v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator -(Color v1, Color v2)
     {
         return new Color(v1.Value - v2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator -(Color v1, int v2)
     {
         return new Color(v1.Value - v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator int(Color c)
     {
         return c.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator ==(Color v1, Color v2)
     {
         return v1.Value == v2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator !=(Color v1, Color v2)
     {
         return v1.Value != v2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator ++(Color v1)
     {
         return new Color(v1.Value + 1);
     }
 
     /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Color operator -(Color v1)
     {
         return new Color(-v1.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Color operator *(int v1, Color v2)
     {
         return new Color(v1 * v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Color operator *(Color v1, int v2)
     {
         return new Color(v1.value * v2);
@@ -109,13 +147,17 @@ public struct Color
 
     #region extended operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static int operator /(Color v1, Color v2)
     {
         return v1.value / v2.value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    #if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Color operator /(Color v1, int v2)
     {
         return new Color(v1.value / v2);
@@ -124,13 +166,19 @@ public struct Color
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Color operator ~(Color c)
     {
         return new Color(c.Value ^ BLACK);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static CastlingRight operator |(Color c, CastlingSide s)
     {
         return (CastlingRight)((int)CastlingRight.WHITE_OO << ((s == CastlingSide.QUEEN_SIDE ? 1 : 0) + 2 * c.Value));

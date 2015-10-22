@@ -54,6 +54,53 @@ namespace Tests
             // check Zobrist.side
             Assert.AreEqual(4906379431808431525ul, Zobrist.side);
         }
+
+        [TestMethod()]
+        public void fenTest()
+        {
+            Bitboards.init();
+            Position.init();
+            
+            var fen1 = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10";
+            var pos1 = new Position(fen1, false);
+            Assert.AreEqual(fen1, pos1.fen());
+            Assert.AreEqual(0x81598B11829602DD, pos1.st.key);
+
+            var fen2 = "2r3k1/1q1nbppp/r3p3/3pP3/pPpP4/P1Q2N2/2RN1PPP/2R4K b - b3 0 23";
+            var pos2 = new Position(fen2, false);
+            Assert.AreEqual(fen2, pos2.fen());
+            Assert.AreEqual(0xD76B6F24873CAD66, pos2.st.key);
+
+            var fen3 = "rnb1kbnr/pp1ppppp/2p5/q7/4P3/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3";
+            var pos3 = new Position(fen3, false);
+            Assert.AreEqual(fen3, pos3.fen());
+            Assert.AreEqual(0x139B22CF5565D5CEul, pos3.st.key);
+            var b = pos3.checkers();
+            Assert.AreEqual("a5", UCI.square(Utils.pop_lsb(ref b)));
+        }
+
+        [TestMethod()]
+        public void flipTest()
+        {
+            Bitboards.init();
+            Position.init();
+
+            var fen1 = "r1bbk1nr/pp3p1p/2n5/1N4p1/2Np1B2/8/PPP2PPP/2KR1B1R w kq - 0 13";
+            var pos1 = new Position(fen1, false);
+            pos1.flip();
+            Assert.AreEqual("2kr1b1r/ppp2ppp/8/2nP1b2/1n4P1/2N5/PP3P1P/R1BBK1NR b KQ - 0 13", pos1.fen());
+
+            pos1.flip();
+            Assert.AreEqual(fen1, pos1.fen());
+
+            var fen2 = "2r3k1/1q1nbppp/r3p3/3pP3/pPpP4/P1Q2N2/2RN1PPP/2R4K b - b3 0 23";
+            var pos2 = new Position(fen2, false);
+            pos2.flip();
+            Assert.AreEqual("2r4k/2rn1ppp/p1q2n2/PpPp4/3Pp3/R3P3/1Q1NBPPP/2R3K1 w - b6 0 23", pos2.fen());
+
+            pos2.flip();
+            Assert.AreEqual(fen2, pos2.fen());
+        }
     }
 }
 

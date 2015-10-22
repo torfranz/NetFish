@@ -19,7 +19,9 @@ public static class Bitbases
     // bit 15-17: white pawn RANK_7 - rank (from RANK_7 - RANK_7 to RANK_7 - RANK_2)
     public static uint index(Color us, Square bksq, Square wksq, Square psq)
     {
-        return (uint)(wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) | ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
+        return
+            (uint)
+            (wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) | ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 
     public static bool probe(Square wksq, Square wpsq, Square bksq, Color us)

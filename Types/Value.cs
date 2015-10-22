@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-public struct Value
+﻿public struct Value
 {
     public static Value VALUE_ZERO = new Value(0);
 
@@ -42,15 +40,32 @@ public struct Value
 
     public static Value EndgameLimit = new Value(3998);
 
-    public static Value[][] PieceValue = {
-        new[]{ VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO},
-        new[]{ VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg, QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO } };
+    public static Value[][] PieceValue =
+        {
+            new[]
+                {
+                    VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
+                    QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                },
+            new[]
+                {
+                    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
+                    QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                }
+        };
 
     private int value { get; }
 
     #region constructors
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Value(int value)
     {
         this.value = value;
@@ -60,67 +75,100 @@ public struct Value
 
     #region base operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator +(Value v1, Value v2)
     {
         return new Value(v1.value + v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator +(Value v1, int v2)
     {
         return new Value(v1.value + v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator +(int v1, Value v2)
     {
         return new Value(v1 + v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator -(Value v1, Value v2)
     {
         return new Value(v1.value - v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator -(Value v1, int v2)
     {
         return new Value(v1.value - v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator -(Value v1)
     {
         return new Value(-v1.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator *(int v1, Value v2)
     {
         return new Value(v1 * v2.value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator *(Value v1, int v2)
     {
         return new Value(v1.value * v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator int(Value v)
     {
         return v.value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator ==(Value v1, Value v2)
     {
         return v1.value == v2.value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator !=(Value v1, Value v2)
     {
         return v1.value != v2.value;
@@ -130,25 +178,37 @@ public struct Value
 
     #region extended operators
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static int operator /(Value v1, Value v2)
     {
         return v1.value / v2.value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value operator /(Value v1, int v2)
     {
         return new Value(v1.value / v2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value mate_in(int ply)
     {
         return new Value(VALUE_MATE - ply);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Value mated_in(int ply)
     {
         return new Value(-VALUE_MATE + ply);

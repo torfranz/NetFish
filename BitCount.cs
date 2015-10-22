@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-using Key = System.UInt64;
+﻿using Key = System.UInt64;
 using Bitboard = System.UInt64;
 using Move = System.Int32;
 using File = System.Int32;
@@ -24,7 +22,9 @@ public static class Bitcount
     /// is 32 or 64 bits, and to the maximum number of nonzero bits.
     /// We also support hardware popcnt instruction. See Readme.txt
     /// on how to pgo compile with popcnt support.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static int popcount_Full(ulong b)
     {
 #if X64
@@ -43,7 +43,10 @@ public static class Bitcount
 #endif
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static int popcount_Max15(ulong b)
     {
 #if X64

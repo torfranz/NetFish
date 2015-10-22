@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 public static class Utils
@@ -62,25 +61,36 @@ public static class Utils
 
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard rank_bb(Rank r)
     {
         return RankBB[r];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard rank_bb(Square s)
     {
         return RankBB[Square.rank_of(s)];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard file_bb(File f)
     {
         return FileBB[f];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard file_bb(Square s)
     {
         return FileBB[Square.file_of(s)];
@@ -88,7 +98,9 @@ public static class Utils
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
     /// adjacent files of the given one.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard adjacent_files_bb(File f)
     {
         return AdjacentFilesBB[f];
@@ -98,7 +110,9 @@ public static class Utils
     /// given ones. For instance, between_bb(SQ_C4, SQ_F7) returns a bitboard with
     /// the bits for square d5 and e6 set. If s1 and s2 are not on the same rank, file
     /// or diagonal, 0 is returned.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard between_bb(Square s1, Square s2)
     {
         return BetweenBB[s1, s2];
@@ -107,7 +121,9 @@ public static class Utils
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
     /// in front of the given one, from the point of view of the given color. For
     /// instance, in_front_bb(BLACK, RANK_3) will return the squares on ranks 1 and 2.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard in_front_bb(Color c, Rank r)
     {
         return InFrontBB[c, r];
@@ -116,7 +132,9 @@ public static class Utils
     /// forward_bb() returns a bitboard representing all the squares along the line
     /// in front of the given one, from the point of view of the given color:
     /// ForwardBB[c][s] = in_front_bb(c, s) & file_bb(s)
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard forward_bb(Color c, Square s)
     {
         return ForwardBB[c, s];
@@ -126,7 +144,9 @@ public static class Utils
     /// attacked by a pawn of the given color when it moves along its file, starting
     /// from the given square:
     /// PawnAttackSpan[c][s] = in_front_bb(c, s) & adjacent_files_bb(s);
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard pawn_attack_span(Color c, Square s)
     {
         return PawnAttackSpan[c, s];
@@ -135,7 +155,9 @@ public static class Utils
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
     /// pawn of the given color and on the given square is a passed pawn:
     /// PassedPawnMask[c][s] = pawn_attack_span(c, s) | forward_bb(c, s)
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard passed_pawn_mask(Color c, Square s)
     {
         return PassedPawnMask[c, s];
@@ -143,7 +165,9 @@ public static class Utils
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
     /// straight or on a diagonal line.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static bool aligned(Square s1, Square s2, Square s3)
     {
         return LineBB[s1, s2] & s3;
@@ -151,13 +175,18 @@ public static class Utils
 
     /// distance() functions return the distance between x and y, defined as the
     /// number of steps for a king in x to reach y. Works with squares, ranks, files.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static int distance_Square(Square x, Square y)
     {
         return SquareDistance[x, y];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static int file_distance(Square x, Square y)
     {
         int xFile = Square.file_of(x);
@@ -165,7 +194,10 @@ public static class Utils
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static int rank_distance(Square x, Square y)
     {
         int xRank = Square.rank_of(x);
@@ -209,7 +241,10 @@ public static class Utils
                    : BishopAttacks[s][magic_index(Pt, s, occupied)];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
         switch (Piece.type_of(pc))
@@ -274,7 +309,9 @@ public static class Utils
     }
 
     /// pop_lsb() finds and clears the least significant bit in a non-zero bitboard
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Square pop_lsb(ref Bitboard b)
     {
         var s = lsb(b);
@@ -287,13 +324,18 @@ public static class Utils
 
     /// frontmost_sq() and backmost_sq() return the square corresponding to the
     /// most/least advanced bit relative to the given color.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     private static Square frontmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     private static Square backmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
@@ -312,7 +354,7 @@ public static class Utils
 #else
         const string cpu64 = "";
 #endif
-    // Assembly and file version
+        // Assembly and file version
         var assembly = Assembly.GetExecutingAssembly();
         Version fileVersion = null;
         var attribs = assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
@@ -346,8 +388,7 @@ public static class Utils
         // Create version
         var sb = new StringBuilder();
         sb.Append("Netfish ").Append(versionInfo).Append(cpu64);
-        sb.Append(to_uci ? "\nid author " : " by ")
-            .Append("TF");
+        sb.Append(to_uci ? "\nid author " : " by ").Append("TF");
         return sb.ToString();
     }
 }

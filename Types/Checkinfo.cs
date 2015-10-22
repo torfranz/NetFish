@@ -2,9 +2,9 @@
 {
     public readonly Bitboard[] checkSquares = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-    public Bitboard dcCandidates;
-
     public readonly Square ksq;
+
+    public Bitboard dcCandidates;
 
     private Bitboard pinned;
 

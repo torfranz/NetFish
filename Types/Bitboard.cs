@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-public struct Bitboard
+﻿public struct Bitboard
 {
     public const ulong DarkSquares = 0xAA55AA55AA55AA55UL;
 
@@ -40,13 +38,20 @@ public struct Bitboard
 
     #region constructors
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+
+#endif
+
     public Bitboard(Bitboard bitboard)
         : this(bitboard.Value)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public Bitboard(ulong value)
     {
         this.Value = value;
@@ -61,110 +66,162 @@ public struct Bitboard
 
     /// Overloads of bitwise operators between a Bitboard and a Square for testing
     /// whether a given bit is set in a bitboard, and for setting and clearing bits.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public static Bitboard operator &(Bitboard b, Square s)
     {
         return new Bitboard(b.Value & Utils.SquareBB[s].Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator &(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value & b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator -(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value - b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator +(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value + b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator >>(Bitboard b1, int i)
     {
         return new Bitboard(b1.Value >> i);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator <<(Bitboard b1, int i)
     {
         return new Bitboard(b1.Value << i);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator |(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value | b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator *(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value * b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator |(Bitboard b, Square s)
     {
         return new Bitboard(b.Value | Utils.SquareBB[s].Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator ==(Bitboard b1, Bitboard b2)
     {
         return b1.Value == b2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool operator !=(Bitboard b1, Bitboard b2)
     {
         return b1.Value != b2.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator ~(Bitboard b)
     {
         return new Bitboard(~b.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator bool(Bitboard b)
     {
         return b.Value != 0;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator ulong(Bitboard b)
     {
         return b.Value;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator ^(Bitboard b1, Bitboard b2)
     {
         return new Bitboard(b1.Value ^ b2.Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static Bitboard operator ^(Bitboard b, Square s)
     {
         return new Bitboard(b.Value ^ Utils.SquareBB[s].Value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static bool more_than_one(Bitboard b)
     {
         return (b.Value & (b.Value - 1)) != 0;
     }
 
     /// shift_bb() moves a bitboard one step along direction Delta. Mainly for pawns
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
     public Bitboard shift_bb(Square Delta)
     {
         return Delta == Square.DELTA_N

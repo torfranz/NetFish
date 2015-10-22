@@ -1,10 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-
-public class KPKPosition
+﻿public class KPKPosition
 {
     private readonly Square[] ksq = new Square[Color.COLOR_NB];
 
-    private Square psq;
+    private readonly Square psq;
 
     private Result result;
 
@@ -52,7 +50,10 @@ public class KPKPosition
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if FORCEINLINE  
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
     public static implicit operator Result(KPKPosition position)
     {
         return position.result;
