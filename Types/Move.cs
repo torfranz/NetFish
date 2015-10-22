@@ -102,6 +102,15 @@ public struct Move
         return new Move(to | (from << 6));
     }
 
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public static Move make(MoveType moveType, Square from, Square to)
+    {
+        return make(moveType, from, to, PieceType.KNIGHT);
+    }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif

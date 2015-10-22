@@ -222,18 +222,18 @@
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public Bitboard shift_bb(Square Delta)
+    public static Bitboard shift_bb(Square Delta, Bitboard b)
     {
         return Delta == Square.DELTA_N
-                   ? this << 8
+                   ? b << 8
                    : Delta == Square.DELTA_S
-                         ? this >> 8
+                         ? b >> 8
                          : Delta == Square.DELTA_NE
-                               ? (this & ~FileHBB) << 9
+                               ? (b & ~FileHBB) << 9
                                : Delta == Square.DELTA_SE
-                                     ? (this & ~FileHBB) >> 7
+                                     ? (b & ~FileHBB) >> 7
                                      : Delta == Square.DELTA_NW
-                                           ? (this & ~FileABB) << 7
-                                           : Delta == Square.DELTA_SW ? (this & ~FileABB) >> 9 : new Bitboard(0);
+                                           ? (b & ~FileABB) << 7
+                                           : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : new Bitboard(0);
     }
 }

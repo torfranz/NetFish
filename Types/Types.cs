@@ -24,6 +24,16 @@ internal struct _
     internal const int MAX_PLY = 128;
 }
 
+public enum GenType
+{
+    CAPTURES,
+    QUIETS,
+    QUIET_CHECKS,
+    EVASIONS,
+    NON_EVASIONS,
+    LEGAL
+};
+
 public enum Result
 {
     INVALID = 0,

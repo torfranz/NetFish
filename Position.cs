@@ -85,7 +85,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces()
+    public Bitboard pieces()
     {
         return this.byTypeBB[PieceType.ALL_PIECES];
     }
@@ -112,7 +112,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Piece piece_on(Square s)
+    public Piece piece_on(Square s)
     {
         return this.board[s];
     }
@@ -130,7 +130,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces(PieceType pt)
+    public Bitboard pieces(PieceType pt)
     {
         return this.byTypeBB[pt];
     }
@@ -139,7 +139,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces(PieceType pt1, PieceType pt2)
+    public Bitboard pieces(PieceType pt1, PieceType pt2)
     {
         return this.byTypeBB[pt1] | this.byTypeBB[pt2];
     }
@@ -148,7 +148,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces(Color c)
+    public Bitboard pieces(Color c)
     {
         return this.byColorBB[c];
     }
@@ -157,7 +157,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces(Color c, PieceType pt)
+    public Bitboard pieces(Color c, PieceType pt)
     {
         return this.byColorBB[c] & this.byTypeBB[pt];
     }
@@ -166,7 +166,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
+    public Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
         return this.byColorBB[c] & (this.byTypeBB[pt1] | this.byTypeBB[pt2]);
     }
@@ -184,11 +184,14 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Square[] squares(PieceType Pt, Color c)
+    public Square[] squares(PieceType Pt, Color c)
     {
-        //TODO: find solution
-        //return this.pieceList[c, Pt];
-        return null;
+        var result = new Square[16];
+        for (var idx = 0; idx < result.Length; idx++)
+        {
+            result[idx] = this.pieceList[c, Pt, idx];
+        }
+        return result;
     }
 
 #if FORCEINLINE  
@@ -205,7 +208,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Square ep_square()
+    public Square ep_square()
     {
         return this.st.epSquare;
     }
@@ -214,25 +217,25 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int can_castle(CastlingRight cr)
+    public bool can_castle(CastlingRight cr)
     {
-        return this.st.castlingRights & (int)cr;
+        return (this.st.castlingRights & (int)cr) != 0;
     }
 
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int can_castle(Color c)
+    public bool can_castle(Color c)
     {
-        return this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c));
+        return (this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c))) != 0;
     }
 
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool castling_impeded(CastlingRight cr)
+    public bool castling_impeded(CastlingRight cr)
     {
         return this.byTypeBB[PieceType.ALL_PIECES] & this.castlingPath[(int)cr];
     }
@@ -241,7 +244,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Square castling_rook_square(CastlingRight cr)
+    public Square castling_rook_square(CastlingRight cr)
     {
         return this.castlingRookSquare[(int)cr];
     }
@@ -282,7 +285,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Bitboard attackers_to(Square s)
+    public Bitboard attackers_to(Square s)
     {
         return this.attackers_to(s, this.byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -431,7 +434,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool is_chess960()
+    public bool is_chess960()
     {
         return this.chess960;
     }
@@ -674,7 +677,7 @@ public class Position
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
-    private bool legal(Move m, Bitboard pinned)
+    public bool legal(Move m, Bitboard pinned)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(pinned == this.pinned_pieces(this.sideToMove));
@@ -732,8 +735,7 @@ public class Position
         // Use a slower but simpler function for uncommon cases
         if (Move.type_of(m) != MoveType.NORMAL)
         {
-            //TODO: add MoveList
-            //return MoveList<LEGAL>(*this).contains(m);
+            return new MoveList(GenType.LEGAL, this).contains(m);
         }
 
         // Is not a promotion, so promotion piece must be empty
@@ -812,7 +814,7 @@ public class Position
     }
 
     /// Position::gives_check() tests whether a pseudo-legal move gives a check
-    private bool gives_check(Move m, CheckInfo ci)
+    public bool gives_check(Move m, CheckInfo ci)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(ci.dcCandidates == this.discovered_check_candidates());
@@ -1319,8 +1321,7 @@ public class Position
     /// or by repetition. It does not detect stalemates.
     private bool is_draw()
     {
-        //TODO: add MoveList
-        if (this.st.rule50 > 99 && (!this.checkers() /*|| MoveList<LEGAL>(*this).size()*/))
+        if (this.st.rule50 > 99 && (!this.checkers() || new MoveList(GenType.LEGAL, this).size() > 0))
         {
             return true;
         }
@@ -1430,7 +1431,7 @@ public class Position
                 {
                     for (var s = CastlingSide.KING_SIDE; s <= CastlingSide.QUEEN_SIDE; s++)
                     {
-                        if (this.can_castle(c | s) == 0)
+                        if (!this.can_castle(c | s))
                         {
                             continue;
                         }
@@ -1482,7 +1483,7 @@ public class Position
 
         ss.Append((this.sideToMove == Color.WHITE ? " w " : " b "));
 
-        if (this.can_castle(CastlingRight.WHITE_OO) != 0)
+        if (this.can_castle(CastlingRight.WHITE_OO))
         {
             ss.Append(
                 (this.chess960
@@ -1490,7 +1491,7 @@ public class Position
                      : 'K'));
         }
 
-        if (this.can_castle(CastlingRight.WHITE_OOO) != 0)
+        if (this.can_castle(CastlingRight.WHITE_OOO))
         {
             ss.Append(
                 (this.chess960
@@ -1498,7 +1499,7 @@ public class Position
                      : 'Q'));
         }
 
-        if (this.can_castle(CastlingRight.BLACK_OO) != 0)
+        if (this.can_castle(CastlingRight.BLACK_OO))
         {
             ss.Append(
                 (this.chess960
@@ -1506,7 +1507,7 @@ public class Position
                      : 'k'));
         }
 
-        if (this.can_castle(CastlingRight.BLACK_OOO) != 0)
+        if (this.can_castle(CastlingRight.BLACK_OOO))
         {
             ss.Append(
                 (this.chess960
@@ -1514,7 +1515,7 @@ public class Position
                      : 'q'));
         }
 
-        if (this.can_castle(Color.WHITE) == 0 && this.can_castle(Color.BLACK) == 0)
+        if (!this.can_castle(Color.WHITE) && !this.can_castle(Color.BLACK))
         {
             ss.Append('-');
         }
