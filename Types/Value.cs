@@ -196,6 +196,11 @@
         return new Value(v1.value / v2);
     }
 
+    public override string ToString()
+    {
+        return $"{value}";
+    }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif

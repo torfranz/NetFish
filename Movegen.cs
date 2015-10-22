@@ -55,8 +55,7 @@ public static class Movegen
             return moveList;
         }
 
-        var current = (++moveList).Current;
-        current.move = m;
+        (++moveList).setCurrentMove(m);
         return moveList;
     }
 
@@ -69,26 +68,21 @@ public static class Movegen
     {
         if (Type == GenType.CAPTURES || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            var current = (++moveList).Current;
-            current.move = Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN);
+            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
         }
 
         if (Type == GenType.QUIETS || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            var current = (++moveList).Current;
-            current.move = Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK);
-            current = (++moveList).Current;
-            current.move = Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP);
-            current = (++moveList).Current;
-            current.move = Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT);
+            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
+            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
+            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
         if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, to] & ci.ksq))
         {
-            var current = (++moveList).Current;
-            current.move = Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT);
+            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
 
         return moveList;
@@ -158,16 +152,14 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                var current = (++moveList).Current;
-                current.move = Move.make_move(to - Up, to);
+                (++moveList).setCurrentMove(Move.make_move(to - Up, to));
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                var current = (++moveList).Current;
-                current.move = Move.make_move(to - Up - Up, to);
-            }
+                (++moveList).setCurrentMove(Move.make_move(to - Up - Up, to));
+             }
         }
 
         // Promotions and underpromotions
@@ -212,15 +204,13 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                var current = (++moveList).Current;
-                current.move = Move.make_move(to - Right, to);
+                (++moveList).setCurrentMove(Move.make_move(to - Right, to));
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                var current = (++moveList).Current;
-                current.move = Move.make_move(to - Left, to);
+                (++moveList).setCurrentMove(Move.make_move(to - Left, to));
             }
 
             if (pos.ep_square() != Square.SQ_NONE)
@@ -241,8 +231,7 @@ public static class Movegen
 
                 while (b1)
                 {
-                    var current = (++moveList).Current;
-                    current.move = Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square());
+                    (++moveList).setCurrentMove(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
                 }
             }
         }
@@ -288,8 +277,7 @@ public static class Movegen
 
             while (b)
             {
-                var current = (++moveList).Current;
-                current.move = Move.make_move(@from, Utils.pop_lsb(ref b));
+                (++moveList).setCurrentMove(Move.make_move(@from, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -318,8 +306,7 @@ public static class Movegen
             var b = pos.attacks_from(PieceType.KING, ksq) & target;
             while (b)
             {
-                var current = (++moveList).Current;
-                current.move = Move.make_move(ksq, Utils.pop_lsb(ref b));
+                (++moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -434,8 +421,7 @@ public static class Movegen
 
             while (b)
             {
-                var current = (++moveList).Current;
-                current.move = Move.make_move(from, Utils.pop_lsb(ref b));
+                (++moveList).setCurrentMove(Move.make_move(from, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -470,8 +456,7 @@ public static class Movegen
         var b = pos.attacks_from(PieceType.KING, ksq) & ~pos.pieces(us) & ~sliderAttacks;
         while (b)
         {
-            var current = (++moveList).Current;
-            current.move = Move.make_move(ksq, Utils.pop_lsb(ref b));
+            (++moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
         }
 
         if (Bitboard.more_than_one(pos.checkers()))
@@ -501,8 +486,8 @@ public static class Movegen
                        : generate(GenType.NON_EVASIONS, pos, moveList);
         while (cur != moveList)
         {
-            if ((pinned || Move.from_sq(moveList[cur.current]) == ksq || Move.type_of(moveList[cur.current]) == MoveType.ENPASSANT)
-                && !pos.legal(moveList[cur.current], pinned))
+            if ((pinned || Move.from_sq(moveList[cur.last]) == ksq || Move.type_of(moveList[cur.last]) == MoveType.ENPASSANT)
+                && !pos.legal(moveList[cur.last], pinned))
             {
                 cur = --moveList;
             }

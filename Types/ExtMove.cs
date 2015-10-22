@@ -6,31 +6,42 @@ using System.Threading.Tasks;
 
 public struct ExtMove
 {
-    public Move move;
-    public Value value;
+    public Move Move { get; }
+    public Value Value { get; }
+
+    public ExtMove(Move move, Value value)
+    {
+        this.Move = move;
+        this.Value = value;
+    }
 
     public static implicit operator Move(ExtMove move)
     {
-        return move.move;
+        return move.Move;
     }
 
     public static bool operator <(ExtMove f, ExtMove s)
     {
-        return f.value < s.value;
+        return f.Value < s.Value;
     }
 
     public static bool operator >(ExtMove f, ExtMove s)
     {
-        return f.value > s.value;
+        return f.Value > s.Value;
     }
 
     public static bool operator ==(ExtMove f, ExtMove s)
     {
-        return f.move == s.move;
+        return f.Move == s.Move;
     }
 
     public static bool operator !=(ExtMove f, ExtMove s)
     {
-        return f.move != s.move;
+        return f.Move != s.Move;
+    }
+
+    public override string ToString()
+    {
+        return $"{Move},{Value}";
     }
 };

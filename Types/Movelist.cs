@@ -16,17 +16,17 @@ public class MoveList
 
     public int end()
     {
-        return this.moveList.current;
+        return this.moveList.last;
     }
 
     public int size()
     {
-        return this.moveList.current;
+        return this.moveList.last;
     }
 
     public bool contains(Move move)
     {
-        for (var idx = 0; idx < this.moveList.current; idx++)
+        for (var idx = 0; idx < this.moveList.last; idx++)
         {
             if (this.moveList[idx] == move)
             {

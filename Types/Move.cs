@@ -57,6 +57,11 @@ public struct Move
         return v1.Value != v2.Value;
     }
 
+    public override string ToString()
+    {
+        return $"{Value}";
+    }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif

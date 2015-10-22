@@ -9,59 +9,62 @@ public struct PositionArray
 {
     public ExtMove[] table;
 
-    public int current;
+    public int last;
 
     public PositionArray(ExtMove[] table)
         : this(table, 0)
     {
+        this.last = last;
     }
 
     public PositionArray(ExtMove[] table, int current)
     {
         this.table = table;
-        this.current = current;
+        this.last = current;
     }
 
     public void set(ExtMove[] table)
     {
         this.table = table;
-        this.current = 0;
+        this.last = 0;
     }
 
     public static PositionArray operator +(PositionArray p, int value)
     {
-        p.current += value;
+        p.last += value;
         return p;
     }
 
     public static bool operator ==(PositionArray p1, PositionArray p2)
     {
-        return p1.table == p2.table && p1.current == p2.current;
+        return p1.table == p2.table && p1.last == p2.last;
     }
 
     public static bool operator !=(PositionArray p1, PositionArray p2)
     {
-        return p1.table != p2.table || p1.current != p2.current;
+        return p1.table != p2.table || p1.last != p2.last;
     }
 
     public static PositionArray operator ++(PositionArray p)
     {
-        p.current += 1;
+        p.last += 1;
         return p;
     }
 
     public static PositionArray operator --(PositionArray p)
     {
-        p.current -= 1;
+        p.last -= 1;
         return p;
     }
 
-    public ExtMove Current
+    public void setCurrentMove(Move m)
     {
-        get
-        {
-            return table[current];
-        }
+        table[last - 1] = new ExtMove(m, table[last].Value);
+    }
+
+    public Move getCurrentMove()
+    {
+        return table[last - 1].Move;
     }
 
     public ExtMove this[int index]

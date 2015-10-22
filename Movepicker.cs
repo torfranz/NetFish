@@ -126,11 +126,11 @@ public class MovePicker
     // Our insertion sort, which is guaranteed to be stable, as it should be
     private void insertion_sort(PositionArray begin, PositionArray end)
     {
-        Debug.Assert(begin == end);
-        Debug.Assert(begin.current < end.current);
+        Debug.Assert(begin.table == end.table);
+        Debug.Assert(begin.last < end.last);
 
         var equalityComparer = Comparer<ExtMove>.Default;
-        for (var counter = begin.current; counter < end.current - 1; counter++)
+        for (var counter = begin.last; counter < end.last - 1; counter++)
         {
             var index = counter + 1;
             while (index > 0)
@@ -149,11 +149,14 @@ public class MovePicker
     // pick_best() finds the best move in the range (begin, end) and moves it to
     // the front. It's faster than sorting all the moves in advance when there
     // are few moves e.g. the possible captures.
-    private Move pick_best(ExtMove[] moves, int begin, int end)
+    private Move pick_best(PositionArray begin, PositionArray end)
     {
+        Debug.Assert(begin.table == end.table);
+        Debug.Assert(begin.last < end.last);
+
         ExtMove? maxVal = null; //nullable so this works even if you have all super-low negatives
         var index = -1;
-        for (var i = begin; i < end; i++)
+        for (var i = begin.last; i < end.last; i++)
         {
             var thisNum = moves[i];
             if (!maxVal.HasValue || thisNum > maxVal.Value)
@@ -163,11 +166,11 @@ public class MovePicker
             }
         }
 
-        var first = moves[begin];
-        moves[begin] = moves[index];
+        var first = moves[begin.last];
+        moves[begin.last] = moves[index];
         moves[index] = first;
 
-        return moves[begin];
+        return moves[begin.last];
     }
 
     public void score(GenType Type)
@@ -176,13 +179,13 @@ public class MovePicker
         {
             case GenType.CAPTURES:
                 this.score_CAPTURES();
-                break;
+                return;
             case GenType.EVASIONS:
                 this.score_EVASIONS();
-                break;
+                return;
             case GenType.QUIETS:
                 this.score_QUIETS();
-                break;
+                return;
         }
 
         Debug.Assert(false);
@@ -200,11 +203,12 @@ public class MovePicker
         // badCaptures[] array, but instead of doing it now we delay until the move
         // has been picked up, saving some SEE calls in case we get a cutoff.
 
-        for (var i = 0; i < this.endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.last; i++)
         {
             var m = this.moves[i];
-            m.value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
-                      - new Value(200 * Rank.relative_rank(this.pos.side_to_move(), Move.to_sq(m)));
+            this.moves[i] = new ExtMove(m, 
+                        Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
+                      - new Value(200 * Rank.relative_rank(this.pos.side_to_move(), Move.to_sq(m))));
         }
     }
 
@@ -214,11 +218,12 @@ public class MovePicker
         var prevSq = new Square(0); //Move.to_sq((ss - 1)->currentMove);
         var cmh = this.counterMovesHistory.value(this.pos.piece_on(prevSq), prevSq);
 
-        for (var i = 0; i < this.endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.last; i++)
         {
             var m = this.moves[i];
-            m.value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m))
-                      + cmh.value(this.pos.moved_piece(m), Move.to_sq(m));
+            this.moves[i] = new ExtMove(m,
+             this.history.value(this.pos.moved_piece(m), Move.to_sq(m))
+                      + cmh.value(this.pos.moved_piece(m), Move.to_sq(m)));
         }
     }
 
@@ -229,22 +234,25 @@ public class MovePicker
         // SEE ordered by SEE value.
         Value see;
 
-        for (var i = 0; i < this.endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.last; i++)
         {
             var m = this.moves[i];
             if ((see = this.pos.see_sign(m)) < Value.VALUE_ZERO)
             {
-                m.value = see - HistoryStats.Max; // At the bottom
+                this.moves[i] = new ExtMove(m,
+                            see - HistoryStats.Max); // At the bottom
             }
 
             else if (this.pos.capture(m))
             {
-                m.value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
-                          - new Value(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max;
+                this.moves[i] = new ExtMove(m,
+                Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
+                          - new Value(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {
-                m.value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m));
+                this.moves[i] = new ExtMove(m,
+                this.history.value(this.pos.moved_piece(m), Move.to_sq(m)));
             }
         }
     }
@@ -276,7 +284,7 @@ public class MovePicker
                 //TODO: add stack
                 //killers[0] = ss.killers[0];
                 //killers[1] = ss.killers[1];
-                killers[2].move = countermove;
+                killers[2] = new ExtMove(countermove, killers[2].Value);
                 cur.set(killers);
                 endMoves = cur + 2 + ((countermove != killers[0] && countermove != killers[1]) ? 1 : 0);
                 break;
@@ -310,7 +318,7 @@ public class MovePicker
                 {
                     endMoves = Movegen.generate(GenType.EVASIONS, pos, new PositionArray(moves));
                     
-                    if (endMoves.current > 1) score(GenType.EVASIONS);
+                    if (endMoves.last > 1) score(GenType.EVASIONS);
                 }
                 break;
 
@@ -334,4 +342,107 @@ public class MovePicker
                 break;
         }
     }
+
+    /// next_move() is the most important method of the MovePicker class. It returns
+    /// a new pseudo legal move every time it is called, until there are no more moves
+    /// left. It picks the move with the biggest value from a list of generated moves
+    /// taking care not to return the ttMove if it has already been searched.
+    public Move next_move(bool useSplipoint) {
+
+        /// Version of next_move() to use at split point nodes where the move is grabbed
+        /// from the split point's shared MovePicker object. This function is not thread
+        /// safe so must be lock protected by the caller.
+        if(useSplipoint)
+        {
+            //TODO: add stack
+            //return ss.splitPoint.movePicker.next_move(false);
+            return Move.MOVE_NONE;
+        } 
+
+        Move move;
+
+  while (true)
+  {
+      while (cur == endMoves && stage != Stages.STOP)
+          generate_next_stage();
+
+      switch (stage) {
+
+      case Stages.MAIN_SEARCH:
+                case Stages.EVASION:
+                case Stages.QSEARCH_WITH_CHECKS:
+      case Stages.QSEARCH_WITHOUT_CHECKS:
+                case Stages.PROBCUT:
+          ++cur;
+          return ttMove;
+
+      case Stages.GOOD_CAPTURES:
+          move = pick_best(cur++, endMoves);
+          if (move != ttMove)
+          {
+              if (pos.see_sign(move) >= Value.VALUE_ZERO)
+                  return move;
+
+                        // Losing capture, move it to the tail of the array
+                        (endBadCaptures--).setCurrentMove(move);
+                                }
+          break;
+
+      case Stages.KILLERS:
+          move = (cur++).getCurrentMove();
+          if (    move != Move.MOVE_NONE
+              &&  move != ttMove
+              &&  pos.pseudo_legal(move)
+              && !pos.capture(move))
+              return move;
+          break;
+
+      case Stages.GOOD_QUIETS:
+                case Stages.BAD_QUIETS:
+          move = (cur++).getCurrentMove();
+                    if (   move != ttMove
+              && move != killers[0]
+              && move != killers[1]
+              && move != killers[2])
+              return move;
+          break;
+
+      case Stages.BAD_CAPTURES:
+          return (cur--).getCurrentMove();
+
+                case Stages.ALL_EVASIONS:
+                case Stages.QCAPTURES_1:
+                case Stages.QCAPTURES_2:
+          move = pick_best(cur++, endMoves);
+          if (move != ttMove)
+              return move;
+          break;
+
+      case Stages.PROBCUT_CAPTURES:
+           move = pick_best(cur++, endMoves);
+           if (move != ttMove && pos.see(move) > threshold)
+               return move;
+           break;
+
+      case Stages.RECAPTURES:
+          move = pick_best(cur++, endMoves);
+          if (Move.to_sq(move) == recaptureSquare)
+              return move;
+          break;
+
+      case Stages.CHECKS:
+          move = (cur++).getCurrentMove();
+                    if (move != ttMove)
+              return move;
+          break;
+
+      case Stages.STOP:
+          return Move.MOVE_NONE;
+
+      default:
+          Debug.Assert(false);
+                    break;
+      }
+  }
+}
 }
