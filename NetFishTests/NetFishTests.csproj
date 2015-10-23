@@ -55,7 +55,7 @@
     <Compile Include="MovepickerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\CheckinfoTests.cs" />
-    <Compile Include="Types\PositionArrayTests.cs" />
+    <Compile Include="Types\ExtMoveArrayWrapperTests.cs" />
     <Compile Include="Types\PositionTests.cs" />
     <Compile Include="Types\PSQTTests.cs" />
     <Compile Include="Types\BitbasesTests.cs" />

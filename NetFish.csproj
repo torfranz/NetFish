@@ -59,6 +59,7 @@
     <Compile Include="Types\Bitboards.cs" />
     <Compile Include="Types\Checkinfo.cs" />
     <Compile Include="Types\ExtMove.cs" />
+    <Compile Include="Types\StackArrayWrapper.cs" />
     <Compile Include="Types\KPKPosition.cs" />
     <Compile Include="Types\Movelist.cs" />
     <Compile Include="Types\ExtMoveArrayWrapper.cs" />

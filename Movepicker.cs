@@ -30,7 +30,7 @@ public class MovePicker
 
     private ExtMoveArrayWrapper endQuiets;
 
-    private Stack ss;
+    private StackArrayWrapper ss;
 
     private Stages stage;
 
@@ -39,7 +39,7 @@ public class MovePicker
     /// moves to return (in the quiescence search, for instance, we only want to
     /// search captures, promotions and some checks) and how important good move
     /// ordering is at the current node.
-    public MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Move cm, Stack s)
+    public MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Move cm, StackArrayWrapper s)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -120,29 +120,6 @@ public class MovePicker
         endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
-    // Our insertion sort, which is guaranteed to be stable, as it should be
-    private void insertion_sort(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
-    {
-        Debug.Assert(begin.table == end.table);
-        Debug.Assert(begin.current < end.current);
-
-        var equalityComparer = Comparer<ExtMove>.Default;
-        for (var counter = begin.current; counter < end.current - 1; counter++)
-        {
-            var index = counter + 1;
-            while (index > 0)
-            {
-                if (equalityComparer.Compare(begin.table[index - 1], begin.table[index]) > 0)
-                {
-                    var temp = begin.table[index - 1];
-                    begin.table[index - 1] = begin.table[index];
-                    begin.table[index] = temp;
-                }
-                index--;
-            }
-        }
-    }
-
     // pick_best() finds the best move in the range (begin, end) and moves it to
     // the front. It's faster than sorting all the moves in advance when there
     // are few moves e.g. the possible captures.
@@ -211,8 +188,7 @@ public class MovePicker
 
     private void score_QUIETS()
     {
-        // TODO: replace Stack
-        var prevSq = new Square(0); //Move.to_sq((ss - 1)->currentMove);
+        var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
         var cmh = counterMovesHistory.value(pos.piece_on(prevSq), prevSq);
 
         for (var i = 0; i < endMoves.current; i++)
@@ -276,9 +252,8 @@ public class MovePicker
                 break;
 
             case Stages.KILLERS:
-                //TODO: add stack
-                //killers[0] = ss.killers[0];
-                //killers[1] = ss.killers[1];
+                killers[0] = new ExtMove(ss[ss.current].killers0, killers[0].Value);
+                killers[1] = new ExtMove(ss[ss.current].killers1, killers[1].Value);
                 killers[2] = new ExtMove(countermove, killers[2].Value);
                 cur.set(killers);
                 endMoves = cur + 2 + ((countermove != killers[0] && countermove != killers[1]) ? 1 : 0);
@@ -286,13 +261,12 @@ public class MovePicker
 
             case Stages.GOOD_QUIETS:
             {
-                var movelistPos = 0;
-                endQuiets = endMoves = Movegen.generate(GenType.QUIETS, pos, new ExtMoveArrayWrapper(moves));
+                endQuiets = Movegen.generate(GenType.QUIETS, pos, new ExtMoveArrayWrapper(moves));
+                endMoves = endQuiets;
                 score(GenType.QUIETS);
 
-                // TODO: find solution
-                // endMoves = std::partition(cur, endMoves, [](const ExtMove&m) { return m.value > Value.VALUE_ZERO; });
-                insertion_sort(cur, endMoves);
+                endMoves = ExtMoveArrayWrapper.Partition(cur, endMoves);
+                ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
             }
                 break;
 
@@ -300,7 +274,7 @@ public class MovePicker
                 cur = endMoves;
                 endMoves = endQuiets;
                 if (depth >= 3*Depth.ONE_PLY)
-                    insertion_sort(cur, endMoves);
+                    ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
                 break;
 
             case Stages.BAD_CAPTURES:
@@ -349,9 +323,8 @@ public class MovePicker
         /// safe so must be lock protected by the caller.
         if (useSplitpoint)
         {
-            //TODO: add stack
-            //return ss.splitPoint.movePicker.next_move(false);
-            return Move.MOVE_NONE;
+            //TODO: add splitpoint handling
+            //return ss[ss.current].splitPoint.movePicker.next_move(false);
         }
 
         Move move;
