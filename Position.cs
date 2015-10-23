@@ -877,7 +877,7 @@ public class Position
     /// Position::do_move() makes a move, and saves all information necessary
     /// to a StateInfo object. The move is assumed to be legal. Pseudo-legal
     /// moves should be filtered out before this function is called.
-    private void do_move(Move m, StateInfo newSt, bool givesCheck)
+    public void do_move(Move m, StateInfo newSt, bool givesCheck)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(newSt != st);
@@ -1547,12 +1547,12 @@ public class Position
         return token.ToString().ToUpperInvariant()[0];
     }
 
-    private static char tolower(char token)
+    public static char tolower(char token)
     {
         return token.ToString().ToLowerInvariant()[0];
     }
 
-    private static Stack<string> CreateStack(string input)
+    public static Stack<string> CreateStack(string input)
     {
         var lines = input.Trim().Split(' ');
         var stack = new Stack<string>(); // LIFO
@@ -1571,7 +1571,7 @@ public class Position
     /// Position::set() initializes the position object with the given FEN string.
     /// This function is not very robust - make sure that input FENs are correct,
     /// this is assumed to be the responsibility of the GUI.
-    private void set(string fenStr, bool isChess960 /*, Thread th*/)
+    public void set(string fenStr, bool isChess960 /*, Thread th*/)
     {
         /*
            A FEN string defines a particular position using only the ASCII character set.

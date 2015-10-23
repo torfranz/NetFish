@@ -22,6 +22,8 @@ internal struct _
     internal const int MAX_MOVES = 256;
 
     internal const int MAX_PLY = 128;
+
+    internal const int MAX_THREADS = 128;
 }
 
 public enum Stages
