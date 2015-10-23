@@ -3,12 +3,12 @@ using System.Linq;
 
 public static class Movegen
 {
-    public static PositionArray generate_castling(
+    public static ExtMoveArrayWrapper generate_castling(
         CastlingRight Cr,
         bool Checks,
         bool Chess960,
         Position pos,
-        PositionArray moveList,
+        ExtMoveArrayWrapper moveList,
         Color us,
         CheckInfo ci)
     {
@@ -55,44 +55,49 @@ public static class Movegen
             return moveList;
         }
 
-        (++moveList).setCurrentMove(m);
-        return moveList;
+        moveList.setCurrentMove(m);
+        return ++moveList;
     }
 
-    public static PositionArray make_promotions(
+    public static ExtMoveArrayWrapper make_promotions(
         GenType Type,
         Square Delta,
-        PositionArray moveList,
+        ExtMoveArrayWrapper moveList,
         Square to,
         CheckInfo ci)
     {
         if (Type == GenType.CAPTURES || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
+            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
+            ++moveList;
         }
 
         if (Type == GenType.QUIETS || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
-            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
-            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
+            ++moveList;
+            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
+            ++moveList;
+            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            ++moveList;
         }
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
         if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, to] & ci.ksq))
         {
-            (++moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            ++moveList;
         }
 
         return moveList;
     }
 
-    public static PositionArray generate_pawn_moves(
+    public static ExtMoveArrayWrapper generate_pawn_moves(
         Color Us,
         GenType Type,
         Position pos,
-        PositionArray moveList,
+        ExtMoveArrayWrapper moveList,
         Bitboard target,
         CheckInfo ci)
     {
@@ -152,13 +157,15 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (++moveList).setCurrentMove(Move.make_move(to - Up, to));
+                (moveList).setCurrentMove(Move.make_move(to - Up, to));
+                ++moveList;
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (++moveList).setCurrentMove(Move.make_move(to - Up - Up, to));
+                (moveList).setCurrentMove(Move.make_move(to - Up - Up, to));
+                ++moveList;
             }
         }
 
@@ -204,13 +211,15 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (++moveList).setCurrentMove(Move.make_move(to - Right, to));
+                (moveList).setCurrentMove(Move.make_move(to - Right, to));
+                ++moveList;
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (++moveList).setCurrentMove(Move.make_move(to - Left, to));
+                (moveList).setCurrentMove(Move.make_move(to - Left, to));
+                ++moveList;
             }
 
             if (pos.ep_square() != Square.SQ_NONE)
@@ -231,7 +240,8 @@ public static class Movegen
 
                 while (b1)
                 {
-                    (++moveList).setCurrentMove(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
+                    (moveList).setCurrentMove(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
+                    ++moveList;
                 }
             }
         }
@@ -239,11 +249,11 @@ public static class Movegen
         return moveList;
     }
 
-    public static PositionArray generate_moves(
+    public static ExtMoveArrayWrapper generate_moves(
         PieceType Pt,
         bool Checks,
         Position pos,
-        PositionArray moveList,
+        ExtMoveArrayWrapper moveList,
         Color us,
         Bitboard target,
         CheckInfo ci)
@@ -277,18 +287,19 @@ public static class Movegen
 
             while (b)
             {
-                (++moveList).setCurrentMove(Move.make_move(@from, Utils.pop_lsb(ref b)));
+                (moveList).setCurrentMove(Move.make_move(@from, Utils.pop_lsb(ref b)));
+                ++moveList;
             }
         }
 
         return moveList;
     }
 
-    public static PositionArray generate_all(
+    public static ExtMoveArrayWrapper generate_all(
         Color Us,
         GenType Type,
         Position pos,
-        PositionArray moveList,
+        ExtMoveArrayWrapper moveList,
         Bitboard target,
         CheckInfo ci = null)
     {
@@ -306,7 +317,8 @@ public static class Movegen
             var b = pos.attacks_from(PieceType.KING, ksq) & target;
             while (b)
             {
-                (++moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+                (moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+                ++moveList;
             }
         }
 
@@ -362,7 +374,7 @@ public static class Movegen
             : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
     }
 
-    public static PositionArray generate(GenType Type, Position pos, PositionArray moveList)
+    public static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
     {
         switch (Type)
         {
@@ -394,7 +406,7 @@ public static class Movegen
     /// <QUIET_CHECKS>
     ///     generates all pseudo-legal non-captures and knight
     ///     underpromotions that give check. Returns a pointer to the end of the move list.
-    private static PositionArray generate_QUIET_CHECKS(Position pos, PositionArray moveList)
+    private static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(!pos.checkers());
 
@@ -421,7 +433,8 @@ public static class Movegen
 
             while (b)
             {
-                (++moveList).setCurrentMove(Move.make_move(from, Utils.pop_lsb(ref b)));
+                (moveList).setCurrentMove(Move.make_move(from, Utils.pop_lsb(ref b)));
+                ++moveList;
             }
         }
 
@@ -434,7 +447,7 @@ public static class Movegen
     /// <EVASIONS>
     ///     generates all pseudo-legal check evasions when the side
     ///     to move is in check. Returns a pointer to the end of the move list.
-    private static PositionArray generate_EVASIONS(Position pos, PositionArray moveList)
+    private static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(pos.checkers());
 
@@ -456,7 +469,8 @@ public static class Movegen
         var b = pos.attacks_from(PieceType.KING, ksq) & ~pos.pieces(us) & ~sliderAttacks;
         while (b)
         {
-            (++moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+            (moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+            ++moveList;
         }
 
         if (Bitboard.more_than_one(pos.checkers()))
@@ -475,7 +489,7 @@ public static class Movegen
 
     /// generate
     /// <LEGAL> generates all the legal moves in the given position
-    private static PositionArray generate_LEGAL(Position pos, PositionArray moveList)
+    private static ExtMoveArrayWrapper generate_LEGAL(Position pos, ExtMoveArrayWrapper moveList)
     {
         var pinned = pos.pinned_pieces(pos.side_to_move());
         var ksq = pos.square(PieceType.KING, pos.side_to_move());
@@ -486,9 +500,9 @@ public static class Movegen
             : generate(GenType.NON_EVASIONS, pos, moveList);
         while (cur != moveList)
         {
-            if ((pinned || Move.from_sq(moveList[cur.last]) == ksq ||
-                 Move.type_of(moveList[cur.last]) == MoveType.ENPASSANT)
-                && !pos.legal(moveList[cur.last], pinned))
+            if ((pinned || Move.from_sq(moveList[cur.current]) == ksq ||
+                 Move.type_of(moveList[cur.current]) == MoveType.ENPASSANT)
+                && !pos.legal(moveList[cur.current], pinned))
             {
                 cur = --moveList;
             }

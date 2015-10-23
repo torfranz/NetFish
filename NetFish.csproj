@@ -61,7 +61,8 @@
     <Compile Include="Types\ExtMove.cs" />
     <Compile Include="Types\KPKPosition.cs" />
     <Compile Include="Types\Movelist.cs" />
-    <Compile Include="Types\PositionArray.cs" />
+    <Compile Include="Types\ExtMoveArrayWrapper.cs" />
+    <Compile Include="Types\Stack.cs" />
     <Compile Include="Types\StateInfo.cs" />
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />

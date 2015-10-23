@@ -22,15 +22,14 @@ public class MovePicker
 
     private readonly Move ttMove;
 
-    private PositionArray cur;
+    private ExtMoveArrayWrapper cur;
 
-    private PositionArray endBadCaptures;
+    private ExtMoveArrayWrapper endBadCaptures;
 
-    private PositionArray endMoves;
+    private ExtMoveArrayWrapper endMoves;
 
-    private PositionArray endQuiets;
+    private ExtMoveArrayWrapper endQuiets;
 
-    //TODO: Search::Stack!
     private Stack ss;
 
     private Stages stage;
@@ -42,9 +41,9 @@ public class MovePicker
     /// ordering is at the current node.
     public MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Move cm, Stack s)
     {
-        endBadCaptures = new PositionArray(moves, _.MAX_MOVES - 1);
-        cur = new PositionArray(moves);
-        endMoves = new PositionArray(moves);
+        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
+        cur = new ExtMoveArrayWrapper(moves);
+        endMoves = new ExtMoveArrayWrapper(moves);
 
         pos = p;
         history = h;
@@ -61,9 +60,9 @@ public class MovePicker
 
     public MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Square s)
     {
-        endBadCaptures = new PositionArray(moves, _.MAX_MOVES - 1);
-        cur = new PositionArray(moves);
-        endMoves = new PositionArray(moves);
+        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
+        cur = new ExtMoveArrayWrapper(moves);
+        endMoves = new ExtMoveArrayWrapper(moves);
 
         pos = p;
         history = h;
@@ -99,9 +98,9 @@ public class MovePicker
 
     public MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, Value th)
     {
-        endBadCaptures = new PositionArray(moves, _.MAX_MOVES - 1);
-        cur = new PositionArray(moves);
-        endMoves = new PositionArray(moves);
+        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
+        cur = new ExtMoveArrayWrapper(moves);
+        endMoves = new ExtMoveArrayWrapper(moves);
 
         pos = p;
         history = h;
@@ -122,13 +121,13 @@ public class MovePicker
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
-    private void insertion_sort(PositionArray begin, PositionArray end)
+    private void insertion_sort(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
-        Debug.Assert(begin.last < end.last);
+        Debug.Assert(begin.current < end.current);
 
         var equalityComparer = Comparer<ExtMove>.Default;
-        for (var counter = begin.last; counter < end.last - 1; counter++)
+        for (var counter = begin.current; counter < end.current - 1; counter++)
         {
             var index = counter + 1;
             while (index > 0)
@@ -147,14 +146,14 @@ public class MovePicker
     // pick_best() finds the best move in the range (begin, end) and moves it to
     // the front. It's faster than sorting all the moves in advance when there
     // are few moves e.g. the possible captures.
-    private Move pick_best(PositionArray begin, PositionArray end)
+    private Move pick_best(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
-        Debug.Assert(begin.last < end.last);
+        Debug.Assert(begin.current < end.current);
 
         ExtMove? maxVal = null; //nullable so this works even if you have all super-low negatives
         var index = -1;
-        for (var i = begin.last; i < end.last; i++)
+        for (var i = begin.current; i < end.current; i++)
         {
             var thisNum = moves[i];
             if (!maxVal.HasValue || thisNum > maxVal.Value)
@@ -164,11 +163,11 @@ public class MovePicker
             }
         }
 
-        var first = moves[begin.last];
-        moves[begin.last] = moves[index];
+        var first = moves[begin.current];
+        moves[begin.current] = moves[index];
         moves[index] = first;
 
-        return moves[begin.last];
+        return moves[begin.current];
     }
 
     public void score(GenType Type)
@@ -201,7 +200,7 @@ public class MovePicker
         // badCaptures[] array, but instead of doing it now we delay until the move
         // has been picked up, saving some SEE calls in case we get a cutoff.
 
-        for (var i = 0; i < endMoves.last; i++)
+        for (var i = 0; i < endMoves.current; i++)
         {
             var m = moves[i];
             moves[i] = new ExtMove(m,
@@ -216,7 +215,7 @@ public class MovePicker
         var prevSq = new Square(0); //Move.to_sq((ss - 1)->currentMove);
         var cmh = counterMovesHistory.value(pos.piece_on(prevSq), prevSq);
 
-        for (var i = 0; i < endMoves.last; i++)
+        for (var i = 0; i < endMoves.current; i++)
         {
             var m = moves[i];
             moves[i] = new ExtMove(m,
@@ -232,7 +231,7 @@ public class MovePicker
         // SEE ordered by SEE value.
         Value see;
 
-        for (var i = 0; i < endMoves.last; i++)
+        for (var i = 0; i < endMoves.current; i++)
         {
             var m = moves[i];
             if ((see = pos.see_sign(m)) < Value.VALUE_ZERO)
@@ -271,7 +270,7 @@ public class MovePicker
             case Stages.PROBCUT_CAPTURES:
             case Stages.RECAPTURES:
             {
-                endMoves = Movegen.generate(GenType.CAPTURES, pos, new PositionArray(moves));
+                endMoves = Movegen.generate(GenType.CAPTURES, pos, new ExtMoveArrayWrapper(moves));
                 score(GenType.CAPTURES);
             }
                 break;
@@ -288,7 +287,7 @@ public class MovePicker
             case Stages.GOOD_QUIETS:
             {
                 var movelistPos = 0;
-                endQuiets = endMoves = Movegen.generate(GenType.QUIETS, pos, new PositionArray(moves));
+                endQuiets = endMoves = Movegen.generate(GenType.QUIETS, pos, new ExtMoveArrayWrapper(moves));
                 score(GenType.QUIETS);
 
                 // TODO: find solution
@@ -306,21 +305,21 @@ public class MovePicker
 
             case Stages.BAD_CAPTURES:
                 // Just pick them in reverse order to get correct ordering
-                cur = new PositionArray(moves) + (_.MAX_MOVES - 1);
+                cur = new ExtMoveArrayWrapper(moves) + (_.MAX_MOVES - 1);
                 endMoves = endBadCaptures;
                 break;
 
             case Stages.ALL_EVASIONS:
             {
-                endMoves = Movegen.generate(GenType.EVASIONS, pos, new PositionArray(moves));
+                endMoves = Movegen.generate(GenType.EVASIONS, pos, new ExtMoveArrayWrapper(moves));
 
-                if (endMoves.last > 1) score(GenType.EVASIONS);
+                if (endMoves.current > 1) score(GenType.EVASIONS);
             }
                 break;
 
             case Stages.CHECKS:
             {
-                endMoves = Movegen.generate(GenType.QUIET_CHECKS, pos, new PositionArray(moves));
+                endMoves = Movegen.generate(GenType.QUIET_CHECKS, pos, new ExtMoveArrayWrapper(moves));
             }
                 break;
 
@@ -373,19 +372,22 @@ public class MovePicker
                     return ttMove;
 
                 case Stages.GOOD_CAPTURES:
-                    move = pick_best(cur++, endMoves);
+                    move = pick_best(cur, endMoves);
+                    cur++;
                     if (move != ttMove)
                     {
                         if (pos.see_sign(move) >= Value.VALUE_ZERO)
                             return move;
 
                         // Losing capture, move it to the tail of the array
-                        (endBadCaptures--).setCurrentMove(move);
+                        endBadCaptures.setCurrentMove(move);
+                        --endBadCaptures;
                     }
                     break;
 
                 case Stages.KILLERS:
-                    move = (cur++).getCurrentMove();
+                    move = cur.getCurrentMove();
+                    cur++;
                     if (move != Move.MOVE_NONE
                         && move != ttMove
                         && pos.pseudo_legal(move)
@@ -395,7 +397,8 @@ public class MovePicker
 
                 case Stages.GOOD_QUIETS:
                 case Stages.BAD_QUIETS:
-                    move = (cur++).getCurrentMove();
+                    move = cur.getCurrentMove();
+                    cur++;
                     if (move != ttMove
                         && move != killers[0]
                         && move != killers[1]
@@ -409,25 +412,29 @@ public class MovePicker
                 case Stages.ALL_EVASIONS:
                 case Stages.QCAPTURES_1:
                 case Stages.QCAPTURES_2:
-                    move = pick_best(cur++, endMoves);
+                    move = pick_best(cur, endMoves);
+                    cur++;
                     if (move != ttMove)
                         return move;
                     break;
 
                 case Stages.PROBCUT_CAPTURES:
-                    move = pick_best(cur++, endMoves);
+                    move = pick_best(cur, endMoves);
+                    cur++;
                     if (move != ttMove && pos.see(move) > threshold)
                         return move;
                     break;
 
                 case Stages.RECAPTURES:
-                    move = pick_best(cur++, endMoves);
+                    move = pick_best(cur, endMoves);
+                    cur++;
                     if (Move.to_sq(move) == recaptureSquare)
                         return move;
                     break;
 
                 case Stages.CHECKS:
-                    move = (cur++).getCurrentMove();
+                    move = cur.getCurrentMove();
+                    cur++;
                     if (move != ttMove)
                         return move;
                     break;
