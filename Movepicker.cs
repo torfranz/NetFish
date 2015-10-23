@@ -13,7 +13,7 @@ public class MovePicker
 
     private readonly ExtMove[] killers = new ExtMove[3];
 
-    private readonly ExtMove[] moves = new ExtMove[_.MAX_MOVES];
+    public readonly ExtMove[] moves = new ExtMove[_.MAX_MOVES];
     private readonly Position pos;
 
     private readonly Square recaptureSquare;
@@ -343,12 +343,12 @@ public class MovePicker
     /// a new pseudo legal move every time it is called, until there are no more moves
     /// left. It picks the move with the biggest value from a list of generated moves
     /// taking care not to return the ttMove if it has already been searched.
-    public Move next_move(bool useSplipoint)
+    public Move next_move(bool useSplitpoint)
     {
         /// Version of next_move() to use at split point nodes where the move is grabbed
         /// from the split point's shared MovePicker object. This function is not thread
         /// safe so must be lock protected by the caller.
-        if (useSplipoint)
+        if (useSplitpoint)
         {
             //TODO: add stack
             //return ss.splitPoint.movePicker.next_move(false);

@@ -1743,6 +1743,9 @@ public class Position
         pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
         pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+        for (int i = 0; i < PieceType.PIECE_TYPE_NB; ++i)
+            for (int j = 0; j < 16; ++j)
+                pieceList[Color.WHITE,i,j] = pieceList[Color.BLACK,i,j] = Square.SQ_NONE;
 
         chess960 = false;
 
