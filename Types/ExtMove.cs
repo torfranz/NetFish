@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-public struct ExtMove
+﻿public struct ExtMove
 {
     public Move Move { get; }
     public Value Value { get; }
 
     public ExtMove(Move move, Value value)
     {
-        this.Move = move;
-        this.Value = value;
+        Move = move;
+        Value = value;
     }
 
     public static implicit operator Move(ExtMove move)

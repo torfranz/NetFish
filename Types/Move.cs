@@ -25,7 +25,7 @@ public struct Move
 
     public Move(int value)
     {
-        this.Value = value;
+        Value = value;
     }
 
     #endregion
@@ -86,7 +86,7 @@ public struct Move
 
     public static MoveType type_of(Move m)
     {
-        return (MoveType)(m.Value & (3 << 14));
+        return (MoveType) (m.Value & (3 << 14));
     }
 
 #if FORCEINLINE  
@@ -122,7 +122,7 @@ public struct Move
 
     public static Move make(MoveType moveType, Square from, Square to, PieceType pt)
     {
-        return new Move(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
+        return new Move(to | (from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
     }
 
 #if FORCEINLINE  

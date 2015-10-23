@@ -49,11 +49,11 @@ public struct Piece
 
     public Piece(int value)
     {
-        this.Value = value;
-        Debug.Assert(this.Value >= 0 && this.Value <= 16);
-        Debug.Assert(this.Value != 7);
-        Debug.Assert(this.Value != 8);
-        Debug.Assert(this.Value != 15);
+        Value = value;
+        Debug.Assert(Value >= 0 && Value <= 16);
+        Debug.Assert(Value != 7);
+        Debug.Assert(Value != 8);
+        Debug.Assert(Value != 15);
     }
 
     #endregion
@@ -143,7 +143,7 @@ public struct Piece
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     /*

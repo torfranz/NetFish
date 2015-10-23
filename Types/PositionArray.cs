@@ -1,11 +1,4 @@
-﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-public struct PositionArray
+﻿public struct PositionArray
 {
     public ExtMove[] table;
 
@@ -14,19 +7,19 @@ public struct PositionArray
     public PositionArray(ExtMove[] table)
         : this(table, 0)
     {
-        this.last = last;
+        last = last;
     }
 
     public PositionArray(ExtMove[] table, int current)
     {
         this.table = table;
-        this.last = current;
+        last = current;
     }
 
     public void set(ExtMove[] table)
     {
         this.table = table;
-        this.last = 0;
+        last = 0;
     }
 
     public static PositionArray operator +(PositionArray p, int value)
@@ -69,10 +62,6 @@ public struct PositionArray
 
     public ExtMove this[int index]
     {
-        get
-        {
-            return table[index];
-        }
+        get { return table[index]; }
     }
 }
-

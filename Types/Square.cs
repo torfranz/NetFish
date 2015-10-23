@@ -170,7 +170,7 @@
 #endif
 
     public Square(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
@@ -180,7 +180,7 @@
 
     public Square(int value)
     {
-        this.Value = value;
+        Value = value;
         // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
@@ -248,7 +248,7 @@
 
     public static Square operator *(int v1, Square v2)
     {
-        return new Square(v1 * v2.Value);
+        return new Square(v1*v2.Value);
     }
 
 #if FORCEINLINE  
@@ -257,7 +257,7 @@
 
     public static Square operator *(Square v1, int v2)
     {
-        return new Square(v1.Value * v2);
+        return new Square(v1.Value*v2);
     }
 
 #if FORCEINLINE  
@@ -289,7 +289,7 @@
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
@@ -302,7 +302,7 @@
 
     public static int operator /(Square v1, Square v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
 #if FORCEINLINE  
@@ -311,7 +311,7 @@
 
     public static Square operator /(Square v1, int v2)
     {
-        return new Square(v1.Value / v2);
+        return new Square(v1.Value/v2);
     }
 
 #if FORCEINLINE  
@@ -349,7 +349,7 @@
 
     public bool is_ok()
     {
-        return this.Value >= SQ_A1 && this.Value <= SQ_H8;
+        return Value >= SQ_A1 && Value <= SQ_H8;
     }
 
 #if FORCEINLINE  
@@ -368,7 +368,7 @@
 
     public static Square relative_square(Color c, Square s)
     {
-        return new Square(s.Value ^ (c * 56));
+        return new Square(s.Value ^ (c*56));
     }
 
 #if FORCEINLINE  
