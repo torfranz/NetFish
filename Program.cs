@@ -14,6 +14,14 @@ internal class Program
 
         Console.WriteLine(Utils.engine_info());
 
+        var t = new System.Threading.Thread(Program.Run);
+        t.Start(args);
+    }
+
+    private static void Run(object arguments)
+    {
+        var args = (string[])arguments;
+
         //UCI.init(Options);
         PSQT.init();
         Bitboards.init();
@@ -26,8 +34,29 @@ internal class Program
         //Tablebases::init(Options["SyzygyPath"]);
         //TT.resize(Options["Hash"]);
 
-        //UCI::loop(argc, argv);
+        //TODO: Enable calls
+        /*
+        Threads.init();
 
+        // .Net warmup sequence
+        Plug.IsWarmup = true;
+        var pos = new Position(UCI.StartFEN, false, Threads.main_thread());
+        var stack = Position.CreateStack("go depth 7");
+        UCI.go(pos, stack);
+        Threads.wait_for_think_finished();
+        Plug.IsWarmup = false;
+        */
+
+        var sb = new StringBuilder();
+        for (var i = 1; i < args.Length; i++)
+        {
+            sb.Append(args[i]).Append(" ");
+        }
+
+        UCI.loop(sb.ToString());
+
+        //TODO: Enable calls
         //Threads.exit();
+
     }
 }
