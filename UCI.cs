@@ -9,10 +9,8 @@ public static class UCI
     // Stack to keep track of the position states along the setup moves (from the
     // start position to the position just before the search starts). Needed by
     // 'draw by repetition' detection.
-    internal static readonly StateInfo[] StateRingBuf = new StateInfo[102];
-
-    internal static int SetupStatePos; // *SetupState = StateRingBuf;
-
+    internal static StateInfoWrapper StateRingBuf = new StateInfoWrapper(new StateInfo[102]);
+    
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)
     {
@@ -56,10 +54,10 @@ public static class UCI
         // Parse move list (if any)
         while ((stack.Count > 0) && (m = to_move(pos, token = stack.Pop())) != Move.MOVE_NONE)
         {
-            pos.do_move(m, StateRingBuf[SetupStatePos], pos.gives_check(m, new CheckInfo(pos)));
+            pos.do_move(m, StateRingBuf[StateRingBuf.current], pos.gives_check(m, new CheckInfo(pos)));
 
             // Increment pointer to StateRingBuf circular buffer
-            SetupStatePos = (SetupStatePos + 1)%102;
+            StateRingBuf++;
         }
     }
 
@@ -221,13 +219,10 @@ public static class UCI
     /// In addition to the UCI ones, also some additional debug commands are supported.
     internal static void loop(string args)
     {
-        for (var i = 0; i < 102; i++)
-        {
-            StateRingBuf[i] = new StateInfo();
-        }
+        
 
         //TODO: add thread
-        var pos = new Position(StartFEN, false /*, Threads.main_thread()*/); // The root position
+        var pos = new Position(StartFEN, false , ThreadPool.main()); // The root position
         string cmd, token = string.Empty;
 
         do

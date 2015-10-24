@@ -52,6 +52,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSQT.cs" />
     <Compile Include="Stats.cs" />
+    <Compile Include="Thread.cs" />
     <Compile Include="TTEntry.cs" />
     <Compile Include="TT.cs" />
     <Compile Include="Types\Bitbases.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Types\Checkinfo.cs" />
     <Compile Include="Types\ExtMove.cs" />
     <Compile Include="Types\LimitsType.cs" />
+    <Compile Include="Types\StateInfoArrayWrapper.cs" />
     <Compile Include="Types\StackArrayWrapper.cs" />
     <Compile Include="Types\KPKPosition.cs" />
     <Compile Include="Types\Movelist.cs" />

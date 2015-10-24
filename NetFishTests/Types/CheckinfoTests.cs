@@ -18,7 +18,7 @@ namespace Tests
             Bitboards.init();
             Position.init();
 
-            var pos = new Position("4rrk1/pp1n3p/3q2pQ/2p2b2/2PPp3/2P3N1/P2B2PP/4RRK1 w - - 0 20", false);
+            var pos = new Position("4rrk1/pp1n3p/3q2pQ/2p2b2/2PPp3/2P3N1/P2B2PP/4RRK1 w - - 0 20", false, null);
 
             CheckInfo ci = new CheckInfo(pos);
 

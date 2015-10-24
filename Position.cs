@@ -31,7 +31,7 @@ public class Position
 
     private int[] index = new int[Square.SQUARE_NB];
 
-    private uint nodes;
+    private int nodes;
 
     private int[,] pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
@@ -39,7 +39,7 @@ public class Position
 
     private Color sideToMove;
 
-    // Thread* thisThread;
+    Thread thisThread;
     public StateInfo st;
 
     private StateInfo startState;
@@ -403,7 +403,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong nodes_searched()
+    public int nodes_searched()
     {
         return nodes;
     }
@@ -412,9 +412,9 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private void set_nodes_searched(ulong n)
+    public void set_nodes_searched(int n)
     {
-        nodes = (uint) n;
+        nodes = n;
     }
 
 #if FORCEINLINE  
@@ -470,14 +470,14 @@ public class Position
         return st.capturedType;
     }
 
-    /*
+    
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
     Thread this_thread() {
   return thisThread;
 }
-*/
+
 
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
@@ -1571,7 +1571,7 @@ public class Position
     /// Position::set() initializes the position object with the given FEN string.
     /// This function is not very robust - make sure that input FENs are correct,
     /// this is assumed to be the responsibility of the GUI.
-    public void set(string fenStr, bool isChess960 /*, Thread th*/)
+    public void set(string fenStr, bool isChess960, Thread th)
     {
         /*
            A FEN string defines a particular position using only the ASCII character set.
@@ -1716,7 +1716,7 @@ public class Position
         gamePly = Math.Max(2*(gamePly - 1), 0) + ((sideToMove == Color.BLACK) ? 1 : 0);
 
         chess960 = isChess960;
-        //this.thisThread = th;
+        this.thisThread = th;
         set_state(st);
 
         Debug.Assert(pos_is_ok());
@@ -1755,7 +1755,7 @@ public class Position
 
         sideToMove = Color.WHITE;
 
-        // thisThread = ;
+        thisThread = null;
         startState = new StateInfo();
 
         st = startState;
@@ -1829,10 +1829,10 @@ public class Position
         flippedFen.Append(tokens.Pop());
         flippedFen.Append(' ');
 
-        set(flippedFen.ToString(), chess960);
+        set(flippedFen.ToString(), chess960, this_thread());
     }
 
-    public Position(Position other)
+    public Position(Position other, Thread thread)
     {
         Array.Copy(other.board, board, other.board.Length);
         Array.Copy(other.byColorBB, byColorBB, other.byColorBB.Length);
@@ -1848,7 +1848,7 @@ public class Position
         gamePly = other.gamePly;
         sideToMove = other.sideToMove;
 
-        // thisThread = other.thisThread;
+        thisThread = thread;
         startState = new StateInfo();
         startState.copyFrom(other.st);
         st = startState;
@@ -1856,9 +1856,9 @@ public class Position
         Debug.Assert(pos_is_ok());
     }
 
-    public Position(string f, bool c960 /*, Thread* th*/)
+    public Position(string f, bool c960, Thread th)
     {
-        set(f, c960 /*, th*/);
+        set(f, c960, th);
     }
 
     public string displayString()

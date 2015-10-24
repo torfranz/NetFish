@@ -24,7 +24,12 @@ internal struct _
     internal const int MAX_PLY = 128;
 
     internal const int MAX_THREADS = 128;
+    internal const int MAX_SPLITPOINTS_PER_THREAD = 8;
+    internal const int MAX_SLAVES_PER_SPLITPOINT = 4;
 }
+
+// Different node types, used as template parameter
+public enum NodeType { Root, PV, NonPV };
 
 public enum Stages
 {
