@@ -1,4 +1,6 @@
-﻿public struct Rank
+﻿using System.Runtime.CompilerServices;
+
+public struct Rank
 {
     public static Rank RANK_1 = new Rank(0);
 

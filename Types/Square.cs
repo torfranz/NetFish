@@ -1,4 +1,6 @@
-﻿public struct Square
+﻿using System.Runtime.CompilerServices;
+
+public struct Square
 {
     public static Square SQ_A1 = new Square(0);
 

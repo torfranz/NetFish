@@ -1,4 +1,5 @@
-﻿using Key = System.UInt64;
+﻿using System.Runtime.CompilerServices;
+using Key = System.UInt64;
 using Bitboard = System.UInt64;
 using Move = System.Int32;
 using File = System.Int32;
@@ -51,8 +52,8 @@ public static class Bitcount
     {
 #if X64
             b -=  (b >> 1) & 0x5555555555555555UL;
-  b  = ((b >> 2) & 0x3333333333333333ULL) + (b & 0x3333333333333333UL);
-  return (b * 0x1111111111111111UL) >> 60;
+  b  = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
+  return (int)((b * 0x1111111111111111UL) >> 60);
 #else
         uint w = (uint) (b >> 32), v = (uint) (b);
         v -= (v >> 1) & 0x55555555; // 0-2 in 2 bits

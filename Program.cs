@@ -34,9 +34,11 @@ internal class Program
         //Tablebases::init(Options["SyzygyPath"]);
         //TT.resize(Options["Hash"]);
 
-        //TODO: Enable calls
+        ThreadPool.init();
+
+        //TODO: Enable calls? Warmup code
         /*
-        Threads.init();
+        
 
         // .Net warmup sequence
         Plug.IsWarmup = true;
@@ -55,8 +57,7 @@ internal class Program
 
         UCI.loop(sb.ToString());
 
-        //TODO: Enable calls
-        //Threads.exit();
+        ThreadPool.exit();
 
     }
 }

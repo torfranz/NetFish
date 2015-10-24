@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 public sealed class SplitPoint
@@ -105,7 +106,7 @@ public abstract class ThreadBase
         ThreadHelper.lock_release(spinlock);
     }
 
-    //TODO: find solution
+    //TODO: find solution, wait_for function
     //void wait_for(volatile const bool& b);
 
     public Mutex mutex = new Mutex(true);
@@ -123,7 +124,7 @@ public class Thread : ThreadBase
 {
     internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
 
-    //TODO: enable variables
+    //TODO: enable variables MaterialTable, PawnTable, Endgames
     //internal readonly MaterialTable materialTable = new MaterialTable();
 
     //internal readonly PawnTable pawnTable = new PawnTable();
@@ -299,10 +300,7 @@ public class Thread : ThreadBase
                 {
                     Debug.Assert(this_sp == null);
 
-                    //TODO: Find solution for thread stuff
-                    //std::unique_lock<Mutex> lk(mutex);
-                    //while (!exit && !Threads.main().thinking)
-                    //    sleepCondition.wait(lk);
+                    ThreadHelper.cond_wait(sleepCondition, mutex);
                 }
                 else
                     System.Threading.Thread.Yield(); // Wait for a new job or for our slaves to finish
@@ -480,7 +478,7 @@ internal sealed class TimerThread : ThreadBase
 
             if (run)
             {
-                //TODO: enable check_time call
+                //TODO: enable Search.check_time call
                 //Search.check_time();
             }
         }

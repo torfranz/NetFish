@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 public static class Utils
@@ -225,7 +226,7 @@ public static class Utils
         var Shifts = Pt == PieceType.ROOK ? RookShifts : BishopShifts;
 
 #if X64
-        return (uint)((((occupied & Masks[s.Value]) * Magics[s.Value]) >> (int)Shifts[s.Value]).Value;
+        return (uint)((((occupied & Masks[s]) * Magics[s]) >> (int)Shifts[s]));
 #else
 
         var lo = (uint) ((occupied & Masks[s]));

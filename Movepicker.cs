@@ -323,8 +323,7 @@ public class MovePicker
         /// safe so must be lock protected by the caller.
         if (useSplitpoint)
         {
-            //TODO: add splitpoint handling
-            //return ss[ss.current].splitPoint.movePicker.next_move(false);
+            return ss[ss.current].splitPoint.movePicker.next_move(false);
         }
 
         Move move;

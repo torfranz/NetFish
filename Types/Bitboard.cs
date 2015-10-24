@@ -1,4 +1,6 @@
-﻿public struct Bitboard
+﻿using System.Runtime.CompilerServices;
+
+public struct Bitboard
 {
     public const ulong DarkSquares = 0xAA55AA55AA55AA55UL;
 

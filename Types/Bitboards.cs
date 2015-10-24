@@ -219,7 +219,7 @@ public static class Bitboards
             //  continue;
 
 #if X64
-            var rng = new PRNG((ulong)seeds[1][s.rank_of()]);
+            var rng = new PRNG((ulong)seeds[1][Square.rank_of(s)]);
 #else
             var rng = new PRNG((ulong) seeds[0][Square.rank_of(s)]);
 #endif

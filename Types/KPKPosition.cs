@@ -1,4 +1,6 @@
-﻿public class KPKPosition
+﻿using System.Runtime.CompilerServices;
+
+public class KPKPosition
 {
     private readonly Square[] ksq = new Square[Color.COLOR_NB];
 

@@ -9,7 +9,7 @@ public static class UCI
     // Stack to keep track of the position states along the setup moves (from the
     // start position to the position just before the search starts). Needed by
     // 'draw by repetition' detection.
-    internal static StateInfoWrapper StateRingBuf = new StateInfoWrapper(new StateInfo[102]);
+    internal static StateInfoWrapper SetupStates = new StateInfoWrapper(new StateInfo[102]);
     
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)
@@ -48,16 +48,15 @@ public static class UCI
             return;
         }
 
-        //TODO: enable call
-        //pos.set(fen, bool.Parse(OptionMap.Instance["UCI_Chess960"].v), Threads.main_thread());
+        pos.set(fen, bool.Parse(OptionMap.Instance["UCI_Chess960"].v), ThreadPool.main());
 
         // Parse move list (if any)
         while ((stack.Count > 0) && (m = to_move(pos, token = stack.Pop())) != Move.MOVE_NONE)
         {
-            pos.do_move(m, StateRingBuf[StateRingBuf.current], pos.gives_check(m, new CheckInfo(pos)));
+            pos.do_move(m, SetupStates[SetupStates.current], pos.gives_check(m, new CheckInfo(pos)));
 
-            // Increment pointer to StateRingBuf circular buffer
-            StateRingBuf++;
+            // Increment pointer to SetupStates circular buffer
+            SetupStates++;
         }
     }
 
@@ -207,8 +206,7 @@ public static class UCI
             }
         }
 
-        //TODO: enable call
-        //Threads.start_thinking(pos, limits, searchMoves);
+        ThreadPool.start_thinking(pos, limits, SetupStates);
     }
 
 
@@ -219,9 +217,6 @@ public static class UCI
     /// In addition to the UCI ones, also some additional debug commands are supported.
     internal static void loop(string args)
     {
-        
-
-        //TODO: add thread
         var pos = new Position(StartFEN, false , ThreadPool.main()); // The root position
         string cmd, token = string.Empty;
 
@@ -246,16 +241,16 @@ public static class UCI
             // already ran out of time), otherwise we should continue searching but
             // switching from pondering to normal search.
             if (token == "quit" || token == "stop" || (token == "ponderhit"))
-                //TODO: enable call 
-                //&& Search::Signals.stopOnPonderhit))
+            //TODO: enable call, Search::Signals.stopOnPonderhit
+            //&& Search::Signals.stopOnPonderhit))
             {
-                //TODO: enable call
+                //TODO: enable call, Search::Signals.stop = true;
                 //Search::Signals.stop = true;
-                //Threads.main()->notify_one(); // Could be sleeping
+                ThreadPool.main().notify_one(); // Could be sleeping
             }
             else if (token == "ponderhit")
             {
-                //TODO: enable call
+                //TODO: enable call, Search::Limits.ponder = 0
                 //Search::Limits.ponder = 0; // Switch to normal search
             }
             else if (token == "uci")
@@ -268,7 +263,7 @@ public static class UCI
             }
             else if (token == "ucinewgame")
             {
-                //TODO: enable call
+                //TODO: enable call, Search::reset(); Time.availableNodes = 0;
                 //Search::reset();
                 //Time.availableNodes = 0;
             }
@@ -296,7 +291,7 @@ public static class UCI
             }
             else if (token == "bench")
             {
-                //TODO: enable call
+                //TODO: enable call, benchmark(pos, stack);
                 //benchmark(pos, stack);
             }
             else if (token == "d")
@@ -305,7 +300,7 @@ public static class UCI
             }
             else if (token == "eval")
             {
-                //TODO: enable call
+                //TODO: enable call, Evaluate.trace(pos)
                 //Console.WriteLine(Evaluate.trace(pos));
             }
             else if (token == "perft")
@@ -318,7 +313,7 @@ public static class UCI
                             OptionMap.Instance["Hash"].v,
                             OptionMap.Instance["Threads"].v,
                             token));
-                //TODO: enable call
+                //TODO: enable call, Benchmark.benchmark(pos, ss);
                 //Benchmark.benchmark(pos, ss);
             }
 
@@ -329,7 +324,6 @@ public static class UCI
             }
         } while (token != "quit" && args.Length == 1); // Passed args have one-shot behaviour
 
-        //TODO: enable call
-        //Threads.main()->join(); // Cannot quit whilst the search is running
+        ThreadPool.main().join(); // Cannot quit whilst the search is running
     }
 }
