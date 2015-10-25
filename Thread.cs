@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -127,7 +128,7 @@ public class Thread : ThreadBase
     //TODO: enable variables MaterialTable, PawnTable, Endgames
     //internal readonly MaterialTable materialTable = new MaterialTable();
 
-    //internal readonly PawnTable pawnTable = new PawnTable();
+    public readonly Hashtable pawnsTable = new Hashtable(16384);
     //Endgames endgames;
     private Position activePosition;
     private volatile SplitPoint activeSplitPoint;
@@ -154,6 +155,12 @@ public class Thread : ThreadBase
 
     public override void idle_loop(ManualResetEvent initEvent)
     {
+        if (initEvent != null)
+        {
+            // Signal done
+            initEvent.Set();
+        }
+
         base_idle_loop(initEvent);
     }
 
@@ -163,13 +170,6 @@ public class Thread : ThreadBase
         // at the thread creation. This means we are the split point's master.
         var this_sp = splitPointsSize > 0 ? activeSplitPoint : null;
         Debug.Assert(this_sp == null || (this_sp.master == this && searching));
-
-        if (initEvent != null)
-        {
-            // Signal done
-            initEvent.Set();
-        }
-
 
         while (!exit && !(this_sp != null) && (this_sp.slavesMask == 0))
         {
@@ -499,22 +499,27 @@ internal sealed class MainThread : Thread
 
     public override void idle_loop(ManualResetEvent initEvent)
     {
+        if (initEvent != null)
+        {
+            // Signal done
+            initEvent.Set();
+        }
+
         while (!exit)
         {
-            //TODO: find solution for mtex
-            /*
-            std::unique_lock<Mutex> lk(mutex);
+            ThreadHelper.lock_grab(mutex);
 
             thinking = false;
 
             while (!thinking && !exit)
             {
-                sleepCondition.notify_one(); // Wake up the UI thread if needed
-                sleepCondition.wait(lk);
+                //TODO: correct replacement for sleepCondition.notify_one();?
+                ThreadHelper.cond_signal(sleepCondition); // Wake up the UI thread if needed, 
+                ThreadHelper.cond_wait(sleepCondition, mutex);
             }
 
-            lk.unlock();
-            */
+            ThreadHelper.lock_release(mutex);
+
 
             if (!exit)
             {
@@ -533,11 +538,13 @@ internal sealed class MainThread : Thread
     // MainThread::join() waits for main thread to finish the search
     public void join()
     {
+        ThreadHelper.lock_grab(mutex);
         //TODO: find solution for mutex
         /*
-            std::unique_lock<Mutex> lk(mutex);
-        sleepCondition.wait(lk, [&]{ return !thinking; });
+            sleepCondition.wait(lk, [&]{ return !thinking; });
         */
+        ThreadHelper.lock_release(mutex);
+        
     }
 }
 

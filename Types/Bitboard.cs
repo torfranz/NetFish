@@ -2,7 +2,7 @@
 
 public struct Bitboard
 {
-    public const ulong DarkSquares = 0xAA55AA55AA55AA55UL;
+    public static readonly Bitboard DarkSquares = new Bitboard(0xAA55AA55AA55AA55UL);
 
     public static readonly Bitboard FileABB = new Bitboard(0x0101010101010101UL);
 

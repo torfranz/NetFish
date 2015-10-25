@@ -176,7 +176,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int count(PieceType Pt, Color c)
+    public int count(PieceType Pt, Color c)
     {
         return pieceCount[c, Pt];
     }
@@ -350,7 +350,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong pawn_key()
+    public ulong pawn_key()
     {
         return st.pawnKey;
     }
@@ -475,7 +475,7 @@ public class Position
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    Thread this_thread() {
+    public Thread this_thread() {
   return thisThread;
 }
 
@@ -1882,7 +1882,7 @@ public class Position
         {
             sb.Append(UCI.square(Utils.pop_lsb(ref b)) + " ");
         }
-
+        sb.AppendLine();
         return sb.ToString();
     }
 

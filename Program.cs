@@ -30,7 +30,7 @@ internal class Program
         //Search::init();
         //Eval::init();
         //Pawns::init();
-        //Threads.init();
+        
         //Tablebases::init(Options["SyzygyPath"]);
         //TT.resize(Options["Hash"]);
 

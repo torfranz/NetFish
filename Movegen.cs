@@ -367,7 +367,7 @@ public static class Movegen
         return moveList;
     }
 
-    private static CastlingRight MakeCastling(Color C, CastlingSide S)
+    public static CastlingRight MakeCastling(Color C, CastlingSide S)
     {
         return C == Color.WHITE
             ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO

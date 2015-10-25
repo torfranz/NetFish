@@ -328,7 +328,7 @@ public static class Utils
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    private static Square frontmost_sq(Color c, Bitboard b)
+    public static Square frontmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
@@ -337,7 +337,7 @@ public static class Utils
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private static Square backmost_sq(Color c, Bitboard b)
+    public static Square backmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
     }

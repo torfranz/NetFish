@@ -26,6 +26,11 @@ public static class UCI
         Move m;
         string token, fen = string.Empty;
 
+        if (stack.Count == 0)
+        {
+            // do nothing for incomplete command
+            return;
+        }
         token = stack.Pop();
 
         if (token == "startpos")
@@ -222,16 +227,21 @@ public static class UCI
 
         do
         {
+            try
+            {
+
+            
             if (args.Length > 0)
             {
                 cmd = args;
             }
-            else if (string.IsNullOrEmpty(cmd = Console.ReadLine())) // Block here waiting for input
+            else if (null == (cmd = Console.ReadLine())) // Block here waiting for input
             {
                 cmd = "quit";
             }
 
             var stack = Position.CreateStack(cmd);
+            if(stack.Count == 0) { continue;}
 
             token = stack.Pop();
 
@@ -322,7 +332,12 @@ public static class UCI
                 Console.Write("Unknown command: ");
                 Console.WriteLine(cmd);
             }
-        } while (token != "quit" && args.Length == 1); // Passed args have one-shot behaviour
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex}");
+            }
+        } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 
         ThreadPool.main().join(); // Cannot quit whilst the search is running
     }
