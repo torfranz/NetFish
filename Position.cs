@@ -322,7 +322,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool pawn_passed(Color c, Square s)
+    public bool pawn_passed(Color c, Square s)
     {
         return !(pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
@@ -359,7 +359,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong material_key()
+    public ulong material_key()
     {
         return st.materialKey;
     }
@@ -377,7 +377,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Value non_pawn_material(Color c)
+    public Value non_pawn_material(Color c)
     {
         return st.nonPawnMaterial[c];
     }

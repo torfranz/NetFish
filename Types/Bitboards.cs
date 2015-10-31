@@ -54,7 +54,7 @@ public static class Bitboards
             {
                 if (s1 != s2)
                 {
-                    Utils.SquareDistance[s1, s2] = Math.Max(Utils.file_distance(s1, s2), Utils.rank_distance(s1, s2));
+                    Utils.SquareDistance[s1, s2] = Math.Max(Utils.distance_File(s1, s2), Utils.distance_Rank(s1, s2));
                     Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] |= s2;
                 }
             }

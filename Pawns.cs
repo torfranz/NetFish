@@ -190,7 +190,7 @@ public static class Pawns
                         Rank.relative_rank(Us, s)];
 
             if (doubled)
-                score -= Doubled[f]/Utils.rank_distance(s, Utils.frontmost_sq(Us, doubled));
+                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
 
             if (lever)
                 score += Lever[Rank.relative_rank(Us, s)];

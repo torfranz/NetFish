@@ -184,11 +184,20 @@ public static class Utils
         return SquareDistance[x, y];
     }
 
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public static int distance_Rank(Rank x, Rank y)
+    {
+        return x < y ? y - x : x - y;
+    }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public static int file_distance(Square x, Square y)
+    public static int distance_File(Square x, Square y)
     {
         int xFile = Square.file_of(x);
         int yFile = Square.file_of(y);
@@ -199,7 +208,7 @@ public static class Utils
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public static int rank_distance(Square x, Square y)
+    public static int distance_Rank(Square x, Square y)
     {
         int xRank = Square.rank_of(x);
         int yRank = Square.rank_of(y);
