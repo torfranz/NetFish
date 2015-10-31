@@ -124,12 +124,10 @@ public abstract class ThreadBase
 public class Thread : ThreadBase
 {
     internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
-
-    //TODO: enable variables MaterialTable, PawnTable, Endgames
-    //internal readonly MaterialTable materialTable = new MaterialTable();
-
+    public Hashtable materialTable = new Hashtable(8192);
+    
     public readonly Hashtable pawnsTable = new Hashtable(16384);
-    //Endgames endgames;
+    public Endgames endgames=new Endgames();
     private Position activePosition;
     private volatile SplitPoint activeSplitPoint;
     private readonly int idx;

@@ -8,14 +8,24 @@
 /// which will result in scores of absolute value less than one pawn.
 public class MaterialEntry
 {
-    private Endgame evaluationFunction;
-    private readonly ushort[] factor = new ushort[Color.COLOR_NB];
+    public Endgame evaluationFunction;
+    public ushort[] factor = new ushort[Color.COLOR_NB];
     // side (e.g. KPKP, KBPsKs)
-    private Phase gamePhase;
-    private ulong key;
-    private readonly Endgame[] scalingFunction = new Endgame[Color.COLOR_NB]; // Could be one for each
-    private short value;
+    public Phase gamePhase;
+    public ulong key;
+    public Endgame[] scalingFunction = new Endgame[Color.COLOR_NB]; // Could be one for each
+    public short value;
 
+    public void reset()
+    {
+        evaluationFunction = null;
+        factor = new ushort[Color.COLOR_NB];
+        gamePhase = Phase.PHASE_ENDGAME;
+        key = 0;
+        scalingFunction = new Endgame[Color.COLOR_NB];
+        value = 0;
+
+    }
     public Score imbalance()
     {
         return Score.make_score(value, value);

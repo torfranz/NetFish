@@ -86,6 +86,7 @@
     <Compile Include="BitCount.cs" />
     <Compile Include="Endgame.cs" />
     <Compile Include="Endgames.cs" />
+    <Compile Include="Material.cs" />
     <Compile Include="Movegen.cs" />
     <Compile Include="Movepicker.cs" />
     <Compile Include="Pawns.cs" />

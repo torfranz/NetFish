@@ -47,7 +47,7 @@ public abstract class Endgame
         weakSide = ~c;
     }
 
-    private Color strong_side()
+    public Color strong_side()
     {
         return strongSide;
     }
@@ -85,7 +85,7 @@ public abstract class Endgame
     // Get the material key of Position out of the given endgame key code
     // like "KBPKN". The trick here is to first forge an ad-hoc FEN string
     // and then let a Position object do the work for us.
-    private static ulong key(string code, Color c)
+    public static ulong key(string code, Color c)
     {
         Debug.Assert(code.Length > 0 && code.Length < 8);
         Debug.Assert(code[0] == 'K');

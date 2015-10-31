@@ -627,7 +627,7 @@ public class Position
 
     /// Position::game_phase() calculates the game phase interpolating total non-pawn
     /// material between endgame and midgame limits.
-    private Phase game_phase()
+    public Phase game_phase()
     {
         var npm = st.nonPawnMaterial[Color.WHITE] + st.nonPawnMaterial[Color.BLACK];
 
