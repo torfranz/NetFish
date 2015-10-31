@@ -45,8 +45,8 @@ namespace Tests
         public void MgEgTest()
         {
             var v1 = Score.make_score(1234, 5678);
-            var mg = v1.mg_value();
-            var eg = v1.eg_value();
+            var mg = Score.mg_value(v1);
+            var eg = Score.eg_value(v1);
             Assert.AreEqual(1234, mg);
             Assert.AreEqual(5678, eg);
         }

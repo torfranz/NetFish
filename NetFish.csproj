@@ -86,6 +86,7 @@
     <Compile Include="BitCount.cs" />
     <Compile Include="Endgame.cs" />
     <Compile Include="Endgames.cs" />
+    <Compile Include="Eval.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Movegen.cs" />
     <Compile Include="Movepicker.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Types\Bitboard.cs" />
     <Compile Include="Types\Bitboards.cs" />
     <Compile Include="Types\Checkinfo.cs" />
+    <Compile Include="Types\EvalInfo.cs" />
     <Compile Include="Types\ExtMove.cs" />
     <Compile Include="Types\LimitsType.cs" />
     <Compile Include="Types\MaterialEntry.cs" />

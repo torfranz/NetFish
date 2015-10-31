@@ -228,7 +228,7 @@ public static class Pawns
     /// the pawns hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
     /// have to recompute all when the same pawns configuration occurs again.
-    private static Entry probe(Position pos)
+    public static Entry probe(Position pos)
     {
         var key = pos.pawn_key();
         Entry e = (Entry)pos.this_thread().pawnsTable[key];
@@ -258,42 +258,42 @@ public static class Pawns
         public Score score;
         public int[] semiopenFiles = new int[Color.COLOR_NB];
 
-        private Score pawns_score()
+        public Score pawns_score()
         {
             return score;
         }
 
-        private Bitboard pawn_attacks(Color c)
+        public Bitboard pawn_attacks(Color c)
         {
             return pawnAttacks[c];
         }
 
-        private Bitboard passed_pawns(Color c)
+        public Bitboard passed_pawns(Color c)
         {
             return passedPawns[c];
         }
 
-        private int pawn_span(Color c)
+        public int pawn_span(Color c)
         {
             return pawnSpan[c];
         }
 
-        private int semiopen_file(Color c, File f)
+        public int semiopen_file(Color c, File f)
         {
             return semiopenFiles[c] & (1 << f);
         }
 
-        private int semiopen_side(Color c, File f, bool leftSide)
+        public int semiopen_side(Color c, File f, bool leftSide)
         {
             return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << ((int) f + 1)) - 1));
         }
 
-        private int pawns_on_same_color_squares(Color c, Square s)
+        public int pawns_on_same_color_squares(Color c, Square s)
         {
             return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        private Score king_safety(Color Us, Position pos, Square ksq)
+        public Score king_safety(Color Us, Position pos, Square ksq)
         {
             return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
                 ? kingSafety[Us]

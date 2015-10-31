@@ -28,26 +28,13 @@ internal class Program
         Position.init();
         Bitbases.init();
         //Search::init();
-        //Eval::init();
-        //Pawns::init();
+        Eval.init();
+        Pawns.init();
         
         //Tablebases::init(Options["SyzygyPath"]);
         //TT.resize(Options["Hash"]);
 
         ThreadPool.init();
-
-        //TODO: Enable calls? Warmup code
-        /*
-        
-
-        // .Net warmup sequence
-        Plug.IsWarmup = true;
-        var pos = new Position(UCI.StartFEN, false, Threads.main_thread());
-        var stack = Position.CreateStack("go depth 7");
-        UCI.go(pos, stack);
-        Threads.wait_for_think_finished();
-        Plug.IsWarmup = false;
-        */
 
         var sb = new StringBuilder();
         for (var i = 1; i < args.Length; i++)

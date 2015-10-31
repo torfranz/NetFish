@@ -6,9 +6,9 @@ public class Material
     // Polynomial material imbalance parameters
 
     //                      pair  pawn knight bishop rook queen
-    private readonly int[] Linear = {1756, -164, -1067, -160, 234, -137};
+    private static int[] Linear = {1756, -164, -1067, -160, 234, -137};
 
-    private readonly int[][] QuadraticOurs =
+    private static int[][] QuadraticOurs =
     {
         //            OUR PIECES
         // pair pawn knight bishop rook queen
@@ -20,7 +20,7 @@ public class Material
         new[] {-177, 25, 129, 142, -137, 0} // Queen
     };
 
-    private readonly int[][] QuadraticTheirs =
+    private static int[][] QuadraticTheirs =
     {
         //           THEIR PIECES
         // pair pawn knight bishop rook queen
@@ -34,29 +34,29 @@ public class Material
 
     // Endgame evaluation and scaling functions are accessed directly and not through
     // the function maps because they correspond to more than one material hash key.
-    private readonly Endgame[] EvaluateKXK = {new EndgameKXK(Color.WHITE), new EndgameKXK(Color.BLACK)};
+    private static Endgame[] EvaluateKXK = {new EndgameKXK(Color.WHITE), new EndgameKXK(Color.BLACK)};
 
-    private readonly Endgame[] ScaleKBPsK = {new EndgameKBPsK(Color.WHITE), new EndgameKBPsK(Color.BLACK)};
-    private readonly Endgame[] ScaleKPKP = {new EndgameKPKP(Color.WHITE), new EndgameKPKP(Color.BLACK)};
-    private readonly Endgame[] ScaleKPsK = {new EndgameKPsK(Color.WHITE), new EndgameKPsK(Color.BLACK)};
-    private readonly Endgame[] ScaleKQKRPs = {new EndgameKQKRPs(Color.WHITE), new EndgameKQKRPs(Color.BLACK)};
+    private static Endgame[] ScaleKBPsK = {new EndgameKBPsK(Color.WHITE), new EndgameKBPsK(Color.BLACK)};
+    private static Endgame[] ScaleKPKP = {new EndgameKPKP(Color.WHITE), new EndgameKPKP(Color.BLACK)};
+    private static Endgame[] ScaleKPsK = {new EndgameKPsK(Color.WHITE), new EndgameKPsK(Color.BLACK)};
+    private static Endgame[] ScaleKQKRPs = {new EndgameKQKRPs(Color.WHITE), new EndgameKQKRPs(Color.BLACK)};
     
 
     // Helper used to detect a given material distribution
-    private bool is_KXK(Position pos, Color us)
+    private static bool is_KXK(Position pos, Color us)
     {
         return !Bitboard.more_than_one(pos.pieces(~us))
                && pos.non_pawn_material(us) >= Value.RookValueMg;
     }
 
-    private bool is_KBPsKs(Position pos, Color us)
+    private static bool is_KBPsKs(Position pos, Color us)
     {
         return pos.non_pawn_material(us) == Value.BishopValueMg
                && pos.count(PieceType.BISHOP, us) == 1
                && pos.count(PieceType.PAWN, us) >= 1;
     }
 
-    private bool is_KQKRPs(Position pos, Color us)
+    private static bool is_KQKRPs(Position pos, Color us)
     {
         return pos.count(PieceType.PAWN, us) == 0
                && pos.non_pawn_material(us) == Value.QueenValueMg
@@ -67,7 +67,7 @@ public class Material
 
     /// imbalance() calculates the imbalance by comparing the piece count of each
     /// piece type for both colors.
-    private int imbalance(Color Us, int[][] pieceCount)
+    private static int imbalance(Color Us, int[][] pieceCount)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -95,7 +95,7 @@ public class Material
     /// the material hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
     /// have to recompute all when the same material configuration occurs again.
-    private MaterialEntry probe(Position pos)
+    public static MaterialEntry probe(Position pos)
     {
         var key = pos.material_key();
         MaterialEntry e = (MaterialEntry)pos.this_thread().materialTable[key];

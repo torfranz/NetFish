@@ -104,7 +104,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool empty(Square s)
+    public bool empty(Square s)
     {
         return board[s] == Piece.NO_PIECE;
     }
@@ -368,7 +368,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Score psq_score()
+    public Score psq_score()
     {
         return st.psq;
     }
@@ -422,7 +422,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool opposite_bishops()
+    public bool opposite_bishops()
     {
         return pieceCount[Color.WHITE, PieceType.BISHOP] == 1
                && pieceCount[Color.BLACK, PieceType.BISHOP] == 1

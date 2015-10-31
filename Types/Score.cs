@@ -129,7 +129,7 @@ public struct Score
 #endif
     public static Score operator /(Score v1, int v2)
     {
-        return make_score(v1.mg_value()/v2, v1.eg_value()/v2);
+        return make_score(mg_value(v1) /v2, eg_value(v1) /v2);
     }
 
     #endregion
@@ -140,22 +140,29 @@ public struct Score
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public Value mg_value()
+    public static Value mg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // mg = { uint16_t(unsigned(s + 0x8000) >> 16) };
-        return new Value((ushort) (Value >> 16));
+        return new Value((ushort) (s.Value >> 16));
     }
 
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Score operator *(Score s, Eval.Weight w)
+    {
+        return Score.make_score(Score.mg_value(s) * w.mg / 256, Score.eg_value(s) * w.eg / 256);
+    }
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public Value eg_value()
+    public static Value eg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // eg = { uint16_t(unsigned(s)) };
-        return new Value((ushort) Value);
+        return new Value((ushort) s.Value);
     }
 
 #if FORCEINLINE  
