@@ -22,7 +22,6 @@ internal class Program
     {
         var args = (string[])arguments;
 
-        //UCI.init(Options);
         PSQT.init();
         Bitboards.init();
         Position.init();
@@ -30,9 +29,9 @@ internal class Program
         //Search::init();
         Eval.init();
         Pawns.init();
-        
+
         //Tablebases::init(Options["SyzygyPath"]);
-        //TT.resize(Options["Hash"]);
+        TranspositionTable.resize(uint.Parse(OptionMap.Instance["Hash"].v));
 
         ThreadPool.init();
 

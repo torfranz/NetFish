@@ -308,11 +308,6 @@ public static class UCI
             {
                 Console.Write(pos.displayString());
             }
-            else if (token == "eval")
-            {
-                //TODO: enable call, Evaluate.trace(pos)
-                //Console.WriteLine(Evaluate.trace(pos));
-            }
             else if (token == "perft")
             {
                 token = stack.Pop(); // Read depth

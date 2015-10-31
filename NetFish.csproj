@@ -108,6 +108,7 @@
     <Compile Include="Types\ExtMove.cs" />
     <Compile Include="Types\LimitsType.cs" />
     <Compile Include="Types\MaterialEntry.cs" />
+    <Compile Include="Types\Rootmove.cs" />
     <Compile Include="Types\StateInfoArrayWrapper.cs" />
     <Compile Include="Types\StackArrayWrapper.cs" />
     <Compile Include="Types\KPKPosition.cs" />

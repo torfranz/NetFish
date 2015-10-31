@@ -341,7 +341,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong key()
+    public ulong key()
     {
         return st.key;
     }
@@ -1053,7 +1053,7 @@ public class Position
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
     /// be restored to exactly the same state as before the move was made.
-    private void undo_move(Move m)
+    public void undo_move(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
