@@ -3,5 +3,5 @@
 
 public struct SignalsType
 {
-    bool stop, stopOnPonderhit, firstRootMove, failedLowAtRoot;
+    public volatile bool stop, stopOnPonderhit, firstRootMove, failedLowAtRoot;
 };

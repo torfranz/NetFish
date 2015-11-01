@@ -11,4 +11,9 @@ public class LimitsType
     public int npmsec, movestogo, depth, movetime, mate, infinite;
     public List<Move> searchmoves = new List<Move>();
     public int[] time = new int[Color.COLOR_NB];
+
+    public bool use_time_management()
+    {
+        return (mate | movetime | depth | (int)nodes | infinite) != 0;
+    }
 };

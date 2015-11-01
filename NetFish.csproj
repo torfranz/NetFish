@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitCount.cs" />
+    <Compile Include="EasyMoveManager.cs" />
     <Compile Include="Endgame.cs" />
     <Compile Include="Endgames.cs" />
     <Compile Include="Eval.cs" />
@@ -96,8 +97,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSQT.cs" />
+    <Compile Include="Search.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="Thread.cs" />
+    <Compile Include="TimeManagement.cs" />
     <Compile Include="TTEntry.cs" />
     <Compile Include="TT.cs" />
     <Compile Include="Types\Bitbases.cs" />

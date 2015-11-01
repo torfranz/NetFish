@@ -100,8 +100,7 @@ internal static class UCIOptionChanges
 
     internal static void on_clear_hash(UCIOption opt)
     {
-        //TODO: enable call , Search::reset();
-        //Search::reset();
+        Search.reset();
     }
 }
 

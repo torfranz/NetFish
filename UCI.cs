@@ -250,18 +250,15 @@ public static class UCI
             // waiting for 'ponderhit' to stop the search (for instance because we
             // already ran out of time), otherwise we should continue searching but
             // switching from pondering to normal search.
-            if (token == "quit" || token == "stop" || (token == "ponderhit"))
-            //TODO: enable call, Search::Signals.stopOnPonderhit
-            //&& Search::Signals.stopOnPonderhit))
+            if (token == "quit" || token == "stop" || (token == "ponderhit")
+                && Search.Signals.stopOnPonderhit)
             {
-                //TODO: enable call, Search::Signals.stop = true;
-                //Search::Signals.stop = true;
+                Search.Signals.stop = true;
                 ThreadPool.main().notify_one(); // Could be sleeping
             }
             else if (token == "ponderhit")
             {
-                //TODO: enable call, Search::Limits.ponder = 0
-                //Search::Limits.ponder = 0; // Switch to normal search
+                Search.Limits.ponder = false; // Switch to normal search
             }
             else if (token == "uci")
             {
@@ -273,9 +270,8 @@ public static class UCI
             }
             else if (token == "ucinewgame")
             {
-                //TODO: enable call, Search::reset(); Time.availableNodes = 0;
-                //Search::reset();
-                //Time.availableNodes = 0;
+                Search.reset();
+                TimeManagement.availableNodes = 0;
             }
             else if (token == "isready")
             {

@@ -128,12 +128,12 @@ public class Thread : ThreadBase
     
     public readonly Hashtable pawnsTable = new Hashtable(16384);
     public Endgames endgames=new Endgames();
-    private Position activePosition;
+    public Position activePosition;
     private volatile SplitPoint activeSplitPoint;
     private readonly int idx;
     private int maxPly;
     protected volatile bool searching;
-    private volatile int splitPointsSize;
+    public volatile int splitPointsSize;
 
     internal Thread(ManualResetEvent initEvent)
         : base(initEvent)
@@ -446,7 +446,7 @@ public class Thread : ThreadBase
 
 internal sealed class TimerThread : ThreadBase
 {
-    private const int Resolution = 5; // Millisec between two check_time() calls
+    public const int Resolution = 5; // Millisec between two check_time() calls
     private readonly bool run = false;
 
     internal TimerThread(ManualResetEvent initEvent)
@@ -476,8 +476,7 @@ internal sealed class TimerThread : ThreadBase
 
             if (run)
             {
-                //TODO: enable Search.check_time call
-                //Search.check_time();
+                Search.check_time();
             }
         }
     }
@@ -678,25 +677,25 @@ internal static class ThreadPool
     {
         main().join();
 
-        //TODO: find solution for code
-        /*
-        Signals.stopOnPonderhit = Signals.firstRootMove = false;
-        Signals.stop = Signals.failedLowAtRoot = false;
+        Search.Signals.stopOnPonderhit = Search.Signals.firstRootMove = false;
+        Search.Signals.stop = Search.Signals.failedLowAtRoot = false;
 
-        RootMoves.clear();
-        RootPos = pos;
-        Limits = limits;
-        if (states.get()) // If we don't set a new position, preserve current state
+        Search.RootMoves.Clear();
+        Search.RootPos = pos;
+        Search.Limits = limits;
+
+        var current = states[states.current];
+        if (current!=null) // If we don't set a new position, preserve current state
         {
-            SetupStates = std::move(states); // Ownership transfer here
-            assert(!states.get());
+            Search.SetupStates = states; // Ownership transfer here
+            Debug.Assert(current!=null);
         }
 
-        for (const auto&m : MoveList<LEGAL>(pos))
-      if (limits.searchmoves.empty()
-          || std::count(limits.searchmoves.begin(), limits.searchmoves.end(), m))
-            RootMoves.push_back(RootMove(m));
-            */
+        foreach (var m in new MoveList(GenType.LEGAL, pos).moveList.table   )
+            if (limits.searchmoves.Count == 0
+                || limits.searchmoves.FindAll((move) => move == m.Move).Count == 0)
+                    Search.RootMoves.Add(new RootMove(m));
+            
         main().thinking = true;
         main().notify_one(); // Wake up main thread: 'thinking' must be already set
     }
