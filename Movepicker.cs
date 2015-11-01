@@ -271,7 +271,7 @@ public class MovePicker
                 break;
 
             case Stages.BAD_QUIETS:
-                cur = endMoves;
+                cur = new ExtMoveArrayWrapper(endMoves);
                 endMoves = endQuiets;
                 if (depth >= 3*Depth.ONE_PLY)
                     ExtMoveArrayWrapper.insertion_sort(cur, endMoves);

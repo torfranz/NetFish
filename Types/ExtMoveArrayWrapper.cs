@@ -8,6 +8,11 @@ public class ExtMoveArrayWrapper
 
     public int current;
 
+    public ExtMoveArrayWrapper(ExtMoveArrayWrapper wrapper)
+        : this(wrapper.table, wrapper.current)
+    {
+    }
+
     public ExtMoveArrayWrapper(ExtMove[] table)
         : this(table, 0)
     {
@@ -51,6 +56,12 @@ public class ExtMoveArrayWrapper
     {
         p.current -= 1;
         return p;
+    }
+
+    public void Add(Move m)
+    {
+        table[current] = new ExtMove(m, table[current].Value);
+        current++;
     }
 
     public void setCurrentMove(Move m)
