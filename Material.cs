@@ -98,10 +98,16 @@ public class Material
     public static MaterialEntry probe(Position pos)
     {
         var key = pos.material_key();
-        MaterialEntry e = (MaterialEntry)pos.this_thread().materialTable[key];
-
-        if (e.key == key)
+        MaterialEntry e;
+        if (!pos.this_thread().materialTable.TryGetValue(key, out e))
+        {
+            e = new MaterialEntry();
+            pos.this_thread().materialTable.Add(key, e);
+        }
+        else if (e.key == key)
+        {
             return e;
+        }
 
         e.reset();
 

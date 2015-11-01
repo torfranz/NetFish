@@ -1876,7 +1876,7 @@ public class Position
             sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");
         }
 
-        sb.Append($"\nFen: {fen()}\nKey: {st.key}\nCheckers: ");
+        sb.Append($"\nFen: {fen()}\nKey: {st.key:X}\nCheckers: ");
 
         for (var b = checkers(); b;)
         {

@@ -121,9 +121,9 @@ public abstract class ThreadBase
 public class Thread : ThreadBase
 {
     internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
-    public Hashtable materialTable = new Hashtable(8192);
+    public Dictionary<ulong, MaterialEntry> materialTable = new Dictionary<ulong, MaterialEntry>(8192);
     
-    public readonly Hashtable pawnsTable = new Hashtable(16384);
+    public Dictionary<ulong, Pawns.Entry> pawnsTable = new Dictionary<ulong, Pawns.Entry>(16384);
     public Endgames endgames=new Endgames();
     public Position activePosition;
     private volatile SplitPoint activeSplitPoint;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 public static class Eval
 {
@@ -177,6 +178,8 @@ public static class Eval
     public static int BishopCheck = 6;
     public static int KnightCheck = 14;
 
+    private static double[,,] scores = new double[(int) Term.TERM_NB, Color.COLOR_NB, (int) Phase.PHASE_NB];
+
     // init_eval_info() initializes king bitboards for given color adding
     // pawn attacks. To be done at the beginning of the evaluation.
 
@@ -206,7 +209,7 @@ public static class Eval
 
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
 
-    private static Score evaluate_pieces(PieceType Pt, Color Us, Position pos, EvalInfo ei, Score[] mobility,
+    private static Score evaluate_pieces(PieceType Pt, Color Us, bool DoTrace, Position pos, EvalInfo ei, Score[] mobility,
         Bitboard[] mobilityArea)
     {
         if (Pt == PieceType.KING)
@@ -317,13 +320,15 @@ public static class Eval
             }
         }
 
+        if (DoTrace)
+            add(Pt, Us, score);
         // Recursively call evaluate_pieces() of next piece type until KING excluded
-        return score - evaluate_pieces(NextPt, Them, pos, ei, mobility, mobilityArea);
+        return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
     }
 
     // evaluate_king() assigns bonuses and penalties to a king of a given color
 
-    private static Score evaluate_king(Color Us, Position pos, EvalInfo ei)
+    private static Score evaluate_king(Color Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -413,13 +418,16 @@ public static class Eval
             score -= KingDanger[Math.Max(Math.Min(attackUnits, 399), 0)];
         }
 
+        if (DoTrace)
+            add(PieceType.KING, Us, score);
+
         return score;
     }
 
     // evaluate_threats() assigns bonuses according to the type of attacking piece
     // and the type of attacked one.
 
-    private static Score evaluate_threats(Color Us, Position pos, EvalInfo ei)
+    private static Score evaluate_threats(Color Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -508,11 +516,14 @@ public static class Eval
         if (b)
             score += Bitcount.popcount_Max15(b)*PawnAttackThreat;
 
+        if (DoTrace)
+            add((int)Term.THREAT, Us, score);
+
         return score;
     }
 
     // evaluate_passed_pawns() evaluates the passed pawns of the given color
-    private static Score evaluate_passed_pawns(Color Us, Position pos, EvalInfo ei)
+    private static Score evaluate_passed_pawns(Color Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -589,6 +600,8 @@ public static class Eval
             score += Score.make_score(mbonus, ebonus) + PassedFile[Square.file_of(s)];
         }
 
+        if (DoTrace)
+            add((int)Term.PASSED, Us, score * Weights[PassedPawns]);
 
         // Add the scores to the middlegame and endgame eval
         return score*Weights[PassedPawns];
@@ -618,7 +631,7 @@ public static class Eval
         behind |= (Us == Color.WHITE ? behind >> 16 : behind << 16);
 
         // Since SpaceMask[Us] is fully on our half of the board...
-        Debug.Assert((safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
+        Debug.Assert((uint)(safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
 
         // ...count safe + (behind & safe) with a single popcount
         var bonus = Bitcount.popcount_Full((Us == Color.WHITE ? safe << 32 : safe >> 32) | (behind & safe));
@@ -630,7 +643,7 @@ public static class Eval
 
     /// evaluate() is the main evaluation function. It returns a static evaluation
     /// of the position always from the point of view of the side to move.
-    private static Value evaluate(Position pos)
+    private static Value evaluate(bool DoTrace, Position pos)
     {
         Debug.Assert(!pos.checkers());
 
@@ -682,21 +695,21 @@ public static class Eval
         };
 
         // Evaluate pieces and mobility
-        score += evaluate_pieces(PieceType.KNIGHT, Color.WHITE, pos, ei, mobility, mobilityArea);
+        score += evaluate_pieces(PieceType.KNIGHT, Color.WHITE, DoTrace, pos, ei, mobility, mobilityArea);
         score += (mobility[Color.WHITE] - mobility[Color.BLACK])*Weights[Mobility];
 
         // Evaluate kings after all other pieces because we need complete attack
         // information when computing the king safety evaluation.
-        score += evaluate_king(Color.WHITE, pos, ei)
-                 - evaluate_king(Color.BLACK, pos, ei);
+        score += evaluate_king(Color.WHITE, DoTrace, pos, ei)
+                 - evaluate_king(Color.BLACK, DoTrace, pos, ei);
 
         // Evaluate tactical threats, we need full attack information including king
-        score += evaluate_threats(Color.WHITE, pos, ei)
-                 - evaluate_threats(Color.BLACK, pos, ei);
+        score += evaluate_threats(Color.WHITE, DoTrace, pos, ei)
+                 - evaluate_threats(Color.BLACK, DoTrace, pos, ei);
 
         // Evaluate passed pawns, we need full attack information including king
-        score += evaluate_passed_pawns(Color.WHITE, pos, ei)
-                 - evaluate_passed_pawns(Color.BLACK, pos, ei);
+        score += evaluate_passed_pawns(Color.WHITE, DoTrace, pos, ei)
+                 - evaluate_passed_pawns(Color.BLACK, DoTrace, pos, ei);
 
         // If both sides have only pawns, score for potential unstoppable pawns
         if (pos.non_pawn_material(Color.WHITE) == 0 && pos.non_pawn_material(Color.BLACK) == 0)
@@ -756,6 +769,19 @@ public static class Eval
 
         v /= (int) (Phase.PHASE_MIDGAME);
 
+        // In case of tracing add all single evaluation terms
+        if (DoTrace)
+        {
+            add((int)Term.MATERIAL, pos.psq_score());
+            add((int)Term.IMBALANCE, me.imbalance());
+            add((int)PieceType.PAWN, ei.pi.pawns_score());
+            add((int)Term.MOBILITY, mobility[Color.WHITE] * Weights[Mobility]
+                               , mobility[Color.BLACK] * Weights[Mobility]);
+            add((int)Term.SPACE, evaluate_space(Color.WHITE,pos, ei) * Weights[Space]
+                            , evaluate_space(Color.BLACK,pos, ei) * Weights[Space]);
+            add((int)Term.TOTAL, score);
+        }
+
         return (pos.side_to_move() == Color.WHITE ? v : -v) + Tempo; // Side to move point of view
     }
 
@@ -773,6 +799,84 @@ public static class Eval
         }
     }
 
+    private static double to_cp(Value v)
+    {
+        return (double)v/Value.PawnValueEg;
+    }
+
+    private static void add(int idx, Color c, Score s)
+    {
+        scores[idx, c, (int) Phase.MG] = to_cp(Score.mg_value(s));
+        scores[idx, c, (int) Phase.EG] = to_cp(Score.eg_value(s));
+    }
+
+    private static void add(int idx, Score w, Score b)
+    {
+        add(idx, Color.WHITE, w);
+        add(idx, Color.BLACK, b);
+    }
+
+    private static void add(int idx, Score w)
+    {
+        add(idx, Color.WHITE, w);
+        add(idx, Color.BLACK, Score.SCORE_ZERO);
+    }
+    private static string termString(Term t)
+    {
+        var os = new StringBuilder();
+        if (t == Term.MATERIAL || t == Term.IMBALANCE || t == (Term) ((int) PieceType.PAWN) || t == Term.TOTAL)
+            os.Append("  ---   --- |   ---   --- | ");
+        else
+        {
+            os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.MG],5:N2} ");
+            os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.EG],5:N2} | ");
+            os.Append($"{scores[(int) t, Color.BLACK, (int) Phase.MG],5:N2} ");
+            os.Append($"{scores[(int) t, Color.BLACK, (int) Phase.EG],5:N2} | ");
+        }
+
+
+        os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.MG] - scores[(int) t, Color.BLACK, (int) Phase.MG],5:N2} ");
+        os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.EG] - scores[(int) t, Color.BLACK, (int) Phase.EG],5:N2} ");
+
+        return os.ToString();
+    }
+
+    /// trace() is like evaluate(), but instead of returning a value, it returns
+    /// a string (suitable for outputting to stdout) that contains the detailed
+    /// descriptions and values of each evaluation term. Useful for debugging.
+    public static string trace(Position pos)
+    {
+        scores = new double[(int) Term.TERM_NB, Color.COLOR_NB, (int) Phase.PHASE_NB];
+
+        var v = evaluate( true, pos);
+        v = pos.side_to_move() == Color.WHITE ? v : -v; // White's point of view
+
+        var ss = new StringBuilder();
+
+        ss.AppendLine("      Eval term |    White    |    Black    |    Total    ");
+        ss.AppendLine("                |   MG    EG  |   MG    EG  |   MG    EG  ");
+        ss.AppendLine("----------------+-------------+-------------+-------------");
+        ss.AppendLine($"       Material | {termString(Term.MATERIAL)}");
+        ss.AppendLine($"      Imbalance | {termString(Term.IMBALANCE)}");
+        ss.AppendLine($"          Pawns | {termString((Term) (int) PieceType.PAWN)}");
+        ss.AppendLine($"        Knights | {termString((Term) (int) PieceType.KNIGHT)}");
+        ss.AppendLine($"         Bishop | {termString((Term) (int) PieceType.BISHOP)}");
+        ss.AppendLine($"          Rooks | {termString((Term) (int) PieceType.ROOK)}");
+        ss.AppendLine($"         Queens | {termString((Term) (int) PieceType.QUEEN)}");
+        ss.AppendLine($"       Mobility | {termString(Term.MOBILITY)}");
+        ss.AppendLine($"    King safety | {termString((Term) (int) PieceType.KING)}");
+        ss.AppendLine($"        Threats | {termString(Term.THREAT)}");
+        ss.AppendLine($"   Passed pawns | {termString(Term.PASSED)}");
+        ss.AppendLine($"          Space | {termString(Term.SPACE)}");
+        ss.AppendLine("----------------+-------------+-------------+-------------");
+        ss.AppendLine($"          Total | {termString(Term.TOTAL)}");
+
+        ss.AppendLine();
+        ss.AppendLine($"Total Evaluation: {to_cp(v),5:N2} (white side)");
+
+        return ss.ToString();
+    }
+
     public struct Weight
     {
         public Weight(int mg, int eg)
@@ -784,4 +888,17 @@ public static class Eval
         public int mg;
         public int eg;
     }
+
+    private enum Term
+    {
+        // First 8 entries are for PieceType
+        MATERIAL = 8,
+        IMBALANCE,
+        MOBILITY,
+        THREAT,
+        PASSED,
+        SPACE,
+        TOTAL,
+        TERM_NB
+    };
 }

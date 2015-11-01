@@ -361,6 +361,10 @@ public static class UCI
                 {
                     pos.flip();
                 }
+                else if (token == "eval")
+                {
+                    Console.WriteLine(Eval.trace(pos));
+                }
                 else if (token == "bench")
                 {
                     //TODO: enable call, benchmark(pos, stack);

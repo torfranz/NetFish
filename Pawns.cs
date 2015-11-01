@@ -67,24 +67,24 @@ public static class Pawns
     {
         new[]
         {
-            new[] {new Value(0), new Value(67), new Value(134), new Value(38), new Value(32)},
-            new[] {new Value(0), new Value(57), new Value(139), new Value(37), new Value(22)},
-            new[] {new Value(0), new Value(43), new Value(115), new Value(43), new Value(27)},
-            new[] {new Value(0), new Value(68), new Value(124), new Value(57), new Value(32)}
+            new[] {new Value(0), new Value(67), new Value(134), new Value(38), new Value(32), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(57), new Value(139), new Value(37), new Value(22), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(43), new Value(115), new Value(43), new Value(27), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(68), new Value(124), new Value(57), new Value(32), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
-            new[] {new Value(20), new Value(43), new Value(100), new Value(56), new Value(20)},
-            new[] {new Value(23), new Value(20), new Value(98), new Value(40), new Value(15)},
-            new[] {new Value(23), new Value(39), new Value(103), new Value(36), new Value(18)},
-            new[] {new Value(28), new Value(19), new Value(108), new Value(42), new Value(26)}
+            new[] {new Value(20), new Value(43), new Value(100), new Value(56), new Value(20), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(23), new Value(20), new Value(98), new Value(40), new Value(15), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(23), new Value(39), new Value(103), new Value(36), new Value(18), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(28), new Value(19), new Value(108), new Value(42), new Value(26), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
-            new[] {new Value(0), new Value(0), new Value(75), new Value(14), new Value(2)},
-            new[] {new Value(0), new Value(0), new Value(150), new Value(30), new Value(4)},
-            new[] {new Value(0), new Value(0), new Value(160), new Value(22), new Value(5)},
-            new[] {new Value(0), new Value(0), new Value(166), new Value(24), new Value(13)}
+            new[] {new Value(0), new Value(0), new Value(75), new Value(14), new Value(2), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(150), new Value(30), new Value(4), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(160), new Value(22), new Value(5), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(166), new Value(24), new Value(13), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
@@ -231,9 +231,13 @@ public static class Pawns
     public static Entry probe(Position pos)
     {
         var key = pos.pawn_key();
-        Entry e = (Entry)pos.this_thread().pawnsTable[key];
-
-        if (e.key == key)
+        Entry e;
+        if (!pos.this_thread().pawnsTable.TryGetValue(key, out e))
+        {
+            e = new Entry();
+            pos.this_thread().pawnsTable.Add(key, e);
+        }
+        else if(e.key == key)
             return e;
 
         e.key = key;
@@ -353,6 +357,7 @@ public static class Pawns
 
                 b = theirPawns & Utils.file_bb(f);
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
+
 
                 safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger
