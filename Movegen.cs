@@ -493,18 +493,19 @@ public static class Movegen
     {
         var pinned = pos.pinned_pieces(pos.side_to_move());
         var ksq = pos.square(PieceType.KING, pos.side_to_move());
-        var cur = moveList;
+        var cur = moveList.current;
 
         moveList = pos.checkers()
             ? generate(GenType.EVASIONS, pos, moveList)
             : generate(GenType.NON_EVASIONS, pos, moveList);
-        while (cur != moveList)
+
+        while (cur != moveList.current)
         {
-            if ((pinned || Move.from_sq(moveList[cur.current]) == ksq ||
-                 Move.type_of(moveList[cur.current]) == MoveType.ENPASSANT)
-                && !pos.legal(moveList[cur.current], pinned))
+            if ((pinned || Move.from_sq(moveList[cur]) == ksq ||
+                 Move.type_of(moveList[cur]) == MoveType.ENPASSANT)
+                && !pos.legal(moveList[cur], pinned))
             {
-                cur = --moveList;
+                --moveList;
             }
             else
             {

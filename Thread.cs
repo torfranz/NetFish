@@ -690,11 +690,15 @@ internal static class ThreadPool
             Debug.Assert(current!=null);
         }
 
-        foreach (var m in new MoveList(GenType.LEGAL, pos).moveList.table   )
+        var ml = new MoveList(GenType.LEGAL, pos);
+        for (int index = ml.begin(); index < ml.end(); index++)
+        {
+            var m = ml.moveList.table[index];
             if (limits.searchmoves.Count == 0
                 || limits.searchmoves.FindAll((move) => move == m.Move).Count == 0)
-                    Search.RootMoves.Add(new RootMove(m));
-            
+                Search.RootMoves.Add(new RootMove(m));
+        }
+
         main().thinking = true;
         main().notify_one(); // Wake up main thread: 'thinking' must be already set
     }

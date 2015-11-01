@@ -1,4 +1,4 @@
-﻿public struct StateInfoWrapper
+﻿public class StateInfoWrapper
 {
     public StateInfo[] table;
 

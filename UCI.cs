@@ -168,8 +168,9 @@ public static class UCI
         }
 
         var ml = new MoveList(GenType.LEGAL, pos);
-        foreach (var extMove in ml.moveList.table)
+        for (int index = ml.begin(); index < ml.end(); index++)
         {
+            var extMove = ml.moveList.table[index];
             if (str == move(extMove, pos.is_chess960()))
                 return extMove;
         }
@@ -367,8 +368,7 @@ public static class UCI
                 }
                 else if (token == "bench")
                 {
-                    //TODO: enable call, benchmark(pos, stack);
-                    //benchmark(pos, stack);
+                    Benchmark.benchmark(pos, stack);
                 }
                 else if (token == "d")
                 {
@@ -384,8 +384,7 @@ public static class UCI
                                 OptionMap.Instance["Hash"].v,
                                 OptionMap.Instance["Threads"].v,
                                 token));
-                    //TODO: enable call, Benchmark.benchmark(pos, ss);
-                    //Benchmark.benchmark(pos, ss);
+                    Benchmark.benchmark(pos, ss);
                 }
 
                 else

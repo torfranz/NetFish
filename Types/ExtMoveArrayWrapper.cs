@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Xml.Schema;
 
-public struct ExtMoveArrayWrapper
+public class ExtMoveArrayWrapper
 {
     public ExtMove[] table;
 

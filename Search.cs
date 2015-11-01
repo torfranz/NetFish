@@ -16,7 +16,7 @@ public static class Search
     private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
     private static readonly HistoryStats History = new HistoryStats();
     private static readonly CounterMovesHistoryStats CounterMovesHistory = new CounterMovesHistoryStats();
-    private static MovesStats Countermoves;
+    private static MovesStats Countermoves = new MovesStats();
 
     /// check_time() is called by the timer thread when the timer triggers. It is
     /// used to print debug info and, more importantly, to detect when we are out of
@@ -395,5 +395,36 @@ public static class Search
             RootMoves[0] = RootMoves[foundIdx];
             RootMoves[foundIdx] = rootMove;
         }
+    }
+
+    /// Search::perft() is our utility to verify move generation. All the leaf nodes
+    /// up to the given depth are generated and counted and the sum returned.
+    public static long perft(bool Root, Position pos, Depth depth)
+    {
+        var st = new StateInfo();
+        long cnt, nodes = 0;
+        var ci = new CheckInfo(pos);
+        var leaf = (depth == 2*Depth.ONE_PLY);
+
+        var ml = new MoveList(GenType.LEGAL, pos);
+        for (int index = ml.begin(); index < ml.end(); index++)
+        {
+            var m = ml.moveList.table[index];
+            if (Root && depth <= Depth.ONE_PLY)
+            {
+                cnt = 1;
+                nodes++;
+            }
+            else
+            {
+                pos.do_move(m, st, pos.gives_check(m, ci));
+                cnt = leaf ? new MoveList(GenType.LEGAL, pos).size() : perft(false, pos, depth - Depth.ONE_PLY);
+                nodes += cnt;
+                pos.undo_move(m);
+            }
+            if (Root)
+                Console.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
+        }
+        return nodes;
     }
 }

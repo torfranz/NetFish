@@ -83,6 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Benchmark.cs" />
     <Compile Include="BitCount.cs" />
     <Compile Include="EasyMoveManager.cs" />
     <Compile Include="Endgame.cs" />
