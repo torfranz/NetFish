@@ -27,7 +27,7 @@ public struct PieceType
 
     public static PieceType PIECE_TYPE_NB = new PieceType(8);
 
-    private int Value { get; }
+    private int Value { get; set; }
 
     #region constructors
 
@@ -123,7 +123,9 @@ public struct PieceType
 
     public static PieceType operator ++(PieceType v1)
     {
-        return new PieceType(v1.Value + 1);
+        v1.Value += 1;
+        return v1;
+        
     }
 
 #if FORCEINLINE  

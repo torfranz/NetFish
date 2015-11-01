@@ -29,7 +29,7 @@ public struct Rank
 
     public static Rank RANK_NB = new Rank(8);
 
-    private int Value { get; }
+    private int Value { get; set; }
 
     #region constructors
 
@@ -161,7 +161,9 @@ public struct Rank
 
     public static Rank operator ++(Rank v1)
     {
-        return new Rank(v1.Value + 1);
+        v1.Value += 1;
+        return v1;
+        
     }
 
 #if FORCEINLINE  
@@ -169,8 +171,10 @@ public struct Rank
 #endif
 
     public static Rank operator --(Rank v1)
+        
     {
-        return new Rank(v1.Value - 1);
+        v1.Value -= 1;
+        return v1;
     }
 
     public override string ToString()

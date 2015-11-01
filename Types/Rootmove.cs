@@ -6,10 +6,10 @@ using System.Diagnostics;
 /// fail low). Score is normally set at -VALUE_INFINITE for all non-pv moves.
 public class RootMove
 {
-    private readonly List<Move> pv = new List<Move>();
+    public readonly List<Move> pv = new List<Move>();
 
-    private readonly Value score = -Value.VALUE_INFINITE;
-    private Value previousScore = -Value.VALUE_INFINITE;
+    public readonly Value score = -Value.VALUE_INFINITE;
+    public Value previousScore = -Value.VALUE_INFINITE;
 
     public RootMove(Move m)
     {
@@ -39,7 +39,7 @@ public class RootMove
     /// RootMove::insert_pv_in_tt() is called at the end of a search iteration, and
     /// inserts the PV back into the TT. This makes sure the old PV moves are searched
     /// first, even if the old TT entries have been overwritten.
-    private void insert_pv_in_tt(Position pos)
+    public void insert_pv_in_tt(Position pos)
     {
         var st = new StateInfoWrapper(new StateInfo[_.MAX_PLY]);
         var ttHit = false;
@@ -67,7 +67,7 @@ public class RootMove
     /// exiting the search, for instance in case we stop the search during a fail high at
     /// root. We try hard to have a ponder move to return to the GUI, otherwise in case of
     /// 'ponder on' we have nothing to think on.
-    private bool extract_ponder_from_tt(Position pos)
+    public bool extract_ponder_from_tt(Position pos)
     {
         var st = new StateInfo();
         var ttHit = false;

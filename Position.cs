@@ -386,7 +386,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int game_ply()
+    public int game_ply()
     {
         return gamePly;
     }

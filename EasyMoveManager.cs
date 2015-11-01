@@ -8,21 +8,21 @@ public class EasyMoveManager
 {
     private ulong expectedPosKey;
     private readonly Move[] pv = new Move[3];
-    private int stableCnt;
+    public int stableCnt;
 
-    private void clear()
+    public void clear()
     {
         stableCnt = 0;
         expectedPosKey = 0;
         pv[0] = pv[1] = pv[2] = Move.MOVE_NONE;
     }
 
-    private Move get(ulong key)
+    public Move get(ulong key)
     {
         return expectedPosKey == key ? pv[2] : Move.MOVE_NONE;
     }
 
-    private void update(Position pos, List<Move> newPv)
+    public void update(Position pos, List<Move> newPv)
     {
         Debug.Assert(newPv.Count >= 3);
 

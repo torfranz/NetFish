@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -401,5 +402,20 @@ public static class Utils
         sb.Append(to_uci ? "\nid author " : " by ").Append("TF");
         return sb.ToString();
     }
-   
+
+    public static void stable_sort(List<RootMove> data, int firstMove, int lastMove)
+    {
+        RootMove tmp;
+        int p, q;
+
+        for (p = firstMove + 1; p < lastMove; p++)
+        {
+            tmp = data[p];
+            for (q = p; q != firstMove && data[q - 1].score < tmp.score; --q)
+            {
+                data[q] = data[q - 1];
+            }
+            data[q] = tmp;
+        }
+    }
 }

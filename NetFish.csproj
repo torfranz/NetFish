@@ -113,6 +113,7 @@
     <Compile Include="Types\MaterialEntry.cs" />
     <Compile Include="Types\Rootmove.cs" />
     <Compile Include="Types\SignalsType.cs" />
+    <Compile Include="Types\Skill.cs" />
     <Compile Include="Types\StateInfoArrayWrapper.cs" />
     <Compile Include="Types\StackArrayWrapper.cs" />
     <Compile Include="Types\KPKPosition.cs" />

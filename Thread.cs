@@ -107,9 +107,6 @@ public abstract class ThreadBase
         ThreadHelper.lock_release(spinlock);
     }
 
-    //TODO: find solution, wait_for function
-    //void wait_for(volatile const bool& b);
-
     public Mutex mutex = new Mutex(true);
     internal readonly object spinlock = new object();
 
@@ -131,7 +128,7 @@ public class Thread : ThreadBase
     public Position activePosition;
     private volatile SplitPoint activeSplitPoint;
     private readonly int idx;
-    private int maxPly;
+    public int maxPly;
     protected volatile bool searching;
     public volatile int splitPointsSize;
 
@@ -447,7 +444,7 @@ public class Thread : ThreadBase
 internal sealed class TimerThread : ThreadBase
 {
     public const int Resolution = 5; // Millisec between two check_time() calls
-    private readonly bool run = false;
+    public bool run = false;
 
     internal TimerThread(ManualResetEvent initEvent)
         : base(initEvent)
@@ -522,8 +519,7 @@ internal sealed class MainThread : Thread
             {
                 searching = true;
 
-                //TODO: enable search
-                //Search::think();
+                Search.think();
 
                 Debug.Assert(searching);
 
@@ -536,10 +532,13 @@ internal sealed class MainThread : Thread
     public void join()
     {
         ThreadHelper.lock_grab(mutex);
-        //TODO: find solution for mutex
-        /*
-            sleepCondition.wait(lk, [&]{ return !thinking; });
-        */
+
+        //sleepCondition.wait(lk, [&]{ return !thinking; });
+        while (thinking)
+        {
+            ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
+        }
+        
         ThreadHelper.lock_release(mutex);
         
     }
