@@ -31,7 +31,7 @@ public struct Piece
 
     public static Piece PIECE_NB = new Piece(16);
 
-    private int Value { get; }
+    private int Value { get; set; }
 
     #region constructors
 
@@ -139,7 +139,9 @@ public struct Piece
 
     public static Piece operator ++(Piece v1)
     {
-        return new Piece(v1.Value + 1);
+        v1.Value += 1;
+        return v1;
+        
     }
 
     public override string ToString()

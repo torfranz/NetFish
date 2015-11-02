@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -184,11 +185,20 @@ public static class Utils
         return SquareDistance[x, y];
     }
 
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public static int distance_Rank(Rank x, Rank y)
+    {
+        return x < y ? y - x : x - y;
+    }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public static int file_distance(Square x, Square y)
+    public static int distance_File(Square x, Square y)
     {
         int xFile = Square.file_of(x);
         int yFile = Square.file_of(y);
@@ -199,7 +209,7 @@ public static class Utils
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public static int rank_distance(Square x, Square y)
+    public static int distance_Rank(Square x, Square y)
     {
         int xRank = Square.rank_of(x);
         int yRank = Square.rank_of(y);
@@ -392,5 +402,20 @@ public static class Utils
         sb.Append(to_uci ? "\nid author " : " by ").Append("TF");
         return sb.ToString();
     }
-   
+
+    public static void stable_sort(List<RootMove> data, int firstMove, int lastMove)
+    {
+        RootMove tmp;
+        int p, q;
+
+        for (p = firstMove + 1; p < lastMove; p++)
+        {
+            tmp = data[p];
+            for (q = p; q != firstMove && data[q - 1].score < tmp.score; --q)
+            {
+                data[q] = data[q - 1];
+            }
+            data[q] = tmp;
+        }
+    }
 }

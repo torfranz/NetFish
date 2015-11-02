@@ -28,6 +28,42 @@ internal struct _
     internal const int MAX_SLAVES_PER_SPLITPOINT = 4;
 }
 
+/// EndgameType lists all supported endgames
+
+enum EndgameType
+{
+
+    // Evaluation functions
+
+    KNNK,  // KNN vs K
+    KXK,   // Generic "mate lone king" eval
+    KBNK,  // KBN vs K
+    KPK,   // KP vs K
+    KRKP,  // KR vs KP
+    KRKB,  // KR vs KB
+    KRKN,  // KR vs KN
+    KQKP,  // KQ vs KP
+    KQKR,  // KQ vs KR
+
+
+    // Scaling functions
+    SCALING_FUNCTIONS,
+
+    KBPsK,   // KB and pawns vs K
+    KQKRPs,  // KQ vs KR and pawns
+    KRPKR,   // KRP vs KR
+    KRPKB,   // KRP vs KB
+    KRPPKRP, // KRPP vs KRP
+    KPsK,    // K and pawns vs K
+    KBPKB,   // KBP vs KB
+    KBPPKB,  // KBPP vs KB
+    KBPKN,   // KBP vs KN
+    KNPK,    // KNP vs K
+    KNPKB,   // KNP vs KB
+    KPKP     // KP vs KP
+};
+
+
 // Different node types, used as template parameter
 public enum NodeType { Root, PV, NonPV };
 

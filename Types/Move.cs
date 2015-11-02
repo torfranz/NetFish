@@ -40,7 +40,14 @@ public struct Move
     {
         return m.Value;
     }
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
 
+    public static implicit operator bool (Move m)
+    {
+        return m.Value != 0;
+    }
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif

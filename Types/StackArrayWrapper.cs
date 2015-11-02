@@ -1,4 +1,4 @@
-﻿public struct StackArrayWrapper
+﻿public class StackArrayWrapper
 {
     public Stack[] table;
 

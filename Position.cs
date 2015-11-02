@@ -104,7 +104,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool empty(Square s)
+    public bool empty(Square s)
     {
         return board[s] == Piece.NO_PIECE;
     }
@@ -322,7 +322,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool pawn_passed(Color c, Square s)
+    public bool pawn_passed(Color c, Square s)
     {
         return !(pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
@@ -341,7 +341,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong key()
+    public ulong key()
     {
         return st.key;
     }
@@ -359,7 +359,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private ulong material_key()
+    public ulong material_key()
     {
         return st.materialKey;
     }
@@ -368,7 +368,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Score psq_score()
+    public Score psq_score()
     {
         return st.psq;
     }
@@ -377,7 +377,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private Value non_pawn_material(Color c)
+    public Value non_pawn_material(Color c)
     {
         return st.nonPawnMaterial[c];
     }
@@ -386,7 +386,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int game_ply()
+    public int game_ply()
     {
         return gamePly;
     }
@@ -422,7 +422,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool opposite_bishops()
+    public bool opposite_bishops()
     {
         return pieceCount[Color.WHITE, PieceType.BISHOP] == 1
                && pieceCount[Color.BLACK, PieceType.BISHOP] == 1
@@ -627,7 +627,7 @@ public class Position
 
     /// Position::game_phase() calculates the game phase interpolating total non-pawn
     /// material between endgame and midgame limits.
-    private Phase game_phase()
+    public Phase game_phase()
     {
         var npm = st.nonPawnMaterial[Color.WHITE] + st.nonPawnMaterial[Color.BLACK];
 
@@ -1053,7 +1053,7 @@ public class Position
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
     /// be restored to exactly the same state as before the move was made.
-    private void undo_move(Move m)
+    public void undo_move(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1876,7 +1876,7 @@ public class Position
             sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");
         }
 
-        sb.Append($"\nFen: {fen()}\nKey: {st.key}\nCheckers: ");
+        sb.Append($"\nFen: {fen()}\nKey: {st.key:X}\nCheckers: ");
 
         for (var b = checkers(); b;)
         {

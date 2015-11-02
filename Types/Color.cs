@@ -11,7 +11,7 @@ public struct Color
 
     public static Color COLOR_NB = new Color(2);
 
-    private int Value { get; }
+    private int Value { get; set; }
 
     #region constructors
 
@@ -116,7 +116,9 @@ public struct Color
 
     public static Color operator ++(Color v1)
     {
-        return new Color(v1.Value + 1);
+        v1.Value += 1;
+        return v1;
+        
     }
 
     /*

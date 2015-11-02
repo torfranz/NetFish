@@ -55,8 +55,8 @@ public static class Movegen
             return moveList;
         }
 
-        moveList.setCurrentMove(m);
-        return ++moveList;
+        moveList.Add(m);
+        return moveList;
     }
 
     public static ExtMoveArrayWrapper make_promotions(
@@ -68,26 +68,25 @@ public static class Movegen
     {
         if (Type == GenType.CAPTURES || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
-            ++moveList;
+            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
+            
         }
 
         if (Type == GenType.QUIETS || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
-            ++moveList;
-            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
-            ++moveList;
-            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
-            ++moveList;
-        }
+            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
+            
+            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
+            
+            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+         }
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
         if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, to] & ci.ksq))
         {
-            (moveList).setCurrentMove(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
-            ++moveList;
+            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            
         }
 
         return moveList;
@@ -157,15 +156,15 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (moveList).setCurrentMove(Move.make_move(to - Up, to));
-                ++moveList;
+                (moveList).Add(Move.make_move(to - Up, to));
+                
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (moveList).setCurrentMove(Move.make_move(to - Up - Up, to));
-                ++moveList;
+                (moveList).Add(Move.make_move(to - Up - Up, to));
+                
             }
         }
 
@@ -211,15 +210,15 @@ public static class Movegen
             while (b1)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (moveList).setCurrentMove(Move.make_move(to - Right, to));
-                ++moveList;
+                (moveList).Add(Move.make_move(to - Right, to));
+                
             }
 
             while (b2)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (moveList).setCurrentMove(Move.make_move(to - Left, to));
-                ++moveList;
+                (moveList).Add(Move.make_move(to - Left, to));
+                
             }
 
             if (pos.ep_square() != Square.SQ_NONE)
@@ -240,8 +239,8 @@ public static class Movegen
 
                 while (b1)
                 {
-                    (moveList).setCurrentMove(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
-                    ++moveList;
+                    (moveList).Add(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
+                    
                 }
             }
         }
@@ -287,8 +286,8 @@ public static class Movegen
 
             while (b)
             {
-                (moveList).setCurrentMove(Move.make_move(@from, Utils.pop_lsb(ref b)));
-                ++moveList;
+                (moveList).Add(Move.make_move(@from, Utils.pop_lsb(ref b)));
+                
             }
         }
 
@@ -317,8 +316,8 @@ public static class Movegen
             var b = pos.attacks_from(PieceType.KING, ksq) & target;
             while (b)
             {
-                (moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
-                ++moveList;
+                (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+                
             }
         }
 
@@ -433,8 +432,8 @@ public static class Movegen
 
             while (b)
             {
-                (moveList).setCurrentMove(Move.make_move(from, Utils.pop_lsb(ref b)));
-                ++moveList;
+                (moveList).Add(Move.make_move(from, Utils.pop_lsb(ref b)));
+                
             }
         }
 
@@ -469,8 +468,8 @@ public static class Movegen
         var b = pos.attacks_from(PieceType.KING, ksq) & ~pos.pieces(us) & ~sliderAttacks;
         while (b)
         {
-            (moveList).setCurrentMove(Move.make_move(ksq, Utils.pop_lsb(ref b)));
-            ++moveList;
+            (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+            
         }
 
         if (Bitboard.more_than_one(pos.checkers()))
@@ -493,18 +492,23 @@ public static class Movegen
     {
         var pinned = pos.pinned_pieces(pos.side_to_move());
         var ksq = pos.square(PieceType.KING, pos.side_to_move());
-        var cur = moveList;
+        var cur = moveList.current;
 
         moveList = pos.checkers()
             ? generate(GenType.EVASIONS, pos, moveList)
             : generate(GenType.NON_EVASIONS, pos, moveList);
-        while (cur != moveList)
+
+        while (cur != moveList.current)
         {
-            if ((pinned || Move.from_sq(moveList[cur.current]) == ksq ||
-                 Move.type_of(moveList[cur.current]) == MoveType.ENPASSANT)
-                && !pos.legal(moveList[cur.current], pinned))
+            if ((pinned || Move.from_sq(moveList[cur]) == ksq ||
+                 Move.type_of(moveList[cur]) == MoveType.ENPASSANT)
+                && !pos.legal(moveList[cur], pinned))
             {
-                cur = --moveList;
+                for (var idx = cur; idx < moveList.current; idx++)
+                {
+                    moveList.table[idx] = moveList.table[idx + 1];
+                }
+                --moveList;
             }
             else
             {

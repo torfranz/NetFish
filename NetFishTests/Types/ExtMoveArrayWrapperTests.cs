@@ -16,7 +16,7 @@ namespace Tests
         public void AssignmentTests()
         {
             var v1 = new ExtMoveArrayWrapper(new ExtMove[10], 5);
-            var v2 = v1;
+            var v2 = new ExtMoveArrayWrapper(v1);
 
             Assert.AreEqual(5, v1.current);
             Assert.AreEqual(10, v1.table.Length);

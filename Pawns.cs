@@ -67,24 +67,24 @@ public static class Pawns
     {
         new[]
         {
-            new[] {new Value(0), new Value(67), new Value(134), new Value(38), new Value(32)},
-            new[] {new Value(0), new Value(57), new Value(139), new Value(37), new Value(22)},
-            new[] {new Value(0), new Value(43), new Value(115), new Value(43), new Value(27)},
-            new[] {new Value(0), new Value(68), new Value(124), new Value(57), new Value(32)}
+            new[] {new Value(0), new Value(67), new Value(134), new Value(38), new Value(32), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(57), new Value(139), new Value(37), new Value(22), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(43), new Value(115), new Value(43), new Value(27), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(68), new Value(124), new Value(57), new Value(32), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
-            new[] {new Value(20), new Value(43), new Value(100), new Value(56), new Value(20)},
-            new[] {new Value(23), new Value(20), new Value(98), new Value(40), new Value(15)},
-            new[] {new Value(23), new Value(39), new Value(103), new Value(36), new Value(18)},
-            new[] {new Value(28), new Value(19), new Value(108), new Value(42), new Value(26)}
+            new[] {new Value(20), new Value(43), new Value(100), new Value(56), new Value(20), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(23), new Value(20), new Value(98), new Value(40), new Value(15), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(23), new Value(39), new Value(103), new Value(36), new Value(18), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(28), new Value(19), new Value(108), new Value(42), new Value(26), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
-            new[] {new Value(0), new Value(0), new Value(75), new Value(14), new Value(2)},
-            new[] {new Value(0), new Value(0), new Value(150), new Value(30), new Value(4)},
-            new[] {new Value(0), new Value(0), new Value(160), new Value(22), new Value(5)},
-            new[] {new Value(0), new Value(0), new Value(166), new Value(24), new Value(13)}
+            new[] {new Value(0), new Value(0), new Value(75), new Value(14), new Value(2), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(150), new Value(30), new Value(4), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(160), new Value(22), new Value(5), new Value(0), new Value(0), new Value(0)},
+            new[] {new Value(0), new Value(0), new Value(166), new Value(24), new Value(13), new Value(0), new Value(0), new Value(0) }
         },
         new[]
         {
@@ -190,7 +190,7 @@ public static class Pawns
                         Rank.relative_rank(Us, s)];
 
             if (doubled)
-                score -= Doubled[f]/Utils.rank_distance(s, Utils.frontmost_sq(Us, doubled));
+                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
 
             if (lever)
                 score += Lever[Rank.relative_rank(Us, s)];
@@ -228,12 +228,16 @@ public static class Pawns
     /// the pawns hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
     /// have to recompute all when the same pawns configuration occurs again.
-    private static Entry probe(Position pos)
+    public static Entry probe(Position pos)
     {
         var key = pos.pawn_key();
-        Entry e = (Entry)pos.this_thread().pawnsTable[key];
-
-        if (e.key == key)
+        Entry e;
+        if (!pos.this_thread().pawnsTable.TryGetValue(key, out e))
+        {
+            e = new Entry();
+            pos.this_thread().pawnsTable.Add(key, e);
+        }
+        else if(e.key == key)
             return e;
 
         e.key = key;
@@ -258,42 +262,42 @@ public static class Pawns
         public Score score;
         public int[] semiopenFiles = new int[Color.COLOR_NB];
 
-        private Score pawns_score()
+        public Score pawns_score()
         {
             return score;
         }
 
-        private Bitboard pawn_attacks(Color c)
+        public Bitboard pawn_attacks(Color c)
         {
             return pawnAttacks[c];
         }
 
-        private Bitboard passed_pawns(Color c)
+        public Bitboard passed_pawns(Color c)
         {
             return passedPawns[c];
         }
 
-        private int pawn_span(Color c)
+        public int pawn_span(Color c)
         {
             return pawnSpan[c];
         }
 
-        private int semiopen_file(Color c, File f)
+        public int semiopen_file(Color c, File f)
         {
             return semiopenFiles[c] & (1 << f);
         }
 
-        private int semiopen_side(Color c, File f, bool leftSide)
+        public int semiopen_side(Color c, File f, bool leftSide)
         {
             return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << ((int) f + 1)) - 1));
         }
 
-        private int pawns_on_same_color_squares(Color c, Square s)
+        public int pawns_on_same_color_squares(Color c, Square s)
         {
             return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        private Score king_safety(Color Us, Position pos, Square ksq)
+        public Score king_safety(Color Us, Position pos, Square ksq)
         {
             return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
                 ? kingSafety[Us]
@@ -353,6 +357,7 @@ public static class Pawns
 
                 b = theirPawns & Utils.file_bb(f);
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
+
 
                 safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger

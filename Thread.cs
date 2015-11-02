@@ -107,9 +107,6 @@ public abstract class ThreadBase
         ThreadHelper.lock_release(spinlock);
     }
 
-    //TODO: find solution, wait_for function
-    //void wait_for(volatile const bool& b);
-
     public Mutex mutex = new Mutex(true);
     internal readonly object spinlock = new object();
 
@@ -124,18 +121,16 @@ public abstract class ThreadBase
 public class Thread : ThreadBase
 {
     internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
-
-    //TODO: enable variables MaterialTable, PawnTable, Endgames
-    //internal readonly MaterialTable materialTable = new MaterialTable();
-
-    public readonly Hashtable pawnsTable = new Hashtable(16384);
-    //Endgames endgames;
-    private Position activePosition;
+    public Dictionary<ulong, MaterialEntry> materialTable = new Dictionary<ulong, MaterialEntry>(8192);
+    
+    public Dictionary<ulong, Pawns.Entry> pawnsTable = new Dictionary<ulong, Pawns.Entry>(16384);
+    public Endgames endgames=new Endgames();
+    public Position activePosition;
     private volatile SplitPoint activeSplitPoint;
     private readonly int idx;
-    private int maxPly;
+    public int maxPly;
     protected volatile bool searching;
-    private volatile int splitPointsSize;
+    public volatile int splitPointsSize;
 
     internal Thread(ManualResetEvent initEvent)
         : base(initEvent)
@@ -448,8 +443,8 @@ public class Thread : ThreadBase
 
 internal sealed class TimerThread : ThreadBase
 {
-    private const int Resolution = 5; // Millisec between two check_time() calls
-    private readonly bool run = false;
+    public const int Resolution = 5; // Millisec between two check_time() calls
+    public bool run = false;
 
     internal TimerThread(ManualResetEvent initEvent)
         : base(initEvent)
@@ -478,8 +473,7 @@ internal sealed class TimerThread : ThreadBase
 
             if (run)
             {
-                //TODO: enable Search.check_time call
-                //Search.check_time();
+                Search.check_time();
             }
         }
     }
@@ -525,8 +519,7 @@ internal sealed class MainThread : Thread
             {
                 searching = true;
 
-                //TODO: enable search
-                //Search::think();
+                Search.think();
 
                 Debug.Assert(searching);
 
@@ -539,10 +532,13 @@ internal sealed class MainThread : Thread
     public void join()
     {
         ThreadHelper.lock_grab(mutex);
-        //TODO: find solution for mutex
-        /*
-            sleepCondition.wait(lk, [&]{ return !thinking; });
-        */
+
+        //sleepCondition.wait(lk, [&]{ return !thinking; });
+        while (thinking)
+        {
+            ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
+        }
+        
         ThreadHelper.lock_release(mutex);
         
     }
@@ -680,25 +676,29 @@ internal static class ThreadPool
     {
         main().join();
 
-        //TODO: find solution for code
-        /*
-        Signals.stopOnPonderhit = Signals.firstRootMove = false;
-        Signals.stop = Signals.failedLowAtRoot = false;
+        Search.Signals.stopOnPonderhit = Search.Signals.firstRootMove = false;
+        Search.Signals.stop = Search.Signals.failedLowAtRoot = false;
 
-        RootMoves.clear();
-        RootPos = pos;
-        Limits = limits;
-        if (states.get()) // If we don't set a new position, preserve current state
+        Search.RootMoves.Clear();
+        Search.RootPos = pos;
+        Search.Limits = limits;
+
+        var current = states[states.current];
+        if (current!=null) // If we don't set a new position, preserve current state
         {
-            SetupStates = std::move(states); // Ownership transfer here
-            assert(!states.get());
+            Search.SetupStates = states; // Ownership transfer here
+            Debug.Assert(current!=null);
         }
 
-        for (const auto&m : MoveList<LEGAL>(pos))
-      if (limits.searchmoves.empty()
-          || std::count(limits.searchmoves.begin(), limits.searchmoves.end(), m))
-            RootMoves.push_back(RootMove(m));
-            */
+        var ml = new MoveList(GenType.LEGAL, pos);
+        for (int index = ml.begin(); index < ml.end(); index++)
+        {
+            var m = ml.moveList.table[index];
+            if (limits.searchmoves.Count == 0
+                || limits.searchmoves.FindAll((move) => move == m.Move).Count == 0)
+                Search.RootMoves.Add(new RootMove(m));
+        }
+
         main().thinking = true;
         main().notify_one(); // Wake up main thread: 'thinking' must be already set
     }

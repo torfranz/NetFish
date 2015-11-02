@@ -154,7 +154,7 @@ public struct Square
 
     public static Square DELTA_NW = new Square(DELTA_N + DELTA_W);
 
-    private int Value { get; }
+    private int Value { get; set; }
 
     #region constructors
 
@@ -277,7 +277,9 @@ public struct Square
 
     public static Square operator ++(Square v1)
     {
-        return new Square(v1.Value + 1);
+        v1.Value += 1;
+        return v1;
+        
     }
 
 #if FORCEINLINE  
@@ -286,7 +288,8 @@ public struct Square
 
     public static Square operator --(Square v1)
     {
-        return new Square(v1.Value - 1);
+        v1.Value -= 1;
+        return v1;
     }
 
     public override string ToString()
