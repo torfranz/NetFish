@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xml.Schema;
 
 public class ExtMoveArrayWrapper
 {
-    public ExtMove[] table;
-
     public int current;
+
+    public ExtMove[] table;
 
     public ExtMoveArrayWrapper(ExtMoveArrayWrapper wrapper)
         : this(wrapper.table, wrapper.current)
@@ -24,10 +23,22 @@ public class ExtMoveArrayWrapper
         this.current = current;
     }
 
+    public ExtMove this[int index]
+    {
+        get
+        {
+            return this.table[index];
+        }
+        set
+        {
+            this.table[index] = value;
+        }
+    }
+
     public void set(ExtMove[] table)
     {
         this.table = table;
-        current = 0;
+        this.current = 0;
     }
 
     public static ExtMoveArrayWrapper operator +(ExtMoveArrayWrapper p, int value)
@@ -60,24 +71,18 @@ public class ExtMoveArrayWrapper
 
     public void Add(Move m)
     {
-        table[current] = new ExtMove(m, table[current].Value);
-        current++;
+        this.table[this.current] = new ExtMove(m, this.table[this.current].Value);
+        this.current++;
     }
 
     public void setCurrentMove(Move m)
     {
-        table[current] = new ExtMove(m, table[current].Value);
+        this.table[this.current] = new ExtMove(m, this.table[this.current].Value);
     }
 
     public Move getCurrentMove()
     {
-        return table[current].Move;
-    }
-
-    public ExtMove this[int index]
-    {
-        get { return table[index]; }
-        set { table[index] = value; }
+        return this.table[this.current].Move;
     }
 
     public static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
@@ -86,9 +91,9 @@ public class ExtMoveArrayWrapper
         Debug.Assert(begin.current < end.current);
 
         var temporaries = new List<ExtMove>(end.current - begin.current);
-        int nextGoodLocation = 0;
+        var nextGoodLocation = 0;
 
-        for (int idx = begin.current; idx < end.current; idx++)
+        for (var idx = begin.current; idx < end.current; idx++)
         {
             // add items where value is > Value.VALUE_ZERO to front
             if (begin[idx].Value > Value.VALUE_ZERO)
@@ -103,7 +108,7 @@ public class ExtMoveArrayWrapper
         }
 
         // put back reordered items to original array locations
-        for (int idx = begin.current; idx < end.current; idx++)
+        for (var idx = begin.current; idx < end.current; idx++)
         {
             begin[idx] = temporaries[idx - begin.current];
         }

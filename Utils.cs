@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 public static class Utils
@@ -239,17 +238,17 @@ public static class Utils
         return (uint)((((occupied & Masks[s]) * Magics[s]) >> (int)Shifts[s]));
 #else
 
-        var lo = (uint) ((occupied & Masks[s]));
-        var hi = (uint) ((occupied >> 32) & (Masks[s] >> 32));
-        return (lo*(uint) (Magics[s]) ^ hi*(uint) (Magics[s] >> 32)) >> (int) Shifts[s];
+        var lo = (uint)((occupied & Masks[s]));
+        var hi = (uint)((occupied >> 32) & (Masks[s] >> 32));
+        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> (int)Shifts[s];
 #endif
     }
 
     public static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
-            ? RookAttacks[s][magic_index(Pt, s, occupied)]
-            : BishopAttacks[s][magic_index(Pt, s, occupied)];
+                   ? RookAttacks[s][magic_index(Pt, s, occupied)]
+                   : BishopAttacks[s][magic_index(Pt, s, occupied)];
     }
 
 #if FORCEINLINE  
@@ -281,7 +280,7 @@ public static class Utils
 #if X64
         return (uint)((value * DeBruijn64) >> 58);
 #else
-        return (uint) ((value ^ (value >> 32))*DeBruijn32) >> 26;
+        return (uint)((value ^ (value >> 32)) * DeBruijn32) >> 26;
 #endif
     }
 
@@ -302,7 +301,7 @@ public static class Utils
             result = 32;
         }
 
-        b32 = (uint) value;
+        b32 = (uint)value;
 
         if (b32 > 0xFFFF)
         {
@@ -368,10 +367,10 @@ public static class Utils
         // Assembly and file version
         var assembly = Assembly.GetExecutingAssembly();
         Version fileVersion = null;
-        var attribs = assembly.GetCustomAttributes(typeof (AssemblyFileVersionAttribute), false);
+        var attribs = assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
         if (attribs.Length > 0)
         {
-            var fileVersionRaw = (AssemblyFileVersionAttribute) (attribs[0]);
+            var fileVersionRaw = (AssemblyFileVersionAttribute)(attribs[0]);
             fileVersion = new Version(fileVersionRaw.Version);
         }
 
@@ -384,8 +383,8 @@ public static class Utils
         var buildDateTime =
             new DateTime(2000, 1, 1).Add(
                 new TimeSpan(
-                    TimeSpan.TicksPerDay*version.Build + // days since 1 January 2000
-                    TimeSpan.TicksPerSecond*2*version.Revision));
+                    TimeSpan.TicksPerDay * version.Build + // days since 1 January 2000
+                    TimeSpan.TicksPerSecond * 2 * version.Revision));
         // seconds since midnight, (multiply by 2 to get original)
 
         // Get version info

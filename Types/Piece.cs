@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 public struct Piece
 {
@@ -50,11 +49,11 @@ public struct Piece
 
     public Piece(int value)
     {
-        Value = value;
-        Debug.Assert(Value >= 0 && Value <= 16);
-        Debug.Assert(Value != 7);
-        Debug.Assert(Value != 8);
-        Debug.Assert(Value != 15);
+        this.Value = value;
+        Debug.Assert(this.Value >= 0 && this.Value <= 16);
+        Debug.Assert(this.Value != 7);
+        Debug.Assert(this.Value != 8);
+        Debug.Assert(this.Value != 15);
     }
 
     #endregion
@@ -141,12 +140,11 @@ public struct Piece
     {
         v1.Value += 1;
         return v1;
-        
     }
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
     /*

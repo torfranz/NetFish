@@ -6,7 +6,7 @@ public class MoveList
 
     public MoveList(GenType Type, Position pos)
     {
-        Movegen.generate(Type, pos, moveList);
+        Movegen.generate(Type, pos, this.moveList);
     }
 
     public int begin()
@@ -16,19 +16,19 @@ public class MoveList
 
     public int end()
     {
-        return moveList.current;
+        return this.moveList.current;
     }
 
     public int size()
     {
-        return moveList.current;
+        return this.moveList.current;
     }
 
     public bool contains(Move move)
     {
-        for (var idx = 0; idx < moveList.current; idx++)
+        for (var idx = 0; idx < this.moveList.current; idx++)
         {
-            if (moveList[idx] == move)
+            if (this.moveList[idx] == move)
             {
                 return true;
             }

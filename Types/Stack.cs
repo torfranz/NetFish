@@ -4,15 +4,26 @@
 public class Stack
 {
     public Move currentMove;
+
     private Move excludedMove;
+
     public Move killers0;
+
     public Move killers1;
+
     private int moveCount;
+
     private int ply;
-    public SplitPoint splitPoint;
+
     private Move pv;
+
     private Depth reduction;
+
     private bool skipEarlyPruning;
+
+    public SplitPoint splitPoint;
+
     private Value staticEval;
+
     private Move ttMove;
 };

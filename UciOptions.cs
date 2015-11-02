@@ -16,55 +16,58 @@ internal sealed class UCIOption
 
     internal UCIOption(int index, OnChangeUCIOption fn)
     {
-        type = "button";
-        idx = index;
-        on_change = fn;
+        this.type = "button";
+        this.idx = index;
+        this.on_change = fn;
     }
 
     internal UCIOption(int index, string v, OnChangeUCIOption fn)
         : this(index, fn)
     {
-        type = "string";
-        defaultValue = currentValue = v;
+        this.type = "string";
+        this.defaultValue = this.currentValue = v;
     }
 
     internal UCIOption(int index, bool v, OnChangeUCIOption fn)
         : this(index, fn)
     {
-        type = "check";
-        defaultValue = currentValue = (v ? "true" : "false");
+        this.type = "check";
+        this.defaultValue = this.currentValue = (v ? "true" : "false");
     }
 
     internal UCIOption(int index, int v, int minv, int maxv, OnChangeUCIOption fn)
         : this(index, fn)
     {
-        type = "spin";
-        min = minv;
-        max = maxv;
-        defaultValue = currentValue = v.ToString();
+        this.type = "spin";
+        this.min = minv;
+        this.max = maxv;
+        this.defaultValue = this.currentValue = v.ToString();
     }
 
     internal string name { get; set; }
 
     internal string v
     {
-        get { return currentValue; }
+        get
+        {
+            return this.currentValue;
+        }
         set
         {
-            Debug.Assert(type.Length > 0);
+            Debug.Assert(this.type.Length > 0);
 
-            if (((type == "button") || (value != null))
-                && ((type != "check") || (value == "true" || value == "false"))
-                && ((type != "spin") || ((int.Parse(value) >= min && int.Parse(value) <= max))))
+            if (((this.type == "button") || (value != null))
+                && ((this.type != "check") || (value == "true" || value == "false"))
+                && ((this.type != "spin") || ((int.Parse(value) >= this.min && int.Parse(value) <= this.max))))
             {
-                if (type != "button")
+                if (this.type != "button")
                 {
-                    currentValue = value;
+                    this.currentValue = value;
                 }
 
-                if (on_change != null)
+                if (this.on_change != null)
                 {
-                    on_change(this);
+                    this.on_change(this);
                 }
             }
         }
@@ -117,34 +120,36 @@ public class OptionMap
 #endif
 
         var idx = 0;
-        Add("Contempt", new UCIOption(idx++, 0, -100, 100, null));
-        Add("Min Split Depth", new UCIOption(idx++, 5, 0, 12, UCIOptionChanges.on_threads));
-        Add("Threads", new UCIOption(idx++, 1, 1, _.MAX_THREADS, UCIOptionChanges.on_threads));
-        Add("Hash", new UCIOption(idx++, 16, 1, MaxHashMB, UCIOptionChanges.on_hash_size));
-        Add("Clear Hash", new UCIOption(idx++, UCIOptionChanges.on_clear_hash));
-        Add("Ponder", new UCIOption(idx++, true, null));
-        Add("MultiPV", new UCIOption(idx++, 1, 1, 500, null));
-        Add("Skill Level", new UCIOption(idx++, 20, 0, 20, null));
-        Add("Move Overhead", new UCIOption(idx++, 30, 0, 5000, null));
-        Add("Minimum Thinking Time", new UCIOption(idx++, 32, 0, 5000, null));
-        Add("Slow Mover", new UCIOption(idx++, 80, 10, 1000, null));
-        Add("nodestime", new UCIOption(idx++, 0, 0, 10000, null));
-        Add("UCI_Chess960", new UCIOption(idx++, false, null));
-        Add("SyzygyPath", new UCIOption(idx++, "<empty>", UCIOptionChanges.on_tb_path));
-        Add("SyzygyProbeDepth", new UCIOption(idx++, 1, 1, 100, null));
-        Add("Syzygy50MoveRule", new UCIOption(idx++, true, null));
-        Add("SyzygyProbeLimit", new UCIOption(idx++, 6, 0, 6, null));
+        this.Add("Contempt", new UCIOption(idx++, 0, -100, 100, null));
+        this.Add("Min Split Depth", new UCIOption(idx++, 5, 0, 12, UCIOptionChanges.on_threads));
+        this.Add("Threads", new UCIOption(idx++, 1, 1, _.MAX_THREADS, UCIOptionChanges.on_threads));
+        this.Add("Hash", new UCIOption(idx++, 16, 1, MaxHashMB, UCIOptionChanges.on_hash_size));
+        this.Add("Clear Hash", new UCIOption(idx++, UCIOptionChanges.on_clear_hash));
+        this.Add("Ponder", new UCIOption(idx++, true, null));
+        this.Add("MultiPV", new UCIOption(idx++, 1, 1, 500, null));
+        this.Add("Skill Level", new UCIOption(idx++, 20, 0, 20, null));
+        this.Add("Move Overhead", new UCIOption(idx++, 30, 0, 5000, null));
+        this.Add("Minimum Thinking Time", new UCIOption(idx++, 32, 0, 5000, null));
+        this.Add("Slow Mover", new UCIOption(idx++, 80, 10, 1000, null));
+        this.Add("nodestime", new UCIOption(idx++, 0, 0, 10000, null));
+        this.Add("UCI_Chess960", new UCIOption(idx++, false, null));
+        this.Add("SyzygyPath", new UCIOption(idx++, "<empty>", UCIOptionChanges.on_tb_path));
+        this.Add("SyzygyProbeDepth", new UCIOption(idx++, 1, 1, 100, null));
+        this.Add("Syzygy50MoveRule", new UCIOption(idx++, true, null));
+        this.Add("SyzygyProbeLimit", new UCIOption(idx++, 6, 0, 6, null));
     }
 
     internal UCIOption this[string name]
     {
-        get { return o[name.ToLowerInvariant()]; }
+        get
+        {
+            return this.o[name.ToLowerInvariant()];
+        }
     }
-
 
     internal bool Contains(string name)
     {
-        return o.ContainsKey(name.ToLowerInvariant());
+        return this.o.ContainsKey(name.ToLowerInvariant());
     }
 
     /// operator
@@ -154,7 +159,7 @@ public class OptionMap
     public override string ToString()
     {
         var list = new List<UCIOption>();
-        list.AddRange(o.Values);
+        list.AddRange(this.o.Values);
         list.Sort(new UCIOption.UCIOptionIndexComparer());
         var sb = new StringBuilder();
         foreach (var opt in list)
@@ -176,7 +181,7 @@ public class OptionMap
     {
         var lname = optionName.ToLowerInvariant();
         option.name = optionName;
-        o.Add(lname, option);
+        this.o.Add(lname, option);
     }
 
     #region Singleton

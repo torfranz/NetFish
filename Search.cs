@@ -5,18 +5,28 @@ using System.Diagnostics;
 public static class Search
 {
     public static SignalsType Signals;
+
     public static LimitsType Limits;
+
     public static List<RootMove> RootMoves = new List<RootMove>();
+
     public static Position RootPos;
+
     public static StateInfoWrapper SetupStates;
 
     public static uint PVIdx;
+
     private static readonly EasyMoveManager EasyMove = new EasyMoveManager();
+
     private static double BestMoveChanges;
+
     private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
+
     private static readonly HistoryStats History = new HistoryStats();
+
     private static readonly CounterMovesHistoryStats CounterMovesHistory = new CounterMovesHistoryStats();
-    private static MovesStats Countermoves = new MovesStats();
+
+    private static readonly MovesStats Countermoves = new MovesStats();
 
     /// check_time() is called by the timer thread when the timer triggers. It is
     /// used to print debug info and, more importantly, to detect when we are out of
@@ -36,20 +46,24 @@ public static class Search
 
         // An engine may not stop pondering until told so by the GUI
         if (Limits.ponder)
+        {
             return;
+        }
 
         if (Limits.use_time_management())
         {
-            var stillAtFirstMove = Signals.firstRootMove
-                                   && !Signals.failedLowAtRoot
-                                   && elapsed > TimeManagement.available()*75/100;
+            var stillAtFirstMove = Signals.firstRootMove && !Signals.failedLowAtRoot
+                                   && elapsed > TimeManagement.available() * 75 / 100;
 
-            if (stillAtFirstMove
-                || elapsed > TimeManagement.maximum() - 2*TimerThread.Resolution)
+            if (stillAtFirstMove || elapsed > TimeManagement.maximum() - 2 * TimerThread.Resolution)
+            {
                 Signals.stop = true;
+            }
         }
         else if (Limits.movetime != 0 && elapsed >= Limits.movetime)
+        {
             Signals.stop = true;
+        }
 
         else if (Limits.nodes != 0)
         {
@@ -59,6 +73,7 @@ public static class Search
             // all the currently active positions nodes.
             // FIXME: Racy...
             foreach (var th in ThreadPool.threads)
+            {
                 for (var i = 0; i < th.splitPointsSize; ++i)
                 {
                     var sp = th.splitPoints[i];
@@ -68,14 +83,21 @@ public static class Search
                     nodes += sp.nodes;
 
                     for (var idx = 0; idx < ThreadPool.threads.Count; ++idx)
+                    {
                         if ((sp.slavesMask & (1u << idx)) != 0 && ThreadPool.threads[idx].activePosition != null)
+                        {
                             nodes += ThreadPool.threads[idx].activePosition.nodes_searched();
+                        }
+                    }
 
                     ThreadHelper.lock_release(sp.spinlock);
                 }
+            }
 
-            if (nodes >= (long) Limits.nodes)
+            if (nodes >= (long)Limits.nodes)
+            {
                 Signals.stop = true;
+            }
         }
     }
 
@@ -97,7 +119,7 @@ public static class Search
         var us = RootPos.side_to_move();
         TimeManagement.init(Limits, us, RootPos.game_ply(), DateTime.Now);
 
-        int contempt = int.Parse(OptionMap.Instance["Contempt"].v)*Value.PawnValueEg/100; // From centipawns
+        int contempt = int.Parse(OptionMap.Instance["Contempt"].v) * Value.PawnValueEg / 100; // From centipawns
         DrawValue[us] = Value.VALUE_DRAW - contempt;
         DrawValue[~us] = Value.VALUE_DRAW + contempt;
 
@@ -177,7 +199,9 @@ public static class Search
         // When playing in 'nodes as time' mode, subtract the searched nodes from
         // the available ones before to exit.
         if (Limits.npmsec != 0)
+        {
             TimeManagement.availableNodes += Limits.inc[us] - RootPos.nodes_searched();
+        }
 
         // When we reach the maximum depth, we can arrive here without a raise of
         // Signals.stop. However, if we are pondering or in an infinite search,
@@ -202,7 +226,9 @@ public static class Search
         Console.Write($"bestmove {UCI.move(RootMoves[0].pv[0], RootPos.is_chess960())}");
 
         if (RootMoves[0].pv.Count > 1 || RootMoves[0].extract_ponder_from_tt(RootPos))
+        {
             Console.Write($" ponder {UCI.move(RootMoves[0].pv[1], RootPos.is_chess960())}");
+        }
 
         Console.WriteLine();
     }
@@ -229,7 +255,6 @@ public static class Search
         bestValue = delta = alpha = -Value.VALUE_INFINITE;
         beta = Value.VALUE_INFINITE;
 
-
         //TODO: enable Tablebases
         //TT.new_search();
 
@@ -239,9 +264,11 @@ public static class Search
         // When playing with strength handicap enable MultiPV search that we will
         // use behind the scenes to retrieve a set of possible moves.
         if (skill.enabled())
+        {
             multiPV = Math.Max(multiPV, 4);
+        }
 
-        multiPV = (uint) Math.Min(multiPV, RootMoves.Count);
+        multiPV = (uint)Math.Min(multiPV, RootMoves.Count);
 
         // Iterative deepening loop until requested to stop or target depth reached;
         while (++depth < Depth.DEPTH_MAX && !Signals.stop && (Limits.depth == 0 || depth <= Limits.depth))
@@ -252,17 +279,19 @@ public static class Search
             // Save the last iteration's scores before first PV line is searched and
             // all the move scores except the (new) PV are set to -VALUE_INFINITE.
             foreach (var rm in RootMoves)
+            {
                 rm.previousScore = rm.score;
+            }
 
             // MultiPV loop. We perform a full root search for each PV line
             for (PVIdx = 0; PVIdx < multiPV && !Signals.stop; ++PVIdx)
             {
                 // Reset aspiration window starting size
-                if (depth >= 5*Depth.ONE_PLY)
+                if (depth >= 5 * Depth.ONE_PLY)
                 {
                     delta = new Value(16);
-                    alpha = new Value(Math.Max(RootMoves[(int) PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
-                    beta = new Value(Math.Min(RootMoves[(int) PVIdx].previousScore + delta, Value.VALUE_INFINITE));
+                    alpha = new Value(Math.Max(RootMoves[(int)PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
+                    beta = new Value(Math.Min(RootMoves[(int)PVIdx].previousScore + delta, Value.VALUE_INFINITE));
                 }
 
                 // Start with a small aspiration window and, in the case of a fail
@@ -281,32 +310,36 @@ public static class Search
                     // search the already searched PV lines are preserved.
 
                     //TODO: Check for stable sort replacement
-                    Utils.stable_sort(RootMoves, (int) PVIdx, RootMoves.Count);
+                    Utils.stable_sort(RootMoves, (int)PVIdx, RootMoves.Count);
                     //std::stable_sort(RootMoves.begin() + PVIdx, RootMoves.end());
 
                     // Write PV back to transposition table in case the relevant
                     // entries have been overwritten during the search.
                     for (var i = 0; i <= PVIdx; ++i)
+                    {
                         RootMoves[i].insert_pv_in_tt(pos);
+                    }
 
                     // If search has been stopped break immediately. Sorting and
                     // writing PV back to TT is safe because RootMoves is still
                     // valid, although it refers to previous iteration.
                     if (Signals.stop)
+                    {
                         break;
+                    }
 
                     // When failing high/low give some update (without cluttering
                     // the UI) before a re-search.
-                    if (multiPV == 1
-                        && (bestValue <= alpha || bestValue >= beta)
-                        && TimeManagement.elapsed() > 3000)
+                    if (multiPV == 1 && (bestValue <= alpha || bestValue >= beta) && TimeManagement.elapsed() > 3000)
+                    {
                         Console.WriteLine(UCI.pv(pos, depth, alpha, beta));
+                    }
 
                     // In case of failing low/high increase aspiration window and
                     // re-search, otherwise exit the loop.
                     if (bestValue <= alpha)
                     {
-                        beta = (alpha + beta)/2;
+                        beta = (alpha + beta) / 2;
                         alpha = new Value(Math.Max(bestValue - delta, -Value.VALUE_INFINITE));
 
                         Signals.failedLowAtRoot = true;
@@ -314,38 +347,47 @@ public static class Search
                     }
                     else if (bestValue >= beta)
                     {
-                        alpha = (alpha + beta)/2;
+                        alpha = (alpha + beta) / 2;
                         beta = new Value(Math.Min(bestValue + delta, Value.VALUE_INFINITE));
                     }
                     else
+                    {
                         break;
+                    }
 
-                    delta += delta/2;
+                    delta += delta / 2;
 
                     Debug.Assert(alpha >= -Value.VALUE_INFINITE && beta <= Value.VALUE_INFINITE);
                 }
 
                 // Sort the PV lines searched so far and update the GUI
                 //TODO: Check for stable sort replacement
-                Utils.stable_sort(RootMoves, 0, (int) PVIdx + 1);
+                Utils.stable_sort(RootMoves, 0, (int)PVIdx + 1);
                 //std::stable_sort(RootMoves.begin(), RootMoves.begin() + PVIdx + 1);
 
                 if (Signals.stop)
+                {
                     Console.WriteLine($"info nodes {RootPos.nodes_searched()} time {TimeManagement.elapsed()}");
+                }
 
                 else if (PVIdx + 1 == multiPV || TimeManagement.elapsed() > 3000)
+                {
                     Console.WriteLine(UCI.pv(pos, depth, alpha, beta));
+                }
             }
 
             // If skill level is enabled and time is up, pick a sub-optimal best move
             if (skill.enabled() && skill.time_to_pick(depth))
+            {
                 skill.pick_best(multiPV);
+            }
 
             // Have we found a "mate in x"?
-            if (Limits.mate != 0
-                && bestValue >= Value.VALUE_MATE_IN_MAX_PLY
-                && Value.VALUE_MATE - bestValue <= 2*Limits.mate)
+            if (Limits.mate != 0 && bestValue >= Value.VALUE_MATE_IN_MAX_PLY
+                && Value.VALUE_MATE - bestValue <= 2 * Limits.mate)
+            {
                 Signals.stop = true;
+            }
 
             // Do we have time for the next iteration? Can we stop searching now?
             if (Limits.use_time_management())
@@ -353,38 +395,48 @@ public static class Search
                 if (!Signals.stop && !Signals.stopOnPonderhit)
                 {
                     // Take some extra time if the best move has changed
-                    if (depth > 4*Depth.ONE_PLY && multiPV == 1)
+                    if (depth > 4 * Depth.ONE_PLY && multiPV == 1)
+                    {
                         TimeManagement.pv_instability(BestMoveChanges);
+                    }
 
                     // Stop the search if only one legal move is available or all
                     // of the available time has been used or we matched an easyMove
                     // from the previous search and just did a fast verification.
-                    if (RootMoves.Count == 1
-                        || TimeManagement.elapsed() > TimeManagement.available()
-                        || (RootMoves[0].pv[0] == easyMove
-                            && BestMoveChanges < 0.03
-                            && TimeManagement.elapsed() > TimeManagement.available()/10))
+                    if (RootMoves.Count == 1 || TimeManagement.elapsed() > TimeManagement.available()
+                        || (RootMoves[0].pv[0] == easyMove && BestMoveChanges < 0.03
+                            && TimeManagement.elapsed() > TimeManagement.available() / 10))
                     {
                         // If we are allowed to ponder do not stop the search now but
                         // keep pondering until the GUI sends "ponderhit" or "stop".
                         if (Limits.ponder)
+                        {
                             Signals.stopOnPonderhit = true;
+                        }
                         else
+                        {
                             Signals.stop = true;
+                        }
                     }
                 }
 
                 if (RootMoves[0].pv.Count >= 3)
+                {
                     EasyMove.update(pos, RootMoves[0].pv);
+                }
                 else
+                {
                     EasyMove.clear();
+                }
             }
         }
 
         // Clear any candidate easy move that wasn't stable for the last search
         // iterations; the second condition prevents consecutive fast moves.
         if (EasyMove.stableCnt < 6 || TimeManagement.elapsed() < TimeManagement.available())
+        {
             EasyMove.clear();
+        }
 
         // If skill level is enabled, swap best PV line with the sub-optimal one
         if (skill.enabled())
@@ -404,10 +456,10 @@ public static class Search
         var st = new StateInfo();
         long cnt, nodes = 0;
         var ci = new CheckInfo(pos);
-        var leaf = (depth == 2*Depth.ONE_PLY);
+        var leaf = (depth == 2 * Depth.ONE_PLY);
 
         var ml = new MoveList(GenType.LEGAL, pos);
-        for (int index = ml.begin(); index < ml.end(); index++)
+        for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
             if (Root && depth <= Depth.ONE_PLY)
@@ -423,7 +475,9 @@ public static class Search
                 pos.undo_move(m);
             }
             if (Root)
+            {
                 Console.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
+            }
         }
         return nodes;
     }

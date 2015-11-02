@@ -1,8 +1,8 @@
 ﻿public class StackArrayWrapper
 {
-    public Stack[] table;
-
     public int current;
+
+    public Stack[] table;
 
     public StackArrayWrapper(Stack[] table)
         : this(table, 0)
@@ -15,10 +15,12 @@
         this.current = current;
     }
 
+    public Stack this[int index] => this.table[index];
+
     public void set(Stack[] table)
     {
         this.table = table;
-        current = 0;
+        this.current = 0;
     }
 
     public static StackArrayWrapper operator ++(StackArrayWrapper p)
@@ -32,6 +34,4 @@
         p.current -= 1;
         return p;
     }
-
-    public Stack this[int index] => table[index];
 }

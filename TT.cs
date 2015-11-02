@@ -31,7 +31,7 @@ public static class TranspositionTable
     // The lowest order bits of the key are used to get the index of the cluster
     public static Cluster first_entry(ulong key)
     {
-        return table[(uint) key & (clusterCount - 1)];
+        return table[(uint)key & (clusterCount - 1)];
     }
 
     /// Returns an approximation of the hashtable occupation during a search. The
@@ -39,7 +39,7 @@ public static class TranspositionTable
     public static int hashfull()
     {
         var cnt = 0;
-        for (var i = 0; i < 1000/ClusterSize; i++)
+        for (var i = 0; i < 1000 / ClusterSize; i++)
         {
             var cluster = table[i];
             for (var j = 0; j < ClusterSize; j++)
@@ -66,7 +66,7 @@ public static class TranspositionTable
     /// of clusters and each cluster consists of ClusterSize number of TTEntry.
     public static void resize(uint mbSize)
     {
-        var newClusterCount = (uint) (1 << Utils.msb(new Bitboard(mbSize*1024*1024)));
+        var newClusterCount = (uint)(1 << Utils.msb(new Bitboard(mbSize * 1024 * 1024)));
 
         if (newClusterCount == clusterCount)
         {
@@ -87,7 +87,7 @@ public static class TranspositionTable
     public static TTEntry probe(ulong key, ref bool found)
     {
         var cluster = first_entry(key);
-        var key16 = (ushort) (key >> 48); // Use the high 16 bits as key inside the cluster
+        var key16 = (ushort)(key >> 48); // Use the high 16 bits as key inside the cluster
 
         for (var i = 0; i < ClusterSize; ++i)
         {
@@ -95,7 +95,7 @@ public static class TranspositionTable
             {
                 if ((cluster.entry[i].genBound8 & 0xFC) != generation8 && cluster.entry[i].key16 != 0)
                 {
-                    cluster.entry[i].genBound8 = (byte) (generation8 | (int) cluster.entry[i].bound()); // Refresh
+                    cluster.entry[i].genBound8 = (byte)(generation8 | (int)cluster.entry[i].bound()); // Refresh
                 }
 
                 found = cluster.entry[i].key16 != 0;
@@ -111,9 +111,9 @@ public static class TranspositionTable
             // nature we add 259 (256 is the modulus plus 3 to keep the lowest
             // two bound bits from affecting the result) to calculate the entry
             // age correctly even after generation8 overflows into the next cycle.
-            if (replace.depth8 - ((259 + generation8 - replace.genBound8) & 0xFC)*2*Depth.ONE_PLY
+            if (replace.depth8 - ((259 + generation8 - replace.genBound8) & 0xFC) * 2 * Depth.ONE_PLY
                 > cluster.entry[i].depth8
-                - ((259 + generation8 - cluster.entry[i].genBound8) & 0xFC)*2*Depth.ONE_PLY)
+                - ((259 + generation8 - cluster.entry[i].genBound8) & 0xFC) * 2 * Depth.ONE_PLY)
             {
                 replace = cluster.entry[i];
             }

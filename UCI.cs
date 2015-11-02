@@ -15,7 +15,7 @@ public static class UCI
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)
     {
-        return $"{(char) ('a' + Square.file_of(s))}{(char) ('1' + Square.rank_of(s))}";
+        return $"{(char)('a' + Square.file_of(s))}{(char)('1' + Square.rank_of(s))}";
     }
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
@@ -28,15 +28,21 @@ public static class UCI
         var selDepth = 0;
 
         foreach (var th in ThreadPool.threads)
+        {
             if (th.maxPly > selDepth)
+            {
                 selDepth = th.maxPly;
+            }
+        }
 
         for (var i = 0; i < multiPV; ++i)
         {
             var updated = (i <= Search.PVIdx);
 
             if (depth == Depth.ONE_PLY && !updated)
+            {
                 continue;
+            }
 
             var d = updated ? depth : depth - Depth.ONE_PLY;
             var v = updated ? Search.RootMoves[i].score : Search.RootMoves[i].previousScore;
@@ -45,12 +51,14 @@ public static class UCI
             var tb = false; //TB::RootInTB && Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY;
             //v = tb? TB::Score : v;
 
-            ss.Append($"info depth {d/Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
+            ss.Append($"info depth {d / Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
 
             if (!tb && i == Search.PVIdx)
+            {
                 ss.Append(v >= beta ? " lowerbound" : v <= alpha ? " upperbound" : "");
+            }
 
-            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched()*1000/elapsed}");
+            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched() * 1000 / elapsed}");
 
             //TODO: enable tablebases
             /*if (elapsed > 1000) // Earlier makes little sense
@@ -59,7 +67,9 @@ public static class UCI
             ss.Append($" tbhits {TB::Hits} time {elapsed} pv");
             */
             foreach (var m in Search.RootMoves[i].pv)
+            {
                 ss.Append($" {move(m, pos.is_chess960())}");
+            }
         }
         ss.AppendLine();
         return ss.ToString();
@@ -78,8 +88,10 @@ public static class UCI
     public static string value(Value v)
     {
         if (Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY)
-            return $"cp {v*100/Value.PawnValueEg}";
-        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v)/2}";
+        {
+            return $"cp {v * 100 / Value.PawnValueEg}";
+        }
+        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v) / 2}";
     }
 
     // position() is called when engine receives the "position" UCI command.
@@ -140,18 +152,26 @@ public static class UCI
         var to = Move.to_sq(m);
 
         if (m == Move.MOVE_NONE)
+        {
             return "(none)";
+        }
 
         if (m == Move.MOVE_NULL)
+        {
             return "0000";
+        }
 
         if (Move.type_of(m) == MoveType.CASTLING && !chess960)
+        {
             to = Square.make_square(to > from ? File.FILE_G : File.FILE_C, Square.rank_of(from));
+        }
 
         var move = square(from) + square(to);
 
         if (Move.type_of(m) == MoveType.PROMOTION)
+        {
             move += " pnbrqk"[Move.promotion_type(m)];
+        }
 
         return move;
     }
@@ -168,11 +188,13 @@ public static class UCI
         }
 
         var ml = new MoveList(GenType.LEGAL, pos);
-        for (int index = ml.begin(); index < ml.end(); index++)
+        for (var index = ml.begin(); index < ml.end(); index++)
         {
             var extMove = ml.moveList.table[index];
             if (str == move(extMove, pos.is_chess960()))
+            {
                 return extMove;
+            }
         }
 
         return Move.MOVE_NONE;
@@ -280,7 +302,6 @@ public static class UCI
         ThreadPool.start_thinking(pos, limits, SetupStates);
     }
 
-
     /// UCI::loop() waits for a command from stdin, parses it and calls the appropriate
     /// function. Also intercepts EOF from stdin to ensure gracefully exiting if the
     /// GUI dies unexpectedly. When called with some command line arguments, e.g. to
@@ -317,8 +338,7 @@ public static class UCI
                 // waiting for 'ponderhit' to stop the search (for instance because we
                 // already ran out of time), otherwise we should continue searching but
                 // switching from pondering to normal search.
-                if (token == "quit" || token == "stop" || (token == "ponderhit")
-                    && Search.Signals.stopOnPonderhit)
+                if (token == "quit" || token == "stop" || (token == "ponderhit") && Search.Signals.stopOnPonderhit)
                 {
                     Search.Signals.stop = true;
                     ThreadPool.main().notify_one(); // Could be sleeping
@@ -397,7 +417,8 @@ public static class UCI
             {
                 Console.WriteLine($"An error occurred: {ex}");
             }
-        } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
+        }
+        while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 
         ThreadPool.main().join(); // Cannot quit whilst the search is running
     }
