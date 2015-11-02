@@ -24,42 +24,73 @@ internal struct _
     internal const int MAX_PLY = 128;
 
     internal const int MAX_THREADS = 128;
+
     internal const int MAX_SPLITPOINTS_PER_THREAD = 8;
+
     internal const int MAX_SLAVES_PER_SPLITPOINT = 4;
 }
 
 // Different node types, used as template parameter
-public enum NodeType { Root, PV, NonPV };
+public enum NodeType
+{
+    Root,
+
+    PV,
+
+    NonPV
+};
 
 public enum Stages
 {
     MAIN_SEARCH,
+
     GOOD_CAPTURES,
+
     KILLERS,
+
     GOOD_QUIETS,
+
     BAD_QUIETS,
+
     BAD_CAPTURES,
+
     EVASION,
+
     ALL_EVASIONS,
+
     QSEARCH_WITH_CHECKS,
+
     QCAPTURES_1,
+
     CHECKS,
+
     QSEARCH_WITHOUT_CHECKS,
+
     QCAPTURES_2,
+
     PROBCUT,
+
     PROBCUT_CAPTURES,
+
     RECAPTURE,
+
     RECAPTURES,
+
     STOP
 };
 
 public enum GenType
 {
     CAPTURES,
+
     QUIETS,
+
     QUIET_CHECKS,
+
     EVASIONS,
+
     NON_EVASIONS,
+
     LEGAL
 };
 

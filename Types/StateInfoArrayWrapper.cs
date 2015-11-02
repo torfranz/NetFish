@@ -36,5 +36,5 @@
         return p;
     }
 
-    public StateInfo this[int index] => table[index];
+    public StateInfo this[int index] => this.table[index];
 }

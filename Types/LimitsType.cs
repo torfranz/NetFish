@@ -6,9 +6,14 @@
 public class LimitsType
 {
     public int[] inc = new int[Color.COLOR_NB];
+
     public ulong nodes;
-    public bool ponder;
+
     public int npmsec, movestogo, depth, movetime, mate, infinite;
+
+    public bool ponder;
+
     public List<Move> searchmoves = new List<Move>();
+
     public int[] time = new int[Color.COLOR_NB];
 };

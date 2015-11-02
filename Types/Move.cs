@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-/// A move needs 16 bits to be stored
+﻿/// A move needs 16 bits to be stored
 /// 
 /// bit  0- 5: destination square (from 0 to 63)
 /// bit  6-11: origin square (from 0 to 63)
@@ -27,7 +25,7 @@ public struct Move
 
     public Move(int value)
     {
-        Value = value;
+        this.Value = value;
     }
 
     #endregion
@@ -61,7 +59,7 @@ public struct Move
 
     public override string ToString()
     {
-        return $"{Value}";
+        return $"{this.Value}";
     }
 
 #if FORCEINLINE  
@@ -88,7 +86,7 @@ public struct Move
 
     public static MoveType type_of(Move m)
     {
-        return (MoveType) (m.Value & (3 << 14));
+        return (MoveType)(m.Value & (3 << 14));
     }
 
 #if FORCEINLINE  
@@ -124,7 +122,7 @@ public struct Move
 
     public static Move make(MoveType moveType, Square from, Square to, PieceType pt)
     {
-        return new Move(to | (from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
+        return new Move(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
     }
 
 #if FORCEINLINE  

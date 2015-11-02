@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 public sealed class SplitPoint
 {
     // Shared variable data
     internal readonly object spinlock = new object();
+
     internal volatile bool allSlavesSearching;
+
     internal volatile int alpha;
 
     internal volatile int bestMove;
@@ -17,6 +18,7 @@ public sealed class SplitPoint
     internal volatile int bestValue;
 
     internal Value beta;
+
     public bool cutNode;
 
     internal volatile bool cutoff;
@@ -33,10 +35,14 @@ public sealed class SplitPoint
     internal volatile int nodes;
 
     internal NodeType nodeType;
+
     internal SplitPoint parentSplitPoint;
+
     // Const data after splitPoint has been setup
     internal Position pos;
+
     internal ulong slavesMask;
+
     internal StackArrayWrapper ss;
 };
 
@@ -86,13 +92,13 @@ public abstract class ThreadBase
 
     internal void StartThread(object state)
     {
-        var initEvent = (ManualResetEvent) state;
-        idle_loop(initEvent);
+        var initEvent = (ManualResetEvent)state;
+        this.idle_loop(initEvent);
     }
 
     protected ThreadBase(ManualResetEvent initEvent)
     {
-        System.Threading.ThreadPool.QueueUserWorkItem(StartThread, initEvent);
+        System.Threading.ThreadPool.QueueUserWorkItem(this.StartThread, initEvent);
     }
 
     // ThreadBase::notify_one() wakes up the thread when there is some work to do
@@ -102,18 +108,20 @@ public abstract class ThreadBase
 
     internal void notify_one()
     {
-        ThreadHelper.lock_grab(spinlock);
-        ThreadHelper.cond_signal(sleepCondition);
-        ThreadHelper.lock_release(spinlock);
+        ThreadHelper.lock_grab(this.spinlock);
+        ThreadHelper.cond_signal(this.sleepCondition);
+        ThreadHelper.lock_release(this.spinlock);
     }
 
     //TODO: find solution, wait_for function
     //void wait_for(volatile const bool& b);
 
     public Mutex mutex = new Mutex(true);
+
     internal readonly object spinlock = new object();
 
     internal readonly object sleepCondition = new object();
+
     internal volatile bool exit;
 };
 
@@ -123,35 +131,40 @@ public abstract class ThreadBase
 /// and we don't have to care about someone changing the entry under our feet.
 public class Thread : ThreadBase
 {
-    internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
+    private readonly int idx;
 
     //TODO: enable variables MaterialTable, PawnTable, Endgames
     //internal readonly MaterialTable materialTable = new MaterialTable();
 
     public readonly Hashtable pawnsTable = new Hashtable(16384);
+
+    internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
+
     //Endgames endgames;
     private Position activePosition;
+
     private volatile SplitPoint activeSplitPoint;
-    private readonly int idx;
+
     private int maxPly;
+
     protected volatile bool searching;
+
     private volatile int splitPointsSize;
 
     internal Thread(ManualResetEvent initEvent)
         : base(initEvent)
     {
-        searching = false;
-        maxPly = 0;
-        splitPointsSize = 0;
-        activeSplitPoint = null;
-        activePosition = null;
-        idx = ThreadPool.threads.Count; // Starts from 0
+        this.searching = false;
+        this.maxPly = 0;
+        this.splitPointsSize = 0;
+        this.activeSplitPoint = null;
+        this.activePosition = null;
+        this.idx = ThreadPool.threads.Count; // Starts from 0
         for (var j = 0; j < _.MAX_SPLITPOINTS_PER_THREAD; j++)
         {
-            splitPoints[j] = new SplitPoint();
+            this.splitPoints[j] = new SplitPoint();
         }
     }
-
 
     public override void idle_loop(ManualResetEvent initEvent)
     {
@@ -161,42 +174,40 @@ public class Thread : ThreadBase
             initEvent.Set();
         }
 
-        base_idle_loop(initEvent);
+        this.base_idle_loop(initEvent);
     }
 
     public void base_idle_loop(ManualResetEvent initEvent)
     {
         // Pointer 'this_sp' is not null only if we are called from split(), and not
         // at the thread creation. This means we are the split point's master.
-        var this_sp = splitPointsSize > 0 ? activeSplitPoint : null;
-        Debug.Assert(this_sp == null || (this_sp.master == this && searching));
+        var this_sp = this.splitPointsSize > 0 ? this.activeSplitPoint : null;
+        Debug.Assert(this_sp == null || (this_sp.master == this && this.searching));
 
-        while (!exit && !(this_sp != null) && (this_sp.slavesMask == 0))
+        while (!this.exit && !(this_sp != null) && (this_sp.slavesMask == 0))
         {
             // If this thread has been assigned work, launch a search
-            while (searching)
+            while (this.searching)
             {
-                ThreadHelper.lock_grab(spinlock);
+                ThreadHelper.lock_grab(this.spinlock);
 
-                Debug.Assert(activeSplitPoint != null);
-                var sp = activeSplitPoint;
+                Debug.Assert(this.activeSplitPoint != null);
+                var sp = this.activeSplitPoint;
 
-                ThreadHelper.lock_release(spinlock);
+                ThreadHelper.lock_release(this.spinlock);
 
                 var stack = new StackArrayWrapper(new Stack[_.MAX_PLY + 4]);
                 var ss = new StackArrayWrapper(stack.table, 2);
                 var pos = new Position(sp.pos, this);
 
-
                 Array.Copy(sp.ss.table, ss.table, 5);
                 ss[ss.current].splitPoint = sp;
 
-
                 ThreadHelper.lock_grab(sp.spinlock);
 
-                Debug.Assert(activePosition == null);
+                Debug.Assert(this.activePosition == null);
 
-                activePosition = pos;
+                this.activePosition = pos;
 
                 if (sp.nodeType == NodeType.NonPV)
                 {
@@ -217,18 +228,20 @@ public class Thread : ThreadBase
                 }
 
                 else
+                {
                     Debug.Assert(false);
+                }
 
-                Debug.Assert(searching);
+                Debug.Assert(this.searching);
 
-                ThreadHelper.lock_grab(spinlock);
+                ThreadHelper.lock_grab(this.spinlock);
 
-                searching = false;
-                activePosition = null;
+                this.searching = false;
+                this.activePosition = null;
 
-                ThreadHelper.lock_release(spinlock);
+                ThreadHelper.lock_release(this.spinlock);
 
-                sp.slavesMask &= ~(1UL << idx); //sp.slavesMask.reset(idx);
+                sp.slavesMask &= ~(1UL << this.idx); //sp.slavesMask.reset(idx);
                 sp.allSlavesSearching = false;
                 sp.nodes += pos.nodes_searched();
 
@@ -247,10 +260,8 @@ public class Thread : ThreadBase
                     var size = th.splitPointsSize; // Local copy
                     sp = size > 0 ? th.splitPoints[size - 1] : null;
 
-                    if (sp != null
-                        && sp.allSlavesSearching
-                        && Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT
-                        && can_join(sp))
+                    if (sp != null && sp.allSlavesSearching
+                        && Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT && this.can_join(sp))
                     {
                         Debug.Assert(this != th);
                         Debug.Assert(!(this_sp != null && Bitcount.popcount_Full(sp.slavesMask) == 0));
@@ -260,7 +271,9 @@ public class Thread : ThreadBase
                         // that a cut-off occurs above us, and hence we waste our work.
                         var level = 0;
                         for (var p = th.activeSplitPoint; p != null; p = p.parentSplitPoint)
+                        {
                             level++;
+                        }
 
                         if (level < minLevel)
                         {
@@ -277,19 +290,18 @@ public class Thread : ThreadBase
                     // Recheck the conditions under lock protection
                     ThreadHelper.lock_grab(sp.spinlock);
 
-                    if (sp.allSlavesSearching
-                        && Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT)
+                    if (sp.allSlavesSearching && Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT)
                     {
-                        ThreadHelper.lock_grab(spinlock);
+                        ThreadHelper.lock_grab(this.spinlock);
 
-                        if (can_join(sp))
+                        if (this.can_join(sp))
                         {
-                            sp.slavesMask &= ~(1UL << idx); //sp->slavesMask.set(idx);
-                            activeSplitPoint = sp;
-                            searching = true;
+                            sp.slavesMask &= ~(1UL << this.idx); //sp->slavesMask.set(idx);
+                            this.activeSplitPoint = sp;
+                            this.searching = true;
                         }
 
-                        ThreadHelper.lock_release(spinlock);
+                        ThreadHelper.lock_release(this.spinlock);
                     }
 
                     ThreadHelper.lock_release(sp.spinlock);
@@ -300,10 +312,12 @@ public class Thread : ThreadBase
                 {
                     Debug.Assert(this_sp == null);
 
-                    ThreadHelper.cond_wait(sleepCondition, mutex);
+                    ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
                 }
                 else
+                {
                     System.Threading.Thread.Yield(); // Wait for a new job or for our slaves to finish
+                }
             }
         }
     }
@@ -313,13 +327,16 @@ public class Thread : ThreadBase
 
     private bool cutoff_occurred()
     {
-        for (var sp = activeSplitPoint; sp != null; sp = sp.parentSplitPoint)
+        for (var sp = this.activeSplitPoint; sp != null; sp = sp.parentSplitPoint)
+        {
             if (sp.cutoff)
+            {
                 return true;
+            }
+        }
 
         return false;
     }
-
 
     // Make a local copy to be sure doesn't become zero under our feet while
     // Thread::can_join() checks whether the thread is available to join the split
@@ -330,16 +347,18 @@ public class Thread : ThreadBase
 
     public bool can_join(SplitPoint sp)
     {
-        if (searching)
+        if (this.searching)
+        {
             return false;
+        }
 
         // Make a local copy to be sure it doesn't become zero under our feet while
         // testing next condition and so leading to an out of bounds access.
-        var size = splitPointsSize;
+        var size = this.splitPointsSize;
 
         // No split points means that the thread is available as a slave for any
         // other thread otherwise apply the "helpful master" concept if possible.
-        var bitIsSet = (splitPoints[size - 1].slavesMask & (1u << sp.master.idx)) != 0;
+        var bitIsSet = (this.splitPoints[size - 1].slavesMask & (1u << sp.master.idx)) != 0;
         //splitPoints[size - 1].slavesMask.test(sp.master.idx)
         return size > 0 || bitIsSet;
     }
@@ -353,25 +372,34 @@ public class Thread : ThreadBase
     // leave their idle loops and call search(). When all threads have returned from
     // search() then split() returns.
 
-    private void split(Position pos, StackArrayWrapper ss, Value alpha, Value beta, ref Value bestValue,
-        ref Move bestMove, Depth depth, int moveCount,
-        MovePicker movePicker, NodeType nodeType, bool cutNode)
+    private void split(
+        Position pos,
+        StackArrayWrapper ss,
+        Value alpha,
+        Value beta,
+        ref Value bestValue,
+        ref Move bestMove,
+        Depth depth,
+        int moveCount,
+        MovePicker movePicker,
+        NodeType nodeType,
+        bool cutNode)
     {
-        Debug.Assert(searching);
-        Debug.Assert(-Value.VALUE_INFINITE < bestValue && bestValue <= alpha && alpha < beta &&
-                     beta <= Value.VALUE_INFINITE);
+        Debug.Assert(this.searching);
+        Debug.Assert(
+            -Value.VALUE_INFINITE < bestValue && bestValue <= alpha && alpha < beta && beta <= Value.VALUE_INFINITE);
         Debug.Assert(depth >= ThreadPool.minimumSplitDepth);
-        Debug.Assert(splitPointsSize < _.MAX_SPLITPOINTS_PER_THREAD);
+        Debug.Assert(this.splitPointsSize < _.MAX_SPLITPOINTS_PER_THREAD);
 
         // Pick and init the next available split point
-        var sp = splitPoints[splitPointsSize];
+        var sp = this.splitPoints[this.splitPointsSize];
 
         ThreadHelper.lock_grab(sp.spinlock); // No contention here until we don't increment splitPointsSize
 
         sp.master = this;
-        sp.parentSplitPoint = activeSplitPoint;
+        sp.parentSplitPoint = this.activeSplitPoint;
         sp.slavesMask = 0;
-        sp.slavesMask = (1u << idx);
+        sp.slavesMask = (1u << this.idx);
         sp.depth = depth;
         sp.bestValue = bestValue;
         sp.bestMove = bestMove;
@@ -387,9 +415,9 @@ public class Thread : ThreadBase
         sp.ss = ss;
         sp.allSlavesSearching = true; // Must be set under lock protection
 
-        ++splitPointsSize;
-        activeSplitPoint = sp;
-        activePosition = null;
+        ++this.splitPointsSize;
+        this.activeSplitPoint = sp;
+        this.activePosition = null;
 
         // Try to allocate available threads
         Thread slave = null;
@@ -399,10 +427,10 @@ public class Thread : ThreadBase
         {
             ThreadHelper.lock_grab(slave.spinlock);
 
-            if (slave.can_join(activeSplitPoint))
+            if (slave.can_join(this.activeSplitPoint))
             {
-                activeSplitPoint.slavesMask |= 1u << (slave.idx);
-                slave.activeSplitPoint = activeSplitPoint;
+                this.activeSplitPoint.slavesMask |= 1u << (slave.idx);
+                slave.activeSplitPoint = this.activeSplitPoint;
                 slave.searching = true;
             }
 
@@ -415,25 +443,25 @@ public class Thread : ThreadBase
         // their work at this split point.
         ThreadHelper.lock_release(sp.spinlock);
 
-        base_idle_loop(null); // Force a call to base class idle_loop()
+        this.base_idle_loop(null); // Force a call to base class idle_loop()
 
         // In the helpful master concept, a master can help only a sub-tree of its
         // split point and because everything is finished here, it's not possible
         // for the master to be booked.
-        Debug.Assert(!searching);
-        Debug.Assert(activePosition == null);
+        Debug.Assert(!this.searching);
+        Debug.Assert(this.activePosition == null);
 
         // We have returned from the idle loop, which means that all threads are
         // finished. Note that decreasing splitPointsSize must be done under lock
         // protection to avoid a race with Thread::can_join().
-        ThreadHelper.lock_grab(spinlock);
+        ThreadHelper.lock_grab(this.spinlock);
 
-        searching = true;
-        --splitPointsSize;
-        activeSplitPoint = sp.parentSplitPoint;
-        activePosition = pos;
+        this.searching = true;
+        --this.splitPointsSize;
+        this.activeSplitPoint = sp.parentSplitPoint;
+        this.activePosition = pos;
 
-        ThreadHelper.lock_release(spinlock);
+        ThreadHelper.lock_release(this.spinlock);
 
         // Split point data cannot be changed now, so no need to lock protect
         pos.set_nodes_searched(pos.nodes_searched() + sp.nodes);
@@ -442,13 +470,13 @@ public class Thread : ThreadBase
     }
 }
 
-
 // MainThread and TimerThread are sublassed from Thread to charaterize the two
 // special threads: the main one and the recurring timer.
 
 internal sealed class TimerThread : ThreadBase
 {
     private const int Resolution = 5; // Millisec between two check_time() calls
+
     private readonly bool run = false;
 
     internal TimerThread(ManualResetEvent initEvent)
@@ -463,20 +491,17 @@ internal sealed class TimerThread : ThreadBase
         // Signal done
         initEvent.Set();
 
-        while (!exit)
+        while (!this.exit)
         {
-            ThreadHelper.lock_grab(mutex);
-            if (!exit)
+            ThreadHelper.lock_grab(this.mutex);
+            if (!this.exit)
             {
-                ThreadHelper.cond_timedwait(
-                    sleepCondition,
-                    mutex,
-                    run ? Resolution : int.MaxValue);
+                ThreadHelper.cond_timedwait(this.sleepCondition, this.mutex, this.run ? Resolution : int.MaxValue);
             }
 
-            ThreadHelper.lock_release(mutex);
+            ThreadHelper.lock_release(this.mutex);
 
-            if (run)
+            if (this.run)
             {
                 //TODO: enable Search.check_time call
                 //Search.check_time();
@@ -505,32 +530,31 @@ internal sealed class MainThread : Thread
             initEvent.Set();
         }
 
-        while (!exit)
+        while (!this.exit)
         {
-            ThreadHelper.lock_grab(mutex);
+            ThreadHelper.lock_grab(this.mutex);
 
-            thinking = false;
+            this.thinking = false;
 
-            while (!thinking && !exit)
+            while (!this.thinking && !this.exit)
             {
                 //TODO: correct replacement for sleepCondition.notify_one();?
-                ThreadHelper.cond_signal(sleepCondition); // Wake up the UI thread if needed, 
-                ThreadHelper.cond_wait(sleepCondition, mutex);
+                ThreadHelper.cond_signal(this.sleepCondition); // Wake up the UI thread if needed, 
+                ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
             }
 
-            ThreadHelper.lock_release(mutex);
+            ThreadHelper.lock_release(this.mutex);
 
-
-            if (!exit)
+            if (!this.exit)
             {
-                searching = true;
+                this.searching = true;
 
                 //TODO: enable search
                 //Search::think();
 
-                Debug.Assert(searching);
+                Debug.Assert(this.searching);
 
-                searching = false;
+                this.searching = false;
             }
         }
     }
@@ -538,13 +562,12 @@ internal sealed class MainThread : Thread
     // MainThread::join() waits for main thread to finish the search
     public void join()
     {
-        ThreadHelper.lock_grab(mutex);
+        ThreadHelper.lock_grab(this.mutex);
         //TODO: find solution for mutex
         /*
             sleepCondition.wait(lk, [&]{ return !thinking; });
         */
-        ThreadHelper.lock_release(mutex);
-        
+        ThreadHelper.lock_release(this.mutex);
     }
 }
 
@@ -566,9 +589,8 @@ internal static class ThreadPool
 
     internal static MainThread main()
     {
-        return (MainThread) threads[0];
+        return (MainThread)threads[0];
     }
-
 
     // ThreadPool::read_uci_options() updates internal threads parameters from the
     // corresponding UCI options and creates/destroys threads to match the requested
@@ -577,7 +599,7 @@ internal static class ThreadPool
     // few are to be used.
     internal static void read_uci_options(ManualResetEvent[] initEvents)
     {
-        minimumSplitDepth = int.Parse(OptionMap.Instance["Min Split Depth"].v)*Depth.ONE_PLY;
+        minimumSplitDepth = int.Parse(OptionMap.Instance["Min Split Depth"].v) * Depth.ONE_PLY;
 
         var requested = int.Parse(OptionMap.Instance["Threads"].v);
         var current = 0;
@@ -636,7 +658,7 @@ internal static class ThreadPool
 
     private static void launch_threads(object state)
     {
-        var initEvents = (ManualResetEvent[]) state;
+        var initEvents = (ManualResetEvent[])state;
         timer = new TimerThread(initEvents[0]);
         threads.Add(new MainThread(initEvents[1]));
         read_uci_options(initEvents);
@@ -656,9 +678,8 @@ internal static class ThreadPool
         threads.Clear();
     }
 
-
     // ThreadPool::available_slave() tries to find an idle thread which is available
-// to join SplitPoint 'sp'.
+    // to join SplitPoint 'sp'.
     internal static Thread available_slave(SplitPoint sp)
     {
         for (var i = 0; i < threads.Count; i++)
@@ -671,7 +692,6 @@ internal static class ThreadPool
 
         return null;
     }
-
 
     // ThreadPool::start_thinking() wakes up the main thread sleeping in
     // MainThread::idle_loop() and starts a new search, then returns immediately.

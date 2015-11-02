@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-public struct Square
+﻿public struct Square
 {
     public static Square SQ_A1 = new Square(0);
 
@@ -172,7 +170,7 @@ public struct Square
 #endif
 
     public Square(uint value)
-        : this((int) value)
+        : this((int)value)
     {
     }
 
@@ -182,7 +180,7 @@ public struct Square
 
     public Square(int value)
     {
-        Value = value;
+        this.Value = value;
         // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
@@ -250,7 +248,7 @@ public struct Square
 
     public static Square operator *(int v1, Square v2)
     {
-        return new Square(v1*v2.Value);
+        return new Square(v1 * v2.Value);
     }
 
 #if FORCEINLINE  
@@ -259,7 +257,7 @@ public struct Square
 
     public static Square operator *(Square v1, int v2)
     {
-        return new Square(v1.Value*v2);
+        return new Square(v1.Value * v2);
     }
 
 #if FORCEINLINE  
@@ -291,7 +289,7 @@ public struct Square
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
     #endregion
@@ -304,7 +302,7 @@ public struct Square
 
     public static int operator /(Square v1, Square v2)
     {
-        return v1.Value/v2.Value;
+        return v1.Value / v2.Value;
     }
 
 #if FORCEINLINE  
@@ -313,7 +311,7 @@ public struct Square
 
     public static Square operator /(Square v1, int v2)
     {
-        return new Square(v1.Value/v2);
+        return new Square(v1.Value / v2);
     }
 
 #if FORCEINLINE  
@@ -351,7 +349,7 @@ public struct Square
 
     public bool is_ok()
     {
-        return Value >= SQ_A1 && Value <= SQ_H8;
+        return this.Value >= SQ_A1 && this.Value <= SQ_H8;
     }
 
 #if FORCEINLINE  
@@ -370,7 +368,7 @@ public struct Square
 
     public static Square relative_square(Color c, Square s)
     {
-        return new Square(s.Value ^ (c*56));
+        return new Square(s.Value ^ (c * 56));
     }
 
 #if FORCEINLINE  

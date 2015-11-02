@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-public struct Rank
+﻿public struct Rank
 {
     public static Rank RANK_1 = new Rank(0);
 
@@ -29,7 +27,7 @@ public struct Rank
 #endif
 
     public Rank(uint value)
-        : this((int) value)
+        : this((int)value)
     {
     }
 
@@ -39,7 +37,7 @@ public struct Rank
 
     public Rank(int value)
     {
-        Value = value;
+        this.Value = value;
         //Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
@@ -107,7 +105,7 @@ public struct Rank
 
     public static Rank operator *(int v1, Rank v2)
     {
-        return new Rank(v1*v2.Value);
+        return new Rank(v1 * v2.Value);
     }
 
 #if FORCEINLINE  
@@ -116,7 +114,7 @@ public struct Rank
 
     public static Rank operator *(Rank v1, int v2)
     {
-        return new Rank(v1.Value*v2);
+        return new Rank(v1.Value * v2);
     }
 
 #if FORCEINLINE  
@@ -166,7 +164,7 @@ public struct Rank
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
     #endregion
@@ -179,7 +177,7 @@ public struct Rank
 
     public static int operator /(Rank v1, Rank v2)
     {
-        return v1.Value/v2.Value;
+        return v1.Value / v2.Value;
     }
 
 #if FORCEINLINE  
@@ -188,7 +186,7 @@ public struct Rank
 
     public static Rank operator /(Rank v1, int v2)
     {
-        return new Rank(v1.Value/v2);
+        return new Rank(v1.Value / v2);
     }
 
     #endregion
@@ -199,7 +197,7 @@ public struct Rank
 
     public static Rank relative_rank(Color c, Rank r)
     {
-        return new Rank(r.Value ^ (c*7));
+        return new Rank(r.Value ^ (c * 7));
     }
 
 #if FORCEINLINE  

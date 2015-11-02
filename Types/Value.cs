@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-public struct Value
+﻿public struct Value
 {
     public static Value VALUE_ZERO = new Value(0);
 
@@ -14,9 +12,9 @@ public struct Value
 
     public static Value VALUE_NONE = new Value(32002);
 
-    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2*_.MAX_PLY);
+    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2 * _.MAX_PLY);
 
-    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2*_.MAX_PLY);
+    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2 * _.MAX_PLY);
 
     public static Value PawnValueMg = new Value(198);
 
@@ -43,22 +41,22 @@ public struct Value
     public static Value EndgameLimit = new Value(3998);
 
     public static Value[][] PieceValue =
-    {
-        new[]
         {
-            VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
-            QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO
-        },
-        new[]
-        {
-            VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
-            QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO
-        }
-    };
+            new[]
+                {
+                    VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
+                    QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                },
+            new[]
+                {
+                    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
+                    QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                }
+        };
 
     private int value { get; }
 
@@ -137,7 +135,7 @@ public struct Value
 
     public static Value operator *(int v1, Value v2)
     {
-        return new Value(v1*v2.value);
+        return new Value(v1 * v2.value);
     }
 
 #if FORCEINLINE  
@@ -146,7 +144,7 @@ public struct Value
 
     public static Value operator *(Value v1, int v2)
     {
-        return new Value(v1.value*v2);
+        return new Value(v1.value * v2);
     }
 
 #if FORCEINLINE  
@@ -186,7 +184,7 @@ public struct Value
 
     public static int operator /(Value v1, Value v2)
     {
-        return v1.value/v2.value;
+        return v1.value / v2.value;
     }
 
 #if FORCEINLINE  
@@ -195,12 +193,12 @@ public struct Value
 
     public static Value operator /(Value v1, int v2)
     {
-        return new Value(v1.value/v2);
+        return new Value(v1.value / v2);
     }
 
     public override string ToString()
     {
-        return $"{value}";
+        return $"{this.value}";
     }
 
 #if FORCEINLINE  
