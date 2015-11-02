@@ -10,11 +10,11 @@ public static class UCI
     // start position to the position just before the search starts). Needed by
     // 'draw by repetition' detection.
     internal static StateInfoWrapper SetupStates = new StateInfoWrapper(new StateInfo[102]);
-
+    
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)
     {
-        return $"{(char)('a' + Square.file_of(s))}{(char)('1' + Square.rank_of(s))}";
+        return $"{(char) ('a' + Square.file_of(s))}{(char) ('1' + Square.rank_of(s))}";
     }
 
     // position() is called when engine receives the "position" UCI command.
@@ -75,26 +75,18 @@ public static class UCI
         var to = Move.to_sq(m);
 
         if (m == Move.MOVE_NONE)
-        {
             return "(none)";
-        }
 
         if (m == Move.MOVE_NULL)
-        {
             return "0000";
-        }
 
         if (Move.type_of(m) == MoveType.CASTLING && !chess960)
-        {
             to = Square.make_square(to > from ? File.FILE_G : File.FILE_C, Square.rank_of(from));
-        }
 
         var move = square(from) + square(to);
 
         if (Move.type_of(m) == MoveType.PROMOTION)
-        {
             move += " pnbrqk"[Move.promotion_type(m)];
-        }
 
         return move;
     }
@@ -114,9 +106,7 @@ public static class UCI
         foreach (var extMove in ml.moveList.table)
         {
             if (str == move(extMove, pos.is_chess960()))
-            {
                 return extMove;
-            }
         }
 
         return Move.MOVE_NONE;
@@ -224,6 +214,7 @@ public static class UCI
         ThreadPool.start_thinking(pos, limits, SetupStates);
     }
 
+
     /// UCI::loop() waits for a command from stdin, parses it and calls the appropriate
     /// function. Also intercepts EOF from stdin to ensure gracefully exiting if the
     /// GUI dies unexpectedly. When called with some command line arguments, e.g. to
@@ -231,124 +222,122 @@ public static class UCI
     /// In addition to the UCI ones, also some additional debug commands are supported.
     internal static void loop(string args)
     {
-        var pos = new Position(StartFEN, false, ThreadPool.main()); // The root position
+        var pos = new Position(StartFEN, false , ThreadPool.main()); // The root position
         string cmd, token = string.Empty;
 
         do
         {
             try
             {
-                if (args.Length > 0)
-                {
-                    cmd = args;
-                }
-                else if (null == (cmd = Console.ReadLine())) // Block here waiting for input
-                {
-                    cmd = "quit";
-                }
 
-                var stack = Position.CreateStack(cmd);
-                if (stack.Count == 0)
-                {
-                    continue;
-                }
+            
+            if (args.Length > 0)
+            {
+                cmd = args;
+            }
+            else if (null == (cmd = Console.ReadLine())) // Block here waiting for input
+            {
+                cmd = "quit";
+            }
 
-                token = stack.Pop();
+            var stack = Position.CreateStack(cmd);
+            if(stack.Count == 0) { continue;}
 
-                // The GUI sends 'ponderhit' to tell us to ponder on the same move the
-                // opponent has played. In case Signals.stopOnPonderhit is set we are
-                // waiting for 'ponderhit' to stop the search (for instance because we
-                // already ran out of time), otherwise we should continue searching but
-                // switching from pondering to normal search.
-                if (token == "quit" || token == "stop" || (token == "ponderhit"))
-                    //TODO: enable call, Search::Signals.stopOnPonderhit
-                    //&& Search::Signals.stopOnPonderhit))
-                {
-                    //TODO: enable call, Search::Signals.stop = true;
-                    //Search::Signals.stop = true;
-                    ThreadPool.main().notify_one(); // Could be sleeping
-                }
-                else if (token == "ponderhit")
-                {
-                    //TODO: enable call, Search::Limits.ponder = 0
-                    //Search::Limits.ponder = 0; // Switch to normal search
-                }
-                else if (token == "uci")
-                {
-                    Console.Write("id name ");
-                    Console.Write(Utils.engine_info(true));
-                    Console.Write("\n");
-                    Console.Write(OptionMap.Instance.ToString());
-                    Console.WriteLine("\nuciok");
-                }
-                else if (token == "ucinewgame")
-                {
-                    //TODO: enable call, Search::reset(); Time.availableNodes = 0;
-                    //Search::reset();
-                    //Time.availableNodes = 0;
-                }
-                else if (token == "isready")
-                {
-                    Console.WriteLine("readyok");
-                }
-                else if (token == "go")
-                {
-                    go(pos, stack);
-                }
-                else if (token == "position")
-                {
-                    position(pos, stack);
-                }
-                else if (token == "setoption")
-                {
-                    setoption(stack);
-                }
+            token = stack.Pop();
 
-                // Additional custom non-UCI commands, useful for debugging
-                else if (token == "flip")
-                {
-                    pos.flip();
-                }
-                else if (token == "bench")
-                {
-                    //TODO: enable call, benchmark(pos, stack);
-                    //benchmark(pos, stack);
-                }
-                else if (token == "d")
-                {
-                    Console.Write(pos.displayString());
-                }
-                else if (token == "eval")
-                {
-                    //TODO: enable call, Evaluate.trace(pos)
-                    //Console.WriteLine(Evaluate.trace(pos));
-                }
-                else if (token == "perft")
-                {
-                    token = stack.Pop(); // Read depth
-                    var ss =
-                        Position.CreateStack(
-                            string.Format(
-                                "{0} {1} {2} current perft",
-                                OptionMap.Instance["Hash"].v,
-                                OptionMap.Instance["Threads"].v,
-                                token));
-                    //TODO: enable call, Benchmark.benchmark(pos, ss);
-                    //Benchmark.benchmark(pos, ss);
-                }
+            // The GUI sends 'ponderhit' to tell us to ponder on the same move the
+            // opponent has played. In case Signals.stopOnPonderhit is set we are
+            // waiting for 'ponderhit' to stop the search (for instance because we
+            // already ran out of time), otherwise we should continue searching but
+            // switching from pondering to normal search.
+            if (token == "quit" || token == "stop" || (token == "ponderhit"))
+            //TODO: enable call, Search::Signals.stopOnPonderhit
+            //&& Search::Signals.stopOnPonderhit))
+            {
+                //TODO: enable call, Search::Signals.stop = true;
+                //Search::Signals.stop = true;
+                ThreadPool.main().notify_one(); // Could be sleeping
+            }
+            else if (token == "ponderhit")
+            {
+                //TODO: enable call, Search::Limits.ponder = 0
+                //Search::Limits.ponder = 0; // Switch to normal search
+            }
+            else if (token == "uci")
+            {
+                Console.Write("id name ");
+                Console.Write(Utils.engine_info(true));
+                Console.Write("\n");
+                Console.Write(OptionMap.Instance.ToString());
+                Console.WriteLine("\nuciok");
+            }
+            else if (token == "ucinewgame")
+            {
+                //TODO: enable call, Search::reset(); Time.availableNodes = 0;
+                //Search::reset();
+                //Time.availableNodes = 0;
+            }
+            else if (token == "isready")
+            {
+                Console.WriteLine("readyok");
+            }
+            else if (token == "go")
+            {
+                go(pos, stack);
+            }
+            else if (token == "position")
+            {
+                position(pos, stack);
+            }
+            else if (token == "setoption")
+            {
+                setoption(stack);
+            }
 
-                else
-                {
-                    Console.Write("Unknown command: ");
-                    Console.WriteLine(cmd);
-                }
+            // Additional custom non-UCI commands, useful for debugging
+            else if (token == "flip")
+            {
+                pos.flip();
+            }
+            else if (token == "bench")
+            {
+                //TODO: enable call, benchmark(pos, stack);
+                //benchmark(pos, stack);
+            }
+            else if (token == "d")
+            {
+                Console.Write(pos.displayString());
+            }
+            else if (token == "eval")
+            {
+                //TODO: enable call, Evaluate.trace(pos)
+                //Console.WriteLine(Evaluate.trace(pos));
+            }
+            else if (token == "perft")
+            {
+                token = stack.Pop(); // Read depth
+                var ss =
+                    Position.CreateStack(
+                        string.Format(
+                            "{0} {1} {2} current perft",
+                            OptionMap.Instance["Hash"].v,
+                            OptionMap.Instance["Threads"].v,
+                            token));
+                //TODO: enable call, Benchmark.benchmark(pos, ss);
+                //Benchmark.benchmark(pos, ss);
+            }
+
+            else
+            {
+                Console.Write("Unknown command: ");
+                Console.WriteLine(cmd);
+            }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex}");
             }
-        }
-        while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
+        } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 
         ThreadPool.main().join(); // Cannot quit whilst the search is running
     }

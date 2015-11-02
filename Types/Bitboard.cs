@@ -1,4 +1,6 @@
-﻿public struct Bitboard
+﻿using System.Runtime.CompilerServices;
+
+public struct Bitboard
 {
     public static readonly Bitboard DarkSquares = new Bitboard(0xAA55AA55AA55AA55UL);
 
@@ -20,19 +22,19 @@
 
     public static readonly Bitboard Rank1BB = new Bitboard(0xFF);
 
-    public static readonly Bitboard Rank2BB = Rank1BB << (8 * 1);
+    public static readonly Bitboard Rank2BB = Rank1BB << (8*1);
 
-    public static readonly Bitboard Rank3BB = Rank1BB << (8 * 2);
+    public static readonly Bitboard Rank3BB = Rank1BB << (8*2);
 
-    public static readonly Bitboard Rank4BB = Rank1BB << (8 * 3);
+    public static readonly Bitboard Rank4BB = Rank1BB << (8*3);
 
-    public static readonly Bitboard Rank5BB = Rank1BB << (8 * 4);
+    public static readonly Bitboard Rank5BB = Rank1BB << (8*4);
 
-    public static readonly Bitboard Rank6BB = Rank1BB << (8 * 5);
+    public static readonly Bitboard Rank6BB = Rank1BB << (8*5);
 
-    public static readonly Bitboard Rank7BB = Rank1BB << (8 * 6);
+    public static readonly Bitboard Rank7BB = Rank1BB << (8*6);
 
-    public static readonly Bitboard Rank8BB = Rank1BB << (8 * 7);
+    public static readonly Bitboard Rank8BB = Rank1BB << (8*7);
 
     private ulong Value { get; }
 
@@ -54,12 +56,12 @@
 
     public Bitboard(ulong value)
     {
-        this.Value = value;
+        Value = value;
     }
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
@@ -134,7 +136,7 @@
 
     public static Bitboard operator *(Bitboard b1, Bitboard b2)
     {
-        return new Bitboard(b1.Value * b2.Value);
+        return new Bitboard(b1.Value*b2.Value);
     }
 
 #if FORCEINLINE  
@@ -225,15 +227,15 @@
     public static Bitboard shift_bb(Square Delta, Bitboard b)
     {
         return Delta == Square.DELTA_N
-                   ? b << 8
-                   : Delta == Square.DELTA_S
-                         ? b >> 8
-                         : Delta == Square.DELTA_NE
-                               ? (b & ~FileHBB) << 9
-                               : Delta == Square.DELTA_SE
-                                     ? (b & ~FileHBB) >> 7
-                                     : Delta == Square.DELTA_NW
-                                           ? (b & ~FileABB) << 7
-                                           : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : new Bitboard(0);
+            ? b << 8
+            : Delta == Square.DELTA_S
+                ? b >> 8
+                : Delta == Square.DELTA_NE
+                    ? (b & ~FileHBB) << 9
+                    : Delta == Square.DELTA_SE
+                        ? (b & ~FileHBB) >> 7
+                        : Delta == Square.DELTA_NW
+                            ? (b & ~FileABB) << 7
+                            : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : new Bitboard(0);
     }
 }

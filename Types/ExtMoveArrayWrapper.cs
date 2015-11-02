@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Xml.Schema;
 
 public struct ExtMoveArrayWrapper
 {
@@ -21,7 +22,7 @@ public struct ExtMoveArrayWrapper
     public void set(ExtMove[] table)
     {
         this.table = table;
-        this.current = 0;
+        current = 0;
     }
 
     public static ExtMoveArrayWrapper operator +(ExtMoveArrayWrapper p, int value)
@@ -54,24 +55,18 @@ public struct ExtMoveArrayWrapper
 
     public void setCurrentMove(Move m)
     {
-        this.table[this.current] = new ExtMove(m, this.table[this.current].Value);
+        table[current] = new ExtMove(m, table[current].Value);
     }
 
     public Move getCurrentMove()
     {
-        return this.table[this.current].Move;
+        return table[current].Move;
     }
 
     public ExtMove this[int index]
     {
-        get
-        {
-            return this.table[index];
-        }
-        set
-        {
-            this.table[index] = value;
-        }
+        get { return table[index]; }
+        set { table[index] = value; }
     }
 
     public static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
@@ -80,9 +75,9 @@ public struct ExtMoveArrayWrapper
         Debug.Assert(begin.current < end.current);
 
         var temporaries = new List<ExtMove>(end.current - begin.current);
-        var nextGoodLocation = 0;
+        int nextGoodLocation = 0;
 
-        for (var idx = begin.current; idx < end.current; idx++)
+        for (int idx = begin.current; idx < end.current; idx++)
         {
             // add items where value is > Value.VALUE_ZERO to front
             if (begin[idx].Value > Value.VALUE_ZERO)
@@ -97,7 +92,7 @@ public struct ExtMoveArrayWrapper
         }
 
         // put back reordered items to original array locations
-        for (var idx = begin.current; idx < end.current; idx++)
+        for (int idx = begin.current; idx < end.current; idx++)
         {
             begin[idx] = temporaries[idx - begin.current];
         }

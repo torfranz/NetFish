@@ -1,4 +1,6 @@
-﻿public struct File
+﻿using System.Runtime.CompilerServices;
+
+public struct File
 {
     public static File FILE_A = new File(0);
 
@@ -27,7 +29,7 @@
 #endif
 
     public File(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
@@ -37,7 +39,7 @@
 
     public File(int value)
     {
-        this.Value = value;
+        Value = value;
         //Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
@@ -105,7 +107,7 @@
 
     public static File operator *(int v1, File v2)
     {
-        return new File(v1 * v2.Value);
+        return new File(v1*v2.Value);
     }
 
 #if FORCEINLINE  
@@ -114,7 +116,7 @@
 
     public static File operator *(File v1, int v2)
     {
-        return new File(v1.Value * v2);
+        return new File(v1.Value*v2);
     }
 
 #if FORCEINLINE  
@@ -155,7 +157,7 @@
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
@@ -168,7 +170,7 @@
 
     public static int operator /(File v1, File v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
 #if FORCEINLINE  
@@ -177,7 +179,7 @@
 
     public static File operator /(File v1, int v2)
     {
-        return new File(v1.Value / v2);
+        return new File(v1.Value/v2);
     }
 
     #endregion

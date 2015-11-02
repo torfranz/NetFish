@@ -1,4 +1,6 @@
-﻿/// Score enum stores a middlegame and an endgame value in a single integer
+﻿using System.Runtime.CompilerServices;
+
+/// Score enum stores a middlegame and an endgame value in a single integer
 /// (enum). The least significant 16 bits are used to store the endgame value
 /// and the upper 16 bits are used to store the middlegame value.
 public struct Score
@@ -15,7 +17,7 @@ public struct Score
 
     public Score(int value)
     {
-        this.Value = value;
+        Value = value;
     }
 
     #endregion
@@ -78,7 +80,7 @@ public struct Score
 
     public static Score operator *(int v1, Score v2)
     {
-        return new Score(v1 * v2.Value);
+        return new Score(v1*v2.Value);
     }
 
 #if FORCEINLINE  
@@ -87,7 +89,7 @@ public struct Score
 
     public static Score operator *(Score v1, int v2)
     {
-        return new Score(v1.Value * v2);
+        return new Score(v1.Value*v2);
     }
 
 #if FORCEINLINE  
@@ -127,7 +129,7 @@ public struct Score
 #endif
     public static Score operator /(Score v1, int v2)
     {
-        return make_score(v1.mg_value() / v2, v1.eg_value() / v2);
+        return make_score(v1.mg_value()/v2, v1.eg_value()/v2);
     }
 
     #endregion
@@ -142,7 +144,7 @@ public struct Score
     {
         // union { uint16_t u; int16_t s; }
         // mg = { uint16_t(unsigned(s + 0x8000) >> 16) };
-        return new Value((ushort)(this.Value >> 16));
+        return new Value((ushort) (Value >> 16));
     }
 
 #if FORCEINLINE  
@@ -153,7 +155,7 @@ public struct Score
     {
         // union { uint16_t u; int16_t s; }
         // eg = { uint16_t(unsigned(s)) };
-        return new Value((ushort)this.Value);
+        return new Value((ushort) Value);
     }
 
 #if FORCEINLINE  

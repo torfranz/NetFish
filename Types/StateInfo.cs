@@ -31,17 +31,17 @@ public class StateInfo
 
     public void copyFrom(StateInfo other)
     {
-        this.pawnKey = other.pawnKey;
-        this.materialKey = other.materialKey;
-        this.nonPawnMaterial[0] = other.nonPawnMaterial[0];
-        this.nonPawnMaterial[1] = other.nonPawnMaterial[1];
-        this.castlingRights = other.castlingRights;
-        this.rule50 = other.rule50;
-        this.pliesFromNull = other.pliesFromNull;
-        this.psq = other.psq;
-        this.epSquare = other.epSquare;
-        this.key = other.key;
-        this.checkersBB = other.checkersBB;
-        this.capturedType = other.capturedType;
+        pawnKey = other.pawnKey;
+        materialKey = other.materialKey;
+        nonPawnMaterial[0] = other.nonPawnMaterial[0];
+        nonPawnMaterial[1] = other.nonPawnMaterial[1];
+        castlingRights = other.castlingRights;
+        rule50 = other.rule50;
+        pliesFromNull = other.pliesFromNull;
+        psq = other.psq;
+        epSquare = other.epSquare;
+        key = other.key;
+        checkersBB = other.checkersBB;
+        capturedType = other.capturedType;
     }
 };

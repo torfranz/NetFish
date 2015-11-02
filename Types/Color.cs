@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 public struct Color
 {
@@ -19,7 +20,7 @@ public struct Color
 #endif
 
     public Color(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
@@ -29,8 +30,8 @@ public struct Color
 
     public Color(int value)
     {
-        this.Value = value;
-        Debug.Assert(this.Value >= 0 && this.Value <= 2);
+        Value = value;
+        Debug.Assert(Value >= 0 && Value <= 2);
     }
 
     #endregion
@@ -181,6 +182,6 @@ public struct Color
 
     public static CastlingRight operator |(Color c, CastlingSide s)
     {
-        return (CastlingRight)((int)CastlingRight.WHITE_OO << ((s == CastlingSide.QUEEN_SIDE ? 1 : 0) + 2 * c.Value));
+        return (CastlingRight) ((int) CastlingRight.WHITE_OO << ((s == CastlingSide.QUEEN_SIDE ? 1 : 0) + 2*c.Value));
     }
 }

@@ -14,7 +14,7 @@ internal class Program
 
         Console.WriteLine(Utils.engine_info());
 
-        var t = new System.Threading.Thread(Run);
+        var t = new System.Threading.Thread(Program.Run);
         t.Start(args);
     }
 
@@ -30,7 +30,7 @@ internal class Program
         //Search::init();
         //Eval::init();
         //Pawns::init();
-
+        
         //Tablebases::init(Options["SyzygyPath"]);
         //TT.resize(Options["Hash"]);
 
@@ -58,5 +58,6 @@ internal class Program
         UCI.loop(sb.ToString());
 
         ThreadPool.exit();
+
     }
 }

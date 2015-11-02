@@ -3,10 +3,10 @@
 public static class Bitbases
 {
     // There are 24 possible pawn squares: the first 4 files and ranks from 2 to 7
-    private const uint MAX_INDEX = 2 * 24 * 64 * 64; // stm * psq * wksq * bksq = 196608
+    private const uint MAX_INDEX = 2*24*64*64; // stm * psq * wksq * bksq = 196608
 
     // Each uint32_t stores results of 32 positions, one per bit
-    public static uint[] KPKBitbase = new uint[MAX_INDEX / 32];
+    public static uint[] KPKBitbase = new uint[MAX_INDEX/32];
 
     // A KPK bitbase index is an integer in [0, IndexMax] range
     //
@@ -21,7 +21,8 @@ public static class Bitbases
     {
         return
             (uint)
-            (wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) | ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
+                (wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) |
+                 ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 
     public static bool probe(Square wksq, Square wpsq, Square bksq, Color us)
@@ -29,7 +30,7 @@ public static class Bitbases
         Debug.Assert(Square.file_of(wpsq) <= File.FILE_D);
 
         var idx = index(us, bksq, wksq, wpsq);
-        return (KPKBitbase[idx / 32] & (1 << (int)(idx & 0x1F))) != 0;
+        return (KPKBitbase[idx/32] & (1 << (int) (idx & 0x1F))) != 0;
     }
 
     public static void init()
@@ -58,7 +59,7 @@ public static class Bitbases
         {
             if (db[idx] == Result.WIN)
             {
-                KPKBitbase[idx / 32] |= (uint)(1 << (int)(idx & 0x1F));
+                KPKBitbase[idx/32] |= (uint) (1 << (int) (idx & 0x1F));
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿public struct Depth
+﻿using System.Runtime.CompilerServices;
+
+public struct Depth
 {
     public static Depth ONE_PLY = new Depth(1);
 
@@ -24,7 +26,7 @@
 
     public Depth(int value)
     {
-        this.Value = value;
+        Value = value;
     }
 
     #endregion
@@ -91,7 +93,7 @@
 
     public static Depth operator *(int v1, Depth v2)
     {
-        return new Depth(v1 * v2.Value);
+        return new Depth(v1*v2.Value);
     }
 
 #if FORCEINLINE  
@@ -100,7 +102,7 @@
 
     public static Depth operator *(Depth v1, int v2)
     {
-        return new Depth(v1.Value * v2);
+        return new Depth(v1.Value*v2);
     }
 
 #if FORCEINLINE  
@@ -140,7 +142,7 @@
 
     public static int operator /(Depth v1, Depth v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
 #if FORCEINLINE  
@@ -149,7 +151,7 @@
 
     public static Depth operator /(Depth v1, int v2)
     {
-        return new Depth(v1.Value / v2);
+        return new Depth(v1.Value/v2);
     }
 
     #endregion
