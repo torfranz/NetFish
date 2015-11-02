@@ -1,4 +1,6 @@
-﻿public struct Depth
+﻿using System.Runtime.CompilerServices;
+
+public struct Depth
 {
     public static Depth ONE_PLY = new Depth(1);
 

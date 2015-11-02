@@ -1,4 +1,6 @@
-﻿public struct Rank
+﻿using System.Runtime.CompilerServices;
+
+public struct Rank
 {
     public const int RANK_1C = 0;
 

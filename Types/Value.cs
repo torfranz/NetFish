@@ -1,4 +1,6 @@
-﻿public struct Value
+﻿using System.Runtime.CompilerServices;
+
+public struct Value
 {
     public static Value VALUE_ZERO = new Value(0);
 

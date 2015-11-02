@@ -1,4 +1,6 @@
-﻿using Key = System.UInt64;
+﻿using System.Runtime.CompilerServices;
+
+using Key = System.UInt64;
 using Bitboard = System.UInt64;
 using Move = System.Int32;
 using File = System.Int32;

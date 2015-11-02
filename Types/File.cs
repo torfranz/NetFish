@@ -1,4 +1,6 @@
-﻿public struct File
+﻿using System.Runtime.CompilerServices;
+
+public struct File
 {
     public static File FILE_A = new File(0);
 
