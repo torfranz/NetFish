@@ -1,8 +1,8 @@
 ﻿public class StateInfoWrapper
 {
-    public StateInfo[] table;
-
     public int current;
+
+    public StateInfo[] table;
 
     public StateInfoWrapper(StateInfo[] table)
         : this(table, 0)
@@ -20,6 +20,8 @@
         }
     }
 
+    public StateInfo this[int index] => this.table[index];
+
     public static StateInfoWrapper operator ++(StateInfoWrapper p)
     {
         p.current += 1;
@@ -35,6 +37,4 @@
         p.current -= 1;
         return p;
     }
-
-    public StateInfo this[int index] => table[index];
 }

@@ -27,7 +27,7 @@ public struct Move
 
     public Move(int value)
     {
-        Value = value;
+        this.Value = value;
     }
 
     #endregion
@@ -40,14 +40,16 @@ public struct Move
     {
         return m.Value;
     }
+
 #if FORCEINLINE
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public static implicit operator bool (Move m)
+    public static implicit operator bool(Move m)
     {
         return m.Value != 0;
     }
+
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
@@ -68,7 +70,7 @@ public struct Move
 
     public override string ToString()
     {
-        return $"{Value}";
+        return $"{this.Value}";
     }
 
 #if FORCEINLINE  
@@ -95,7 +97,7 @@ public struct Move
 
     public static MoveType type_of(Move m)
     {
-        return (MoveType) (m.Value & (3 << 14));
+        return (MoveType)(m.Value & (3 << 14));
     }
 
 #if FORCEINLINE  
@@ -131,7 +133,7 @@ public struct Move
 
     public static Move make(MoveType moveType, Square from, Square to, PieceType pt)
     {
-        return new Move(to | (from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
+        return new Move(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
     }
 
 #if FORCEINLINE  

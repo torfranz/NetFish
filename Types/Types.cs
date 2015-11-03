@@ -24,78 +24,124 @@ internal struct _
     internal const int MAX_PLY = 128;
 
     internal const int MAX_THREADS = 128;
+
     internal const int MAX_SPLITPOINTS_PER_THREAD = 8;
+
     internal const int MAX_SLAVES_PER_SPLITPOINT = 4;
 }
 
 /// EndgameType lists all supported endgames
-
-enum EndgameType
+internal enum EndgameType
 {
-
     // Evaluation functions
 
-    KNNK,  // KNN vs K
-    KXK,   // Generic "mate lone king" eval
-    KBNK,  // KBN vs K
-    KPK,   // KP vs K
-    KRKP,  // KR vs KP
-    KRKB,  // KR vs KB
-    KRKN,  // KR vs KN
-    KQKP,  // KQ vs KP
-    KQKR,  // KQ vs KR
+    KNNK, // KNN vs K
 
+    KXK, // Generic "mate lone king" eval
+
+    KBNK, // KBN vs K
+
+    KPK, // KP vs K
+
+    KRKP, // KR vs KP
+
+    KRKB, // KR vs KB
+
+    KRKN, // KR vs KN
+
+    KQKP, // KQ vs KP
+
+    KQKR, // KQ vs KR
 
     // Scaling functions
     SCALING_FUNCTIONS,
 
-    KBPsK,   // KB and pawns vs K
-    KQKRPs,  // KQ vs KR and pawns
-    KRPKR,   // KRP vs KR
-    KRPKB,   // KRP vs KB
+    KBPsK, // KB and pawns vs K
+
+    KQKRPs, // KQ vs KR and pawns
+
+    KRPKR, // KRP vs KR
+
+    KRPKB, // KRP vs KB
+
     KRPPKRP, // KRPP vs KRP
-    KPsK,    // K and pawns vs K
-    KBPKB,   // KBP vs KB
-    KBPPKB,  // KBPP vs KB
-    KBPKN,   // KBP vs KN
-    KNPK,    // KNP vs K
-    KNPKB,   // KNP vs KB
-    KPKP     // KP vs KP
+
+    KPsK, // K and pawns vs K
+
+    KBPKB, // KBP vs KB
+
+    KBPPKB, // KBPP vs KB
+
+    KBPKN, // KBP vs KN
+
+    KNPK, // KNP vs K
+
+    KNPKB, // KNP vs KB
+
+    KPKP // KP vs KP
 };
 
-
 // Different node types, used as template parameter
-public enum NodeType { Root, PV, NonPV };
+public enum NodeType
+{
+    Root,
+
+    PV,
+
+    NonPV
+};
 
 public enum Stages
 {
     MAIN_SEARCH,
+
     GOOD_CAPTURES,
+
     KILLERS,
+
     GOOD_QUIETS,
+
     BAD_QUIETS,
+
     BAD_CAPTURES,
+
     EVASION,
+
     ALL_EVASIONS,
+
     QSEARCH_WITH_CHECKS,
+
     QCAPTURES_1,
+
     CHECKS,
+
     QSEARCH_WITHOUT_CHECKS,
+
     QCAPTURES_2,
+
     PROBCUT,
+
     PROBCUT_CAPTURES,
+
     RECAPTURE,
+
     RECAPTURES,
+
     STOP
 };
 
 public enum GenType
 {
     CAPTURES,
+
     QUIETS,
+
     QUIET_CHECKS,
+
     EVASIONS,
+
     NON_EVASIONS,
+
     LEGAL
 };
 

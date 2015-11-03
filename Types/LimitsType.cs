@@ -6,14 +6,19 @@
 public class LimitsType
 {
     public int[] inc = new int[Color.COLOR_NB];
+
     public ulong nodes;
-    public bool ponder;
+
     public int npmsec, movestogo, depth, movetime, mate, infinite;
+
+    public bool ponder;
+
     public List<Move> searchmoves = new List<Move>();
+
     public int[] time = new int[Color.COLOR_NB];
 
     public bool use_time_management()
     {
-        return (mate | movetime | depth | (int)nodes | infinite) != 0;
+        return (this.mate | this.movetime | this.depth | (int)this.nodes | this.infinite) != 0;
     }
 };

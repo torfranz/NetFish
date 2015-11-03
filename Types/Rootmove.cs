@@ -9,11 +9,12 @@ public class RootMove
     public readonly List<Move> pv = new List<Move>();
 
     public readonly Value score = -Value.VALUE_INFINITE;
+
     public Value previousScore = -Value.VALUE_INFINITE;
 
     public RootMove(Move m)
     {
-        pv.Add(m);
+        this.pv.Add(m);
     }
 
     public static bool operator <(RootMove m1, RootMove m2)
@@ -44,23 +45,33 @@ public class RootMove
         var st = new StateInfoWrapper(new StateInfo[_.MAX_PLY]);
         var ttHit = false;
 
-        foreach (var m in pv)
+        foreach (var m in this.pv)
         {
             Debug.Assert(new MoveList(GenType.LEGAL, pos).contains(m));
 
             var tte = TranspositionTable.probe(pos.key(), ref ttHit);
 
             if (!ttHit || tte.move() != m) // Don't overwrite correct entries
-                tte.save(pos.key(), Value.VALUE_NONE, Bound.BOUND_NONE, Depth.DEPTH_NONE, m, Value.VALUE_NONE,
+            {
+                tte.save(
+                    pos.key(),
+                    Value.VALUE_NONE,
+                    Bound.BOUND_NONE,
+                    Depth.DEPTH_NONE,
+                    m,
+                    Value.VALUE_NONE,
                     TranspositionTable.generation());
+            }
 
             var current = st[st.current];
             st++;
             pos.do_move(m, current, pos.gives_check(m, new CheckInfo(pos)));
         }
 
-        for (var i = pv.Count; i > 0;)
-            pos.undo_move(pv[--i]);
+        for (var i = this.pv.Count; i > 0;)
+        {
+            pos.undo_move(this.pv[--i]);
+        }
     }
 
     /// RootMove::extract_ponder_from_tt() is called in case we have no ponder move before
@@ -72,18 +83,18 @@ public class RootMove
         var st = new StateInfo();
         var ttHit = false;
 
-        Debug.Assert(pv.Count == 1);
+        Debug.Assert(this.pv.Count == 1);
 
-        pos.do_move(pv[0], st, pos.gives_check(pv[0], new CheckInfo(pos)));
+        pos.do_move(this.pv[0], st, pos.gives_check(this.pv[0], new CheckInfo(pos)));
         var tte = TranspositionTable.probe(pos.key(), ref ttHit);
-        pos.undo_move(pv[0]);
+        pos.undo_move(this.pv[0]);
 
         if (ttHit)
         {
             var m = tte.move(); // Local copy to be SMP safe
             if (new MoveList(GenType.LEGAL, pos).contains(m))
             {
-                pv.Add(m);
+                this.pv.Add(m);
                 return true;
             }
         }

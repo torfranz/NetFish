@@ -37,8 +37,8 @@ public struct PieceType
 
     public PieceType(int value)
     {
-        Value = value;
-        Debug.Assert(Value >= 0 && Value <= 8);
+        this.Value = value;
+        Debug.Assert(this.Value >= 0 && this.Value <= 8);
     }
 
     #endregion
@@ -125,7 +125,6 @@ public struct PieceType
     {
         v1.Value += 1;
         return v1;
-        
     }
 
 #if FORCEINLINE  
@@ -139,7 +138,7 @@ public struct PieceType
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
     /*

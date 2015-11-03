@@ -14,7 +14,7 @@ internal class Program
 
         Console.WriteLine(Utils.engine_info());
 
-        var t = new System.Threading.Thread(Program.Run);
+        var t = new System.Threading.Thread(Run);
         t.Start(args);
     }
 
@@ -44,6 +44,5 @@ internal class Program
         UCI.loop(sb.ToString());
 
         ThreadPool.exit();
-
     }
 }

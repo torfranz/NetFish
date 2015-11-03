@@ -31,6 +31,7 @@ public class EvalInfo
     // is on g8, kingRing[BLACK] is a bitboard containing the squares f8, h8,
     // f7, g7, h7, f6, g6 and h6.
     public Bitboard[] kingRing = new Bitboard[Color.COLOR_NB];
+
     public Pawns.Entry pi;
 
     public Bitboard[] pinnedPieces = new Bitboard[Color.COLOR_NB];

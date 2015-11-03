@@ -21,12 +21,12 @@ public class Stats<T>
 
     public T value(Piece p, Square to)
     {
-        return table[p, to];
+        return this.table[p, to];
     }
 
     public void clear()
     {
-        Array.Clear(table, 0, table.Length);
+        Array.Clear(this.table, 0, this.table.Length);
     }
 };
 
@@ -34,9 +34,9 @@ public class MovesStats : Stats<Move>
 {
     public void update(Piece pc, Square to, Move m)
     {
-        if (m != table[pc, to])
+        if (m != this.table[pc, to])
         {
-            table[pc, to] = m;
+            this.table[pc, to] = m;
         }
     }
 }
@@ -49,8 +49,8 @@ public class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[pc, to] -= table[pc, to]*Math.Abs(v)/324;
-        table[pc, to] += v*32;
+        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 324;
+        this.table[pc, to] += v * 32;
     }
 
     public void updateCMH(Piece pc, Square to, Value v)
@@ -59,8 +59,8 @@ public class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[pc, to] -= table[pc, to]*Math.Abs(v)/512;
-        table[pc, to] += v*64;
+        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 512;
+        this.table[pc, to] += v * 64;
     }
 }
 

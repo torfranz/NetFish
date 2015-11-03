@@ -11,47 +11,47 @@ public struct TTEntry
 {
     public Move move()
     {
-        return new Move(move16);
+        return new Move(this.move16);
     }
 
     public Value value()
     {
-        return new Value(value16);
+        return new Value(this.value16);
     }
 
     public Value eval()
     {
-        return new Value(eval16);
+        return new Value(this.eval16);
     }
 
     private Depth depth()
     {
-        return new Depth(depth8);
+        return new Depth(this.depth8);
     }
 
     public Bound bound()
     {
-        return (Bound) ((genBound8 & 0x3));
+        return (Bound)((this.genBound8 & 0x3));
     }
 
     public void save(ulong k, Value v, Bound b, Depth d, Move m, Value ev, byte g)
     {
         // Preserve any existing move for the same position
-        if ((m != 0) || (k >> 48) != key16)
+        if ((m != 0) || (k >> 48) != this.key16)
         {
-            move16 = (ushort) m;
+            this.move16 = (ushort)m;
         }
 
         // Don't overwrite more valuable entries
-        if ((k >> 48) != key16 || d > depth8 - 2
+        if ((k >> 48) != this.key16 || d > this.depth8 - 2
             /* || g != (genBound8 & 0xFC) // Matching non-zero keys are already refreshed by probe() */
             || b == Bound.BOUND_EXACT)
         {
-            key16 = (ushort) (k >> 48);
-            value16 = (short) v;
-            eval16 = (short) ev;
-            genBound8 = (byte) (g | (int) b);
-            depth8 = (byte) d;
+            this.key16 = (ushort)(k >> 48);
+            this.value16 = (short)v;
+            this.eval16 = (short)ev;
+            this.genBound8 = (byte)(g | (int)b);
+            this.depth8 = (byte)d;
         }
     }
 

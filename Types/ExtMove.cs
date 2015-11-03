@@ -1,12 +1,13 @@
 ﻿public struct ExtMove
 {
     public Move Move { get; }
+
     public Value Value { get; }
 
     public ExtMove(Move move, Value value)
     {
-        Move = move;
-        Value = value;
+        this.Move = move;
+        this.Value = value;
     }
 
     public static implicit operator Move(ExtMove move)
@@ -36,6 +37,6 @@
 
     public override string ToString()
     {
-        return $"{Move},{Value}";
+        return $"{this.Move},{this.Value}";
     }
 };
