@@ -15,7 +15,7 @@ public class Stack
 
     public int ply;
 
-    private Move pv;
+    public Move pv;
 
     public Depth reduction;
 

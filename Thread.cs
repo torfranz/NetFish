@@ -134,7 +134,7 @@ public class Thread : ThreadBase
 
     public Position activePosition;
 
-    private volatile SplitPoint activeSplitPoint;
+    public volatile SplitPoint activeSplitPoint;
 
     public Endgames endgames = new Endgames();
 
@@ -322,7 +322,7 @@ public class Thread : ThreadBase
     // Thread::cutoff_occurred() checks whether a beta cutoff has occurred in the
     // current active split point, or in some ancestor of the split point.
 
-    private bool cutoff_occurred()
+    public bool cutoff_occurred()
     {
         for (var sp = this.activeSplitPoint; sp != null; sp = sp.parentSplitPoint)
         {
@@ -369,7 +369,7 @@ public class Thread : ThreadBase
     // leave their idle loops and call search(). When all threads have returned from
     // search() then split() returns.
 
-    private void split(
+    public void split(
         Position pos,
         StackArrayWrapper ss,
         Value alpha,

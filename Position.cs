@@ -332,7 +332,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool advanced_pawn_push(Move m)
+    public bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(this.moved_piece(m)) == PieceType.PAWN
                && Rank.relative_rank(this.sideToMove, Move.from_sq(m)) > Rank.RANK_4;

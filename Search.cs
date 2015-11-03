@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Key = System.UInt64;
+
 public static class Search
 {
     public static SignalsType Signals;
@@ -57,12 +58,12 @@ public static class Search
         if (Limits.use_time_management())
         {
             var stillAtFirstMove = Signals.firstRootMove && !Signals.failedLowAtRoot
-                                   && elapsed > TimeManagement.available() * 75 / 100;
+                                   && elapsed > TimeManagement.available()*75/100;
 
-            if (stillAtFirstMove || elapsed > TimeManagement.maximum() - 2 * TimerThread.Resolution)
+            if (stillAtFirstMove || elapsed > TimeManagement.maximum() - 2*TimerThread.Resolution)
             {
                 Signals.stop = true;
-        }
+            }
         }
         else if (Limits.movetime != 0 && elapsed >= Limits.movetime)
         {
@@ -98,11 +99,11 @@ public static class Search
                 }
             }
 
-            if (nodes >= (long)Limits.nodes)
+            if (nodes >= (long) Limits.nodes)
             {
                 Signals.stop = true;
+            }
         }
-    }
     }
 
     /// Search::reset() clears all search memory, to obtain reproducible search results
@@ -123,7 +124,7 @@ public static class Search
         var us = RootPos.side_to_move();
         TimeManagement.init(Limits, us, RootPos.game_ply(), DateTime.Now);
 
-        int contempt = int.Parse(OptionMap.Instance["Contempt"].v) * Value.PawnValueEg / 100; // From centipawns
+        int contempt = int.Parse(OptionMap.Instance["Contempt"].v)*Value.PawnValueEg/100; // From centipawns
         DrawValue[us] = Value.VALUE_DRAW - contempt;
         DrawValue[~us] = Value.VALUE_DRAW + contempt;
 
@@ -272,7 +273,7 @@ public static class Search
             multiPV = Math.Max(multiPV, 4);
         }
 
-        multiPV = (uint)Math.Min(multiPV, RootMoves.Count);
+        multiPV = (uint) Math.Min(multiPV, RootMoves.Count);
 
         // Iterative deepening loop until requested to stop or target depth reached;
         while (++depth < Depth.DEPTH_MAX && !Signals.stop && (Limits.depth == 0 || depth <= Limits.depth))
@@ -291,11 +292,11 @@ public static class Search
             for (PVIdx = 0; PVIdx < multiPV && !Signals.stop; ++PVIdx)
             {
                 // Reset aspiration window starting size
-                if (depth >= 5 * Depth.ONE_PLY)
+                if (depth >= 5*Depth.ONE_PLY)
                 {
                     delta = new Value(16);
-                    alpha = new Value(Math.Max(RootMoves[(int)PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
-                    beta = new Value(Math.Min(RootMoves[(int)PVIdx].previousScore + delta, Value.VALUE_INFINITE));
+                    alpha = new Value(Math.Max(RootMoves[(int) PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
+                    beta = new Value(Math.Min(RootMoves[(int) PVIdx].previousScore + delta, Value.VALUE_INFINITE));
                 }
 
                 // Start with a small aspiration window and, in the case of a fail
@@ -303,7 +304,7 @@ public static class Search
                 // high/low anymore.
                 while (true)
                 {
-                    bestValue = search(NodeType.Root, false,pos, ss, alpha, beta, depth, false);
+                    bestValue = search(NodeType.Root, false, pos, ss, alpha, beta, depth, false);
 
                     // Bring the best move to the front. It is critical that sorting
                     // is done with a stable algorithm because all the values but the
@@ -313,7 +314,7 @@ public static class Search
                     // search the already searched PV lines are preserved.
 
                     //TODO: Check for stable sort replacement
-                    Utils.stable_sort(RootMoves, (int)PVIdx, RootMoves.Count);
+                    Utils.stable_sort(RootMoves, (int) PVIdx, RootMoves.Count);
                     //std::stable_sort(RootMoves.begin() + PVIdx, RootMoves.end());
 
                     // Write PV back to transposition table in case the relevant
@@ -342,7 +343,7 @@ public static class Search
                     // re-search, otherwise exit the loop.
                     if (bestValue <= alpha)
                     {
-                        beta = (alpha + beta) / 2;
+                        beta = (alpha + beta)/2;
                         alpha = new Value(Math.Max(bestValue - delta, -Value.VALUE_INFINITE));
 
                         Signals.failedLowAtRoot = true;
@@ -350,7 +351,7 @@ public static class Search
                     }
                     else if (bestValue >= beta)
                     {
-                        alpha = (alpha + beta) / 2;
+                        alpha = (alpha + beta)/2;
                         beta = new Value(Math.Min(bestValue + delta, Value.VALUE_INFINITE));
                     }
                     else
@@ -358,14 +359,14 @@ public static class Search
                         break;
                     }
 
-                    delta += delta / 2;
+                    delta += delta/2;
 
-                    Debug.Debug.Assert(alpha >= -Value.VALUE_INFINITE && beta <= Value.VALUE_INFINITE);
+                    Debug.Assert(alpha >= -Value.VALUE_INFINITE && beta <= Value.VALUE_INFINITE);
                 }
 
                 // Sort the PV lines searched so far and update the GUI
                 //TODO: Check for stable sort replacement
-                Utils.stable_sort(RootMoves, 0, (int)PVIdx + 1);
+                Utils.stable_sort(RootMoves, 0, (int) PVIdx + 1);
                 //std::stable_sort(RootMoves.begin(), RootMoves.begin() + PVIdx + 1);
 
                 if (Signals.stop)
@@ -376,7 +377,7 @@ public static class Search
                 else if (PVIdx + 1 == multiPV || TimeManagement.elapsed() > 3000)
                 {
                     Console.WriteLine(UCI.pv(pos, depth, alpha, beta));
-            }
+                }
             }
 
             // If skill level is enabled and time is up, pick a sub-optimal best move
@@ -387,7 +388,7 @@ public static class Search
 
             // Have we found a "mate in x"?
             if (Limits.mate != 0 && bestValue >= Value.VALUE_MATE_IN_MAX_PLY
-                && Value.VALUE_MATE - bestValue <= 2 * Limits.mate)
+                && Value.VALUE_MATE - bestValue <= 2*Limits.mate)
             {
                 Signals.stop = true;
             }
@@ -398,7 +399,7 @@ public static class Search
                 if (!Signals.stop && !Signals.stopOnPonderhit)
                 {
                     // Take some extra time if the best move has changed
-                    if (depth > 4 * Depth.ONE_PLY && multiPV == 1)
+                    if (depth > 4*Depth.ONE_PLY && multiPV == 1)
                     {
                         TimeManagement.pv_instability(BestMoveChanges);
                     }
@@ -408,7 +409,7 @@ public static class Search
                     // from the previous search and just did a fast verification.
                     if (RootMoves.Count == 1 || TimeManagement.elapsed() > TimeManagement.available()
                         || (RootMoves[0].pv[0] == easyMove && BestMoveChanges < 0.03
-                            && TimeManagement.elapsed() > TimeManagement.available() / 10))
+                            && TimeManagement.elapsed() > TimeManagement.available()/10))
                     {
                         // If we are allowed to ponder do not stop the search now but
                         // keep pondering until the GUI sends "ponderhit" or "stop".
@@ -419,8 +420,8 @@ public static class Search
                         else
                         {
                             Signals.stop = true;
+                        }
                     }
-                }
                 }
 
                 if (RootMoves[0].pv.Count >= 3)
@@ -430,8 +431,8 @@ public static class Search
                 else
                 {
                     EasyMove.clear();
+                }
             }
-        }
         }
 
         // Clear any candidate easy move that wasn't stable for the last search
@@ -445,7 +446,7 @@ public static class Search
         if (skill.enabled())
         {
             var foundIdx = RootMoves.FindIndex(move => move == skill.best_move(multiPV));
-            Debug.Debug.Assert(foundIdx >= 0);
+            Debug.Assert(foundIdx >= 0);
             var rootMove = RootMoves[0];
             RootMoves[0] = RootMoves[foundIdx];
             RootMoves[foundIdx] = rootMove;
@@ -459,7 +460,7 @@ public static class Search
         var st = new StateInfo();
         long cnt, nodes = 0;
         var ci = new CheckInfo(pos);
-        var leaf = (depth == 2 * Depth.ONE_PLY);
+        var leaf = (depth == 2*Depth.ONE_PLY);
 
         var ml = new MoveList(GenType.LEGAL, pos);
         for (var index = ml.begin(); index < ml.end(); index++)
@@ -480,7 +481,7 @@ public static class Search
             if (Root)
             {
                 Console.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
-        }
+            }
         }
         return nodes;
     }
@@ -534,31 +535,32 @@ public static class Search
     // search, and searched the first move before splitting, so we don't have to
     // repeat all this work again. We also don't need to store anything to the hash
     // table here: This is taken care of after we return from the split point.
-    
-    static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta, Depth depth, bool cutNode)
+
+    private static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
+        Depth depth, bool cutNode)
     {
-        bool RootNode = NT == NodeType.Root;
-        bool PvNode = NT == NodeType.PV || NT == NodeType.Root;
+        var RootNode = NT == NodeType.Root;
+        var PvNode = NT == NodeType.PV || NT == NodeType.Root;
 
-        Debug.Debug.Assert(-Value.VALUE_INFINITE <= alpha && alpha < beta && beta <= Value.VALUE_INFINITE);
-        Debug.Debug.Assert(PvNode || (alpha == beta - 1));
-        Debug.Debug.Assert(depth > Depth.DEPTH_ZERO);
+        Debug.Assert(-Value.VALUE_INFINITE <= alpha && alpha < beta && beta <= Value.VALUE_INFINITE);
+        Debug.Assert(PvNode || (alpha == beta - 1));
+        Debug.Assert(depth > Depth.DEPTH_ZERO);
 
-        Move[] pv = new Move[_.MAX_PLY + 1];
-        Move[] quietsSearched = new Move[64];
-        StateInfo st;
+        var pv = new Move[_.MAX_PLY + 1];
+        var quietsSearched = new Move[64];
+        StateInfo st=null;
         TTEntry tte;
-        SplitPoint splitPoint;
-        Key posKey;
+        SplitPoint splitPoint = null;
+        ulong posKey = 0;
         Move ttMove, move, excludedMove, bestMove;
         Depth extension, newDepth, predictedDepth;
         Value bestValue, value, ttValue, eval, nullValue, futilityValue;
         bool ttHit = false, inCheck, givesCheck, singularExtensionNode, improving;
         bool captureOrPromotion, doFullDepthSearch;
-        int moveCount, quietCount;
+        int moveCount = 0, quietCount = 0;
 
         // Step 1. Initialize node
-        Thread thisThread = pos.this_thread();
+        var thisThread = pos.this_thread();
         inCheck = pos.checkers();
 
         if (SpNode)
@@ -571,7 +573,7 @@ public static class Search
             ttMove = excludedMove = Move.MOVE_NONE;
             ttValue = Value.VALUE_NONE;
 
-            Debug.Debug.Assert(splitPoint.bestValue > -Value.VALUE_INFINITE && splitPoint.moveCount > 0);
+            Debug.Assert(splitPoint.bestValue > -Value.VALUE_INFINITE && splitPoint.moveCount > 0);
 
             goto moves_loop;
         }
@@ -596,13 +598,13 @@ public static class Search
             // because we will never beat the current alpha. Same logic but with reversed
             // signs applies also in the opposite condition of being mated instead of giving
             // mate. In this case return a fail-high score.
-            alpha = Math.Max(mated_in(ss[ss.current].ply), alpha);
-            beta = Math.Min(mate_in(ss[ss.current].ply + 1), beta);
+            alpha =new Value(Math.Max(Value.mated_in(ss[ss.current].ply), alpha));
+            beta = new Value(Math.Min(Value.mate_in(ss[ss.current].ply + 1), beta));
             if (alpha >= beta)
                 return alpha;
         }
 
-        Debug.Debug.Assert(0 <= ss[ss.current].ply && ss[ss.current].ply < _.MAX_PLY);
+        Debug.Assert(0 <= ss[ss.current].ply && ss[ss.current].ply < _.MAX_PLY);
 
         ss[ss.current].currentMove = ss[ss.current].ttMove = ss[ss.current + 1].excludedMove = bestMove = Move.MOVE_NONE;
         ss[ss.current + 1].skipEarlyPruning = false;
@@ -615,7 +617,7 @@ public static class Search
         excludedMove = ss[ss.current].excludedMove;
         posKey = excludedMove ? pos.exclusion_key() : pos.key();
         tte = TranspositionTable.probe(posKey, ref ttHit);
-        ss[ss.current].ttMove = ttMove = RootNode ? RootMoves[(int)PVIdx].pv[0] : ttHit ? tte.move() : Move.MOVE_NONE;
+        ss[ss.current].ttMove = ttMove = RootNode ? RootMoves[(int) PVIdx].pv[0] : ttHit ? tte.move() : Move.MOVE_NONE;
         ttValue = ttHit ? value_from_tt(tte.value(), ss[ss.current].ply) : Value.VALUE_NONE;
 
         // At non-PV nodes we check for a fail high/low. We don't prune at PV nodes
@@ -623,8 +625,9 @@ public static class Search
             && ttHit
             && tte.depth() >= depth
             && ttValue != Value.VALUE_NONE // Only in case of TT access race
-            && (ttValue >= beta ? (tte.bound() & Bound.BOUND_LOWER) !=0
-                                : (tte.bound() & Bound.BOUND_UPPER) !=0))
+            && (ttValue >= beta
+                ? (tte.bound() & Bound.BOUND_LOWER) != 0
+                : (tte.bound() & Bound.BOUND_UPPER) != 0))
         {
             ss[ss.current].currentMove = ttMove; // Can be Move.MOVE_NONE
 
@@ -638,28 +641,30 @@ public static class Search
         // Step 4a. Tablebase probe
         if (!RootNode && TB::Cardinality)
         {
-            int piecesCnt = pos.count(PieceType.ALL_PIECES, Color.WHITE) + pos.count(PieceType.ALL_PIECES, Color.BLACK);
+            var piecesCnt = pos.count(PieceType.ALL_PIECES, Color.WHITE) + pos.count(PieceType.ALL_PIECES, Color.BLACK);
 
             if (piecesCnt <= TB::Cardinality
                 && (piecesCnt < TB::Cardinality || depth >= TB::ProbeDepth)
                 && pos.rule50_count() == 0)
             {
-                int found;
+                int found=0;
                 int v = Tablebases::probe_wdl(pos, ref found);
 
-                if (found !=0)
+                if (found != 0)
                 {
                     TB::Hits++;
 
-                    int drawScore = TB::UseRule50 ? 1 : 0;
+                    var drawScore = TB::UseRule50 ? 1 : 0;
 
-                    value = v < -drawScore ? -Value.VALUE_MATE + _.MAX_PLY + ss[ss.current].ply
-                           : v > drawScore ? Value.VALUE_MATE - _.MAX_PLY - ss[ss.current].ply
-                                            : Value.VALUE_DRAW + 2 * v * drawScore;
+                    value = v < -drawScore
+                        ? -Value.VALUE_MATE + _.MAX_PLY + ss[ss.current].ply
+                        : v > drawScore
+                            ? Value.VALUE_MATE - _.MAX_PLY - ss[ss.current].ply
+                            : Value.VALUE_DRAW + 2*v*drawScore;
 
                     tte.save(posKey, value_to_tt(value, ss[ss.current].ply), Bound.BOUND_EXACT,
-                              new Depth(Math.Min(Depth.DEPTH_MAX - Depth.ONE_PLY, depth + 6 * Depth.ONE_PLY)),
-                              Move.MOVE_NONE, Value.VALUE_NONE, TT.generation());
+                        new Depth(Math.Min(Depth.DEPTH_MAX - Depth.ONE_PLY, depth + 6*Depth.ONE_PLY)),
+                        Move.MOVE_NONE, Value.VALUE_NONE, TT.generation());
 
                     return value;
                 }
@@ -673,23 +678,26 @@ public static class Search
             goto moves_loop;
         }
 
-        else if (ttHit)
+        if (ttHit)
         {
             // Never assume anything on values stored in TT
             if ((ss[ss.current].staticEval = eval = tte.eval()) == Value.VALUE_NONE)
-                eval = ss[ss.current].staticEval = evaluate(pos);
+                eval = ss[ss.current].staticEval = Eval.evaluate(false,pos);
 
             // Can ttValue be used as a better position evaluation?
             if (ttValue != Value.VALUE_NONE)
-                if ((tte.bound() & (ttValue > eval ? Bound.BOUND_LOWER : Bound.BOUND_UPPER))!=0)
+                if ((tte.bound() & (ttValue > eval ? Bound.BOUND_LOWER : Bound.BOUND_UPPER)) != 0)
                     eval = ttValue;
         }
         else
         {
             eval = ss[ss.current].staticEval =
-            ss[ss.current-1].currentMove != Move.MOVE_NULL ? evaluate(pos) : -ss[ss.current-1].staticEval + 2 * Eval.Tempo;
+                ss[ss.current - 1].currentMove != Move.MOVE_NULL
+                    ? Eval.evaluate(false, pos)
+                    : -ss[ss.current - 1].staticEval + 2*Eval.Tempo;
 
-            tte.save(posKey, Value.VALUE_NONE, Bound.BOUND_NONE, Depth.DEPTH_NONE, Move.MOVE_NONE, ss[ss.current].staticEval, TT.generation());
+            tte.save(posKey, Value.VALUE_NONE, Bound.BOUND_NONE, Depth.DEPTH_NONE, Move.MOVE_NONE,
+                ss[ss.current].staticEval, TT.generation());
         }
 
         if (ss[ss.current].skipEarlyPruning)
@@ -697,15 +705,15 @@ public static class Search
 
         // Step 6. Razoring (skipped when in check)
         if (!PvNode
-            && depth < 4 * Depth.ONE_PLY
+            && depth < 4*Depth.ONE_PLY
             && eval + razor_margin(depth) <= alpha
             && ttMove == Move.MOVE_NONE)
         {
             if (depth <= Depth.ONE_PLY
-                && eval + razor_margin(3 * Depth.ONE_PLY) <= alpha)
+                && eval + razor_margin(3*Depth.ONE_PLY) <= alpha)
                 return qsearch(NodeType.NonPV, false, pos, ss, alpha, beta, Depth.DEPTH_ZERO);
 
-            Value ralpha = alpha - razor_margin(depth);
+            var ralpha = alpha - razor_margin(depth);
             Value v = qsearch(NodeType.NonPV, false, pos, ss, ralpha, ralpha + 1, Depth.DEPTH_ZERO);
             if (v <= ralpha)
                 return v;
@@ -713,13 +721,13 @@ public static class Search
 
         // Step 7. Futility pruning: child node (skipped when in check)
         if (!RootNode
-            && depth < 7 * Value.VALUE_KNOWN_WIN  // Do not return unproven wins
+            && depth < 7*Value.VALUE_KNOWN_WIN // Do not return unproven wins
             && pos.non_pawn_material(pos.side_to_move()))
             return eval - futility_margin(depth);
 
         // Step 8. Null move search with verification search (is omitted in PV nodes)
         if (!PvNode
-            && depth >= 2 * Depth.ONE_PLY
+            && depth >= 2*Depth.ONE_PLY
             && eval >= beta
             && pos.non_pawn_material(pos.side_to_move()))
         {
@@ -728,28 +736,43 @@ public static class Search
             Debug.Assert(eval - beta >= 0);
 
             // Null move dynamic reduction based on depth and value
-            Depth R = ((823 + 67 * depth) / 256 + Math.Min((eval - beta) / Value.PawnValueMg, 3)) * Depth.ONE_PLY;
+            Depth R = ((823 + 67*depth)/256 + Math.Min((eval - beta)/Value.PawnValueMg, 3))*(int)Depth.ONE_PLY;
 
             pos.do_null_move(st);
-            ss[ss.current+1].skipEarlyPruning = true;
-            nullValue = depth - R < Depth.ONE_PLY ? -qsearch(NodeType. NonPV, false, pos, ss + 1, -beta, -beta + 1, Depth.DEPTH_ZERO)
-                                      : -search(NodeType.NonPV, false ,pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
-            ss[ss.current+1].skipEarlyPruning = false;
+            ss[ss.current + 1].skipEarlyPruning = true;
+            nullValue = depth - R < Depth.ONE_PLY
+                ? -qsearch(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current+1), -beta, -beta + 1, Depth.DEPTH_ZERO)
+                : -search(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -beta + 1, depth - R, !cutNode);
+            ss[ss.current + 1].skipEarlyPruning = false;
             pos.undo_null_move();
 
             if (nullValue >= beta)
             {
                 // Do not return unproven mate scores
-                if (nullValue >= VALUE_MATE_IN_MAX_PLY)
+                if (nullValue >= Value.VALUE_MATE_IN_MAX_PLY)
                     nullValue = beta;
 
-                if (depth < 12 * Depth.ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
+                if (depth < 12*Depth.ONE_PLY && Math.Abs(beta) < Value.VALUE_KNOWN_WIN)
                     return nullValue;
 
                 // Do verification search at high depths
                 ss[ss.current].skipEarlyPruning = true;
-                Value v = depth - R < Depth.ONE_PLY ? qsearch < NonPV, false > (pos, ss, beta - 1, beta, DEPTH_ZERO)
-                                        :  search < NonPV, false > (pos, ss, beta - 1, beta, depth - R, false);
+                Value v = depth - R < Depth.ONE_PLY ? qsearch < NonPV,
+                    
+                false > (pos,
+                ss,
+                beta - 1,
+                beta,
+                DEPTH_ZERO)
+    :
+                search < NonPV,
+                false > (pos,
+                ss,
+                beta - 1,
+                beta,
+                depth - R,
+                false)
+                ;
                 ss[ss.current].skipEarlyPruning = false;
 
                 if (v >= beta)
@@ -762,25 +785,26 @@ public static class Search
         // and a reduced search returns a value much above beta, we can (almost) safely
         // prune the previous move.
         if (!PvNode
-            && depth >= 5 * Depth.ONE_PLY
+            && depth >= 5*Depth.ONE_PLY
             && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
         {
-            Value rbeta = new Value(Math.Min(beta + 200, Value.VALUE_INFINITE));
-            Depth rdepth = depth - 4 * Depth.ONE_PLY;
+            var rbeta = new Value(Math.Min(beta + 200, Value.VALUE_INFINITE));
+            var rdepth = depth - 4*Depth.ONE_PLY;
 
             Debug.Assert(rdepth >= Depth.ONE_PLY);
-            Debug.Assert(ss[ss.current-1].currentMove != Move.MOVE_NONE);
-            Debug.Assert(ss[ss.current-1].currentMove != Move.MOVE_NULL);
+            Debug.Assert(ss[ss.current - 1].currentMove != Move.MOVE_NONE);
+            Debug.Assert(ss[ss.current - 1].currentMove != Move.MOVE_NULL);
 
-            MovePicker mp = new MovePicker(pos, ttMove, History, CounterMovesHistory, PieceValue[(int)Phase.MG][pos.captured_piece_type()]);
-            CheckInfo ci =new CheckInfo(pos);
+            var mp = new MovePicker(pos, ttMove, History, CounterMovesHistory,
+                PieceValue[(int) Phase.MG][pos.captured_piece_type()]);
+            var ci = new CheckInfo(pos);
 
             while ((move = mp.next_move(false)) != Move.MOVE_NONE)
                 if (pos.legal(move, ci.pinned))
                 {
                     ss[ss.current].currentMove = move;
                     pos.do_move(move, st, pos.gives_check(move, ci));
-                    value = -search(NodeType.NonPV, false , pos, ss + 1, -rbeta, -rbeta + 1, rdepth, !cutNode);
+                    value = -search(NodeType.NonPV, false, pos, ss + 1, -rbeta, -rbeta + 1, rdepth, !cutNode);
                     pos.undo_move(move);
                     if (value >= rbeta)
                         return value;
@@ -788,11 +812,11 @@ public static class Search
         }
 
         // Step 10. Internal iterative deepening (skipped when in check)
-        if (depth >= (PvNode ? 5 * Depth.ONE_PLY : 8 * Depth.ONE_PLY)
+        if (depth >= (PvNode ? 5*Depth.ONE_PLY : 8*Depth.ONE_PLY)
             && !ttMove
             && (PvNode || ss[ss.current].staticEval + 256 >= beta))
         {
-            Depth d = depth - 2 * Depth.ONE_PLY - (PvNode ? Depth.DEPTH_ZERO : depth / 4);
+            var d = depth - 2*Depth.ONE_PLY - (PvNode ? Depth.DEPTH_ZERO : depth/4);
             ss[ss.current].skipEarlyPruning = true;
             search(PvNode ? NodeType.PV : NodeType.NonPV, false, pos, ss, alpha, beta, d, true);
             ss[ss.current].skipEarlyPruning = false;
@@ -803,31 +827,31 @@ public static class Search
 
         moves_loop: // When in check and at SpNode search starts from here
 
-        Square prevMoveSq = to_sq(ss[ss.current-1].currentMove);
+        var prevMoveSq = Move.to_sq(ss[ss.current - 1].currentMove);
         Move countermove = Countermoves[pos.piece_on(prevMoveSq)][prevMoveSq];
 
-        MovePicker mp(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
-        CheckInfo ci(pos);
+        var mp = new MovePicker(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
+        var ci = new CheckInfo(pos);
         value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-        improving = ss[ss.current].staticEval >= (ss - 2).staticEval
-                   || ss[ss.current].staticEval == Value.VALUE_NONE
-                   || (ss - 2).staticEval == Value.VALUE_NONE;
+        improving = ss[ss.current].staticEval >= ss[ss.current - 2].staticEval
+                    || ss[ss.current].staticEval == Value.VALUE_NONE
+                    || ss[ss.current - 2].staticEval == Value.VALUE_NONE;
 
         singularExtensionNode = !RootNode
-                               && !SpNode
-                               && depth >= 8 * Depth.ONE_PLY
-                               && ttMove != Move.MOVE_NONE
-                               /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
-                               && abs(ttValue) < VALUE_KNOWN_WIN
-                               && !excludedMove // Recursive singular search is not allowed
-                               && (tte.bound() & BOUND_LOWER)
-                               && tte.depth() >= depth - 3 * Depth.ONE_PLY;
+                                && !SpNode
+                                && depth >= 8*Depth.ONE_PLY
+                                && ttMove != Move.MOVE_NONE
+            /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
+                                && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
+                                && !excludedMove // Recursive singular search is not allowed
+                                && ((tte.bound() & Bound.BOUND_LOWER) != 0)
+                                && tte.depth() >= depth - 3*Depth.ONE_PLY;
 
         // Step 11. Loop through moves
         // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
-        while ((move = mp.next_move<SpNode>()) != Move.MOVE_NONE)
+        while ((move = mp.next_move(SpNode)) != Move.MOVE_NONE)
         {
-            Debug.Assert(is_ok(move));
+            Debug.Assert(Move.is_ok(move));
 
             if (move == excludedMove)
                 continue;
@@ -854,24 +878,23 @@ public static class Search
             {
                 Signals.firstRootMove = (moveCount == 1);
 
-                if (thisThread == Threads.main() && Time.elapsed() > 3000)
-                    sync_cout << "info depth " << depth / Depth.ONE_PLY
-                              << " currmove " << UCI::move(move, pos.is_chess960())
-                              << " currmovenumber " << moveCount + PVIdx << sync_endl;
+                if (thisThread == ThreadPool.main() && TimeManagement.elapsed() > 3000)
+                    Console.WriteLine(
+                        $"info depth {depth/Depth.ONE_PLY} currmove {UCI.move(move, pos.is_chess960())} currmovenumber {moveCount + PVIdx}");
             }
 
             if (PvNode)
-                ss[ss.current+1].pv = nullptr;
+                ss[ss.current + 1].pv = null;
 
-            extension = DEPTH_ZERO;
+            extension = Depth.DEPTH_ZERO;
             captureOrPromotion = pos.capture_or_promotion(move);
 
-            givesCheck = type_of(move) == NORMAL && !ci.dcCandidates
-                        ? ci.checkSquares[type_of(pos.piece_on(from_sq(move)))] & to_sq(move)
-                        : pos.gives_check(move, ci);
+            givesCheck = Move.type_of(move) == NORMAL && !ci.dcCandidates
+                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                : pos.gives_check(move, ci);
 
             // Step 12. Extend checks
-            if (givesCheck && pos.see_sign(move) >= VALUE_ZERO)
+            if (givesCheck && pos.see_sign(move) >= Value.VALUE_ZERO)
                 extension = Depth.ONE_PLY;
 
             // Singular extension search. If all moves but one fail low on a search of
@@ -881,13 +904,13 @@ public static class Search
             // ttValue minus a margin then we extend the ttMove.
             if (singularExtensionNode
                 && move == ttMove
-                && !extension
+                && extension == 0
                 && pos.legal(move, ci.pinned))
             {
-                Value rBeta = ttValue - 2 * depth / Depth.ONE_PLY;
+                var rBeta = ttValue - 2*depth/Depth.ONE_PLY;
                 ss[ss.current].excludedMove = move;
                 ss[ss.current].skipEarlyPruning = true;
-                value = search < NonPV, false > (pos, ss, rBeta - 1, rBeta, depth / 2, cutNode);
+                value = search(NodeType.NonPV, false, pos, ss, rBeta - 1, rBeta, depth/2, cutNode);
                 ss[ss.current].skipEarlyPruning = false;
                 ss[ss.current].excludedMove = Move.MOVE_NONE;
 
@@ -904,32 +927,33 @@ public static class Search
                 && !inCheck
                 && !givesCheck
                 && !pos.advanced_pawn_push(move)
-                && bestValue > VALUE_MATED_IN_MAX_PLY)
+                && bestValue > Value.VALUE_MATED_IN_MAX_PLY)
             {
                 // Move count based pruning
-                if (depth < 16 * Depth.ONE_PLY
-                    && moveCount >= FutilityMoveCounts[improving][depth])
+                if (depth < 16*Depth.ONE_PLY
+                    && moveCount >= FutilityMoveCounts[improving ? 1 : 0, depth])
                 {
                     if (SpNode)
-                        splitPoint.spinlock.acquire();
-
+                        ThreadHelper.lock_grab(splitPoint.spinlock);
+                        
                     continue;
                 }
 
-                predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
+                predictedDepth = newDepth - reduction(PvNode, improving, depth, moveCount);
 
                 // Futility pruning: parent node
-                if (predictedDepth < 7 * Depth.ONE_PLY)
+                if (predictedDepth < 7*Depth.ONE_PLY)
                 {
                     futilityValue = ss[ss.current].staticEval + futility_margin(predictedDepth) + 256;
 
                     if (futilityValue <= alpha)
                     {
-                        bestValue = Math.Max(bestValue, futilityValue);
+                        bestValue = new Value(Math.Max(bestValue, futilityValue));
 
                         if (SpNode)
                         {
-                            splitPoint.spinlock.acquire();
+
+                            ThreadHelper.lock_grab(splitPoint.spinlock);
                             if (bestValue > splitPoint.bestValue)
                                 splitPoint.bestValue = bestValue;
                         }
@@ -938,17 +962,17 @@ public static class Search
                 }
 
                 // Prune moves with negative SEE at low depths
-                if (predictedDepth < 4 * Depth.ONE_PLY && pos.see_sign(move) < VALUE_ZERO)
+                if (predictedDepth < 4*Depth.ONE_PLY && pos.see_sign(move) < Value.VALUE_ZERO)
                 {
                     if (SpNode)
-                        splitPoint.spinlock.acquire();
+                        ThreadHelper.lock_grab(splitPoint.spinlock);
 
                     continue;
                 }
             }
 
             // Speculative prefetch as early as possible
-            prefetch(TT.first_entry(pos.key_after(move)));
+            //prefetch(TT.first_entry(pos.key_after(move)));
 
             // Check for legality just before making the move
             if (!RootNode && !SpNode && !pos.legal(move, ci.pinned))
@@ -964,40 +988,39 @@ public static class Search
 
             // Step 15. Reduced depth search (LMR). If the move fails high it will be
             // re-searched at full depth.
-            if (depth >= 3 * Depth.ONE_PLY
+            if (depth >= 3*Depth.ONE_PLY
                 && moveCount > 1
                 && !captureOrPromotion
-                && move != ss[ss.current].killers[0]
-                && move != ss[ss.current].killers[1])
+                && move != ss[ss.current].killers0
+                && move != ss[ss.current].killers1)
             {
-                ss[ss.current].reduction = reduction<PvNode>(improving, depth, moveCount);
+                ss[ss.current].reduction = reduction(PvNode, improving, depth, moveCount);
 
                 if ((!PvNode && cutNode)
-                    || (History[pos.piece_on(to_sq(move))][to_sq(move)] < VALUE_ZERO
-                        && CounterMovesHistory[pos.piece_on(prevMoveSq)][prevMoveSq]
-                                              [pos.piece_on(to_sq(move))][to_sq(move)] <= VALUE_ZERO))
+                    || (History.table[pos.piece_on(Move.to_sq(move)),Move.to_sq(move)] < Value.VALUE_ZERO
+                        && CounterMovesHistory.table[pos.piece_on(prevMoveSq),prevMoveSq].table[pos.piece_on(Move.to_sq(move)),Move.to_sq(move)] <= Value.VALUE_ZERO))
                     ss[ss.current].reduction += Depth.ONE_PLY;
 
-                if (History[pos.piece_on(to_sq(move))][to_sq(move)] > VALUE_ZERO
-                    && CounterMovesHistory[pos.piece_on(prevMoveSq)][prevMoveSq]
-                                          [pos.piece_on(to_sq(move))][to_sq(move)] > VALUE_ZERO)
-                    ss[ss.current].reduction = Math.Max(DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY);
+                if (History.table[pos.piece_on(Move.to_sq(move)),Move.to_sq(move)] > Value.VALUE_ZERO
+                    && CounterMovesHistory.table[pos.piece_on(prevMoveSq),prevMoveSq].table[pos.piece_on(Move.to_sq(move)),Move.to_sq(move)] > Value.VALUE_ZERO)
+                    ss[ss.current].reduction = new Depth(Math.Max(Depth.DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY));
 
                 // Decrease reduction for moves that escape a capture
-                if (ss.reduction
-                    && type_of(move) == NORMAL
-                    && type_of(pos.piece_on(to_sq(move))) != PAWN
-                    && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
-                    ss[ss.current].reduction = Math.Max(DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY);
+                if (ss[ss.current].reduction > 0
+                    && Move.type_of(move) == MoveType.NORMAL
+                    && Piece.type_of(pos.piece_on(Move.to_sq(move))) != PieceType.PAWN
+                    && pos.see(Move.make_move(Move.to_sq(move), Move.from_sq(move))) < Value.VALUE_ZERO)
+                    ss[ss.current].reduction =
+                        new Depth(Math.Max(Depth.DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY));
 
-                Depth d = Math.Max(newDepth - ss[ss.current].reduction, Depth.ONE_PLY);
+                var d = new Depth(Math.Max(newDepth - ss[ss.current].reduction, Depth.ONE_PLY));
                 if (SpNode)
-                    alpha = splitPoint.alpha;
+                    alpha = new Value(splitPoint.alpha);
 
-                value = -search < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, d, true);
+                value = -search(NodeType.NonPV, false, pos,new StackArrayWrapper(ss.table,ss.current+1), -(alpha + 1), -alpha, d, true);
 
-                doFullDepthSearch = (value > alpha && ss[ss.current].reduction != DEPTH_ZERO);
-                ss[ss.current].reduction = DEPTH_ZERO;
+                doFullDepthSearch = (value > alpha && ss[ss.current].reduction != Depth.DEPTH_ZERO);
+                ss[ss.current].reduction = Depth.DEPTH_ZERO;
             }
             else
                 doFullDepthSearch = !PvNode || moveCount > 1;
@@ -1006,12 +1029,13 @@ public static class Search
             if (doFullDepthSearch)
             {
                 if (SpNode)
-                    alpha = splitPoint.alpha;
+                    alpha = new Value(splitPoint.alpha);
 
-                value = newDepth < Depth.ONE_PLY ?
-                                  givesCheck ? -qsearch < NonPV,  true > (pos, ss + 1, -(alpha + 1), -alpha, DEPTH_ZERO)
-                                       : -qsearch < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, DEPTH_ZERO)
-                                       : -search < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+                value = newDepth < Depth.ONE_PLY
+                    ? givesCheck
+                        ? -qsearch(NodeType.NonPV, true, pos, new StackArrayWrapper(ss.table, ss.current + 1), -(alpha + 1), -alpha, Depth.DEPTH_ZERO)
+                        : -qsearch(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -(alpha + 1), -alpha, Depth.DEPTH_ZERO)
+                    : -search(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -(alpha + 1), -alpha, newDepth, !cutNode);
             }
 
             // For PV nodes only, do a full PV search on the first move or after a fail
@@ -1019,37 +1043,38 @@ public static class Search
             // parent node fail low with value <= alpha and to try another move.
             if (PvNode && (moveCount == 1 || (value > alpha && (RootNode || value < beta))))
             {
-                ss[ss.current+1].pv = pv;
-                ss[ss.current+1].pv[0] = Move.MOVE_NONE;
+                ss[ss.current + 1].pv = pv;
+                ss[ss.current + 1].pv[0] = Move.MOVE_NONE;
 
-                value = newDepth < Depth.ONE_PLY ?
-                                  givesCheck ? -qsearch < PV,  true > (pos, ss + 1, -beta, -alpha, DEPTH_ZERO)
-                                       : -qsearch < PV, false > (pos, ss + 1, -beta, -alpha, DEPTH_ZERO)
-                                       : -search < PV, false > (pos, ss + 1, -beta, -alpha, newDepth, false);
+                value = newDepth < Depth.ONE_PLY
+                    ? givesCheck
+                        ? -qsearch(NodeType.PV, true, pos, new StackArrayWrapper(ss.table, ss.current+1), -beta, -alpha, Depth.DEPTH_ZERO)
+                        : -qsearch(NodeType.PV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -alpha, Depth.DEPTH_ZERO)
+                    : -search(NodeType.PV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -alpha, newDepth, false);
             }
 
             // Step 17. Undo move
             pos.undo_move(move);
 
-            Debug.Assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
+            Debug.Assert(value > -Value.VALUE_INFINITE && value < Value.VALUE_INFINITE);
 
             // Step 18. Check for new best move
             if (SpNode)
             {
-                splitPoint.spinlock.acquire();
-                bestValue = splitPoint.bestValue;
-                alpha = splitPoint.alpha;
+                ThreadHelper.lock_grab(splitPoint.spinlock);
+                bestValue = new Value(splitPoint.bestValue);
+                alpha = new Value(splitPoint.alpha);
             }
 
             // Finished searching the move. If a stop or a cutoff occurred, the return
             // value of the search cannot be trusted, and we return immediately without
             // updating best move, PV and TT.
             if (Signals.stop || thisThread.cutoff_occurred())
-                return VALUE_ZERO;
+                return Value.VALUE_ZERO;
 
             if (RootNode)
             {
-                RootMove & rm = *std::find(RootMoves.begin(), RootMoves.end(), move);
+                RootMove rm = RootMoves.Find((rootmove) => rootmove == move);
 
                 // PV move or new best move ?
                 if (moveCount == 1 || value > alpha)
@@ -1057,9 +1082,9 @@ public static class Search
                     rm.score = value;
                     rm.pv.resize(1);
 
-                    Debug.Assert(ss[ss.current+1].pv);
+                    Debug.Assert(ss[ss.current + 1].pv);
 
-                    for (Move* m = ss[ss.current+1].pv; *m != Move.MOVE_NONE; ++m)
+                    for (Move* m = ss[ss.current + 1].pv; *m != Move.MOVE_NONE; ++m)
                         rm.pv.push_back(*m);
 
                     // We record how often the best move has been changed in each
@@ -1069,15 +1094,15 @@ public static class Search
                         ++BestMoveChanges;
                 }
                 else
-                    // All other moves but the PV are set to the lowest value: this is
-                    // not a problem when sorting because the sort is stable and the
-                    // move position in the list is preserved - just the PV is pushed up.
-                    rm.score = -VALUE_INFINITE;
+                // All other moves but the PV are set to the lowest value: this is
+                // not a problem when sorting because the sort is stable and the
+                // move position in the list is preserved - just the PV is pushed up.
+                    rm.score = -Value.VALUE_INFINITE;
             }
 
             if (value > bestValue)
             {
-                bestValue = SpNode ? splitPoint.bestValue = value : value;
+                bestValue = new Value(SpNode ? splitPoint.bestValue = value : value);
 
                 if (value > alpha)
                 {
@@ -1087,13 +1112,13 @@ public static class Search
                         && (move != EasyMove.get(pos.key()) || moveCount > 1))
                         EasyMove.clear();
 
-                    bestMove = SpNode ? splitPoint.bestMove = move : move;
+                    bestMove = new Move(SpNode ? splitPoint.bestMove = move : move);
 
                     if (PvNode && !RootNode) // Update pv even in fail-high case
-                        update_pv(SpNode ? splitPoint.ss.pv : ss[ss.current].pv, move, ss[ss.current+1].pv);
+                        update_pv(SpNode ? splitPoint.ss[ss.current].pv : ss[ss.current].pv, move, ss[ss.current + 1].pv);
 
                     if (PvNode && value < beta) // Update alpha! Always alpha < beta
-                        alpha = SpNode ? splitPoint.alpha = value : value;
+                        alpha = new Value(SpNode ? splitPoint.alpha = value : value);
                     else
                     {
                         Debug.Assert(value >= beta); // Fail high
@@ -1111,21 +1136,21 @@ public static class Search
 
             // Step 19. Check for splitting the search
             if (!SpNode
-                && Threads.size() >= 2
-                && depth >= Threads.minimumSplitDepth
-                && (!thisThread.activeSplitPoint
-                     || !thisThread.activeSplitPoint.allSlavesSearching
-                     || (Threads.size() > MAX_SLAVES_PER_SPLITPOINT
-                         && thisThread.activeSplitPoint.slavesMask.count() == MAX_SLAVES_PER_SPLITPOINT))
-                && thisThread.splitPointsSize < MAX_SPLITPOINTS_PER_THREAD)
+                && ThreadPool.threads.Count >= 2
+                && depth >= ThreadPool.minimumSplitDepth
+                && (thisThread.activeSplitPoint==null
+                    || !thisThread.activeSplitPoint.allSlavesSearching
+                    || (ThreadPool.threads.Count > _.MAX_SLAVES_PER_SPLITPOINT
+                        && Bitcount.popcount_Full(thisThread.activeSplitPoint.slavesMask) == _.MAX_SLAVES_PER_SPLITPOINT))
+                && thisThread.splitPointsSize < _.MAX_SPLITPOINTS_PER_THREAD)
             {
-                Debug.Assert(bestValue > -VALUE_INFINITE && bestValue < beta);
+                Debug.Assert(bestValue > -Value.VALUE_INFINITE && bestValue < beta);
 
-                thisThread.split(pos, ss, alpha, beta, &bestValue, &bestMove,
-                                  depth, moveCount, &mp, NT, cutNode);
+                thisThread.split(pos, ss, alpha, beta, ref bestValue, ref bestMove,
+                    depth, moveCount, mp, NT, cutNode);
 
                 if (Signals.stop || thisThread.cutoff_occurred())
-                    return VALUE_ZERO;
+                    return Value.VALUE_ZERO;
 
                 if (bestValue >= beta)
                     break;
@@ -1147,9 +1172,10 @@ public static class Search
         // All legal moves have been searched and if there are no legal moves, it
         // must be mate or stalemate. If we are in a singular extension search then
         // return a fail low score.
-        if (!moveCount)
-            bestValue = excludedMove ? alpha
-                       : inCheck ? mated_in(ss.ply) : DrawValue[pos.side_to_move()];
+        if (moveCount == 0)
+            bestValue = excludedMove
+                ? alpha
+                : inCheck ? Value.mated_in(ss[ss.current].ply) : DrawValue[pos.side_to_move()];
 
         // Quiet best move: update killers, history and countermoves
         else if (bestMove && !pos.capture_or_promotion(bestMove))
@@ -1158,23 +1184,82 @@ public static class Search
         // Bonus for prior countermove that caused the fail low
         else if (!bestMove)
         {
-            if (is_ok((ss - 2).currentMove) && is_ok(ss[ss.current-1].currentMove) && !pos.captured_piece_type() && !inCheck && depth >= 3 * Depth.ONE_PLY)
+            if (Move.is_ok(ss[ss.current - 2].currentMove) && Move.is_ok(ss[ss.current - 1].currentMove) &&
+                !pos.captured_piece_type() && !inCheck && depth >= 3*Depth.ONE_PLY)
             {
-                Value bonus = Value((depth / Depth.ONE_PLY) * (depth / Depth.ONE_PLY));
-                Square prevSq = to_sq(ss[ss.current-1].currentMove);
-                Square prevPrevSq = to_sq((ss - 2).currentMove);
-                HistoryStats & flMoveCmh = CounterMovesHistory[pos.piece_on(prevPrevSq)][prevPrevSq];
+                var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
+                var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
+                var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
+                var flMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
                 flMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, bonus);
             }
         }
 
         tte.save(posKey, value_to_tt(bestValue, ss[ss.current].ply),
-                  bestValue >= beta ? BOUND_LOWER :
-                  PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  depth, bestMove, ss[ss.current].staticEval, TT.generation());
+            bestValue >= beta
+                ? Bound.BOUND_LOWER
+                : PvNode && bestMove ? Bound.BOUND_EXACT : Bound.BOUND_UPPER,
+            depth, bestMove, ss[ss.current].staticEval, TT.generation());
 
-        Debug.Assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+        Debug.Assert(bestValue > -Value.VALUE_INFINITE && bestValue < Value.VALUE_INFINITE);
 
         return bestValue;
+    }
+
+    // update_stats() updates killers, history, countermove history and
+    // countermoves stats for a quiet best move.
+
+    private static void update_stats(Position pos, StackArrayWrapper ss, Move move,
+        Depth depth, Move[] quiets, int quietsCnt)
+    {
+        if (ss[ss.current].killers0 != move)
+        {
+            ss[ss.current].killers1 = ss[ss.current].killers0;
+            ss[ss.current].killers0 = move;
+        }
+
+        var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
+
+        var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
+        var cmh = CounterMovesHistory.table[pos.piece_on(prevSq), prevSq];
+
+        History.updateH(pos.moved_piece(move), Move.to_sq(move), bonus);
+
+        if (Move.is_ok(ss[ss.current - 1].currentMove))
+        {
+            Countermoves.update(pos.piece_on(prevSq), prevSq, move);
+            cmh.updateCMH(pos.moved_piece(move), Move.to_sq(move), bonus);
+        }
+
+        // Decrease all the other played quiet moves
+        for (var i = 0; i < quietsCnt; ++i)
+        {
+            History.updateH(pos.moved_piece(quiets[i]), Move.to_sq(quiets[i]), -bonus);
+
+            if (Move.is_ok(ss[ss.current - 1].currentMove))
+                cmh.updateCMH(pos.moved_piece(quiets[i]), Move.to_sq(quiets[i]), -bonus);
+        }
+
+        // Extra penalty for PV move in previous ply when it gets refuted
+        if (Move.is_ok(ss[ss.current - 2].currentMove) && ss[ss.current - 1].moveCount == 1 &&
+            !pos.captured_piece_type())
+        {
+            var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
+            var ttMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
+            ttMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, -bonus - 2*depth/Depth.ONE_PLY - 1);
+        }
+    }
+
+    // value_to_tt() adjusts a mate score from "plies to mate from the root" to
+    // "plies to mate from the current position". Non-mate scores are unchanged.
+    // The function is called before storing a value in the transposition table.
+
+    private static Value value_to_tt(Value v, int ply)
+    {
+        Debug.Assert(v != Value.VALUE_NONE);
+
+        return v >= Value.VALUE_MATE_IN_MAX_PLY
+            ? v + ply
+            : v <= Value.VALUE_MATED_IN_MAX_PLY ? v - ply : v;
     }
 }
