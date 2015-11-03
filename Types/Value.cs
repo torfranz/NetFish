@@ -63,6 +63,14 @@ public struct Value
     private int value { get; }
 
     #region constructors
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+
+    public static implicit operator bool (Value b)
+    {
+        return b.value != 0;
+    }
 
 #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 

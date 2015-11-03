@@ -24,7 +24,7 @@ public struct TTEntry
         return new Value(this.eval16);
     }
 
-    private Depth depth()
+    public Depth depth()
     {
         return new Depth(this.depth8);
     }

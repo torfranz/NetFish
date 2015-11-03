@@ -6,7 +6,7 @@
 
     public Bitboard dcCandidates;
 
-    private Bitboard pinned;
+    public Bitboard pinned;
 
     public CheckInfo(Position pos)
     {

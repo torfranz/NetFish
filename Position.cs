@@ -396,7 +396,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private int rule50_count()
+    public int rule50_count()
     {
         return this.st.rule50;
     }
@@ -445,7 +445,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private bool capture_or_promotion(Move m)
+    public bool capture_or_promotion(Move m)
     {
         Debug.Assert(Move.is_ok(m));
         return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !this.empty(Move.to_sq(m));
@@ -467,7 +467,7 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    private PieceType captured_piece_type()
+    public PieceType captured_piece_type()
     {
         return this.st.capturedType;
     }
@@ -1134,7 +1134,7 @@ public class Position
 
     /// Position::do(undo)_null_move() is used to do(undo) a "null move": It flips
     /// the side to move without executing any move on the board.
-    private void do_null_move(StateInfo newSt)
+    public void do_null_move(StateInfo newSt)
     {
         Debug.Assert(!this.checkers());
         Debug.Assert(newSt != this.st);
@@ -1160,7 +1160,7 @@ public class Position
         Debug.Assert(this.pos_is_ok());
     }
 
-    private void undo_null_move()
+    public void undo_null_move()
     {
         Debug.Assert(!this.checkers());
 
@@ -1321,7 +1321,7 @@ public class Position
 
     /// Position::is_draw() tests whether the position is drawn by 50-move rule
     /// or by repetition. It does not detect stalemates.
-    private bool is_draw()
+    public bool is_draw()
     {
         if (this.st.rule50 > 99 && (!this.checkers() || new MoveList(GenType.LEGAL, this).size() > 0))
         {
@@ -1530,7 +1530,7 @@ public class Position
         return ss.ToString();
     }
 
-    private ulong exclusion_key()
+    public ulong exclusion_key()
     {
         return this.st.key ^ Zobrist.exclusion;
     }

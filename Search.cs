@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using Key = System.UInt64;
 public static class Search
 {
     public static SignalsType Signals;
@@ -135,7 +135,7 @@ public static class Search
         TB::ProbeDepth = int.Parse(OptionMap.Instance["SyzygyProbeDepth"].v) * Depth.ONE_PLY;
         TB::Cardinality = int.Parse(OptionMap.Instance["SyzygyProbeLimit"].v);
 
-        // Skip TB probing when no TB found: !TBLargest -> !TB::Cardinality
+        // Skip TB probing when no TB found: !TBLargest . !TB::Cardinality
         if (TB::Cardinality > TB::MaxCardinality)
         {
             TB::Cardinality = TB::MaxCardinality;
@@ -252,7 +252,7 @@ public static class Search
         EasyMove.clear();
 
         //TODO: need to memset?
-        //std::memset(ss - 2, 0, 5 * sizeof(Stack));
+        //Math.Memset(ss - 2, 0, 5 * sizeof(Stack));
 
         depth = Depth.DEPTH_ZERO;
         BestMoveChanges = 0;
@@ -303,8 +303,7 @@ public static class Search
                 // high/low anymore.
                 while (true)
                 {
-                    //TODO: Impl Search.search
-                    //bestValue = search(NodeType.Root, false,pos, ss, alpha, beta, depth, false);
+                    bestValue = search(NodeType.Root, false,pos, ss, alpha, beta, depth, false);
 
                     // Bring the best move to the front. It is critical that sorting
                     // is done with a stable algorithm because all the values but the
@@ -361,7 +360,7 @@ public static class Search
 
                     delta += delta / 2;
 
-                    Debug.Assert(alpha >= -Value.VALUE_INFINITE && beta <= Value.VALUE_INFINITE);
+                    Debug.Debug.Assert(alpha >= -Value.VALUE_INFINITE && beta <= Value.VALUE_INFINITE);
                 }
 
                 // Sort the PV lines searched so far and update the GUI
@@ -446,7 +445,7 @@ public static class Search
         if (skill.enabled())
         {
             var foundIdx = RootMoves.FindIndex(move => move == skill.best_move(multiPV));
-            Debug.Assert(foundIdx >= 0);
+            Debug.Debug.Assert(foundIdx >= 0);
             var rootMove = RootMoves[0];
             RootMoves[0] = RootMoves[foundIdx];
             RootMoves[foundIdx] = rootMove;
@@ -527,5 +526,655 @@ public static class Search
             FutilityMoveCounts[0, d] = (int) (2.4 + 0.773*Math.Pow(d + 0.00, 1.8));
             FutilityMoveCounts[1, d] = (int) (2.9 + 1.045*Math.Pow(d + 0.49, 1.8));
         }
+    }
+
+    // search<>() is the main search function for both PV and non-PV nodes and for
+    // normal and SplitPoint nodes. When called just after a split point the search
+    // is simpler because we have already probed the hash table, done a null move
+    // search, and searched the first move before splitting, so we don't have to
+    // repeat all this work again. We also don't need to store anything to the hash
+    // table here: This is taken care of after we return from the split point.
+    
+    static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta, Depth depth, bool cutNode)
+    {
+        bool RootNode = NT == NodeType.Root;
+        bool PvNode = NT == NodeType.PV || NT == NodeType.Root;
+
+        Debug.Debug.Assert(-Value.VALUE_INFINITE <= alpha && alpha < beta && beta <= Value.VALUE_INFINITE);
+        Debug.Debug.Assert(PvNode || (alpha == beta - 1));
+        Debug.Debug.Assert(depth > Depth.DEPTH_ZERO);
+
+        Move[] pv = new Move[_.MAX_PLY + 1];
+        Move[] quietsSearched = new Move[64];
+        StateInfo st;
+        TTEntry tte;
+        SplitPoint splitPoint;
+        Key posKey;
+        Move ttMove, move, excludedMove, bestMove;
+        Depth extension, newDepth, predictedDepth;
+        Value bestValue, value, ttValue, eval, nullValue, futilityValue;
+        bool ttHit = false, inCheck, givesCheck, singularExtensionNode, improving;
+        bool captureOrPromotion, doFullDepthSearch;
+        int moveCount, quietCount;
+
+        // Step 1. Initialize node
+        Thread thisThread = pos.this_thread();
+        inCheck = pos.checkers();
+
+        if (SpNode)
+        {
+            splitPoint = ss[ss.current].splitPoint;
+            bestMove = new Move(splitPoint.bestMove);
+            bestValue = new Value(splitPoint.bestValue);
+            tte = null;
+            ttHit = false;
+            ttMove = excludedMove = Move.MOVE_NONE;
+            ttValue = Value.VALUE_NONE;
+
+            Debug.Debug.Assert(splitPoint.bestValue > -Value.VALUE_INFINITE && splitPoint.moveCount > 0);
+
+            goto moves_loop;
+        }
+
+        moveCount = quietCount = ss[ss.current].moveCount = 0;
+        bestValue = -Value.VALUE_INFINITE;
+        ss[ss.current].ply = ss[ss.current - 1].ply + 1;
+
+        // Used to send selDepth info to GUI
+        if (PvNode && thisThread.maxPly < ss[ss.current].ply)
+            thisThread.maxPly = ss[ss.current].ply;
+
+        if (!RootNode)
+        {
+            // Step 2. Check for aborted search and immediate draw
+            if (Signals.stop || pos.is_draw() || ss[ss.current].ply >= _.MAX_PLY)
+                return ss[ss.current].ply >= _.MAX_PLY && !inCheck ? evaluate(pos) : DrawValue[pos.side_to_move()];
+
+            // Step 3. Mate distance pruning. Even if we mate at the next move our score
+            // would be at best mate_in(ss.ply+1), but if alpha is already bigger because
+            // a shorter mate was found upward in the tree then there is no need to search
+            // because we will never beat the current alpha. Same logic but with reversed
+            // signs applies also in the opposite condition of being mated instead of giving
+            // mate. In this case return a fail-high score.
+            alpha = Math.Max(mated_in(ss[ss.current].ply), alpha);
+            beta = Math.Min(mate_in(ss[ss.current].ply + 1), beta);
+            if (alpha >= beta)
+                return alpha;
+        }
+
+        Debug.Debug.Assert(0 <= ss[ss.current].ply && ss[ss.current].ply < _.MAX_PLY);
+
+        ss[ss.current].currentMove = ss[ss.current].ttMove = ss[ss.current + 1].excludedMove = bestMove = Move.MOVE_NONE;
+        ss[ss.current + 1].skipEarlyPruning = false;
+        ss[ss.current + 1].reduction = Depth.DEPTH_ZERO;
+        ss[ss.current + 2].killers0 = ss[ss.current + 2].killers1 = Move.MOVE_NONE;
+
+        // Step 4. Transposition table lookup
+        // We don't want the score of a partial search to overwrite a previous full search
+        // TT value, so we use a different position key in case of an excluded move.
+        excludedMove = ss[ss.current].excludedMove;
+        posKey = excludedMove ? pos.exclusion_key() : pos.key();
+        tte = TranspositionTable.probe(posKey, ref ttHit);
+        ss[ss.current].ttMove = ttMove = RootNode ? RootMoves[(int)PVIdx].pv[0] : ttHit ? tte.move() : Move.MOVE_NONE;
+        ttValue = ttHit ? value_from_tt(tte.value(), ss[ss.current].ply) : Value.VALUE_NONE;
+
+        // At non-PV nodes we check for a fail high/low. We don't prune at PV nodes
+        if (!PvNode
+            && ttHit
+            && tte.depth() >= depth
+            && ttValue != Value.VALUE_NONE // Only in case of TT access race
+            && (ttValue >= beta ? (tte.bound() & Bound.BOUND_LOWER) !=0
+                                : (tte.bound() & Bound.BOUND_UPPER) !=0))
+        {
+            ss[ss.current].currentMove = ttMove; // Can be Move.MOVE_NONE
+
+            // If ttMove is quiet, update killers, history, counter move on TT hit
+            if (ttValue >= beta && ttMove && !pos.capture_or_promotion(ttMove))
+                update_stats(pos, ss, ttMove, depth, null, 0);
+
+            return ttValue;
+        }
+
+        // Step 4a. Tablebase probe
+        if (!RootNode && TB::Cardinality)
+        {
+            int piecesCnt = pos.count(PieceType.ALL_PIECES, Color.WHITE) + pos.count(PieceType.ALL_PIECES, Color.BLACK);
+
+            if (piecesCnt <= TB::Cardinality
+                && (piecesCnt < TB::Cardinality || depth >= TB::ProbeDepth)
+                && pos.rule50_count() == 0)
+            {
+                int found;
+                int v = Tablebases::probe_wdl(pos, ref found);
+
+                if (found !=0)
+                {
+                    TB::Hits++;
+
+                    int drawScore = TB::UseRule50 ? 1 : 0;
+
+                    value = v < -drawScore ? -Value.VALUE_MATE + _.MAX_PLY + ss[ss.current].ply
+                           : v > drawScore ? Value.VALUE_MATE - _.MAX_PLY - ss[ss.current].ply
+                                            : Value.VALUE_DRAW + 2 * v * drawScore;
+
+                    tte.save(posKey, value_to_tt(value, ss[ss.current].ply), Bound.BOUND_EXACT,
+                              new Depth(Math.Min(Depth.DEPTH_MAX - Depth.ONE_PLY, depth + 6 * Depth.ONE_PLY)),
+                              Move.MOVE_NONE, Value.VALUE_NONE, TT.generation());
+
+                    return value;
+                }
+            }
+        }
+
+        // Step 5. Evaluate the position statically
+        if (inCheck)
+        {
+            ss[ss.current].staticEval = eval = Value.VALUE_NONE;
+            goto moves_loop;
+        }
+
+        else if (ttHit)
+        {
+            // Never assume anything on values stored in TT
+            if ((ss[ss.current].staticEval = eval = tte.eval()) == Value.VALUE_NONE)
+                eval = ss[ss.current].staticEval = evaluate(pos);
+
+            // Can ttValue be used as a better position evaluation?
+            if (ttValue != Value.VALUE_NONE)
+                if ((tte.bound() & (ttValue > eval ? Bound.BOUND_LOWER : Bound.BOUND_UPPER))!=0)
+                    eval = ttValue;
+        }
+        else
+        {
+            eval = ss[ss.current].staticEval =
+            ss[ss.current-1].currentMove != Move.MOVE_NULL ? evaluate(pos) : -ss[ss.current-1].staticEval + 2 * Eval.Tempo;
+
+            tte.save(posKey, Value.VALUE_NONE, Bound.BOUND_NONE, Depth.DEPTH_NONE, Move.MOVE_NONE, ss[ss.current].staticEval, TT.generation());
+        }
+
+        if (ss[ss.current].skipEarlyPruning)
+            goto moves_loop;
+
+        // Step 6. Razoring (skipped when in check)
+        if (!PvNode
+            && depth < 4 * Depth.ONE_PLY
+            && eval + razor_margin(depth) <= alpha
+            && ttMove == Move.MOVE_NONE)
+        {
+            if (depth <= Depth.ONE_PLY
+                && eval + razor_margin(3 * Depth.ONE_PLY) <= alpha)
+                return qsearch(NodeType.NonPV, false, pos, ss, alpha, beta, Depth.DEPTH_ZERO);
+
+            Value ralpha = alpha - razor_margin(depth);
+            Value v = qsearch(NodeType.NonPV, false, pos, ss, ralpha, ralpha + 1, Depth.DEPTH_ZERO);
+            if (v <= ralpha)
+                return v;
+        }
+
+        // Step 7. Futility pruning: child node (skipped when in check)
+        if (!RootNode
+            && depth < 7 * Value.VALUE_KNOWN_WIN  // Do not return unproven wins
+            && pos.non_pawn_material(pos.side_to_move()))
+            return eval - futility_margin(depth);
+
+        // Step 8. Null move search with verification search (is omitted in PV nodes)
+        if (!PvNode
+            && depth >= 2 * Depth.ONE_PLY
+            && eval >= beta
+            && pos.non_pawn_material(pos.side_to_move()))
+        {
+            ss[ss.current].currentMove = Move.MOVE_NULL;
+
+            Debug.Assert(eval - beta >= 0);
+
+            // Null move dynamic reduction based on depth and value
+            Depth R = ((823 + 67 * depth) / 256 + Math.Min((eval - beta) / Value.PawnValueMg, 3)) * Depth.ONE_PLY;
+
+            pos.do_null_move(st);
+            ss[ss.current+1].skipEarlyPruning = true;
+            nullValue = depth - R < Depth.ONE_PLY ? -qsearch(NodeType. NonPV, false, pos, ss + 1, -beta, -beta + 1, Depth.DEPTH_ZERO)
+                                      : -search(NodeType.NonPV, false ,pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
+            ss[ss.current+1].skipEarlyPruning = false;
+            pos.undo_null_move();
+
+            if (nullValue >= beta)
+            {
+                // Do not return unproven mate scores
+                if (nullValue >= VALUE_MATE_IN_MAX_PLY)
+                    nullValue = beta;
+
+                if (depth < 12 * Depth.ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
+                    return nullValue;
+
+                // Do verification search at high depths
+                ss[ss.current].skipEarlyPruning = true;
+                Value v = depth - R < Depth.ONE_PLY ? qsearch < NonPV, false > (pos, ss, beta - 1, beta, DEPTH_ZERO)
+                                        :  search < NonPV, false > (pos, ss, beta - 1, beta, depth - R, false);
+                ss[ss.current].skipEarlyPruning = false;
+
+                if (v >= beta)
+                    return nullValue;
+            }
+        }
+
+        // Step 9. ProbCut (skipped when in check)
+        // If we have a very good capture (i.e. SEE > seeValues[captured_piece_type])
+        // and a reduced search returns a value much above beta, we can (almost) safely
+        // prune the previous move.
+        if (!PvNode
+            && depth >= 5 * Depth.ONE_PLY
+            && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
+        {
+            Value rbeta = new Value(Math.Min(beta + 200, Value.VALUE_INFINITE));
+            Depth rdepth = depth - 4 * Depth.ONE_PLY;
+
+            Debug.Assert(rdepth >= Depth.ONE_PLY);
+            Debug.Assert(ss[ss.current-1].currentMove != Move.MOVE_NONE);
+            Debug.Assert(ss[ss.current-1].currentMove != Move.MOVE_NULL);
+
+            MovePicker mp = new MovePicker(pos, ttMove, History, CounterMovesHistory, PieceValue[(int)Phase.MG][pos.captured_piece_type()]);
+            CheckInfo ci =new CheckInfo(pos);
+
+            while ((move = mp.next_move(false)) != Move.MOVE_NONE)
+                if (pos.legal(move, ci.pinned))
+                {
+                    ss[ss.current].currentMove = move;
+                    pos.do_move(move, st, pos.gives_check(move, ci));
+                    value = -search(NodeType.NonPV, false , pos, ss + 1, -rbeta, -rbeta + 1, rdepth, !cutNode);
+                    pos.undo_move(move);
+                    if (value >= rbeta)
+                        return value;
+                }
+        }
+
+        // Step 10. Internal iterative deepening (skipped when in check)
+        if (depth >= (PvNode ? 5 * Depth.ONE_PLY : 8 * Depth.ONE_PLY)
+            && !ttMove
+            && (PvNode || ss[ss.current].staticEval + 256 >= beta))
+        {
+            Depth d = depth - 2 * Depth.ONE_PLY - (PvNode ? Depth.DEPTH_ZERO : depth / 4);
+            ss[ss.current].skipEarlyPruning = true;
+            search(PvNode ? NodeType.PV : NodeType.NonPV, false, pos, ss, alpha, beta, d, true);
+            ss[ss.current].skipEarlyPruning = false;
+
+            tte = TT.probe(posKey, ttHit);
+            ttMove = ttHit ? tte.move() : Move.MOVE_NONE;
+        }
+
+        moves_loop: // When in check and at SpNode search starts from here
+
+        Square prevMoveSq = to_sq(ss[ss.current-1].currentMove);
+        Move countermove = Countermoves[pos.piece_on(prevMoveSq)][prevMoveSq];
+
+        MovePicker mp(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
+        CheckInfo ci(pos);
+        value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
+        improving = ss[ss.current].staticEval >= (ss - 2).staticEval
+                   || ss[ss.current].staticEval == Value.VALUE_NONE
+                   || (ss - 2).staticEval == Value.VALUE_NONE;
+
+        singularExtensionNode = !RootNode
+                               && !SpNode
+                               && depth >= 8 * Depth.ONE_PLY
+                               && ttMove != Move.MOVE_NONE
+                               /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
+                               && abs(ttValue) < VALUE_KNOWN_WIN
+                               && !excludedMove // Recursive singular search is not allowed
+                               && (tte.bound() & BOUND_LOWER)
+                               && tte.depth() >= depth - 3 * Depth.ONE_PLY;
+
+        // Step 11. Loop through moves
+        // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
+        while ((move = mp.next_move<SpNode>()) != Move.MOVE_NONE)
+        {
+            Debug.Assert(is_ok(move));
+
+            if (move == excludedMove)
+                continue;
+
+            // At root obey the "searchmoves" option and skip moves not listed in Root
+            // Move List. As a consequence any illegal move is also skipped. In MultiPV
+            // mode we also skip PV moves which have been already searched.
+            if (RootNode && !std::count(RootMoves.begin() + PVIdx, RootMoves.end(), move))
+                continue;
+
+            if (SpNode)
+            {
+                // Shared counter cannot be decremented later if the move turns out to be illegal
+                if (!pos.legal(move, ci.pinned))
+                    continue;
+
+                ss[ss.current].moveCount = moveCount = ++splitPoint.moveCount;
+                splitPoint.spinlock.release();
+            }
+            else
+                ss[ss.current].moveCount = ++moveCount;
+
+            if (RootNode)
+            {
+                Signals.firstRootMove = (moveCount == 1);
+
+                if (thisThread == Threads.main() && Time.elapsed() > 3000)
+                    sync_cout << "info depth " << depth / Depth.ONE_PLY
+                              << " currmove " << UCI::move(move, pos.is_chess960())
+                              << " currmovenumber " << moveCount + PVIdx << sync_endl;
+            }
+
+            if (PvNode)
+                ss[ss.current+1].pv = nullptr;
+
+            extension = DEPTH_ZERO;
+            captureOrPromotion = pos.capture_or_promotion(move);
+
+            givesCheck = type_of(move) == NORMAL && !ci.dcCandidates
+                        ? ci.checkSquares[type_of(pos.piece_on(from_sq(move)))] & to_sq(move)
+                        : pos.gives_check(move, ci);
+
+            // Step 12. Extend checks
+            if (givesCheck && pos.see_sign(move) >= VALUE_ZERO)
+                extension = Depth.ONE_PLY;
+
+            // Singular extension search. If all moves but one fail low on a search of
+            // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
+            // is singular and should be extended. To verify this we do a reduced search
+            // on all the other moves but the ttMove and if the result is lower than
+            // ttValue minus a margin then we extend the ttMove.
+            if (singularExtensionNode
+                && move == ttMove
+                && !extension
+                && pos.legal(move, ci.pinned))
+            {
+                Value rBeta = ttValue - 2 * depth / Depth.ONE_PLY;
+                ss[ss.current].excludedMove = move;
+                ss[ss.current].skipEarlyPruning = true;
+                value = search < NonPV, false > (pos, ss, rBeta - 1, rBeta, depth / 2, cutNode);
+                ss[ss.current].skipEarlyPruning = false;
+                ss[ss.current].excludedMove = Move.MOVE_NONE;
+
+                if (value < rBeta)
+                    extension = Depth.ONE_PLY;
+            }
+
+            // Update the current move (this must be done after singular extension search)
+            newDepth = depth - Depth.ONE_PLY + extension;
+
+            // Step 13. Pruning at shallow depth
+            if (!RootNode
+                && !captureOrPromotion
+                && !inCheck
+                && !givesCheck
+                && !pos.advanced_pawn_push(move)
+                && bestValue > VALUE_MATED_IN_MAX_PLY)
+            {
+                // Move count based pruning
+                if (depth < 16 * Depth.ONE_PLY
+                    && moveCount >= FutilityMoveCounts[improving][depth])
+                {
+                    if (SpNode)
+                        splitPoint.spinlock.acquire();
+
+                    continue;
+                }
+
+                predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
+
+                // Futility pruning: parent node
+                if (predictedDepth < 7 * Depth.ONE_PLY)
+                {
+                    futilityValue = ss[ss.current].staticEval + futility_margin(predictedDepth) + 256;
+
+                    if (futilityValue <= alpha)
+                    {
+                        bestValue = Math.Max(bestValue, futilityValue);
+
+                        if (SpNode)
+                        {
+                            splitPoint.spinlock.acquire();
+                            if (bestValue > splitPoint.bestValue)
+                                splitPoint.bestValue = bestValue;
+                        }
+                        continue;
+                    }
+                }
+
+                // Prune moves with negative SEE at low depths
+                if (predictedDepth < 4 * Depth.ONE_PLY && pos.see_sign(move) < VALUE_ZERO)
+                {
+                    if (SpNode)
+                        splitPoint.spinlock.acquire();
+
+                    continue;
+                }
+            }
+
+            // Speculative prefetch as early as possible
+            prefetch(TT.first_entry(pos.key_after(move)));
+
+            // Check for legality just before making the move
+            if (!RootNode && !SpNode && !pos.legal(move, ci.pinned))
+            {
+                ss[ss.current].moveCount = --moveCount;
+                continue;
+            }
+
+            ss[ss.current].currentMove = move;
+
+            // Step 14. Make the move
+            pos.do_move(move, st, givesCheck);
+
+            // Step 15. Reduced depth search (LMR). If the move fails high it will be
+            // re-searched at full depth.
+            if (depth >= 3 * Depth.ONE_PLY
+                && moveCount > 1
+                && !captureOrPromotion
+                && move != ss[ss.current].killers[0]
+                && move != ss[ss.current].killers[1])
+            {
+                ss[ss.current].reduction = reduction<PvNode>(improving, depth, moveCount);
+
+                if ((!PvNode && cutNode)
+                    || (History[pos.piece_on(to_sq(move))][to_sq(move)] < VALUE_ZERO
+                        && CounterMovesHistory[pos.piece_on(prevMoveSq)][prevMoveSq]
+                                              [pos.piece_on(to_sq(move))][to_sq(move)] <= VALUE_ZERO))
+                    ss[ss.current].reduction += Depth.ONE_PLY;
+
+                if (History[pos.piece_on(to_sq(move))][to_sq(move)] > VALUE_ZERO
+                    && CounterMovesHistory[pos.piece_on(prevMoveSq)][prevMoveSq]
+                                          [pos.piece_on(to_sq(move))][to_sq(move)] > VALUE_ZERO)
+                    ss[ss.current].reduction = Math.Max(DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY);
+
+                // Decrease reduction for moves that escape a capture
+                if (ss.reduction
+                    && type_of(move) == NORMAL
+                    && type_of(pos.piece_on(to_sq(move))) != PAWN
+                    && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
+                    ss[ss.current].reduction = Math.Max(DEPTH_ZERO, ss[ss.current].reduction - Depth.ONE_PLY);
+
+                Depth d = Math.Max(newDepth - ss[ss.current].reduction, Depth.ONE_PLY);
+                if (SpNode)
+                    alpha = splitPoint.alpha;
+
+                value = -search < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, d, true);
+
+                doFullDepthSearch = (value > alpha && ss[ss.current].reduction != DEPTH_ZERO);
+                ss[ss.current].reduction = DEPTH_ZERO;
+            }
+            else
+                doFullDepthSearch = !PvNode || moveCount > 1;
+
+            // Step 16. Full depth search, when LMR is skipped or fails high
+            if (doFullDepthSearch)
+            {
+                if (SpNode)
+                    alpha = splitPoint.alpha;
+
+                value = newDepth < Depth.ONE_PLY ?
+                                  givesCheck ? -qsearch < NonPV,  true > (pos, ss + 1, -(alpha + 1), -alpha, DEPTH_ZERO)
+                                       : -qsearch < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, DEPTH_ZERO)
+                                       : -search < NonPV, false > (pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+            }
+
+            // For PV nodes only, do a full PV search on the first move or after a fail
+            // high (in the latter case search only if value < beta), otherwise let the
+            // parent node fail low with value <= alpha and to try another move.
+            if (PvNode && (moveCount == 1 || (value > alpha && (RootNode || value < beta))))
+            {
+                ss[ss.current+1].pv = pv;
+                ss[ss.current+1].pv[0] = Move.MOVE_NONE;
+
+                value = newDepth < Depth.ONE_PLY ?
+                                  givesCheck ? -qsearch < PV,  true > (pos, ss + 1, -beta, -alpha, DEPTH_ZERO)
+                                       : -qsearch < PV, false > (pos, ss + 1, -beta, -alpha, DEPTH_ZERO)
+                                       : -search < PV, false > (pos, ss + 1, -beta, -alpha, newDepth, false);
+            }
+
+            // Step 17. Undo move
+            pos.undo_move(move);
+
+            Debug.Assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
+
+            // Step 18. Check for new best move
+            if (SpNode)
+            {
+                splitPoint.spinlock.acquire();
+                bestValue = splitPoint.bestValue;
+                alpha = splitPoint.alpha;
+            }
+
+            // Finished searching the move. If a stop or a cutoff occurred, the return
+            // value of the search cannot be trusted, and we return immediately without
+            // updating best move, PV and TT.
+            if (Signals.stop || thisThread.cutoff_occurred())
+                return VALUE_ZERO;
+
+            if (RootNode)
+            {
+                RootMove & rm = *std::find(RootMoves.begin(), RootMoves.end(), move);
+
+                // PV move or new best move ?
+                if (moveCount == 1 || value > alpha)
+                {
+                    rm.score = value;
+                    rm.pv.resize(1);
+
+                    Debug.Assert(ss[ss.current+1].pv);
+
+                    for (Move* m = ss[ss.current+1].pv; *m != Move.MOVE_NONE; ++m)
+                        rm.pv.push_back(*m);
+
+                    // We record how often the best move has been changed in each
+                    // iteration. This information is used for time management: When
+                    // the best move changes frequently, we allocate some more time.
+                    if (moveCount > 1)
+                        ++BestMoveChanges;
+                }
+                else
+                    // All other moves but the PV are set to the lowest value: this is
+                    // not a problem when sorting because the sort is stable and the
+                    // move position in the list is preserved - just the PV is pushed up.
+                    rm.score = -VALUE_INFINITE;
+            }
+
+            if (value > bestValue)
+            {
+                bestValue = SpNode ? splitPoint.bestValue = value : value;
+
+                if (value > alpha)
+                {
+                    // If there is an easy move for this position, clear it if unstable
+                    if (PvNode
+                        && EasyMove.get(pos.key())
+                        && (move != EasyMove.get(pos.key()) || moveCount > 1))
+                        EasyMove.clear();
+
+                    bestMove = SpNode ? splitPoint.bestMove = move : move;
+
+                    if (PvNode && !RootNode) // Update pv even in fail-high case
+                        update_pv(SpNode ? splitPoint.ss.pv : ss[ss.current].pv, move, ss[ss.current+1].pv);
+
+                    if (PvNode && value < beta) // Update alpha! Always alpha < beta
+                        alpha = SpNode ? splitPoint.alpha = value : value;
+                    else
+                    {
+                        Debug.Assert(value >= beta); // Fail high
+
+                        if (SpNode)
+                            splitPoint.cutoff = true;
+
+                        break;
+                    }
+                }
+            }
+
+            if (!SpNode && !captureOrPromotion && move != bestMove && quietCount < 64)
+                quietsSearched[quietCount++] = move;
+
+            // Step 19. Check for splitting the search
+            if (!SpNode
+                && Threads.size() >= 2
+                && depth >= Threads.minimumSplitDepth
+                && (!thisThread.activeSplitPoint
+                     || !thisThread.activeSplitPoint.allSlavesSearching
+                     || (Threads.size() > MAX_SLAVES_PER_SPLITPOINT
+                         && thisThread.activeSplitPoint.slavesMask.count() == MAX_SLAVES_PER_SPLITPOINT))
+                && thisThread.splitPointsSize < MAX_SPLITPOINTS_PER_THREAD)
+            {
+                Debug.Assert(bestValue > -VALUE_INFINITE && bestValue < beta);
+
+                thisThread.split(pos, ss, alpha, beta, &bestValue, &bestMove,
+                                  depth, moveCount, &mp, NT, cutNode);
+
+                if (Signals.stop || thisThread.cutoff_occurred())
+                    return VALUE_ZERO;
+
+                if (bestValue >= beta)
+                    break;
+            }
+        }
+
+        if (SpNode)
+            return bestValue;
+
+        // Following condition would detect a stop or a cutoff set only after move
+        // loop has been completed. But in this case bestValue is valid because we
+        // have fully searched our subtree, and we can anyhow save the result in TT.
+        /*
+           if (Signals.stop || thisThread.cutoff_occurred())
+            return VALUE_DRAW;
+        */
+
+        // Step 20. Check for mate and stalemate
+        // All legal moves have been searched and if there are no legal moves, it
+        // must be mate or stalemate. If we are in a singular extension search then
+        // return a fail low score.
+        if (!moveCount)
+            bestValue = excludedMove ? alpha
+                       : inCheck ? mated_in(ss.ply) : DrawValue[pos.side_to_move()];
+
+        // Quiet best move: update killers, history and countermoves
+        else if (bestMove && !pos.capture_or_promotion(bestMove))
+            update_stats(pos, ss, bestMove, depth, quietsSearched, quietCount);
+
+        // Bonus for prior countermove that caused the fail low
+        else if (!bestMove)
+        {
+            if (is_ok((ss - 2).currentMove) && is_ok(ss[ss.current-1].currentMove) && !pos.captured_piece_type() && !inCheck && depth >= 3 * Depth.ONE_PLY)
+            {
+                Value bonus = Value((depth / Depth.ONE_PLY) * (depth / Depth.ONE_PLY));
+                Square prevSq = to_sq(ss[ss.current-1].currentMove);
+                Square prevPrevSq = to_sq((ss - 2).currentMove);
+                HistoryStats & flMoveCmh = CounterMovesHistory[pos.piece_on(prevPrevSq)][prevPrevSq];
+                flMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, bonus);
+            }
+        }
+
+        tte.save(posKey, value_to_tt(bestValue, ss[ss.current].ply),
+                  bestValue >= beta ? BOUND_LOWER :
+                  PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
+                  depth, bestMove, ss[ss.current].staticEval, TT.generation());
+
+        Debug.Assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+
+        return bestValue;
     }
 }
