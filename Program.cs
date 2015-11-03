@@ -26,7 +26,7 @@ internal class Program
         Bitboards.init();
         Position.init();
         Bitbases.init();
-        //Search::init();
+        Search.init();
         Eval.init();
         Pawns.init();
 

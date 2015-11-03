@@ -16,12 +16,16 @@ public static class Search
     private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
     private static readonly HistoryStats History = new HistoryStats();
     private static readonly CounterMovesHistoryStats CounterMovesHistory = new CounterMovesHistoryStats();
-    private static MovesStats Countermoves = new MovesStats();
+    private static readonly MovesStats Countermoves = new MovesStats();
 
     /// check_time() is called by the timer thread when the timer triggers. It is
     /// used to print debug info and, more importantly, to detect when we are out of
     /// available time and thus stop the search.
     private static DateTime lastInfoTime = DateTime.Now;
+
+    // Futility and reductions lookup tables, initialized at startup
+    private static readonly int[,] FutilityMoveCounts = new int[2, 16]; // [improving][depth]
+    private static readonly Depth[,,,] Reductions = new Depth[2, 2, 64, 64]; // [pv][improving][depth][moveNumber]
 
     public static void check_time()
     {
@@ -407,7 +411,7 @@ public static class Search
         var leaf = (depth == 2*Depth.ONE_PLY);
 
         var ml = new MoveList(GenType.LEGAL, pos);
-        for (int index = ml.begin(); index < ml.end(); index++)
+        for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
             if (Root && depth <= Depth.ONE_PLY)
@@ -426,5 +430,48 @@ public static class Search
                 Console.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
         }
         return nodes;
+    }
+
+    /// Search::init() is called during startup to initialize various lookup tables
+    // Razoring and futility margin based on depth
+    private static Value razor_margin(Depth d)
+    {
+        return new Value(512 + 32*d);
+    }
+
+    private static Value futility_margin(Depth d)
+    {
+        return new Value(200*d);
+    }
+
+    private static Depth reduction(bool PvNode, bool i, Depth d, int mn)
+    {
+        return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min(d, 63*Depth.ONE_PLY), Math.Min(mn, 63)];
+    }
+
+    public static void init()
+    {
+        double[][] K = {new[] {0.83, 2.25}, new[] {0.50, 3.00}};
+
+        for (var pv = 0; pv <= 1; ++pv)
+            for (var imp = 0; imp <= 1; ++imp)
+                for (var d = 1; d < 64; ++d)
+                    for (var mc = 1; mc < 64; ++mc)
+                    {
+                        var r = K[pv][0] + Math.Log(d)*Math.Log(mc)/K[pv][1];
+
+                        if (r >= 1.5)
+                            Reductions[pv, imp, d, mc] = new Depth((int) (r*Depth.ONE_PLY));
+
+                        // Increase reduction when eval is not improving
+                        if (pv == 0 && imp == 0 && Reductions[pv, imp, d, mc] >= 2*Depth.ONE_PLY)
+                            Reductions[pv, imp, d, mc] += Depth.ONE_PLY;
+                    }
+
+        for (var d = 0; d < 16; ++d)
+        {
+            FutilityMoveCounts[0, d] = (int) (2.4 + 0.773*Math.Pow(d + 0.00, 1.8));
+            FutilityMoveCounts[1, d] = (int) (2.9 + 1.045*Math.Pow(d + 0.49, 1.8));
+        }
     }
 }
