@@ -5,25 +5,25 @@ public class Stack
 {
     public Move currentMove;
 
-    private Move excludedMove;
+    public Move excludedMove;
 
     public Move killers0;
 
     public Move killers1;
 
-    private int moveCount;
+    public int moveCount;
 
-    private int ply;
+    public int ply;
 
-    private Move pv;
+    public Move pv;
 
-    private Depth reduction;
+    public Depth reduction;
 
-    private bool skipEarlyPruning;
+    public bool skipEarlyPruning;
 
     public SplitPoint splitPoint;
 
-    private Value staticEval;
+    public Value staticEval;
 
-    private Move ttMove;
+    public Move ttMove;
 };

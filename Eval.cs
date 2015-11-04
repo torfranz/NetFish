@@ -746,7 +746,7 @@ public static class Eval
 
     /// evaluate() is the main evaluation function. It returns a static evaluation
     /// of the position always from the point of view of the side to move.
-    private static Value evaluate(bool DoTrace, Position pos)
+    public static Value evaluate(bool DoTrace, Position pos)
     {
         Debug.Assert(!pos.checkers());
 

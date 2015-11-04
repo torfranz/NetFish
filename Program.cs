@@ -35,10 +35,8 @@ internal class Program
         sw = Stopwatch.StartNew();
         Bitbases.init();
         Console.WriteLine($"   Bitbases init took {sw.ElapsedMilliseconds} ms");
-
-        //TODO: enable Search.init()
         sw = Stopwatch.StartNew();
-        //Search.init();
+        Search.init();
         Console.WriteLine($"   Search init took {sw.ElapsedMilliseconds} ms");
         sw = Stopwatch.StartNew();
         Eval.init();

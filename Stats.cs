@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 public class Stats<T>
     where T : new()
 {
-    protected readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
+    public readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
 
     public static Value Max = new Value(1 << 28);
 

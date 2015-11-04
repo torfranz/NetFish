@@ -8,7 +8,7 @@ public class RootMove
 {
     public readonly List<Move> pv = new List<Move>();
 
-    public readonly Value score = -Value.VALUE_INFINITE;
+    public Value score = -Value.VALUE_INFINITE;
 
     public Value previousScore = -Value.VALUE_INFINITE;
 
