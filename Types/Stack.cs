@@ -1,4 +1,6 @@
-﻿/// Stack struct keeps track of the information we need to remember from nodes
+﻿using System.Collections.Generic;
+
+/// Stack struct keeps track of the information we need to remember from nodes
 /// shallower and deeper in the tree during the search. Each search thread has
 /// its own array of Stack objects, indexed by the current ply.
 public class Stack
@@ -15,7 +17,7 @@ public class Stack
 
     public int ply;
 
-    public Move pv;
+    public List<Move> pv = new List<Move>();
 
     public Depth reduction;
 
