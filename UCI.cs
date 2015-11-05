@@ -71,7 +71,7 @@ public static class UCI
                 ss.Append($" {move(m, pos.is_chess960())}");
             }
         }
-        ss.AppendLine();
+        
         return ss.ToString();
     }
 

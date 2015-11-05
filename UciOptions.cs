@@ -129,7 +129,7 @@ public class OptionMap
         this.Add("MultiPV", new UCIOption(idx++, 1, 1, 500, null));
         this.Add("Skill Level", new UCIOption(idx++, 20, 0, 20, null));
         this.Add("Move Overhead", new UCIOption(idx++, 30, 0, 5000, null));
-        this.Add("Minimum Thinking Time", new UCIOption(idx++, 32, 0, 5000, null));
+        this.Add("Minimum Thinking Time", new UCIOption(idx++, 20, 0, 5000, null));
         this.Add("Slow Mover", new UCIOption(idx++, 80, 10, 1000, null));
         this.Add("nodestime", new UCIOption(idx++, 0, 0, 10000, null));
         this.Add("UCI_Chess960", new UCIOption(idx++, false, null));

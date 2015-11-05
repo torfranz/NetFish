@@ -1839,6 +1839,11 @@ public class Position
         this.set(flippedFen.ToString(), this.chess960, this.this_thread());
     }
 
+    public Position(Position other)
+        :this(other, other.thisThread)
+    {
+    }
+
     public Position(Position other, Thread thread)
     {
         Array.Copy(other.board, this.board, other.board.Length);
@@ -1860,6 +1865,7 @@ public class Position
         this.startState.copyFrom(other.st);
         this.st = this.startState;
 
+        this.nodes = 0;
         Debug.Assert(this.pos_is_ok());
     }
 

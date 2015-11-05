@@ -28,6 +28,17 @@ public class Stats<T>
     {
         Array.Clear(this.table, 0, this.table.Length);
     }
+
+    public Stats()
+    {
+        for (int idx1 = 0; idx1 < table.GetLength(0); idx1++)
+        {
+            for (int idx2 = 0; idx2 < table.GetLength(1); idx2++)
+            {
+                table[idx1,idx2] = new T();
+            }
+        }
+    }
 };
 
 public class MovesStats : Stats<Move>

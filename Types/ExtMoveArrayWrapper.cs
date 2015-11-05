@@ -120,7 +120,7 @@ public class ExtMoveArrayWrapper
     public static void insertion_sort(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
-        Debug.Assert(begin.current < end.current);
+        Debug.Assert(begin.current <= end.current);
 
         for (var counter = begin.current; counter < end.current - 1; counter++)
         {

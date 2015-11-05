@@ -28,6 +28,8 @@ internal struct _
     internal const int MAX_SPLITPOINTS_PER_THREAD = 8;
 
     internal const int MAX_SLAVES_PER_SPLITPOINT = 4;
+
+    internal const double DBL_MIN = 2.2250738585072014e-308; // min positive value
 }
 
 /// EndgameType lists all supported endgames

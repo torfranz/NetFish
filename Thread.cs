@@ -106,20 +106,20 @@ public abstract class ThreadBase
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 
-    internal void notify_one()
+    public void notify_one()
     {
         ThreadHelper.lock_grab(this.spinlock);
         ThreadHelper.cond_signal(this.sleepCondition);
         ThreadHelper.lock_release(this.spinlock);
     }
 
-    public Mutex mutex = new Mutex(true);
+    //public Mutex mutex = new Mutex(true);
 
-    internal readonly object spinlock = new object();
+    public readonly object spinlock = new object();
 
-    internal readonly object sleepCondition = new object();
+    public readonly object sleepCondition = new object();
 
-    internal volatile bool exit;
+    public volatile bool exit;
 };
 
 /// Thread struct keeps together all the thread related stuff like locks, state
@@ -309,7 +309,7 @@ public class Thread : ThreadBase
                 {
                     Debug.Assert(this_sp == null);
 
-                    ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
+                    ThreadHelper.cond_wait(this.sleepCondition, this.spinlock/*mutex*/);
                 }
                 else
                 {
@@ -490,13 +490,13 @@ internal sealed class TimerThread : ThreadBase
 
         while (!this.exit)
         {
-            ThreadHelper.lock_grab(this.mutex);
+            ThreadHelper.lock_grab(this.spinlock/*mutex*/);
             if (!this.exit)
             {
-                ThreadHelper.cond_timedwait(this.sleepCondition, this.mutex, this.run ? Resolution : int.MaxValue);
+                ThreadHelper.cond_timedwait(this.sleepCondition, this.spinlock/*mutex*/, this.run ? Resolution : int.MaxValue);
             }
 
-            ThreadHelper.lock_release(this.mutex);
+            ThreadHelper.lock_release(this.spinlock/*mutex*/);
 
             if (this.run)
             {
@@ -528,7 +528,7 @@ internal sealed class MainThread : Thread
 
         while (!this.exit)
         {
-            ThreadHelper.lock_grab(this.mutex);
+            ThreadHelper.lock_grab(this.spinlock/*mutex*/);
 
             this.thinking = false;
 
@@ -536,10 +536,10 @@ internal sealed class MainThread : Thread
             {
                 //TODO: correct replacement for sleepCondition.notify_one();?
                 ThreadHelper.cond_signal(this.sleepCondition); // Wake up the UI thread if needed, 
-                ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
+                ThreadHelper.cond_wait(this.sleepCondition, this.spinlock/*mutex*/);
             }
 
-            ThreadHelper.lock_release(this.mutex);
+            ThreadHelper.lock_release(this.spinlock/*mutex*/);
 
             if (!this.exit)
             {
@@ -557,15 +557,15 @@ internal sealed class MainThread : Thread
     // MainThread::join() waits for main thread to finish the search
     public void join()
     {
-        ThreadHelper.lock_grab(this.mutex);
+        ThreadHelper.lock_grab(this.spinlock/*mutex*/);
 
         //sleepCondition.wait(lk, [&]{ return !thinking; });
         while (this.thinking)
         {
-            ThreadHelper.cond_wait(this.sleepCondition, this.mutex);
+            ThreadHelper.cond_wait(this.sleepCondition, this.spinlock/*mutex*/);
         }
 
-        ThreadHelper.lock_release(this.mutex);
+        ThreadHelper.lock_release(this.spinlock/*mutex*/);
     }
 }
 
@@ -626,10 +626,10 @@ internal static class ThreadPool
 
     private static void delete_thread(ThreadBase th)
     {
-        ThreadHelper.lock_grab(th.mutex);
+        ThreadHelper.lock_grab(th.spinlock/*mutex*/);
 
         th.exit = true; // Search must be already finished
-        ThreadHelper.lock_release(th.mutex);
+        ThreadHelper.lock_release(th.spinlock/*mutex*/);
 
         th.notify_one();
 
@@ -702,7 +702,7 @@ internal static class ThreadPool
         Search.Signals.stop = Search.Signals.failedLowAtRoot = false;
 
         Search.RootMoves.Clear();
-        Search.RootPos = pos;
+        Search.RootPos = new Position(pos);
         Search.Limits = limits;
 
         var current = states[states.current];
@@ -724,6 +724,20 @@ internal static class ThreadPool
 
         main().thinking = true;
         main().notify_one(); // Wake up main thread: 'thinking' must be already set
+    }
+
+    // ThreadsManager::wait_for_think_finished() waits for main thread to go to
+    // sleep, this means search is finished. Then returns.
+    internal static void wait_for_think_finished()
+    {
+        var t = main();
+        ThreadHelper.lock_grab(t.spinlock);
+        ThreadHelper.cond_signal(t.sleepCondition); // In case is waiting for stop or ponderhit
+        while (t.thinking)
+        {
+            ThreadHelper.cond_wait(t.sleepCondition, t.spinlock);
+        }
+        ThreadHelper.lock_release(t.spinlock);
     }
 }
 

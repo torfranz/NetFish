@@ -19,6 +19,6 @@ public class LimitsType
 
     public bool use_time_management()
     {
-        return (this.mate | this.movetime | this.depth | (int)this.nodes | this.infinite) != 0;
+        return (this.mate | this.movetime | this.depth | (int)this.nodes | this.infinite) == 0;
     }
 };

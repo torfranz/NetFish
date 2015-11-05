@@ -31,7 +31,7 @@ public static class TimeManagement
         const double XShift = 59.8;
         const double Skew = 0.172;
 
-        return Math.Pow((1 + Math.Exp((ply - XShift) / XScale)), -Skew) + double.MinValue; // Ensure non-zero
+        return Math.Pow((1 + Math.Exp((ply - XShift) / XScale)), -Skew) + _.DBL_MIN; // Ensure non-zero
     }
 
     private static int remaining(TimeType T, int myTime, int movesToGo, int ply, int slowMover)

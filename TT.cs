@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 /// A TranspositionTable consists of a power of 2 number of clusters and each
 /// cluster consists of ClusterSize number of TTEntry. Each non-empty entry
@@ -66,7 +67,7 @@ public static class TranspositionTable
     /// of clusters and each cluster consists of ClusterSize number of TTEntry.
     public static void resize(uint mbSize)
     {
-        var newClusterCount = (uint)(1 << Utils.msb(new Bitboard(mbSize * 1024 * 1024)));
+        var newClusterCount = mbSize * 1024 * 1024 / 32;
 
         if (newClusterCount == clusterCount)
         {
@@ -76,6 +77,10 @@ public static class TranspositionTable
         clusterCount = newClusterCount;
 
         table = new Cluster[clusterCount + CacheLineSize - 1];
+        for (int idx = 0; idx < table.Count(); idx++)
+        {
+            table[idx]=new Cluster();
+        }
     }
 
     /// TranspositionTable::probe() looks up the current position in the transposition
@@ -126,7 +131,5 @@ public static class TranspositionTable
     public class Cluster
     {
         public TTEntry[] entry = new TTEntry[ClusterSize];
-
-        private char[] padding = new char[2]; // Align to the cache line size
     };
 };
