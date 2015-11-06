@@ -35,36 +35,32 @@ namespace Tests
             Assert.AreEqual(0, v2.current);
             Assert.AreEqual(5, v2.table.Length);
         }
-
+        
         [TestMethod()]
-        public void PartitionAndSortTests()
+        public void PartitionAndSortTest2()
         {
             var table = new ExtMove[]
             {
-                new ExtMove(new Move(1), new Value(-1)),
-                new ExtMove(new Move(2), new Value(1)),
-                new ExtMove(new Move(3), new Value(-2)),
-                new ExtMove(new Move(4), new Value(11)),
-                new ExtMove(new Move(5), new Value(0)),
-                new ExtMove(new Move(6), new Value(5)),
-                new ExtMove(new Move(7), new Value(-11)),
-                new ExtMove(new Move(8), new Value(0)),
-                new ExtMove(new Move(9), new Value(2)),
-                new ExtMove(new Move(10), new Value(0))
+                new ExtMove(new Move(528), new Value(0)),
+                new ExtMove(new Move(593), new Value(0)),
+                new ExtMove(new Move(658), new Value(-32)),
+                new ExtMove(new Move(723), new Value(0)),
+                new ExtMove(new Move(788), new Value(0)),
+                new ExtMove(new Move(853), new Value(-32)),
+                new ExtMove(new Move(918), new Value(-32)),
+                new ExtMove(new Move(983), new Value(-32)),
+                new ExtMove(new Move(796), new Value(32)),
+                new ExtMove(new Move(731), new Value(0))
             };
 
-            var splitted = ExtMoveArrayWrapper.Partition(new ExtMoveArrayWrapper(table, 1),
+            var splitted = ExtMoveArrayWrapper.Partition(new ExtMoveArrayWrapper(table, 0),
                 new ExtMoveArrayWrapper(table, 9));
 
-            Assert.AreEqual(5, splitted.current);
-            Assert.AreEqual(1, splitted[0].Move);
-            Assert.AreEqual(4, splitted[2].Move);
+            Assert.AreEqual(1, splitted.current);
+            Assert.AreEqual(796, splitted[0].Move);
+            Assert.AreEqual(593, splitted[1].Move);
+            Assert.AreEqual(528, splitted[8].Move);
 
-            ExtMoveArrayWrapper.insertion_sort(new ExtMoveArrayWrapper(table, 1), splitted);
-
-            Assert.AreEqual(1, splitted[0].Move);
-            Assert.AreEqual(6, splitted[2].Move);
-            Assert.AreEqual(2, splitted[4].Move);
         }
     }
 }

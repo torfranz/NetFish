@@ -7,7 +7,7 @@
 /// generation  6 bit
 /// bound type  2 bit
 /// depth       8 bit
-public struct TTEntry
+public class TTEntry
 {
     public Move move()
     {
@@ -51,7 +51,7 @@ public struct TTEntry
             this.value16 = (short)v;
             this.eval16 = (short)ev;
             this.genBound8 = (byte)(g | (int)b);
-            this.depth8 = (byte)d;
+            this.depth8 = d;
         }
     }
 
@@ -65,5 +65,5 @@ public struct TTEntry
 
     public byte genBound8;
 
-    public byte depth8;
+    public int depth8;
 }

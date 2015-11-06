@@ -59,7 +59,10 @@ public static class TranspositionTable
     /// user asks the program to clear the table (from the UCI interface).
     public static void clear()
     {
-        Array.Clear(table, 0, table.Length);
+        for (int idx = 0; idx < table.Count(); idx++)
+        {
+            table[idx] = new Cluster();
+        }
     }
 
     /// TranspositionTable::resize() sets the size of the transposition table,
@@ -130,6 +133,6 @@ public static class TranspositionTable
 
     public class Cluster
     {
-        public TTEntry[] entry = new TTEntry[ClusterSize];
+        public TTEntry[] entry = new [] { new TTEntry(), new TTEntry(), new TTEntry()}; //ClusterSize = 3
     };
 };

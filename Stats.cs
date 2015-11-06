@@ -24,11 +24,6 @@ public class Stats<T>
         return this.table[p, to];
     }
 
-    public void clear()
-    {
-        Array.Clear(this.table, 0, this.table.Length);
-    }
-
     public Stats()
     {
         for (int idx1 = 0; idx1 < table.GetLength(0); idx1++)

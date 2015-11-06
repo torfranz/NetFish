@@ -25,11 +25,11 @@ public static class Search
 
     private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
 
-    private static readonly HistoryStats History = new HistoryStats();
+    private static HistoryStats History = new HistoryStats();
 
-    private static readonly CounterMovesHistoryStats CounterMovesHistory = new CounterMovesHistoryStats();
+    private static CounterMovesHistoryStats CounterMovesHistory = new CounterMovesHistoryStats();
 
-    private static readonly MovesStats Countermoves = new MovesStats();
+    private static MovesStats Countermoves = new MovesStats();
 
     /// check_time() is called by the timer thread when the timer triggers. It is
     /// used to print debug info and, more importantly, to detect when we are out of
@@ -112,11 +112,10 @@ public static class Search
     /// Search::reset() clears all search memory, to obtain reproducible search results
     public static void reset()
     {
-        //enable TT.clear call
-        //TT.clear();
-        History.clear();
-        CounterMovesHistory.clear();
-        Countermoves.clear();
+        TranspositionTable.clear();
+        History = new HistoryStats();
+        CounterMovesHistory = new CounterMovesHistoryStats();
+        Countermoves = new MovesStats();
     }
 
     /// Search::think() is the external interface to Stockfish's search, and is
@@ -553,6 +552,7 @@ public static class Search
     private static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
         Depth depth, bool cutNode)
     {
+        Trace.WriteLine($"search(NT={NT}, SpNode={SpNode}, pos={pos.key()}, ss={ss.current}, alpha={alpha}, beta={beta}, depth={(int)depth} cutNode={cutNode})");
         var RootNode = NT == NodeType.Root;
         var PvNode = NT == NodeType.PV || NT == NodeType.Root;
 
@@ -735,7 +735,9 @@ public static class Search
 
         // Step 7. Futility pruning: child node (skipped when in check)
         if (!RootNode
-            && depth < 7*Value.VALUE_KNOWN_WIN // Do not return unproven wins
+            && depth < 7 * Depth.ONE_PLY
+            && eval - futility_margin(depth) >= beta
+            && eval < Value.VALUE_KNOWN_WIN  // Do not return unproven wins
             && pos.non_pawn_material(pos.side_to_move()))
             return eval - futility_margin(depth);
 
@@ -1223,6 +1225,7 @@ public static class Search
 
     private static Value qsearch(NodeType NT, bool InCheck, Position pos, StackArrayWrapper ss, Value alpha, Value beta, Depth depth)
     {
+        Trace.WriteLine($"qsearch(NT={NT}, InCheck={InCheck}, pos={pos.key()}, ss={ss.current}, alpha={alpha}, beta={beta}, depth={(int)depth})");
         bool PvNode = NT == NodeType.PV;
 
         Debug.Assert(NT == NodeType.PV || NT == NodeType.NonPV);
@@ -1232,7 +1235,7 @@ public static class Search
         Debug.Assert(depth <= Depth.DEPTH_ZERO);
 
         var pv = new List<Move>();
-        StateInfo st = null;
+        StateInfo st = new StateInfo();
         TTEntry tte;
         Key posKey;
         Move ttMove, move, bestMove;
@@ -1475,6 +1478,7 @@ public static class Search
 
     private static Value value_to_tt(Value v, int ply)
     {
+        Trace.WriteLine($"value_to_tt(v={v}, ply={ply})");
         Debug.Assert(v != Value.VALUE_NONE);
 
         return v >= Value.VALUE_MATE_IN_MAX_PLY
@@ -1485,6 +1489,11 @@ public static class Search
     // update_pv() adds current move and appends child pv[]
     static void update_pv(List<Move> pv, Move move, List<Move> childPv)
     {
+        // remove last entry if there is already a move in pv
+        if (pv.Count > 0)
+        {
+            pv.RemoveAt(pv.Count - 1);
+        }
         pv.Add(move);
         pv.AddRange(childPv);
     }

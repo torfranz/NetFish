@@ -90,6 +90,22 @@ public class ExtMoveArrayWrapper
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
+        var splitIdx = begin.current;
+        for (var idx = begin.current; idx < end.current; idx++)
+        {
+            if (begin[idx].Value > Value.VALUE_ZERO)
+            {
+                // swap value with split location
+                var splitValue = begin[splitIdx];
+                begin[splitIdx] = begin[idx];
+                begin[idx] = splitValue;
+                splitIdx++;
+            }
+        }
+
+        return new ExtMoveArrayWrapper(begin.table, begin.current + splitIdx);
+
+        /*
         var temporaries = new List<ExtMove>(end.current - begin.current);
         var nextGoodLocation = 0;
 
@@ -114,6 +130,7 @@ public class ExtMoveArrayWrapper
         }
 
         return new ExtMoveArrayWrapper(begin.table, begin.current + nextGoodLocation);
+        */
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be

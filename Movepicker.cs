@@ -264,8 +264,8 @@ public class MovePicker
                 this.killers[1] = new ExtMove(this.ss[this.ss.current].killers1, this.killers[1].Value);
                 this.killers[2] = new ExtMove(this.countermove, this.killers[2].Value);
                 this.cur.set(this.killers);
-                this.endMoves = this.cur + 2
-                                + ((this.countermove != this.killers[0] && this.countermove != this.killers[1]) ? 1 : 0);
+                this.endMoves = new ExtMoveArrayWrapper(cur.table, cur.current + 2
+                                + ((this.countermove != this.killers[0] && this.countermove != this.killers[1]) ? 1 : 0));
                 break;
 
             case Stages.GOOD_QUIETS:
