@@ -895,7 +895,7 @@ public static class Search
             }
 
             if (PvNode)
-                ss[ss.current + 1].pv = null;
+                ss[ss.current + 1].pv = new List<Move>();
 
             extension = Depth.DEPTH_ZERO;
             captureOrPromotion = pos.capture_or_promotion(move);
@@ -1489,11 +1489,7 @@ public static class Search
     // update_pv() adds current move and appends child pv[]
     static void update_pv(List<Move> pv, Move move, List<Move> childPv)
     {
-        // remove last entry if there is already a move in pv
-        if (pv.Count > 0)
-        {
-            pv.RemoveAt(pv.Count - 1);
-        }
+        pv.Clear();
         pv.Add(move);
         pv.AddRange(childPv);
     }
