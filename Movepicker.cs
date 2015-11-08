@@ -400,8 +400,11 @@ public class MovePicker
                     break;
 
                 case Stages.BAD_CAPTURES:
-                    return (this.cur--).getCurrentMove();
-
+                {
+                    var move2 = cur.getCurrentMove();
+                    this.cur--;
+                    return move2;
+                }
                 case Stages.ALL_EVASIONS:
                 case Stages.QCAPTURES_1:
                 case Stages.QCAPTURES_2:

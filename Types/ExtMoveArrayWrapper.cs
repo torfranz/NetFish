@@ -90,47 +90,28 @@ public class ExtMoveArrayWrapper
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        var splitIdx = begin.current;
-        for (var idx = begin.current; idx < end.current; idx++)
-        {
-            if (begin[idx].Value > Value.VALUE_ZERO)
-            {
-                // swap value with split location
-                var splitValue = begin[splitIdx];
-                begin[splitIdx] = begin[idx];
-                begin[idx] = splitValue;
-                splitIdx++;
-            }
+        var _First = begin.current;
+        var _Last = end.current;
+
+        for (; ; ++_First)
+        {   // find any out-of-order pair
+            for (; _First != _Last && (begin[_First].Value > Value.VALUE_ZERO); ++_First)
+                ;   // skip in-place elements at beginning
+            if (_First == _Last)
+                break;  // done
+
+            for (; _First != --_Last && !(begin[_Last].Value > Value.VALUE_ZERO);)
+                ;   // skip in-place elements at end
+            if (_First == _Last)
+                break;  // done
+
+            var tempValue = begin[_First];
+            begin[_First] = begin[_Last];
+            begin[_Last] = tempValue;
+            
         }
-
-        return new ExtMoveArrayWrapper(begin.table, begin.current + splitIdx);
-
-        /*
-        var temporaries = new List<ExtMove>(end.current - begin.current);
-        var nextGoodLocation = 0;
-
-        for (var idx = begin.current; idx < end.current; idx++)
-        {
-            // add items where value is > Value.VALUE_ZERO to front
-            if (begin[idx].Value > Value.VALUE_ZERO)
-            {
-                temporaries.Insert(nextGoodLocation++, begin[idx]);
-            }
-            else
-            {
-                // otherwise put to end
-                temporaries.Add(begin[idx]);
-            }
-        }
-
-        // put back reordered items to original array locations
-        for (var idx = begin.current; idx < end.current; idx++)
-        {
-            begin[idx] = temporaries[idx - begin.current];
-        }
-
-        return new ExtMoveArrayWrapper(begin.table, begin.current + nextGoodLocation);
-        */
+        return new ExtMoveArrayWrapper(begin.table, _First);
+        
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
@@ -139,19 +120,17 @@ public class ExtMoveArrayWrapper
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current <= end.current);
 
-        for (var counter = begin.current; counter < end.current - 1; counter++)
+        int q;
+        for (var p = begin.current + 1; p < end.current; ++p)
         {
-            var index = counter + 1;
-            while (index > begin.current)
+            var tmp = begin[p];
+            for (q = p; q != begin.current && begin[q - 1].Value < tmp.Value; --q)
             {
-                if (begin.table[index - 1] < begin.table[index])
-                {
-                    var temp = begin.table[index - 1];
-                    begin.table[index - 1] = begin.table[index];
-                    begin.table[index] = temp;
-                }
-                index--;
+                begin[q] = begin [q - 1];
             }
+
+            begin[q] = tmp;
         }
+        
     }
 }

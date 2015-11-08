@@ -552,7 +552,7 @@ public static class Search
     private static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
         Depth depth, bool cutNode)
     {
-        Trace.WriteLine($"search(NT={NT}, SpNode={SpNode}, pos={pos.key()}, ss={ss.current}, alpha={alpha}, beta={beta}, depth={(int)depth} cutNode={cutNode})");
+        Utils.WriteToLog($"search(NT={(int)NT}, SpNode={(SpNode ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int)depth}, cutNode={(cutNode ? 1 : 0)})");
         var RootNode = NT == NodeType.Root;
         var PvNode = NT == NodeType.PV || NT == NodeType.Root;
 
@@ -853,6 +853,7 @@ public static class Search
         // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
         while ((move = mp.next_move(SpNode)) != Move.MOVE_NONE)
         {
+            Utils.WriteToLog($"mp.next_move = {(int)move}");
             Debug.Assert(Move.is_ok(move));
 
             if (move == excludedMove)
@@ -1225,7 +1226,7 @@ public static class Search
 
     private static Value qsearch(NodeType NT, bool InCheck, Position pos, StackArrayWrapper ss, Value alpha, Value beta, Depth depth)
     {
-        Trace.WriteLine($"qsearch(NT={NT}, InCheck={InCheck}, pos={pos.key()}, ss={ss.current}, alpha={alpha}, beta={beta}, depth={(int)depth})");
+        Utils.WriteToLog($"qsearch(NT={(int)NT}, InCheck={(InCheck?1:0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int)depth})");
         bool PvNode = NT == NodeType.PV;
 
         Debug.Assert(NT == NodeType.PV || NT == NodeType.NonPV);
@@ -1478,7 +1479,7 @@ public static class Search
 
     private static Value value_to_tt(Value v, int ply)
     {
-        Trace.WriteLine($"value_to_tt(v={v}, ply={ply})");
+        Utils.WriteToLog($"value_to_tt(v={v}, ply={ply})");
         Debug.Assert(v != Value.VALUE_NONE);
 
         return v >= Value.VALUE_MATE_IN_MAX_PLY

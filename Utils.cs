@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -61,9 +62,22 @@ public static class Utils
 
     public static Square[] BSFTable = new Square[Square.SQUARE_NB]; // To implement software bitscan
 
+    private static bool firstLog = true;
+    public static void WriteToLog(string s)
+    {
+#if DEBUG
+        using (StreamWriter sw = firstLog ? System.IO.File.CreateText("Logfile_Netfish.txt") : System.IO.File.AppendText("Logfile_Netfish.txt"))
+        {
+            firstLog = false;
+            sw.WriteLine(s);
+        }
+        
+#endif
+    }
+
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
-#if FORCEINLINE  
+#if FORCEINLINE
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
     public static Bitboard rank_bb(Rank r)
