@@ -249,8 +249,9 @@ public static class Eval
         else
         {
             ei.kingRing[Them] = new Bitboard(0);
+            ei.kingAttackersCount[Us] = 0;
         }
-        ei.kingAttackersCount[Us] = 0;
+        
     }
 
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color

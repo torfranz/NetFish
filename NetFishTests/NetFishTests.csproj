@@ -87,6 +87,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EvalTests.cs" />
     <Compile Include="BitcountTest.cs" />
     <Compile Include="MovepickerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

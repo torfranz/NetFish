@@ -506,11 +506,11 @@ internal sealed class TimerThread : ThreadBase
     }
 }
 
-internal sealed class MainThread : Thread
+public sealed class MainThread : Thread
 {
     internal volatile bool thinking = true; // Avoid a race with start_thinking()
 
-    internal MainThread(ManualResetEvent initEvent)
+    public MainThread(ManualResetEvent initEvent)
         : base(initEvent)
     {
     }
@@ -572,7 +572,7 @@ internal sealed class MainThread : Thread
 /// ThreadPool struct handles all the threads related stuff like init, starting,
 /// parking and, most importantly, launching a slave thread at a split point.
 /// All the access to shared thread data is done through this class.
-internal static class ThreadPool
+public static class ThreadPool
 {
     /* As long as the single ThreadsManager object is defined as a global we don't
        need to explicitly initialize to zero its data members because variables with
@@ -585,7 +585,7 @@ internal static class ThreadPool
 
     public static Depth minimumSplitDepth;
 
-    internal static MainThread main()
+    public static MainThread main()
     {
         return (MainThread)threads[0];
     }
@@ -641,7 +641,7 @@ internal static class ThreadPool
     // that will go immediately to sleep. We cannot use a c'tor because Threads is a
     // static object and we need a fully initialized engine at this point due to
     // allocation of Endgames in Thread c'tor.
-    internal static void init()
+    public static void init()
     {
         var requested = int.Parse(OptionMap.Instance["Threads"].v);
         var initEvents = new ManualResetEvent[requested + 1];

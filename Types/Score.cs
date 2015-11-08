@@ -9,6 +9,11 @@ public struct Score
 
     private int Value { get; }
 
+    public override string ToString()
+    {
+        return $"{this.Value}";
+    }
+
     #region constructors
 
 #if FORCEINLINE  
