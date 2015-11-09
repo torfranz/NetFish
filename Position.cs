@@ -1307,7 +1307,7 @@ public class Position
             stmAttackers = attackers & this.pieces(stm);
             ++slIndex;
         }
-        while (stmAttackers && (captured != PieceType.KING || (--slIndex != 0))); // Stop before a king capture
+        while (stmAttackers && (captured != PieceType.KING || DecreaseValue(ref slIndex))); // Stop before a king capture
 
         // Having built the swap list, we negamax through it to find the best
         // achievable score from the point of view of the side to move.
@@ -1319,6 +1319,11 @@ public class Position
         return swapList[0];
     }
 
+    private static bool DecreaseValue(ref int value)
+    {
+        --value;
+        return false;
+    }
     /// Position::is_draw() tests whether the position is drawn by 50-move rule
     /// or by repetition. It does not detect stalemates.
     public bool is_draw()

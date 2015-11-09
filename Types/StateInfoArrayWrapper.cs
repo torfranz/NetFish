@@ -4,8 +4,8 @@
 
     public StateInfo[] table;
 
-    public StateInfoWrapper(StateInfo[] table)
-        : this(table, 0)
+    public StateInfoWrapper()
+        : this(new StateInfo[_.MAX_PLY], 0)
     {
     }
 
@@ -14,7 +14,7 @@
         this.table = table;
         this.current = current;
 
-        for (var i = 0; i < 102; i++)
+        for (var i = 0; i < table.Length; i++)
         {
             table[i] = new StateInfo();
         }

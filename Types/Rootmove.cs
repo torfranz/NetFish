@@ -42,7 +42,7 @@ public class RootMove
     /// first, even if the old TT entries have been overwritten.
     public void insert_pv_in_tt(Position pos)
     {
-        var st = new StateInfoWrapper(new StateInfo[_.MAX_PLY]);
+        var st = new StateInfoWrapper();
         var ttHit = false;
 
         foreach (var m in this.pv)

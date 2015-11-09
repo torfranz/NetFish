@@ -45,16 +45,6 @@ public abstract class Endgame
         return this.strongSide;
     }
 
-    public virtual Value GetValue(Position pos)
-    {
-        throw new NotImplementedException();
-    }
-
-    public virtual ScaleFactor GetScaleFactor(Position pos)
-    {
-        throw new NotImplementedException();
-    }
-
     protected static bool verify_material(Position pos, Color c, Value npm, int pawnsCnt)
     {
         return pos.non_pawn_material(c) == npm && pos.count(PieceType.PAWN, c) == pawnsCnt;
@@ -101,11 +91,31 @@ public abstract class Endgame
     }
 }
 
+public abstract class EndgameValue:Endgame
+{
+    protected EndgameValue(Color c)
+        : base(c)
+    {
+    }
+    public abstract Value GetValue(Position pos);
+    
+}
+
+public abstract class EndgameScaleFactor:Endgame
+{
+    protected EndgameScaleFactor(Color c)
+        : base(c)
+    {
+    }
+    public abstract ScaleFactor GetScaleFactor(Position pos);
+
+}
+
 /// Mate with KX vs K. This function is used to evaluate positions with
 /// king and plenty of material vs a lone king. It simply gives the
 /// attacking side a bonus for driving the defending king towards the edge
 /// of the board, and for keeping the distance between the two kings small.
-public class EndgameKXK : Endgame
+public class EndgameKXK : EndgameValue
 {
     public EndgameKXK(Color c)
         : base(c)
@@ -118,7 +128,7 @@ public class EndgameKXK : Endgame
         Debug.Assert(!pos.checkers()); // Eval is never called when in check
 
         // Stalemate detection with lone king
-        if (pos.side_to_move() == this.weakSide && new MoveList(GenType.LEGAL, pos).size() > 0)
+        if (pos.side_to_move() == this.weakSide && new MoveList(GenType.LEGAL, pos).size() == 0)
         {
             return Value.VALUE_DRAW;
         }
@@ -146,7 +156,7 @@ public class EndgameKXK : Endgame
 
 /// Mate with KBN vs K. This is similar to KX vs K, but we have to drive the
 /// defending king towards a corner square of the right color.
-public class EndgameKBNK : Endgame
+public class EndgameKBNK : EndgameValue
 {
     public EndgameKBNK(Color c)
         : base(c)
@@ -179,7 +189,7 @@ public class EndgameKBNK : Endgame
 }
 
 /// KP vs K. This endgame is evaluated with the help of a bitbase.
-public class EndgameKPK : Endgame
+public class EndgameKPK : EndgameValue
 {
     public EndgameKPK(Color c)
         : base(c)
@@ -213,7 +223,7 @@ public class EndgameKPK : Endgame
 /// a bitbase. The function below returns drawish scores when the pawn is
 /// far advanced with support of the king, while the attacking king is far
 /// away.
-public class EndgameKRKP : Endgame
+public class EndgameKRKP : EndgameValue
 {
     public EndgameKRKP(Color c)
         : base(c)
@@ -271,7 +281,7 @@ public class EndgameKRKP : Endgame
 
 /// KR vs KB. This is very simple, and always returns drawish scores.  The
 /// score is slightly bigger when the defending king is close to the edge.
-public class EndgameKRKB : Endgame
+public class EndgameKRKB : EndgameValue
 {
     public EndgameKRKB(Color c)
         : base(c)
@@ -290,7 +300,7 @@ public class EndgameKRKB : Endgame
 
 /// KR vs KN. The attacking side has slightly better winning chances than
 /// in KR vs KB, particularly if the king and the knight are far apart.
-public class EndgameKRKN : Endgame
+public class EndgameKRKN : EndgameValue
 {
     public EndgameKRKN(Color c)
         : base(c)
@@ -313,7 +323,7 @@ public class EndgameKRKN : Endgame
 /// few important exceptions. A pawn on 7th rank and on the A,C,F or H files
 /// with a king positioned next to it can be a draw, so in that case, we only
 /// use the distance between the kings.
-public class EndgameKQKP : Endgame
+public class EndgameKQKP : EndgameValue
 {
     public EndgameKQKP(Color c)
         : base(c)
@@ -345,7 +355,7 @@ public class EndgameKQKP : Endgame
 /// king a bonus for having the kings close together, and for forcing the
 /// defending king towards the edge. If we also take care to avoid null move for
 /// the defending side in the search, this is usually sufficient to win KQ vs KR.
-public class EndgameKQKR : Endgame
+public class EndgameKQKR : EndgameValue
 {
     public EndgameKQKR(Color c)
         : base(c)
@@ -368,7 +378,7 @@ public class EndgameKQKR : Endgame
 }
 
 /// Some cases of trivial draws
-public class EndgameKNNK : Endgame
+public class EndgameKNNK : EndgameValue
 {
     public EndgameKNNK(Color c)
         : base(c)
@@ -385,7 +395,7 @@ public class EndgameKNNK : Endgame
 /// a bishop of the wrong color. If such a draw is detected, SCALE_FACTOR_DRAW
 /// is returned. If not, the return value is SCALE_FACTOR_NONE, i.e. no scaling
 /// will be used.
-public class EndgameKBPsK : Endgame
+public class EndgameKBPsK : EndgameScaleFactor
 {
     public EndgameKBPsK(Color c)
         : base(c)
@@ -457,7 +467,7 @@ public class EndgameKBPsK : Endgame
 
 /// KQ vs KR and one or more pawns. It tests for fortress draws with a rook on
 /// the third rank defended by a pawn.
-public class EndgameKQKRPs : Endgame
+public class EndgameKQKRPs : EndgameScaleFactor
 {
     public EndgameKQKRPs(Color c)
         : base(c)
@@ -492,7 +502,7 @@ public class EndgameKQKRPs : Endgame
 /// 
 /// It would also be nice to rewrite the actual code for this function,
 /// which is mostly copied from Glaurung 1.x, and isn't very pretty.
-public class EndgameKRPKR : Endgame
+public class EndgameKRPKR : EndgameScaleFactor
 {
     public EndgameKRPKR(Color c)
         : base(c)
@@ -597,7 +607,7 @@ public class EndgameKRPKR : Endgame
     }
 }
 
-public class EndgameKRPKB : Endgame
+public class EndgameKRPKB : EndgameScaleFactor
 {
     public EndgameKRPKB(Color c)
         : base(c)
@@ -651,7 +661,7 @@ public class EndgameKRPKB : Endgame
 
 /// KRPP vs KRP. There is just a single rule: if the stronger side has no passed
 /// pawns and the defending king is actively placed, the position is drawish.
-public class EndgameKRPPKRP : Endgame
+public class EndgameKRPPKRP : EndgameScaleFactor
 {
     public EndgameKRPPKRP(Color c)
         : base(c)
@@ -702,7 +712,7 @@ public class EndgameKRPPKRP : Endgame
 
 /// K and two or more pawns vs K. There is just a single rule here: If all pawns
 /// are on the same rook file and are blocked by the defending king, it's a draw.
-public class EndgameKPsK : Endgame
+public class EndgameKPsK : EndgameScaleFactor
 {
     public EndgameKPsK(Color c)
         : base(c)
@@ -735,7 +745,7 @@ public class EndgameKPsK : Endgame
 /// path of the pawn, and the square of the king is not of the same color as the
 /// stronger side's bishop, it's a draw. If the two bishops have opposite color,
 /// it's almost always a draw.
-public class EndgameKBPKB : Endgame
+public class EndgameKBPKB : EndgameScaleFactor
 {
     public EndgameKBPKB(Color c)
         : base(c)
@@ -796,7 +806,7 @@ public class EndgameKBPKB : Endgame
 }
 
 /// KBPP vs KB. It detects a few basic draws with opposite-colored bishops
-public class EndgameKBPPKB : Endgame
+public class EndgameKBPPKB : EndgameScaleFactor
 {
     public EndgameKBPPKB(Color c)
         : base(c)
@@ -877,7 +887,7 @@ public class EndgameKBPPKB : Endgame
 /// KBP vs KN. There is a single rule: If the defending king is somewhere along
 /// the path of the pawn, and the square of the king is not of the same color as
 /// the stronger side's bishop, it's a draw.
-public class EndgameKBPKN : Endgame
+public class EndgameKBPKN : EndgameScaleFactor
 {
     public EndgameKBPKN(Color c)
         : base(c)
@@ -907,7 +917,7 @@ public class EndgameKBPKN : Endgame
 
 /// KNP vs K. There is a single rule: if the pawn is a rook pawn on the 7th rank
 /// and the defending king prevents the pawn from advancing, the position is drawn.
-public class EndgameKNPK : Endgame
+public class EndgameKNPK : EndgameScaleFactor
 {
     public EndgameKNPK(Color c)
         : base(c)
@@ -934,7 +944,7 @@ public class EndgameKNPK : Endgame
 
 /// KNP vs KB. If knight can block bishop from taking pawn, it's a win.
 /// Otherwise the position is drawn.
-public class EndgameKNPKB : Endgame
+public class EndgameKNPKB : EndgameScaleFactor
 {
     public EndgameKNPKB(Color c)
         : base(c)
@@ -963,7 +973,7 @@ public class EndgameKNPKB : Endgame
 /// has at least a draw with the pawn as well. The exception is when the stronger
 /// side's pawn is far advanced and not on a rook file; in this case it is often
 /// possible to win (e.g. 8/4k3/3p4/3P4/6K1/8/8/8 w - - 0 1).
-public class EndgameKPKP : Endgame
+public class EndgameKPKP : EndgameScaleFactor
 {
     public EndgameKPKP(Color c)
         : base(c)

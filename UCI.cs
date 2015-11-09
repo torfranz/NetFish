@@ -10,7 +10,7 @@ public static class UCI
     // Stack to keep track of the position states along the setup moves (from the
     // start position to the position just before the search starts). Needed by
     // 'draw by repetition' detection.
-    internal static StateInfoWrapper SetupStates = new StateInfoWrapper(new StateInfo[102]);
+    internal static StateInfoWrapper SetupStates = new StateInfoWrapper();
 
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)

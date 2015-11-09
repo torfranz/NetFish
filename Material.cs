@@ -33,15 +33,15 @@ public class Material
 
     // Endgame evaluation and scaling functions are accessed directly and not through
     // the function maps because they correspond to more than one material hash key.
-    private static readonly Endgame[] EvaluateKXK = { new EndgameKXK(Color.WHITE), new EndgameKXK(Color.BLACK) };
+    private static readonly EndgameValue[] EvaluateKXK = { new EndgameKXK(Color.WHITE), new EndgameKXK(Color.BLACK) };
 
-    private static readonly Endgame[] ScaleKBPsK = { new EndgameKBPsK(Color.WHITE), new EndgameKBPsK(Color.BLACK) };
+    private static readonly EndgameScaleFactor[] ScaleKBPsK = { new EndgameKBPsK(Color.WHITE), new EndgameKBPsK(Color.BLACK) };
 
-    private static readonly Endgame[] ScaleKPKP = { new EndgameKPKP(Color.WHITE), new EndgameKPKP(Color.BLACK) };
+    private static readonly EndgameScaleFactor[] ScaleKPKP = { new EndgameKPKP(Color.WHITE), new EndgameKPKP(Color.BLACK) };
 
-    private static readonly Endgame[] ScaleKPsK = { new EndgameKPsK(Color.WHITE), new EndgameKPsK(Color.BLACK) };
+    private static readonly EndgameScaleFactor[] ScaleKPsK = { new EndgameKPsK(Color.WHITE), new EndgameKPsK(Color.BLACK) };
 
-    private static readonly Endgame[] ScaleKQKRPs = { new EndgameKQKRPs(Color.WHITE), new EndgameKQKRPs(Color.BLACK) };
+    private static readonly EndgameScaleFactor[] ScaleKQKRPs = { new EndgameKQKRPs(Color.WHITE), new EndgameKQKRPs(Color.BLACK) };
 
     // Helper used to detect a given material distribution
     private static bool is_KXK(Position pos, Color us)
@@ -118,7 +118,7 @@ public class Material
         // Let's look if we have a specialized evaluation function for this particular
         // material configuration. Firstly we look for a fixed configuration one, then
         // for a generic one if the previous search failed.
-        if ((e.evaluationFunction = pos.this_thread().endgames.probe(key)) != null)
+        if ((e.evaluationFunction = pos.this_thread().endgames.probeEndgameValue(key)) != null)
         {
             return e;
         }
@@ -134,9 +134,9 @@ public class Material
 
         // OK, we didn't find any special evaluation function for the current material
         // configuration. Is there a suitable specialized scaling function?
-        Endgame sf;
+        EndgameScaleFactor sf;
 
-        if ((sf = pos.this_thread().endgames.probe(key)) != null)
+        if ((sf = pos.this_thread().endgames.probeEndgameScaleFactor(key)) != null)
         {
             e.scalingFunction[sf.strong_side()] = sf; // Only strong color assigned
             return e;

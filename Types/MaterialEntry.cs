@@ -8,7 +8,7 @@
 /// which will result in scores of absolute value less than one pawn.
 public class MaterialEntry
 {
-    public Endgame evaluationFunction;
+    public EndgameValue evaluationFunction;
 
     public ushort[] factor = new ushort[Color.COLOR_NB];
 
@@ -17,7 +17,7 @@ public class MaterialEntry
 
     public ulong key;
 
-    public Endgame[] scalingFunction = new Endgame[Color.COLOR_NB]; // Could be one for each
+    public EndgameScaleFactor[] scalingFunction = new EndgameScaleFactor[Color.COLOR_NB]; // Could be one for each
 
     public short value;
 
@@ -27,7 +27,7 @@ public class MaterialEntry
         this.factor = new ushort[Color.COLOR_NB];
         this.gamePhase = Phase.PHASE_ENDGAME;
         this.key = 0;
-        this.scalingFunction = new Endgame[Color.COLOR_NB];
+        this.scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
         this.value = 0;
     }
 
