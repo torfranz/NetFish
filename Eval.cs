@@ -387,7 +387,7 @@ public static class Eval
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
                         && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {
-                        score -= (TrappedRook - Score.make_score(mob * 22, 0)) * (1 + (!pos.can_castle(Us) ? 1 : 0));
+                        score -= (TrappedRook - Score.make_score(mob * 22, 0)) * (1 + (pos.can_castle(Us) == 0 ? 1 : 0));
                     }
                 }
             }

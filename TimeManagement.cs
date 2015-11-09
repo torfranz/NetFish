@@ -133,7 +133,7 @@ public static class TimeManagement
 
     public static int elapsed()
     {
-        return Search.Limits.npmsec != 0 ? Search.RootPos.nodes_searched() : (DateTime.Now - start).Milliseconds;
+        return Search.Limits.npmsec != 0 ? Search.RootPos.nodes_searched() : (int)(DateTime.Now - start).TotalMilliseconds;
     }
 
     private enum TimeType

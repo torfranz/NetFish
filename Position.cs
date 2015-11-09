@@ -228,9 +228,9 @@ public class Position
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
 
-    public bool can_castle(Color c)
+    public int can_castle(Color c)
     {
-        return (this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c))) != 0;
+        return (this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c)));
     }
 
 #if FORCEINLINE  
@@ -843,7 +843,7 @@ public class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb(Move.promotion_type(m), to, this.pieces() ^ from) & ci.ksq;
+                return Utils.attacks_bb(new Piece(Move.promotion_type(m)), to, this.pieces() ^ from) & ci.ksq;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -1517,7 +1517,7 @@ public class Position
                      : 'q'));
         }
 
-        if (!this.can_castle(Color.WHITE) && !this.can_castle(Color.BLACK))
+        if (this.can_castle(Color.WHITE)==0 && this.can_castle(Color.BLACK)==0)
         {
             ss.Append('-');
         }

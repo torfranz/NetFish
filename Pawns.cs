@@ -235,7 +235,7 @@ public static class Pawns
             var f = Square.file_of(s);
 
             // This file cannot be semi-open
-            e.semiopenFiles[Us] &= ~(1 << f);
+            e.semiopenFiles[Us] &= ~(1 << (int)f);
 
             // Flag the pawn
             neighbours = ourPawns & Utils.adjacent_files_bb(f);
@@ -378,7 +378,7 @@ public static class Pawns
     /// pointer to an Entry object.
     public class Entry
     {
-        public bool[] castlingRights = new bool[Color.COLOR_NB];
+        public int[] castlingRights = new int[Color.COLOR_NB];
 
         public ulong key;
 
@@ -420,12 +420,12 @@ public static class Pawns
 
         public int semiopen_file(Color c, File f)
         {
-            return this.semiopenFiles[c] & (1 << f);
+            return this.semiopenFiles[c] & (1 << (int)f);
         }
 
         public int semiopen_side(Color c, File f, bool leftSide)
         {
-            return this.semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << ((int)f + 1)) - 1));
+            return this.semiopenFiles[c] & (leftSide ? (1 << (int)f) - 1 : ~((1 << ((int)f + 1)) - 1));
         }
 
         public int pawns_on_same_color_squares(Color c, Square s)

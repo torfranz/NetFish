@@ -312,7 +312,7 @@ public static class Movegen
             }
         }
 
-        if (Type != GenType.CAPTURES && Type != GenType.EVASIONS && pos.can_castle(Us))
+        if (Type != GenType.CAPTURES && Type != GenType.EVASIONS && pos.can_castle(Us)!=0)
         {
             if (pos.is_chess960())
             {

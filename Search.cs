@@ -560,7 +560,7 @@ public static class Search
         Debug.Assert(PvNode || (alpha == beta - 1));
         Debug.Assert(depth > Depth.DEPTH_ZERO);
 
-        var pv = new List<Move>(_.MAX_PLY + 1);
+        var pv = new List<Move>(_.MAX_PLY + 1) {Move.MOVE_NONE};
         var quietsSearched = new Move[64];
         StateInfo st=new StateInfo();
         TTEntry tte;
@@ -1056,8 +1056,7 @@ public static class Search
             if (PvNode && (moveCount == 1 || (value > alpha && (RootNode || value < beta))))
             {
                 ss[ss.current + 1].pv = pv;
-                //TODO: is next line end tag?
-                //ss[ss.current + 1].pv[0] = Move.MOVE_NONE;
+                ss[ss.current + 1].pv[0] = Move.MOVE_NONE;
 
                 value = newDepth < Depth.ONE_PLY
                     ? givesCheck
@@ -1235,7 +1234,7 @@ public static class Search
         Debug.Assert(PvNode || (alpha == beta - 1));
         Debug.Assert(depth <= Depth.DEPTH_ZERO);
 
-        var pv = new List<Move>();
+        var pv = new List<Move>(_.MAX_MOVES + 1) {Move.MOVE_NONE};
         StateInfo st = new StateInfo();
         TTEntry tte;
         Key posKey;
@@ -1248,8 +1247,7 @@ public static class Search
         {
             oldAlpha = alpha; // To flag BOUND_EXACT when eval above alpha and no available moves
             ss[ss.current + 1].pv = pv;
-            //TODO: is next line end flag?
-            //ss[ss.current].pv[0] = Move.MOVE_NONE;
+            ss[ss.current].pv[0] = Move.MOVE_NONE;
         }
 
         ss[ss.current].currentMove = bestMove = Move.MOVE_NONE;
