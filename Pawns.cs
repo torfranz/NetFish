@@ -350,6 +350,7 @@ public static class Pawns
         }
     }
 
+    public const int Size = 16384;
     /// Pawns::probe() looks up the current position's pawns configuration in
     /// the pawns hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
@@ -357,11 +358,12 @@ public static class Pawns
     public static Entry probe(Position pos)
     {
         var key = pos.pawn_key();
+        var hashKey = (uint) key & (Size - 1);
         Entry e;
-        if (!pos.this_thread().pawnsTable.TryGetValue(key, out e))
+        if ((e = pos.this_thread().pawnsTable[hashKey])==null)
         {
             e = new Entry();
-            pos.this_thread().pawnsTable.Add(key, e);
+            pos.this_thread().pawnsTable[hashKey] = e;
         }
         else if (e.key == key)
         {

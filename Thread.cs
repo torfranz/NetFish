@@ -141,8 +141,8 @@ public class Thread : ThreadBase
     public Dictionary<ulong, MaterialEntry> materialTable = new Dictionary<ulong, MaterialEntry>(8192);
 
     public int maxPly;
-
-    public Dictionary<ulong, Pawns.Entry> pawnsTable = new Dictionary<ulong, Pawns.Entry>(16384) { {0, new Pawns.Entry()} };
+    
+    public Pawns.Entry[] pawnsTable = new Pawns.Entry[Pawns.Size];
 
     protected volatile bool searching;
 

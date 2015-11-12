@@ -398,7 +398,7 @@ public static class Eval
             add(Pt, Us, score);
         }
         // Recursively call evaluate_pieces() of next piece type until KING excluded
-        return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
+         return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
     }
 
     // evaluate_king() assigns bonuses and penalties to a king of a given color

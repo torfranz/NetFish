@@ -272,6 +272,8 @@ public static class Search
         if (skill.enabled())
         {
             multiPV = Math.Max(multiPV, 4);
+            multiPV = Math.Max(multiPV, 4);
+            multiPV = Math.Max(multiPV, 4);
         }
 
         multiPV = (uint) Math.Min(multiPV, RootMoves.Count);
