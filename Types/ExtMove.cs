@@ -6,8 +6,8 @@
 
     public ExtMove(Move move, Value value)
     {
-        this.Move = move;
-        this.Value = value;
+        Move = move;
+        Value = value;
     }
 
     public static implicit operator Move(ExtMove move)
@@ -37,6 +37,6 @@
 
     public override string ToString()
     {
-        return $"{this.Move},{this.Value}";
+        return $"{Move},{Value}";
     }
 };

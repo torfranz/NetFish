@@ -158,31 +158,28 @@ public struct Square
 
     #region constructors
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square(Square value)
         : this(value.Value)
     {
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square(int value)
     {
-        this.Value = value;
+        Value = value;
         // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
@@ -190,101 +187,90 @@ public struct Square
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator +(Square v1, Square v2)
     {
         return new Square(v1.Value + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator +(Square v1, int v2)
     {
         return new Square(v1.Value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator +(int v1, Square v2)
     {
         return new Square(v1 + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator -(Square v1, Square v2)
     {
         return new Square(v1.Value - v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator -(Square v1, int v2)
     {
         return new Square(v1.Value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator -(Square v1)
     {
         return new Square(-v1.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator *(int v1, Square v2)
     {
-        return new Square(v1 * v2.Value);
+        return new Square(v1*v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator *(Square v1, int v2)
     {
-        return new Square(v1.Value * v2);
+        return new Square(v1.Value*v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(Square s)
     {
         return s.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator ++(Square v1)
     {
         v1.Value += 1;
         return v1;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator --(Square v1)
     {
         v1.Value -= 1;
@@ -293,53 +279,48 @@ public struct Square
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
 
     #region extended operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int operator /(Square v1, Square v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator /(Square v1, int v2)
     {
-        return new Square(v1.Value / v2);
+        return new Square(v1.Value/v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square operator ~(Square s)
     {
         return new Square(s.Value ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(Square v1, Square v2)
     {
         return v1.Value == v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(Square v1, Square v2)
     {
         return v1.Value != v2.Value;
@@ -347,65 +328,58 @@ public struct Square
 
     #endregion
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool is_ok()
     {
-        return this.Value >= SQ_A1 && this.Value <= SQ_H8;
+        return Value >= SQ_A1 && Value <= SQ_H8;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool opposite_colors(Square s1, Square s2)
     {
         var s = s1.Value ^ s2.Value;
         return (((s >> 3) ^ s) & 1) != 0;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square relative_square(Color c, Square s)
     {
-        return new Square(s.Value ^ (c * 56));
+        return new Square(s.Value ^ (c*56));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square make_square(File f, Rank r)
     {
         return new Square((r << 3) | f);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File file_of(Square s)
     {
         return new File(s.Value & 7);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank rank_of(Square s)
     {
         return new Rank(s.Value >> 3);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square pawn_push(Color c)
     {
         return c == Color.WHITE ? new Square(DELTA_N) : new Square(DELTA_S);

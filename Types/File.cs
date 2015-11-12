@@ -24,22 +24,20 @@ public struct File
 
     #region constructors
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public File(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public File(int value)
     {
-        this.Value = value;
+        Value = value;
         //Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
@@ -47,109 +45,97 @@ public struct File
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator +(File v1, File v2)
     {
         return new File(v1.Value + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator +(File v1, int v2)
     {
         return new File(v1.Value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator +(int v1, File v2)
     {
         return new File(v1 + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator -(File v1, File v2)
     {
         return new File(v1.Value - v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator -(File v1, int v2)
     {
         return new File(v1.Value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator -(File v1)
     {
         return new File(-v1.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator *(int v1, File v2)
     {
-        return new File(v1 * v2.Value);
+        return new File(v1*v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator *(File v1, int v2)
     {
-        return new File(v1.Value * v2);
+        return new File(v1.Value*v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(File f)
     {
         return f.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(File v1, File v2)
     {
         return v1.Value == v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(File v1, File v2)
     {
         return v1.Value != v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator ++(File v1)
     {
         v1.Value += 1;
@@ -158,29 +144,27 @@ public struct File
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
 
     #region extended operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int operator /(File v1, File v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static File operator /(File v1, int v2)
     {
-        return new File(v1.Value / v2);
+        return new File(v1.Value/v2);
     }
 
     #endregion

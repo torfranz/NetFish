@@ -15,12 +15,12 @@
         this.current = current;
     }
 
-    public Stack this[int index] => this.table[index];
+    public Stack this[int index] => table[index];
 
     public void set(Stack[] table)
     {
         this.table = table;
-        this.current = 0;
+        current = 0;
     }
 
     public static StackArrayWrapper operator ++(StackArrayWrapper p)

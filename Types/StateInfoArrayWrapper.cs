@@ -20,7 +20,7 @@
         }
     }
 
-    public StateInfo this[int index] => this.table[index];
+    public StateInfo this[int index] => table[index];
 
     public static StateInfoWrapper operator ++(StateInfoWrapper p)
     {

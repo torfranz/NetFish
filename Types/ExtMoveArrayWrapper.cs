@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 public class ExtMoveArrayWrapper
 {
@@ -25,20 +24,14 @@ public class ExtMoveArrayWrapper
 
     public ExtMove this[int index]
     {
-        get
-        {
-            return this.table[index];
-        }
-        set
-        {
-            this.table[index] = value;
-        }
+        get { return table[index]; }
+        set { table[index] = value; }
     }
 
     public void set(ExtMove[] table)
     {
         this.table = table;
-        this.current = 0;
+        current = 0;
     }
 
     public static ExtMoveArrayWrapper operator +(ExtMoveArrayWrapper p, int value)
@@ -71,18 +64,18 @@ public class ExtMoveArrayWrapper
 
     public void Add(Move m)
     {
-        this.table[this.current] = new ExtMove(m, this.table[this.current].Value);
-        this.current++;
+        table[current] = new ExtMove(m, table[current].Value);
+        current++;
     }
 
     public void setCurrentMove(Move m)
     {
-        this.table[this.current] = new ExtMove(m, this.table[this.current].Value);
+        table[current] = new ExtMove(m, table[current].Value);
     }
 
     public Move getCurrentMove()
     {
-        return this.table[this.current].Move;
+        return table[current].Move;
     }
 
     public static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
@@ -93,25 +86,24 @@ public class ExtMoveArrayWrapper
         var _First = begin.current;
         var _Last = end.current;
 
-        for (; ; ++_First)
-        {   // find any out-of-order pair
+        for (;; ++_First)
+        {
+            // find any out-of-order pair
             for (; _First != _Last && (begin[_First].Value > Value.VALUE_ZERO); ++_First)
-                ;   // skip in-place elements at beginning
+                ; // skip in-place elements at beginning
             if (_First == _Last)
-                break;  // done
+                break; // done
 
             for (; _First != --_Last && !(begin[_Last].Value > Value.VALUE_ZERO);)
-                ;   // skip in-place elements at end
+                ; // skip in-place elements at end
             if (_First == _Last)
-                break;  // done
+                break; // done
 
             var tempValue = begin[_First];
             begin[_First] = begin[_Last];
             begin[_Last] = tempValue;
-            
         }
         return new ExtMoveArrayWrapper(begin.table, _First);
-        
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
@@ -126,11 +118,10 @@ public class ExtMoveArrayWrapper
             var tmp = begin[p];
             for (q = p; q != begin.current && begin[q - 1].Value < tmp.Value; --q)
             {
-                begin[q] = begin [q - 1];
+                begin[q] = begin[q - 1];
             }
 
             begin[q] = tmp;
         }
-        
     }
 }

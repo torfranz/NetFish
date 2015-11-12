@@ -20,11 +20,11 @@ public class Position
 
     private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-    private Bitboard[] castlingPath = new Bitboard[(int)CastlingRight.CASTLING_RIGHT_NB];
+    private Bitboard[] castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
     private int[] castlingRightsMask = new int[Square.SQUARE_NB];
 
-    private Square[] castlingRookSquare = new Square[(int)CastlingRight.CASTLING_RIGHT_NB];
+    private Square[] castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
 
     private bool chess960;
 
@@ -40,11 +40,46 @@ public class Position
 
     private Color sideToMove;
 
-    private Thread thisThread;
-
     public StateInfo st;
 
     private StateInfo startState;
+
+    private Thread thisThread;
+
+    public Position(Position other)
+        : this(other, other.thisThread)
+    {
+    }
+
+    public Position(Position other, Thread thread)
+    {
+        Array.Copy(other.board, board, other.board.Length);
+        Array.Copy(other.byColorBB, byColorBB, other.byColorBB.Length);
+        Array.Copy(other.byTypeBB, byTypeBB, other.byTypeBB.Length);
+        Array.Copy(other.castlingPath, castlingPath, other.castlingPath.Length);
+        Array.Copy(other.castlingRightsMask, castlingRightsMask, other.castlingRightsMask.Length);
+        Array.Copy(other.castlingRookSquare, castlingRookSquare, other.castlingRookSquare.Length);
+        Array.Copy(other.index, index, other.index.Length);
+        Array.Copy(other.pieceCount, pieceCount, other.pieceCount.Length);
+        Array.Copy(other.pieceList, pieceList, other.pieceList.Length);
+
+        chess960 = other.chess960;
+        gamePly = other.gamePly;
+        sideToMove = other.sideToMove;
+
+        thisThread = thread;
+        startState = new StateInfo();
+        startState.copyFrom(other.st);
+        st = startState;
+
+        nodes = 0;
+        Debug.Assert(pos_is_ok());
+    }
+
+    public Position(string f, bool c960, Thread th)
+    {
+        set(f, c960, th);
+    }
 
     /// Position::init() initializes at startup the various arrays used to compute
     /// hash keys.
@@ -68,10 +103,10 @@ public class Position
             Zobrist.enpassant[f] = rng.rand();
         }
 
-        for (var cr = (int)CastlingRight.NO_CASTLING; cr <= (int)CastlingRight.ANY_CASTLING; ++cr)
+        for (var cr = (int) CastlingRight.NO_CASTLING; cr <= (int) CastlingRight.ANY_CASTLING; ++cr)
         {
             Zobrist.castling[cr] = 0;
-            var b = new Bitboard((ulong)cr);
+            var b = new Bitboard((ulong) cr);
             while (b)
             {
                 var k = Zobrist.castling[1 << Utils.pop_lsb(ref b)];
@@ -83,470 +118,425 @@ public class Position
         Zobrist.exclusion = rng.rand();
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces()
     {
-        return this.byTypeBB[PieceType.ALL_PIECES];
+        return byTypeBB[PieceType.ALL_PIECES];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Color side_to_move()
     {
-        return this.sideToMove;
+        return sideToMove;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool empty(Square s)
     {
-        return this.board[s] == Piece.NO_PIECE;
+        return board[s] == Piece.NO_PIECE;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Piece piece_on(Square s)
     {
-        return this.board[s];
+        return board[s];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Piece moved_piece(Move m)
     {
-        return this.board[Move.from_sq(m)];
+        return board[Move.from_sq(m)];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces(PieceType pt)
     {
-        return this.byTypeBB[pt];
+        return byTypeBB[pt];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces(PieceType pt1, PieceType pt2)
     {
-        return this.byTypeBB[pt1] | this.byTypeBB[pt2];
+        return byTypeBB[pt1] | byTypeBB[pt2];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces(Color c)
     {
-        return this.byColorBB[c];
+        return byColorBB[c];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces(Color c, PieceType pt)
     {
-        return this.byColorBB[c] & this.byTypeBB[pt];
+        return byColorBB[c] & byTypeBB[pt];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
-        return this.byColorBB[c] & (this.byTypeBB[pt1] | this.byTypeBB[pt2]);
+        return byColorBB[c] & (byTypeBB[pt1] | byTypeBB[pt2]);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public int count(PieceType Pt, Color c)
     {
-        return this.pieceCount[c, Pt];
+        return pieceCount[c, Pt];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square[] squares(PieceType Pt, Color c)
     {
         var result = new Square[16];
         for (var idx = 0; idx < result.Length; idx++)
         {
-            result[idx] = this.pieceList[c, Pt, idx];
+            result[idx] = pieceList[c, Pt, idx];
         }
         return result;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square square(PieceType Pt, Color c)
     {
-        Debug.Assert(this.pieceCount[c, Pt] == 1);
-        return this.pieceList[c, Pt, 0];
+        Debug.Assert(pieceCount[c, Pt] == 1);
+        return pieceList[c, Pt, 0];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square ep_square()
     {
-        return this.st.epSquare;
+        return st.epSquare;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool can_castle(CastlingRight cr)
     {
-        return (this.st.castlingRights & (int)cr) != 0;
+        return (st.castlingRights & (int) cr) != 0;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public int can_castle(Color c)
     {
-        return (this.st.castlingRights & (((int)CastlingRight.WHITE_OO | (int)CastlingRight.WHITE_OOO) << (2 * c)));
+        return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c)));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool castling_impeded(CastlingRight cr)
     {
-        return this.byTypeBB[PieceType.ALL_PIECES] & this.castlingPath[(int)cr];
+        return byTypeBB[PieceType.ALL_PIECES] & castlingPath[(int) cr];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Square castling_rook_square(CastlingRight cr)
     {
-        return this.castlingRookSquare[(int)cr];
+        return castlingRookSquare[(int) cr];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard attacks_from(PieceType Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
-                   ? Utils.attacks_bb(Pt, s, this.byTypeBB[PieceType.ALL_PIECES])
-                   : Pt == PieceType.QUEEN
-                         ? this.attacks_from(PieceType.ROOK, s) | this.attacks_from(PieceType.BISHOP, s)
-                         : Utils.StepAttacksBB[Pt, s];
+            ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
+            : Pt == PieceType.QUEEN
+                ? attacks_from(PieceType.ROOK, s) | attacks_from(PieceType.BISHOP, s)
+                : Utils.StepAttacksBB[Pt, s];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard attacks_from(PieceType Pt, Square s, Color c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard attacks_from(Piece pc, Square s)
     {
-        return Utils.attacks_bb(pc, s, this.byTypeBB[PieceType.ALL_PIECES]);
+        return Utils.attacks_bb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard attackers_to(Square s)
     {
-        return this.attackers_to(s, this.byTypeBB[PieceType.ALL_PIECES]);
+        return attackers_to(s, byTypeBB[PieceType.ALL_PIECES]);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard checkers()
     {
-        return this.st.checkersBB;
+        return st.checkersBB;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard discovered_check_candidates()
     {
-        return this.check_blockers(this.sideToMove, ~this.sideToMove);
+        return check_blockers(sideToMove, ~sideToMove);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Bitboard pinned_pieces(Color c)
     {
-        return this.check_blockers(c, c);
+        return check_blockers(c, c);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool pawn_passed(Color c, Square s)
     {
-        return !(this.pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
+        return !(pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool advanced_pawn_push(Move m)
     {
-        return Piece.type_of(this.moved_piece(m)) == PieceType.PAWN
-               && Rank.relative_rank(this.sideToMove, Move.from_sq(m)) > Rank.RANK_4;
+        return Piece.type_of(moved_piece(m)) == PieceType.PAWN
+               && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public ulong key()
     {
-        return this.st.key;
+        return st.key;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public ulong pawn_key()
     {
-        return this.st.pawnKey;
+        return st.pawnKey;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public ulong material_key()
     {
-        return this.st.materialKey;
+        return st.materialKey;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Score psq_score()
     {
-        return this.st.psq;
+        return st.psq;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Value non_pawn_material(Color c)
     {
-        return this.st.nonPawnMaterial[c];
+        return st.nonPawnMaterial[c];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public int game_ply()
     {
-        return this.gamePly;
+        return gamePly;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public int rule50_count()
     {
-        return this.st.rule50;
+        return st.rule50;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public int nodes_searched()
     {
-        return this.nodes;
+        return nodes;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public void set_nodes_searched(int n)
     {
-        this.nodes = n;
+        nodes = n;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool opposite_bishops()
     {
-        return this.pieceCount[Color.WHITE, PieceType.BISHOP] == 1
-               && this.pieceCount[Color.BLACK, PieceType.BISHOP] == 1
+        return pieceCount[Color.WHITE, PieceType.BISHOP] == 1
+               && pieceCount[Color.BLACK, PieceType.BISHOP] == 1
                && Square.opposite_colors(
-                   this.square(PieceType.BISHOP, Color.WHITE),
-                   this.square(PieceType.BISHOP, Color.BLACK));
+                   square(PieceType.BISHOP, Color.WHITE),
+                   square(PieceType.BISHOP, Color.BLACK));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool is_chess960()
     {
-        return this.chess960;
+        return chess960;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool capture_or_promotion(Move m)
     {
         Debug.Assert(Move.is_ok(m));
-        return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !this.empty(Move.to_sq(m));
+        return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !empty(Move.to_sq(m));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public bool capture(Move m)
     {
         // Castling is encoded as "king captures the rook"
         Debug.Assert(Move.is_ok(m));
-        return (!this.empty(Move.to_sq(m)) && Move.type_of(m) != MoveType.CASTLING)
+        return (!empty(Move.to_sq(m)) && Move.type_of(m) != MoveType.CASTLING)
                || Move.type_of(m) == MoveType.ENPASSANT;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public PieceType captured_piece_type()
     {
-        return this.st.capturedType;
+        return st.capturedType;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Thread this_thread()
     {
-        return this.thisThread;
+        return thisThread;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     private void put_piece(Color c, PieceType pt, Square s)
     {
-        this.board[s] = Piece.make_piece(c, pt);
-        this.byTypeBB[PieceType.ALL_PIECES] |= s;
-        this.byTypeBB[pt] |= s;
-        this.byColorBB[c] |= s;
-        this.index[s] = this.pieceCount[c, pt]++;
-        this.pieceList[c, pt, this.index[s]] = s;
-        this.pieceCount[c, PieceType.ALL_PIECES]++;
+        board[s] = Piece.make_piece(c, pt);
+        byTypeBB[PieceType.ALL_PIECES] |= s;
+        byTypeBB[pt] |= s;
+        byColorBB[c] |= s;
+        index[s] = pieceCount[c, pt]++;
+        pieceList[c, pt, index[s]] = s;
+        pieceCount[c, PieceType.ALL_PIECES]++;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     private void remove_piece(Color c, PieceType pt, Square s)
     {
         // WARNING: This is not a reversible operation. If we remove a piece in
         // do_move() and then replace it in undo_move() we will put it at the end of
         // the list and not in its original place, it means index[] and pieceList[]
         // are not guaranteed to be invariant to a do_move() + undo_move() sequence.
-        this.byTypeBB[PieceType.ALL_PIECES] ^= s;
-        this.byTypeBB[pt] ^= s;
-        this.byColorBB[c] ^= s;
+        byTypeBB[PieceType.ALL_PIECES] ^= s;
+        byTypeBB[pt] ^= s;
+        byColorBB[c] ^= s;
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
-        var lastSquare = this.pieceList[c, pt, --this.pieceCount[c, pt]];
-        this.index[lastSquare] = this.index[s];
-        this.pieceList[c, pt, this.index[lastSquare]] = lastSquare;
-        this.pieceList[c, pt, this.pieceCount[c, pt]] = Square.SQ_NONE;
-        this.pieceCount[c, PieceType.ALL_PIECES]--;
+        var lastSquare = pieceList[c, pt, --pieceCount[c, pt]];
+        index[lastSquare] = index[s];
+        pieceList[c, pt, index[lastSquare]] = lastSquare;
+        pieceList[c, pt, pieceCount[c, pt]] = Square.SQ_NONE;
+        pieceCount[c, PieceType.ALL_PIECES]--;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     private void move_piece(Color c, PieceType pt, Square from, Square to)
     {
         // index[from] is not updated and becomes stale. This works as long as index[]
         // is accessed just by known occupied squares.
         var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
-        this.byTypeBB[PieceType.ALL_PIECES] ^= from_to_bb;
-        this.byTypeBB[pt] ^= from_to_bb;
-        this.byColorBB[c] ^= from_to_bb;
-        this.board[from] = Piece.NO_PIECE;
-        this.board[to] = Piece.make_piece(c, pt);
-        this.index[to] = this.index[from];
-        this.pieceList[c, pt, this.index[to]] = to;
+        byTypeBB[PieceType.ALL_PIECES] ^= from_to_bb;
+        byTypeBB[pt] ^= from_to_bb;
+        byColorBB[c] ^= from_to_bb;
+        board[from] = Piece.NO_PIECE;
+        board[to] = Piece.make_piece(c, pt);
+        index[to] = index[from];
+        pieceList[c, pt, index[to]] = to;
     }
 
     /// Position::set_castling_right() is a helper function used to set castling
     /// rights given the corresponding color and the rook starting square.
     private void set_castling_right(Color c, Square rfrom)
     {
-        var kfrom = this.square(PieceType.KING, c);
+        var kfrom = square(PieceType.KING, c);
         var cs = kfrom < rfrom ? CastlingSide.KING_SIDE : CastlingSide.QUEEN_SIDE;
         var cr = (c | cs);
 
-        this.st.castlingRights |= (int)cr;
-        this.castlingRightsMask[kfrom] |= (int)cr;
-        this.castlingRightsMask[rfrom] |= (int)cr;
-        this.castlingRookSquare[(int)cr] = rfrom;
+        st.castlingRights |= (int) cr;
+        castlingRightsMask[kfrom] |= (int) cr;
+        castlingRightsMask[rfrom] |= (int) cr;
+        castlingRookSquare[(int) cr] = rfrom;
 
         var kto = Square.relative_square(c, cs == CastlingSide.KING_SIDE ? Square.SQ_G1 : Square.SQ_C1);
         var rto = Square.relative_square(c, cs == CastlingSide.KING_SIDE ? Square.SQ_F1 : Square.SQ_D1);
@@ -555,7 +545,7 @@ public class Position
         {
             if (s != kfrom && s != rfrom)
             {
-                this.castlingPath[(int)cr] |= s;
+                castlingPath[(int) cr] |= s;
             }
         }
 
@@ -563,7 +553,7 @@ public class Position
         {
             if (s != kfrom && s != rfrom)
             {
-                this.castlingPath[(int)cr] |= s;
+                castlingPath[(int) cr] |= s;
             }
         }
     }
@@ -578,12 +568,12 @@ public class Position
         si.nonPawnMaterial[Color.WHITE] = si.nonPawnMaterial[Color.BLACK] = Value.VALUE_ZERO;
         si.psq = Score.SCORE_ZERO;
 
-        si.checkersBB = this.attackers_to(this.square(PieceType.KING, this.sideToMove)) & this.pieces(~this.sideToMove);
+        si.checkersBB = attackers_to(square(PieceType.KING, sideToMove)) & pieces(~sideToMove);
 
-        for (var b = this.pieces(); b;)
+        for (var b = pieces(); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            var pc = this.piece_on(s);
+            var pc = piece_on(s);
             si.key ^= Zobrist.psq[Piece.color_of(pc), Piece.type_of(pc), s];
             si.psq += PSQT.psq[Piece.color_of(pc), Piece.type_of(pc), s];
         }
@@ -593,24 +583,24 @@ public class Position
             si.key ^= Zobrist.enpassant[Square.file_of(si.epSquare)];
         }
 
-        if (this.sideToMove == Color.BLACK)
+        if (sideToMove == Color.BLACK)
         {
             si.key ^= Zobrist.side;
         }
 
         si.key ^= Zobrist.castling[si.castlingRights];
 
-        for (var b = this.pieces(PieceType.PAWN); b;)
+        for (var b = pieces(PieceType.PAWN); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            si.pawnKey ^= Zobrist.psq[Piece.color_of(this.piece_on(s)), PieceType.PAWN, s];
+            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)), PieceType.PAWN, s];
         }
 
         for (var c = Color.WHITE; c <= Color.BLACK; ++c)
         {
             for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
             {
-                for (var cnt = 0; cnt < this.pieceCount[c, pt]; ++cnt)
+                for (var cnt = 0; cnt < pieceCount[c, pt]; ++cnt)
                 {
                     si.materialKey ^= Zobrist.psq[c, pt, cnt];
                 }
@@ -621,7 +611,7 @@ public class Position
         {
             for (var pt = PieceType.KNIGHT; pt <= PieceType.QUEEN; ++pt)
             {
-                si.nonPawnMaterial[c] += this.pieceCount[c, pt] * Value.PieceValue[(int)Phase.MG][pt];
+                si.nonPawnMaterial[c] += pieceCount[c, pt]*Value.PieceValue[(int) Phase.MG][pt];
             }
         }
     }
@@ -630,12 +620,12 @@ public class Position
     /// material between endgame and midgame limits.
     public Phase game_phase()
     {
-        var npm = this.st.nonPawnMaterial[Color.WHITE] + this.st.nonPawnMaterial[Color.BLACK];
+        var npm = st.nonPawnMaterial[Color.WHITE] + st.nonPawnMaterial[Color.BLACK];
 
         npm = new Value(Math.Max(Value.EndgameLimit, Math.Min(npm, Value.MidgameLimit)));
 
         return
-            (Phase)(((npm - Value.EndgameLimit) * (int)Phase.PHASE_MIDGAME) / (Value.MidgameLimit - Value.EndgameLimit));
+            (Phase) (((npm - Value.EndgameLimit)*(int) Phase.PHASE_MIDGAME)/(Value.MidgameLimit - Value.EndgameLimit));
     }
 
     /// Position::check_blockers() returns a bitboard of all the pieces with color
@@ -647,20 +637,20 @@ public class Position
     private Bitboard check_blockers(Color c, Color kingColor)
     {
         Bitboard b, pinners, result = new Bitboard(0);
-        var ksq = this.square(PieceType.KING, kingColor);
+        var ksq = square(PieceType.KING, kingColor);
 
         // Pinners are sliders that give check when a pinned piece is removed
-        pinners = ((this.pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK, ksq])
-                   | (this.pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP, ksq]))
-                  & this.pieces(~kingColor);
+        pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK, ksq])
+                   | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP, ksq]))
+                  & pieces(~kingColor);
 
         while (pinners)
         {
-            b = Utils.between_bb(ksq, Utils.pop_lsb(ref pinners)) & this.pieces();
+            b = Utils.between_bb(ksq, Utils.pop_lsb(ref pinners)) & pieces();
 
             if (!Bitboard.more_than_one(b))
             {
-                result |= b & this.pieces(c);
+                result |= b & pieces(c);
             }
         }
         return result;
@@ -670,58 +660,58 @@ public class Position
     /// given square. Slider attacks use the occupied bitboard to indicate occupancy.
     private Bitboard attackers_to(Square s, Bitboard occupied)
     {
-        return (this.attacks_from(PieceType.PAWN, s, Color.BLACK) & this.pieces(Color.WHITE, PieceType.PAWN))
-               | (this.attacks_from(PieceType.PAWN, s, Color.WHITE) & this.pieces(Color.BLACK, PieceType.PAWN))
-               | (this.attacks_from(PieceType.KNIGHT, s) & this.pieces(PieceType.KNIGHT))
-               | (Utils.attacks_bb(PieceType.ROOK, s, occupied) & this.pieces(PieceType.ROOK, PieceType.QUEEN))
-               | (Utils.attacks_bb(PieceType.BISHOP, s, occupied) & this.pieces(PieceType.BISHOP, PieceType.QUEEN))
-               | (this.attacks_from(PieceType.KING, s) & this.pieces(PieceType.KING));
+        return (attacks_from(PieceType.PAWN, s, Color.BLACK) & pieces(Color.WHITE, PieceType.PAWN))
+               | (attacks_from(PieceType.PAWN, s, Color.WHITE) & pieces(Color.BLACK, PieceType.PAWN))
+               | (attacks_from(PieceType.KNIGHT, s) & pieces(PieceType.KNIGHT))
+               | (Utils.attacks_bb(PieceType.ROOK, s, occupied) & pieces(PieceType.ROOK, PieceType.QUEEN))
+               | (Utils.attacks_bb(PieceType.BISHOP, s, occupied) & pieces(PieceType.BISHOP, PieceType.QUEEN))
+               | (attacks_from(PieceType.KING, s) & pieces(PieceType.KING));
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
     public bool legal(Move m, Bitboard pinned)
     {
         Debug.Assert(Move.is_ok(m));
-        Debug.Assert(pinned == this.pinned_pieces(this.sideToMove));
+        Debug.Assert(pinned == pinned_pieces(sideToMove));
 
-        var us = this.sideToMove;
+        var us = sideToMove;
         var from = Move.from_sq(m);
 
-        Debug.Assert(Piece.color_of(this.moved_piece(m)) == us);
-        Debug.Assert(this.piece_on(this.square(PieceType.KING, us)) == Piece.make_piece(us, PieceType.KING));
+        Debug.Assert(Piece.color_of(moved_piece(m)) == us);
+        Debug.Assert(piece_on(square(PieceType.KING, us)) == Piece.make_piece(us, PieceType.KING));
 
         // En passant captures are a tricky special case. Because they are rather
         // uncommon, we do it simply by testing whether the king is attacked after
         // the move is made.
         if (Move.type_of(m) == MoveType.ENPASSANT)
         {
-            var ksq = this.square(PieceType.KING, us);
+            var ksq = square(PieceType.KING, us);
             var to = Move.to_sq(m);
             var capsq = to - Square.pawn_push(us);
-            var occupied = (this.pieces() ^ from ^ capsq) | to;
+            var occupied = (pieces() ^ from ^ capsq) | to;
 
-            Debug.Assert(to == this.ep_square());
-            Debug.Assert(this.moved_piece(m) == Piece.make_piece(us, PieceType.PAWN));
-            Debug.Assert(this.piece_on(capsq) == Piece.make_piece(~us, PieceType.PAWN));
-            Debug.Assert(this.piece_on(to) == Piece.NO_PIECE);
+            Debug.Assert(to == ep_square());
+            Debug.Assert(moved_piece(m) == Piece.make_piece(us, PieceType.PAWN));
+            Debug.Assert(piece_on(capsq) == Piece.make_piece(~us, PieceType.PAWN));
+            Debug.Assert(piece_on(to) == Piece.NO_PIECE);
 
             return
-                !(Utils.attacks_bb(PieceType.ROOK, ksq, occupied) & this.pieces(~us, PieceType.QUEEN, PieceType.ROOK))
+                !(Utils.attacks_bb(PieceType.ROOK, ksq, occupied) & pieces(~us, PieceType.QUEEN, PieceType.ROOK))
                 && !(Utils.attacks_bb(PieceType.BISHOP, ksq, occupied)
-                     & this.pieces(~us, PieceType.QUEEN, PieceType.BISHOP));
+                     & pieces(~us, PieceType.QUEEN, PieceType.BISHOP));
         }
 
         // If the moving piece is a king, check whether the destination
         // square is attacked by the opponent. Castling moves are checked
         // for legality during move generation.
-        if (Piece.type_of(this.piece_on(from)) == PieceType.KING)
+        if (Piece.type_of(piece_on(from)) == PieceType.KING)
         {
-            return Move.type_of(m) == MoveType.CASTLING || !(this.attackers_to(Move.to_sq(m)) & this.pieces(~us));
+            return Move.type_of(m) == MoveType.CASTLING || !(attackers_to(Move.to_sq(m)) & pieces(~us));
         }
 
         // A non-king move is legal if and only if it is not pinned or it
         // is moving along the ray towards or away from the king.
-        return !pinned || !(pinned & from) || Utils.aligned(from, Move.to_sq(m), this.square(PieceType.KING, us));
+        return !pinned || !(pinned & from) || Utils.aligned(from, Move.to_sq(m), square(PieceType.KING, us));
     }
 
     /// Position::pseudo_legal() takes a random move and tests whether the move is
@@ -729,10 +719,10 @@ public class Position
     /// due to SMP concurrent access or hash position key aliasing.
     public bool pseudo_legal(Move m)
     {
-        var us = this.sideToMove;
+        var us = sideToMove;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pc = this.moved_piece(m);
+        var pc = moved_piece(m);
 
         // Use a slower but simpler function for uncommon cases
         if (Move.type_of(m) != MoveType.NORMAL)
@@ -754,7 +744,7 @@ public class Position
         }
 
         // The destination square cannot be occupied by a friendly piece
-        if (this.pieces(us) & to)
+        if (pieces(us) & to)
         {
             return false;
         }
@@ -769,16 +759,16 @@ public class Position
                 return false;
             }
 
-            if (!(this.attacks_from(PieceType.PAWN, from, us) & this.pieces(~us) & to) // Not a capture
-                && !((from + Square.pawn_push(us) == to) && this.empty(to)) // Not a single push
-                && !((from + 2 * Square.pawn_push(us) == to) // Not a double push
-                     && (Square.rank_of(from) == Rank.relative_rank(us, Rank.RANK_2)) && this.empty(to)
-                     && this.empty(to - Square.pawn_push(us))))
+            if (!(attacks_from(PieceType.PAWN, from, us) & pieces(~us) & to) // Not a capture
+                && !((from + Square.pawn_push(us) == to) && empty(to)) // Not a single push
+                && !((from + 2*Square.pawn_push(us) == to) // Not a double push
+                     && (Square.rank_of(from) == Rank.relative_rank(us, Rank.RANK_2)) && empty(to)
+                     && empty(to - Square.pawn_push(us))))
             {
                 return false;
             }
         }
-        else if (!(this.attacks_from(pc, from) & to))
+        else if (!(attacks_from(pc, from) & to))
         {
             return false;
         }
@@ -786,19 +776,19 @@ public class Position
         // Evasions generator already takes care to avoid some kind of illegal moves
         // and legal() relies on this. We therefore have to take care that the same
         // kind of moves are filtered out here.
-        if (this.checkers())
+        if (checkers())
         {
             if (Piece.type_of(pc) != PieceType.KING)
             {
                 // Double check? In this case a king move is required
-                if (Bitboard.more_than_one(this.checkers()))
+                if (Bitboard.more_than_one(checkers()))
                 {
                     return false;
                 }
 
                 // Our move must be a blocking evasion or a capture of the checking piece
                 if (
-                    !((Utils.between_bb(Utils.lsb(this.checkers()), this.square(PieceType.KING, us)) | this.checkers())
+                    !((Utils.between_bb(Utils.lsb(checkers()), square(PieceType.KING, us)) | checkers())
                       & to))
                 {
                     return false;
@@ -806,7 +796,7 @@ public class Position
             }
             // In case of king moves under check we have to remove king so as to catch
             // invalid moves like b1a1 when opposite queen is on c1.
-            else if (this.attackers_to(to, this.pieces() ^ from) & this.pieces(~us))
+            else if (attackers_to(to, pieces() ^ from) & pieces(~us))
             {
                 return false;
             }
@@ -819,20 +809,20 @@ public class Position
     public bool gives_check(Move m, CheckInfo ci)
     {
         Debug.Assert(Move.is_ok(m));
-        Debug.Assert(ci.dcCandidates == this.discovered_check_candidates());
-        Debug.Assert(Piece.color_of(this.moved_piece(m)) == this.sideToMove);
+        Debug.Assert(ci.dcCandidates == discovered_check_candidates());
+        Debug.Assert(Piece.color_of(moved_piece(m)) == sideToMove);
 
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
 
         // Is there a direct check?
-        if (ci.checkSquares[Piece.type_of(this.piece_on(from))] & to)
+        if (ci.checkSquares[Piece.type_of(piece_on(from))] & to)
         {
             return true;
         }
 
         // Is there a discovered check?
-        if ((bool)ci.dcCandidates && (ci.dcCandidates & from) && !Utils.aligned(from, to, ci.ksq))
+        if ((bool) ci.dcCandidates && (ci.dcCandidates & from) && !Utils.aligned(from, to, ci.ksq))
         {
             return true;
         }
@@ -843,33 +833,33 @@ public class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb(new Piece(Move.promotion_type(m)), to, this.pieces() ^ from) & ci.ksq;
+                return Utils.attacks_bb(new Piece(Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
             // need to handle is the unusual case of a discovered check through
             // the captured pawn.
             case MoveType.ENPASSANT:
-                {
-                    var capsq = Square.make_square(Square.file_of(to), Square.rank_of(from));
-                    var b = (this.pieces() ^ from ^ capsq) | to;
+            {
+                var capsq = Square.make_square(Square.file_of(to), Square.rank_of(from));
+                var b = (pieces() ^ from ^ capsq) | to;
 
-                    return (Utils.attacks_bb(PieceType.ROOK, ci.ksq, b)
-                            & this.pieces(this.sideToMove, PieceType.QUEEN, PieceType.ROOK))
-                           | (Utils.attacks_bb(PieceType.BISHOP, ci.ksq, b)
-                              & this.pieces(this.sideToMove, PieceType.QUEEN, PieceType.BISHOP));
-                }
+                return (Utils.attacks_bb(PieceType.ROOK, ci.ksq, b)
+                        & pieces(sideToMove, PieceType.QUEEN, PieceType.ROOK))
+                       | (Utils.attacks_bb(PieceType.BISHOP, ci.ksq, b)
+                          & pieces(sideToMove, PieceType.QUEEN, PieceType.BISHOP));
+            }
             case MoveType.CASTLING:
-                {
-                    var kfrom = from;
-                    var rfrom = to; // Castling is encoded as 'King captures the rook'
-                    var kto = Square.relative_square(this.sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
-                    var rto = Square.relative_square(this.sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
+            {
+                var kfrom = from;
+                var rfrom = to; // Castling is encoded as 'King captures the rook'
+                var kto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
+                var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
-                    return (bool)(Utils.PseudoAttacks[PieceType.ROOK, rto] & ci.ksq)
-                           && (Utils.attacks_bb(PieceType.ROOK, rto, (this.pieces() ^ kfrom ^ rfrom) | rto | kto)
-                               & ci.ksq);
-                }
+                return (bool) (Utils.PseudoAttacks[PieceType.ROOK, rto] & ci.ksq)
+                       && (Utils.attacks_bb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
+                           & ci.ksq);
+            }
             default:
                 Debug.Assert(false);
                 return false;
@@ -882,36 +872,36 @@ public class Position
     public void do_move(Move m, StateInfo newSt, bool givesCheck)
     {
         Debug.Assert(Move.is_ok(m));
-        Debug.Assert(newSt != this.st);
+        Debug.Assert(newSt != st);
 
-        ++this.nodes;
-        var k = this.st.key ^ Zobrist.side;
+        ++nodes;
+        var k = st.key ^ Zobrist.side;
 
         // Copy some fields of the old state to our new StateInfo object except the
         // ones which are going to be recalculated from scratch anyway and then switch
         // our state pointer to point to the new (ready to be updated) state.
-        newSt.copyFrom(this.st);
+        newSt.copyFrom(st);
 
-        newSt.previous = this.st;
-        this.st = newSt;
+        newSt.previous = st;
+        st = newSt;
 
         // Increment ply counters. In particular, rule50 will be reset to zero later on
         // in case of a capture or a pawn move.
-        ++this.gamePly;
-        ++this.st.rule50;
-        ++this.st.pliesFromNull;
+        ++gamePly;
+        ++st.rule50;
+        ++st.pliesFromNull;
 
-        var us = this.sideToMove;
+        var us = sideToMove;
         var them = ~us;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = Piece.type_of(this.piece_on(from));
-        var captured = Move.type_of(m) == MoveType.ENPASSANT ? PieceType.PAWN : Piece.type_of(this.piece_on(to));
+        var pt = Piece.type_of(piece_on(from));
+        var captured = Move.type_of(m) == MoveType.ENPASSANT ? PieceType.PAWN : Piece.type_of(piece_on(to));
 
-        Debug.Assert(Piece.color_of(this.piece_on(from)) == us);
+        Debug.Assert(Piece.color_of(piece_on(from)) == us);
         Debug.Assert(
-            this.piece_on(to) == Piece.NO_PIECE
-            || Piece.color_of(this.piece_on(to)) == (Move.type_of(m) != MoveType.CASTLING ? them : us));
+            piece_on(to) == Piece.NO_PIECE
+            || Piece.color_of(piece_on(to)) == (Move.type_of(m) != MoveType.CASTLING ? them : us));
         Debug.Assert(captured != PieceType.KING);
 
         if (Move.type_of(m) == MoveType.CASTLING)
@@ -919,10 +909,10 @@ public class Position
             Debug.Assert(pt == PieceType.KING);
 
             Square rfrom, rto;
-            this.do_castling(true, us, from, ref to, out rfrom, out rto);
+            do_castling(true, us, from, ref to, out rfrom, out rto);
 
             captured = PieceType.NO_PIECE_TYPE;
-            this.st.psq += PSQT.psq[us, PieceType.ROOK, rto] - PSQT.psq[us, PieceType.ROOK, rfrom];
+            st.psq += PSQT.psq[us, PieceType.ROOK, rto] - PSQT.psq[us, PieceType.ROOK, rfrom];
             k ^= Zobrist.psq[us, PieceType.ROOK, rfrom] ^ Zobrist.psq[us, PieceType.ROOK, rto];
         }
 
@@ -939,57 +929,57 @@ public class Position
                     capsq -= Square.pawn_push(us);
 
                     Debug.Assert(pt == PieceType.PAWN);
-                    Debug.Assert(to == this.st.epSquare);
+                    Debug.Assert(to == st.epSquare);
                     Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_6);
-                    Debug.Assert(this.piece_on(to) == Piece.NO_PIECE);
-                    Debug.Assert(this.piece_on(capsq) == Piece.make_piece(them, PieceType.PAWN));
+                    Debug.Assert(piece_on(to) == Piece.NO_PIECE);
+                    Debug.Assert(piece_on(capsq) == Piece.make_piece(them, PieceType.PAWN));
 
-                    this.board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
+                    board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
                 }
 
-                this.st.pawnKey ^= Zobrist.psq[them, PieceType.PAWN, capsq];
+                st.pawnKey ^= Zobrist.psq[them, PieceType.PAWN, capsq];
             }
             else
             {
-                this.st.nonPawnMaterial[them] -= Value.PieceValue[(int)Phase.MG][captured];
+                st.nonPawnMaterial[them] -= Value.PieceValue[(int) Phase.MG][captured];
             }
 
             // Update board and piece lists
-            this.remove_piece(them, captured, capsq);
+            remove_piece(them, captured, capsq);
 
             // Update material hash key and prefetch access to materialTable
             k ^= Zobrist.psq[them, captured, capsq];
-            this.st.materialKey ^= Zobrist.psq[them, captured, this.pieceCount[them, captured]];
+            st.materialKey ^= Zobrist.psq[them, captured, pieceCount[them, captured]];
 
             // Update incremental scores
-            this.st.psq -= PSQT.psq[them, captured, capsq];
+            st.psq -= PSQT.psq[them, captured, capsq];
 
             // Reset rule 50 counter
-            this.st.rule50 = 0;
+            st.rule50 = 0;
         }
 
         // Update hash key
         k ^= Zobrist.psq[us, pt, from] ^ Zobrist.psq[us, pt, to];
 
         // Reset en passant square
-        if (this.st.epSquare != Square.SQ_NONE)
+        if (st.epSquare != Square.SQ_NONE)
         {
-            k ^= Zobrist.enpassant[Square.file_of(this.st.epSquare)];
-            this.st.epSquare = Square.SQ_NONE;
+            k ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
+            st.epSquare = Square.SQ_NONE;
         }
 
         // Update castling rights if needed
-        if (this.st.castlingRights != 0 && ((this.castlingRightsMask[from] | this.castlingRightsMask[to]) != 0))
+        if (st.castlingRights != 0 && ((castlingRightsMask[from] | castlingRightsMask[to]) != 0))
         {
-            var cr = this.castlingRightsMask[from] | this.castlingRightsMask[to];
-            k ^= Zobrist.castling[this.st.castlingRights & cr];
-            this.st.castlingRights &= ~cr;
+            var cr = castlingRightsMask[from] | castlingRightsMask[to];
+            k ^= Zobrist.castling[st.castlingRights & cr];
+            st.castlingRights &= ~cr;
         }
 
         // Move the piece. The tricky Chess960 castling is handled earlier
         if (Move.type_of(m) != MoveType.CASTLING)
         {
-            this.move_piece(us, pt, from, to);
+            move_piece(us, pt, from, to);
         }
 
         // If the moving piece is a pawn do some special extra work
@@ -997,10 +987,10 @@ public class Position
         {
             // Set en-passant square if the moved pawn can be captured
             if ((to ^ from) == 16
-                && (this.attacks_from(PieceType.PAWN, to - Square.pawn_push(us), us) & this.pieces(them, PieceType.PAWN)))
+                && (attacks_from(PieceType.PAWN, to - Square.pawn_push(us), us) & pieces(them, PieceType.PAWN)))
             {
-                this.st.epSquare = (from + to) / 2;
-                k ^= Zobrist.enpassant[Square.file_of(this.st.epSquare)];
+                st.epSquare = (from + to)/2;
+                k ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
             }
 
             else if (Move.type_of(m) == MoveType.PROMOTION)
@@ -1010,46 +1000,46 @@ public class Position
                 Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_8);
                 Debug.Assert(promotion >= PieceType.KNIGHT && promotion <= PieceType.QUEEN);
 
-                this.remove_piece(us, PieceType.PAWN, to);
-                this.put_piece(us, promotion, to);
+                remove_piece(us, PieceType.PAWN, to);
+                put_piece(us, promotion, to);
 
                 // Update hash keys
                 k ^= Zobrist.psq[us, PieceType.PAWN, to] ^ Zobrist.psq[us, promotion, to];
-                this.st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, to];
-                this.st.materialKey ^= Zobrist.psq[us, promotion, this.pieceCount[us, promotion] - 1]
-                                       ^ Zobrist.psq[us, PieceType.PAWN, this.pieceCount[us, PieceType.PAWN]];
+                st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, to];
+                st.materialKey ^= Zobrist.psq[us, promotion, pieceCount[us, promotion] - 1]
+                                  ^ Zobrist.psq[us, PieceType.PAWN, pieceCount[us, PieceType.PAWN]];
 
                 // Update incremental score
-                this.st.psq += PSQT.psq[us, promotion, to] - PSQT.psq[us, PieceType.PAWN, to];
+                st.psq += PSQT.psq[us, promotion, to] - PSQT.psq[us, PieceType.PAWN, to];
 
                 // Update material
-                this.st.nonPawnMaterial[us] += Value.PieceValue[(int)Phase.MG][promotion];
+                st.nonPawnMaterial[us] += Value.PieceValue[(int) Phase.MG][promotion];
             }
 
             // Update pawn hash key and prefetch access to pawnsTable
-            this.st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, from] ^ Zobrist.psq[us, PieceType.PAWN, to];
+            st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, from] ^ Zobrist.psq[us, PieceType.PAWN, to];
 
             // Reset rule 50 draw counter
-            this.st.rule50 = 0;
+            st.rule50 = 0;
         }
 
         // Update incremental scores
-        this.st.psq += PSQT.psq[us, pt, to] - PSQT.psq[us, pt, from];
+        st.psq += PSQT.psq[us, pt, to] - PSQT.psq[us, pt, from];
 
         // Set capture piece
-        this.st.capturedType = captured;
+        st.capturedType = captured;
 
         // Update the key with the final value
-        this.st.key = k;
+        st.key = k;
 
         // Calculate checkers bitboard (if move gives check)
-        this.st.checkersBB = givesCheck
-                                 ? this.attackers_to(this.square(PieceType.KING, them)) & this.pieces(us)
-                                 : new Bitboard(0);
+        st.checkersBB = givesCheck
+            ? attackers_to(square(PieceType.KING, them)) & pieces(us)
+            : new Bitboard(0);
 
-        this.sideToMove = ~this.sideToMove;
+        sideToMove = ~sideToMove;
 
-        Debug.Assert(this.pos_is_ok());
+        Debug.Assert(pos_is_ok());
     }
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
@@ -1058,15 +1048,15 @@ public class Position
     {
         Debug.Assert(Move.is_ok(m));
 
-        this.sideToMove = ~this.sideToMove;
+        sideToMove = ~sideToMove;
 
-        var us = this.sideToMove;
+        var us = sideToMove;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = Piece.type_of(this.piece_on(to));
+        var pt = Piece.type_of(piece_on(to));
 
-        Debug.Assert(this.empty(from) || Move.type_of(m) == MoveType.CASTLING);
-        Debug.Assert(this.st.capturedType != PieceType.KING);
+        Debug.Assert(empty(from) || Move.type_of(m) == MoveType.CASTLING);
+        Debug.Assert(st.capturedType != PieceType.KING);
 
         if (Move.type_of(m) == MoveType.PROMOTION)
         {
@@ -1074,21 +1064,21 @@ public class Position
             Debug.Assert(pt == Move.promotion_type(m));
             Debug.Assert(pt >= PieceType.KNIGHT && pt <= PieceType.QUEEN);
 
-            this.remove_piece(us, pt, to);
-            this.put_piece(us, PieceType.PAWN, to);
+            remove_piece(us, pt, to);
+            put_piece(us, PieceType.PAWN, to);
             pt = PieceType.PAWN;
         }
 
         if (Move.type_of(m) == MoveType.CASTLING)
         {
             Square rfrom, rto;
-            this.do_castling(false, us, from, ref to, out rfrom, out rto);
+            do_castling(false, us, from, ref to, out rfrom, out rto);
         }
         else
         {
-            this.move_piece(us, pt, to, from); // Put the piece back at the source square
+            move_piece(us, pt, to, from); // Put the piece back at the source square
 
-            if (this.st.capturedType)
+            if (st.capturedType)
             {
                 var capsq = to;
 
@@ -1097,21 +1087,21 @@ public class Position
                     capsq -= Square.pawn_push(us);
 
                     Debug.Assert(pt == PieceType.PAWN);
-                    Debug.Assert(to == this.st.previous.epSquare);
+                    Debug.Assert(to == st.previous.epSquare);
                     Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_6);
-                    Debug.Assert(this.piece_on(capsq) == Piece.NO_PIECE);
-                    Debug.Assert(this.st.capturedType == PieceType.PAWN);
+                    Debug.Assert(piece_on(capsq) == Piece.NO_PIECE);
+                    Debug.Assert(st.capturedType == PieceType.PAWN);
                 }
 
-                this.put_piece(~us, this.st.capturedType, capsq); // Restore the captured piece
+                put_piece(~us, st.capturedType, capsq); // Restore the captured piece
             }
         }
 
         // Finally point our state pointer back to the previous state
-        this.st = this.st.previous;
-        --this.gamePly;
+        st = st.previous;
+        --gamePly;
 
-        Debug.Assert(this.pos_is_ok());
+        Debug.Assert(pos_is_ok());
     }
 
     /// Position::do_castling() is a helper used to do/undo a castling move. This
@@ -1124,48 +1114,48 @@ public class Position
         to = Square.relative_square(us, kingSide ? Square.SQ_G1 : Square.SQ_C1);
 
         // Remove both pieces first since squares could overlap in Chess960
-        this.remove_piece(us, PieceType.KING, Do ? from : to);
-        this.remove_piece(us, PieceType.ROOK, Do ? rfrom : rto);
-        this.board[Do ? from : to] = this.board[Do ? rfrom : rto] = Piece.NO_PIECE;
+        remove_piece(us, PieceType.KING, Do ? from : to);
+        remove_piece(us, PieceType.ROOK, Do ? rfrom : rto);
+        board[Do ? from : to] = board[Do ? rfrom : rto] = Piece.NO_PIECE;
         // Since remove_piece doesn't do it for us
-        this.put_piece(us, PieceType.KING, Do ? to : from);
-        this.put_piece(us, PieceType.ROOK, Do ? rto : rfrom);
+        put_piece(us, PieceType.KING, Do ? to : from);
+        put_piece(us, PieceType.ROOK, Do ? rto : rfrom);
     }
 
     /// Position::do(undo)_null_move() is used to do(undo) a "null move": It flips
     /// the side to move without executing any move on the board.
     public void do_null_move(StateInfo newSt)
     {
-        Debug.Assert(!this.checkers());
-        Debug.Assert(newSt != this.st);
+        Debug.Assert(!checkers());
+        Debug.Assert(newSt != st);
 
-        newSt.copyFrom(this.st);
+        newSt.copyFrom(st);
 
-        newSt.previous = this.st;
-        this.st = newSt;
+        newSt.previous = st;
+        st = newSt;
 
-        if (this.st.epSquare != Square.SQ_NONE)
+        if (st.epSquare != Square.SQ_NONE)
         {
-            this.st.key ^= Zobrist.enpassant[Square.file_of(this.st.epSquare)];
-            this.st.epSquare = Square.SQ_NONE;
+            st.key ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
+            st.epSquare = Square.SQ_NONE;
         }
 
-        this.st.key ^= Zobrist.side;
+        st.key ^= Zobrist.side;
 
-        ++this.st.rule50;
-        this.st.pliesFromNull = 0;
+        ++st.rule50;
+        st.pliesFromNull = 0;
 
-        this.sideToMove = ~this.sideToMove;
+        sideToMove = ~sideToMove;
 
-        Debug.Assert(this.pos_is_ok());
+        Debug.Assert(pos_is_ok());
     }
 
     public void undo_null_move()
     {
-        Debug.Assert(!this.checkers());
+        Debug.Assert(!checkers());
 
-        this.st = this.st.previous;
-        this.sideToMove = ~this.sideToMove;
+        st = st.previous;
+        sideToMove = ~sideToMove;
     }
 
     // min_attacker() is a helper function used by see() to locate the least
@@ -1186,7 +1176,7 @@ public class Position
         var b = stmAttackers & bb[Pt];
         if (!b)
         {
-            return this.min_attacker(Pt + 1, bb, to, stmAttackers, ref occupied, ref attackers);
+            return min_attacker(Pt + 1, bb, to, stmAttackers, ref occupied, ref attackers);
         }
 
         occupied ^= b & ~(b - new Bitboard(1));
@@ -1210,12 +1200,12 @@ public class Position
     /// en-passant and promotions.
     private ulong key_after(Move m)
     {
-        var us = this.sideToMove;
+        var us = sideToMove;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = Piece.type_of(this.piece_on(from));
-        var captured = Piece.type_of(this.piece_on(to));
-        var k = this.st.key ^ Zobrist.side;
+        var pt = Piece.type_of(piece_on(from));
+        var captured = Piece.type_of(piece_on(to));
+        var k = st.key ^ Zobrist.side;
 
         if (captured)
         {
@@ -1234,13 +1224,13 @@ public class Position
         // Early return if SEE cannot be negative because captured piece value
         // is not less then capturing one. Note that king moves always return
         // here because king midgame value is set to 0.
-        if (Value.PieceValue[(int)Phase.MG][this.moved_piece(m)]
-            <= Value.PieceValue[(int)Phase.MG][this.piece_on(Move.to_sq(m))])
+        if (Value.PieceValue[(int) Phase.MG][moved_piece(m)]
+            <= Value.PieceValue[(int) Phase.MG][piece_on(Move.to_sq(m))])
         {
             return Value.VALUE_KNOWN_WIN;
         }
 
-        return this.see(m);
+        return see(m);
     }
 
     public Value see(Move m)
@@ -1256,9 +1246,9 @@ public class Position
 
         from = Move.from_sq(m);
         to = Move.to_sq(m);
-        swapList[0] = Value.PieceValue[(int)Phase.MG][this.piece_on(to)];
-        stm = Piece.color_of(this.piece_on(from));
-        occupied = this.pieces() ^ from;
+        swapList[0] = Value.PieceValue[(int) Phase.MG][piece_on(to)];
+        stm = Piece.color_of(piece_on(from));
+        occupied = pieces() ^ from;
 
         // Castling moves are implemented as king capturing the rook so cannot
         // be handled correctly. Simply return VALUE_ZERO that is always correct
@@ -1271,16 +1261,16 @@ public class Position
         if (Move.type_of(m) == MoveType.ENPASSANT)
         {
             occupied ^= to - Square.pawn_push(stm); // Remove the captured pawn
-            swapList[0] = Value.PieceValue[(int)Phase.MG][PieceType.PAWN];
+            swapList[0] = Value.PieceValue[(int) Phase.MG][PieceType.PAWN];
         }
 
         // Find all attackers to the destination square, with the moving piece
         // removed, but possibly an X-ray attacker added behind it.
-        attackers = this.attackers_to(to, occupied) & occupied;
+        attackers = attackers_to(to, occupied) & occupied;
 
         // If the opponent has no attackers we are finished
         stm = ~stm;
-        stmAttackers = attackers & this.pieces(stm);
+        stmAttackers = attackers & pieces(stm);
         if (!stmAttackers)
         {
             return swapList[0];
@@ -1292,22 +1282,22 @@ public class Position
         // destination square, where the sides alternately capture, and always
         // capture with the least valuable piece. After each capture, we look for
         // new X-ray attacks from behind the capturing piece.
-        captured = Piece.type_of(this.piece_on(from));
+        captured = Piece.type_of(piece_on(from));
 
         do
         {
             Debug.Assert(slIndex < 32);
 
             // Add the new entry to the swap list
-            swapList[slIndex] = -swapList[slIndex - 1] + Value.PieceValue[(int)Phase.MG][captured];
+            swapList[slIndex] = -swapList[slIndex - 1] + Value.PieceValue[(int) Phase.MG][captured];
 
             // Locate and remove the next least valuable attacker
-            captured = this.min_attacker(PieceType.PAWN, this.byTypeBB, to, stmAttackers, ref occupied, ref attackers);
+            captured = min_attacker(PieceType.PAWN, byTypeBB, to, stmAttackers, ref occupied, ref attackers);
             stm = ~stm;
-            stmAttackers = attackers & this.pieces(stm);
+            stmAttackers = attackers & pieces(stm);
             ++slIndex;
-        }
-        while (stmAttackers && (captured != PieceType.KING || DecreaseValue(ref slIndex))); // Stop before a king capture
+        } while (stmAttackers && (captured != PieceType.KING || DecreaseValue(ref slIndex)));
+            // Stop before a king capture
 
         // Having built the swap list, we negamax through it to find the best
         // achievable score from the point of view of the side to move.
@@ -1324,21 +1314,22 @@ public class Position
         --value;
         return false;
     }
+
     /// Position::is_draw() tests whether the position is drawn by 50-move rule
     /// or by repetition. It does not detect stalemates.
     public bool is_draw()
     {
-        if (this.st.rule50 > 99 && (!this.checkers() || new MoveList(GenType.LEGAL, this).size() > 0))
+        if (st.rule50 > 99 && (!checkers() || new MoveList(GenType.LEGAL, this).size() > 0))
         {
             return true;
         }
 
-        var stp = this.st;
-        for (int i = 2, e = Math.Min(this.st.rule50, this.st.pliesFromNull); i <= e; i += 2)
+        var stp = st;
+        for (int i = 2, e = Math.Min(st.rule50, st.pliesFromNull); i <= e; i += 2)
         {
             stp = stp.previous.previous;
 
-            if (stp.key == this.st.key)
+            if (stp.key == st.key)
             {
                 return true; // Draw at first repetition
             }
@@ -1351,48 +1342,48 @@ public class Position
     {
         const bool Fast = true; // Quick (default) or full check?
 
-        for (var step = (int)CheckStep.Default;
-             step <= (Fast ? (int)CheckStep.Default : (int)CheckStep.Castling);
-             step++)
+        for (var step = (int) CheckStep.Default;
+            step <= (Fast ? (int) CheckStep.Default : (int) CheckStep.Castling);
+            step++)
         {
-            if (step == (int)CheckStep.Default)
+            if (step == (int) CheckStep.Default)
             {
-                if (this.sideToMove != Color.WHITE && this.sideToMove != Color.BLACK)
+                if (sideToMove != Color.WHITE && sideToMove != Color.BLACK)
                 {
                     return false;
                 }
 
-                if (this.piece_on(this.square(PieceType.KING, Color.WHITE)) != Piece.W_KING)
+                if (piece_on(square(PieceType.KING, Color.WHITE)) != Piece.W_KING)
                 {
                     return false;
                 }
 
-                if (this.piece_on(this.square(PieceType.KING, Color.BLACK)) != Piece.B_KING)
+                if (piece_on(square(PieceType.KING, Color.BLACK)) != Piece.B_KING)
                 {
                     return false;
                 }
 
-                var relRank = Rank.relative_rank(this.sideToMove, this.ep_square());
-                if (this.ep_square() != Square.SQ_NONE && relRank != Rank.RANK_6)
+                var relRank = Rank.relative_rank(sideToMove, ep_square());
+                if (ep_square() != Square.SQ_NONE && relRank != Rank.RANK_6)
                 {
                     return false;
                 }
             }
 
-            if (step == (int)CheckStep.King)
+            if (step == (int) CheckStep.King)
             {
-                if (this.board.Count(piece => piece == Piece.W_KING) != 1
-                    || this.board.Count(piece => piece == Piece.B_KING) != 1
-                    || this.attackers_to(this.square(PieceType.KING, ~this.sideToMove)) & this.pieces(this.sideToMove))
+                if (board.Count(piece => piece == Piece.W_KING) != 1
+                    || board.Count(piece => piece == Piece.B_KING) != 1
+                    || attackers_to(square(PieceType.KING, ~sideToMove)) & pieces(sideToMove))
                 {
                     return false;
                 }
             }
 
-            if (step == (int)CheckStep.Bitboards)
+            if (step == (int) CheckStep.Bitboards)
             {
-                if ((this.pieces(Color.WHITE) & this.pieces(Color.BLACK))
-                    || (this.pieces(Color.WHITE) | this.pieces(Color.BLACK)) != this.pieces())
+                if ((pieces(Color.WHITE) & pieces(Color.BLACK))
+                    || (pieces(Color.WHITE) | pieces(Color.BLACK)) != pieces())
                 {
                     return false;
                 }
@@ -1401,7 +1392,7 @@ public class Position
                 {
                     for (var p2 = PieceType.PAWN; p2 <= PieceType.KING; ++p2)
                     {
-                        if (p1 != p2 && (this.pieces(p1) & this.pieces(p2)))
+                        if (p1 != p2 && (pieces(p1) & pieces(p2)))
                         {
                             return false;
                         }
@@ -1409,21 +1400,21 @@ public class Position
                 }
             }
 
-            if (step == (int)CheckStep.Lists)
+            if (step == (int) CheckStep.Lists)
             {
                 for (var c = Color.WHITE; c <= Color.BLACK; ++c)
                 {
                     for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
                     {
-                        if (this.pieceCount[c, pt] != Bitcount.popcount_Full(this.pieces(c, pt)))
+                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(c, pt)))
                         {
                             return false;
                         }
 
-                        for (var i = 0; i < this.pieceCount[c, pt]; ++i)
+                        for (var i = 0; i < pieceCount[c, pt]; ++i)
                         {
-                            if (this.board[this.pieceList[c, pt, i]] != Piece.make_piece(c, pt)
-                                || this.index[this.pieceList[c, pt, i]] != i)
+                            if (board[pieceList[c, pt, i]] != Piece.make_piece(c, pt)
+                                || index[pieceList[c, pt, i]] != i)
                             {
                                 return false;
                             }
@@ -1432,20 +1423,20 @@ public class Position
                 }
             }
 
-            if (step == (int)CheckStep.Castling)
+            if (step == (int) CheckStep.Castling)
             {
                 for (var c = Color.WHITE; c <= Color.BLACK; ++c)
                 {
                     for (var s = CastlingSide.KING_SIDE; s <= CastlingSide.QUEEN_SIDE; s++)
                     {
-                        if (!this.can_castle(c | s))
+                        if (!can_castle(c | s))
                         {
                             continue;
                         }
 
-                        if (this.piece_on(this.castlingRookSquare[(int)(c | s)]) != Piece.make_piece(c, PieceType.ROOK)
-                            || this.castlingRightsMask[this.castlingRookSquare[(int)(c | s)]] != (int)(c | s)
-                            || (this.castlingRightsMask[this.square(PieceType.KING, c)] & (int)(c | s)) != (int)(c | s))
+                        if (piece_on(castlingRookSquare[(int) (c | s)]) != Piece.make_piece(c, PieceType.ROOK)
+                            || castlingRightsMask[castlingRookSquare[(int) (c | s)]] != (int) (c | s)
+                            || (castlingRightsMask[square(PieceType.KING, c)] & (int) (c | s)) != (int) (c | s))
                         {
                             return false;
                         }
@@ -1466,7 +1457,7 @@ public class Position
         {
             for (var f = File.FILE_A; f <= File.FILE_H; ++f)
             {
-                for (emptyCnt = 0; f <= File.FILE_H && this.empty(Square.make_square(f, r)); ++f)
+                for (emptyCnt = 0; f <= File.FILE_H && empty(Square.make_square(f, r)); ++f)
                 {
                     ++emptyCnt;
                 }
@@ -1478,7 +1469,7 @@ public class Position
 
                 if (f <= File.FILE_H)
                 {
-                    ss.Append(PieceToChar[this.piece_on(Square.make_square(f, r))]);
+                    ss.Append(PieceToChar[piece_on(Square.make_square(f, r))]);
                 }
             }
 
@@ -1488,56 +1479,56 @@ public class Position
             }
         }
 
-        ss.Append((this.sideToMove == Color.WHITE ? " w " : " b "));
+        ss.Append((sideToMove == Color.WHITE ? " w " : " b "));
 
-        if (this.can_castle(CastlingRight.WHITE_OO))
+        if (can_castle(CastlingRight.WHITE_OO))
         {
             ss.Append(
-                (this.chess960
-                     ? (char)('A' + Square.file_of(this.castling_rook_square(Color.WHITE | CastlingSide.KING_SIDE)))
-                     : 'K'));
+                (chess960
+                    ? (char) ('A' + Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.KING_SIDE)))
+                    : 'K'));
         }
 
-        if (this.can_castle(CastlingRight.WHITE_OOO))
+        if (can_castle(CastlingRight.WHITE_OOO))
         {
             ss.Append(
-                (this.chess960
-                     ? (char)('A' + Square.file_of(this.castling_rook_square(Color.WHITE | CastlingSide.QUEEN_SIDE)))
-                     : 'Q'));
+                (chess960
+                    ? (char) ('A' + Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.QUEEN_SIDE)))
+                    : 'Q'));
         }
 
-        if (this.can_castle(CastlingRight.BLACK_OO))
+        if (can_castle(CastlingRight.BLACK_OO))
         {
             ss.Append(
-                (this.chess960
-                     ? (char)('a' + Square.file_of(this.castling_rook_square(Color.BLACK | CastlingSide.KING_SIDE)))
-                     : 'k'));
+                (chess960
+                    ? (char) ('a' + Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.KING_SIDE)))
+                    : 'k'));
         }
 
-        if (this.can_castle(CastlingRight.BLACK_OOO))
+        if (can_castle(CastlingRight.BLACK_OOO))
         {
             ss.Append(
-                (this.chess960
-                     ? (char)('a' + Square.file_of(this.castling_rook_square(Color.BLACK | CastlingSide.QUEEN_SIDE)))
-                     : 'q'));
+                (chess960
+                    ? (char) ('a' + Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.QUEEN_SIDE)))
+                    : 'q'));
         }
 
-        if (this.can_castle(Color.WHITE)==0 && this.can_castle(Color.BLACK)==0)
+        if (can_castle(Color.WHITE) == 0 && can_castle(Color.BLACK) == 0)
         {
             ss.Append('-');
         }
 
-        ss.Append((this.ep_square() == Square.SQ_NONE ? " - " : " " + UCI.square(this.ep_square()) + " "));
-        ss.Append(this.st.rule50);
+        ss.Append((ep_square() == Square.SQ_NONE ? " - " : " " + UCI.square(ep_square()) + " "));
+        ss.Append(st.rule50);
         ss.Append(" ");
-        ss.Append(1 + (this.gamePly - (this.sideToMove == Color.BLACK ? 1 : 0)) / 2);
+        ss.Append(1 + (gamePly - (sideToMove == Color.BLACK ? 1 : 0))/2);
 
         return ss.ToString();
     }
 
     public ulong exclusion_key()
     {
-        return this.st.key ^ Zobrist.exclusion;
+        return st.key ^ Zobrist.exclusion;
     }
 
     private static bool isdigit(char c)
@@ -1620,7 +1611,7 @@ public class Position
 
         var fen = fenStr.ToCharArray();
         var fenPos = 0;
-        this.clear();
+        clear();
 
         // 1. Piece placement
         while ((token = fen[fenPos++]) != ' ')
@@ -1638,7 +1629,7 @@ public class Position
                 p = PieceToChar.IndexOf(token);
                 if (p > -1)
                 {
-                    this.put_piece(Piece.color_of(new Piece(p)), Piece.type_of(new Piece(p)), sq);
+                    put_piece(Piece.color_of(new Piece(p)), Piece.type_of(new Piece(p)), sq);
                     sq++;
                 }
             }
@@ -1646,7 +1637,7 @@ public class Position
 
         // 2. Active color
         token = fen[fenPos++];
-        this.sideToMove = (token == 'w' ? Color.WHITE : Color.BLACK);
+        sideToMove = (token == 'w' ? Color.WHITE : Color.BLACK);
         token = fen[fenPos++];
 
         // 3. Castling availability. Compatible with 3 standards: Normal FEN standard,
@@ -1663,16 +1654,16 @@ public class Position
             if (token == 'K')
             {
                 for (rsq = Square.relative_square(c, Square.SQ_H1);
-                     Piece.type_of(this.piece_on(rsq)) != PieceType.ROOK;
-                     rsq--)
+                    Piece.type_of(piece_on(rsq)) != PieceType.ROOK;
+                    rsq--)
                 {
                 }
             }
             else if (token == 'Q')
             {
                 for (rsq = Square.relative_square(c, Square.SQ_A1);
-                     Piece.type_of(this.piece_on(rsq)) != PieceType.ROOK;
-                     rsq++)
+                    Piece.type_of(piece_on(rsq)) != PieceType.ROOK;
+                    rsq++)
                 {
                 }
             }
@@ -1685,7 +1676,7 @@ public class Position
                 continue;
             }
 
-            this.set_castling_right(c, rsq);
+            set_castling_right(c, rsq);
         }
 
         if (fenPos < fenStr.Length)
@@ -1698,11 +1689,11 @@ public class Position
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
                 {
-                    this.st.epSquare = Square.make_square(new File(col - 'a'), new Rank(row - '1'));
+                    st.epSquare = Square.make_square(new File(col - 'a'), new Rank(row - '1'));
 
-                    if ((this.attackers_to(this.st.epSquare) & this.pieces(this.sideToMove, PieceType.PAWN)) == 0)
+                    if ((attackers_to(st.epSquare) & pieces(sideToMove, PieceType.PAWN)) == 0)
                     {
-                        this.st.epSquare = Square.SQ_NONE;
+                        st.epSquare = Square.SQ_NONE;
                     }
                 }
             }
@@ -1712,89 +1703,72 @@ public class Position
         var tokens = CreateStack(fenStr.Substring(fenPos));
         if (tokens.Count > 0)
         {
-            this.st.rule50 = int.Parse(tokens.Pop());
+            st.rule50 = int.Parse(tokens.Pop());
         }
         if (tokens.Count > 0)
         {
-            this.gamePly = int.Parse(tokens.Pop());
+            gamePly = int.Parse(tokens.Pop());
         }
 
         // Convert from fullmove starting from 1 to ply starting from 0,
         // handle also common incorrect FEN with fullmove = 0.
-        this.gamePly = Math.Max(2 * (this.gamePly - 1), 0) + ((this.sideToMove == Color.BLACK) ? 1 : 0);
+        gamePly = Math.Max(2*(gamePly - 1), 0) + ((sideToMove == Color.BLACK) ? 1 : 0);
 
-        this.chess960 = isChess960;
-        this.thisThread = th;
-        this.set_state(this.st);
+        chess960 = isChess960;
+        thisThread = th;
+        set_state(st);
 
-        Debug.Assert(this.pos_is_ok());
+        Debug.Assert(pos_is_ok());
     }
 
     /// clear() erases the position object to a pristine state, with an
     /// empty board, white to move, and no castling rights.
     internal void clear()
     {
-        this.board = new Piece[Square.SQUARE_NB];
+        board = new Piece[Square.SQUARE_NB];
 
-        this.byColorBB = new Bitboard[Color.COLOR_NB];
+        byColorBB = new Bitboard[Color.COLOR_NB];
 
-        this.byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+        byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-        this.castlingPath = new Bitboard[(int)CastlingRight.CASTLING_RIGHT_NB];
+        castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        this.castlingRightsMask = new int[Square.SQUARE_NB];
+        castlingRightsMask = new int[Square.SQUARE_NB];
 
-        this.castlingRookSquare = new Square[(int)CastlingRight.CASTLING_RIGHT_NB];
+        castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        this.index = new int[Square.SQUARE_NB];
+        index = new int[Square.SQUARE_NB];
 
-        this.pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
+        pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
-        this.pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+        pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
         for (var i = 0; i < PieceType.PIECE_TYPE_NB; ++i)
         {
             for (var j = 0; j < 16; ++j)
             {
-                this.pieceList[Color.WHITE, i, j] = this.pieceList[Color.BLACK, i, j] = Square.SQ_NONE;
+                pieceList[Color.WHITE, i, j] = pieceList[Color.BLACK, i, j] = Square.SQ_NONE;
             }
         }
 
-        this.chess960 = false;
+        chess960 = false;
 
-        this.gamePly = 0;
+        gamePly = 0;
 
-        this.nodes = 0;
+        nodes = 0;
 
-        this.sideToMove = Color.WHITE;
+        sideToMove = Color.WHITE;
 
-        this.thisThread = null;
-        this.startState = new StateInfo();
+        thisThread = null;
+        startState = new StateInfo();
 
-        this.st = this.startState;
+        st = startState;
     }
-
-    /// Position::pos_is_ok() performs some consistency checks for the position object.
-    /// This is meant to be helpful when debugging.
-    private enum CheckStep
-    {
-        Default,
-
-        King,
-
-        Bitboards,
-
-        State,
-
-        Lists,
-
-        Castling
-    };
 
     /// Position::flip() flips position with the white and black sides reversed. This
     /// is only useful for debugging e.g. for finding evaluation symmetry bugs.
     public void flip()
     {
-        var tokens = CreateStack(this.fen());
+        var tokens = CreateStack(fen());
         Debug.Assert(tokens.Count == 6);
 
         var flippedFen = new StringBuilder();
@@ -1841,42 +1815,7 @@ public class Position
         flippedFen.Append(tokens.Pop());
         flippedFen.Append(' ');
 
-        this.set(flippedFen.ToString(), this.chess960, this.this_thread());
-    }
-
-    public Position(Position other)
-        :this(other, other.thisThread)
-    {
-    }
-
-    public Position(Position other, Thread thread)
-    {
-        Array.Copy(other.board, this.board, other.board.Length);
-        Array.Copy(other.byColorBB, this.byColorBB, other.byColorBB.Length);
-        Array.Copy(other.byTypeBB, this.byTypeBB, other.byTypeBB.Length);
-        Array.Copy(other.castlingPath, this.castlingPath, other.castlingPath.Length);
-        Array.Copy(other.castlingRightsMask, this.castlingRightsMask, other.castlingRightsMask.Length);
-        Array.Copy(other.castlingRookSquare, this.castlingRookSquare, other.castlingRookSquare.Length);
-        Array.Copy(other.index, this.index, other.index.Length);
-        Array.Copy(other.pieceCount, this.pieceCount, other.pieceCount.Length);
-        Array.Copy(other.pieceList, this.pieceList, other.pieceList.Length);
-
-        this.chess960 = other.chess960;
-        this.gamePly = other.gamePly;
-        this.sideToMove = other.sideToMove;
-
-        this.thisThread = thread;
-        this.startState = new StateInfo();
-        this.startState.copyFrom(other.st);
-        this.st = this.startState;
-
-        this.nodes = 0;
-        Debug.Assert(this.pos_is_ok());
-    }
-
-    public Position(string f, bool c960, Thread th)
-    {
-        this.set(f, c960, th);
+        set(flippedFen.ToString(), chess960, this_thread());
     }
 
     public string displayString()
@@ -1887,21 +1826,38 @@ public class Position
             for (var f = File.FILE_A; f <= File.FILE_H; ++f)
             {
                 sb.Append(" | ");
-                sb.Append(PieceToChar[this.piece_on(Square.make_square(f, r))]);
+                sb.Append(PieceToChar[piece_on(Square.make_square(f, r))]);
             }
 
             sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");
         }
 
-        sb.Append($"\nFen: {this.fen()}\nKey: {this.st.key:X}\nCheckers: ");
+        sb.Append($"\nFen: {fen()}\nKey: {st.key:X}\nCheckers: ");
 
-        for (var b = this.checkers(); b;)
+        for (var b = checkers(); b;)
         {
             sb.Append(UCI.square(Utils.pop_lsb(ref b)) + " ");
         }
         sb.AppendLine();
         return sb.ToString();
     }
+
+    /// Position::pos_is_ok() performs some consistency checks for the position object.
+    /// This is meant to be helpful when debugging.
+    private enum CheckStep
+    {
+        Default,
+
+        King,
+
+        Bitboards,
+
+        State,
+
+        Lists,
+
+        Castling
+    };
 
     /*
     /// Position::flip() flips position with the white and black sides reversed. This

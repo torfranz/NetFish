@@ -23,32 +23,32 @@ public class MaterialEntry
 
     public void reset()
     {
-        this.evaluationFunction = null;
-        this.factor = new ushort[Color.COLOR_NB];
-        this.gamePhase = Phase.PHASE_ENDGAME;
-        this.key = 0;
-        this.scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
-        this.value = 0;
+        evaluationFunction = null;
+        factor = new ushort[Color.COLOR_NB];
+        gamePhase = Phase.PHASE_ENDGAME;
+        key = 0;
+        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
+        value = 0;
     }
 
     public Score imbalance()
     {
-        return Score.make_score(this.value, this.value);
+        return Score.make_score(value, value);
     }
 
     public Phase game_phase()
     {
-        return this.gamePhase;
+        return gamePhase;
     }
 
     public bool specialized_eval_exists()
     {
-        return this.evaluationFunction != null;
+        return evaluationFunction != null;
     }
 
     public Value evaluate(Position pos)
     {
-        return this.evaluationFunction.GetValue(pos);
+        return evaluationFunction.GetValue(pos);
     }
 
     // scale_factor takes a position and a color as input and returns a scale factor
@@ -58,12 +58,12 @@ public class MaterialEntry
     // for rook pawns and wrong-colored bishops.
     public ScaleFactor scale_factor(Position pos, Color c)
     {
-        if (this.scalingFunction[c] == null)
+        if (scalingFunction[c] == null)
         {
-            return (ScaleFactor)(this.factor[c]);
+            return (ScaleFactor) (factor[c]);
         }
-        return this.scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
-                   ? (ScaleFactor)(this.factor[c])
-                   : this.scalingFunction[c].GetScaleFactor(pos);
+        return scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
+            ? (ScaleFactor) (factor[c])
+            : scalingFunction[c].GetScaleFactor(pos);
     }
 }

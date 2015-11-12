@@ -15,7 +15,7 @@ public static class UCI
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     public static string square(Square s)
     {
-        return $"{(char)('a' + Square.file_of(s))}{(char)('1' + Square.rank_of(s))}";
+        return $"{(char) ('a' + Square.file_of(s))}{(char) ('1' + Square.rank_of(s))}";
     }
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
@@ -51,14 +51,14 @@ public static class UCI
             var tb = false; //TB::RootInTB && Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY;
             //v = tb? TB::Score : v;
 
-            ss.Append($"info depth {d / Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
+            ss.Append($"info depth {d/Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
 
             if (!tb && i == Search.PVIdx)
             {
                 ss.Append(v >= beta ? " lowerbound" : v <= alpha ? " upperbound" : "");
             }
 
-            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched() * 1000 / elapsed}");
+            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched()*1000/elapsed}");
 
             //TODO: enable tablebases
             /*if (elapsed > 1000) // Earlier makes little sense
@@ -71,7 +71,7 @@ public static class UCI
                 ss.Append($" {move(m, pos.is_chess960())}");
             }
         }
-        
+
         return ss.ToString();
     }
 
@@ -89,9 +89,9 @@ public static class UCI
     {
         if (Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY)
         {
-            return $"cp {v * 100 / Value.PawnValueEg}";
+            return $"cp {v*100/Value.PawnValueEg}";
         }
-        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v) / 2}";
+        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v)/2}";
     }
 
     // position() is called when engine receives the "position" UCI command.
@@ -417,8 +417,7 @@ public static class UCI
             {
                 Console.WriteLine($"An error occurred: {ex}");
             }
-        }
-        while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
+        } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 
         ThreadPool.main().join(); // Cannot quit whilst the search is running
     }

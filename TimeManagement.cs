@@ -31,7 +31,7 @@ public static class TimeManagement
         const double XShift = 59.8;
         const double Skew = 0.172;
 
-        return Math.Pow((1 + Math.Exp((ply - XShift) / XScale)), -Skew) + _.DBL_MIN; // Ensure non-zero
+        return Math.Pow((1 + Math.Exp((ply - XShift)/XScale)), -Skew) + _.DBL_MIN; // Ensure non-zero
     }
 
     private static int remaining(TimeType T, int myTime, int movesToGo, int ply, int slowMover)
@@ -39,18 +39,18 @@ public static class TimeManagement
         var TMaxRatio = (T == TimeType.OptimumTime ? 1 : MaxRatio);
         var TStealRatio = (T == TimeType.OptimumTime ? 0 : StealRatio);
 
-        var moveImportance = (move_importance(ply) * slowMover) / 100;
+        var moveImportance = (move_importance(ply)*slowMover)/100;
         double otherMovesImportance = 0;
 
         for (var i = 1; i < movesToGo; ++i)
         {
-            otherMovesImportance += move_importance(ply + 2 * i);
+            otherMovesImportance += move_importance(ply + 2*i);
         }
 
-        var ratio1 = (TMaxRatio * moveImportance) / (TMaxRatio * moveImportance + otherMovesImportance);
-        var ratio2 = (moveImportance + TStealRatio * otherMovesImportance) / (moveImportance + otherMovesImportance);
+        var ratio1 = (TMaxRatio*moveImportance)/(TMaxRatio*moveImportance + otherMovesImportance);
+        var ratio2 = (moveImportance + TStealRatio*otherMovesImportance)/(moveImportance + otherMovesImportance);
 
-        return (int)(myTime * Math.Min(ratio1, ratio2)); // Intel C++ asks an explicit cast
+        return (int) (myTime*Math.Min(ratio1, ratio2)); // Intel C++ asks an explicit cast
     }
 
     /// init() is called at the beginning of the search and calculates the allowed
@@ -76,11 +76,11 @@ public static class TimeManagement
         {
             if (availableNodes == 0) // Only once at game start
             {
-                availableNodes = npmsec * limits.time[us]; // Time is in msec
+                availableNodes = npmsec*limits.time[us]; // Time is in msec
             }
 
             // Convert from millisecs to nodes
-            limits.time[us] = (int)availableNodes;
+            limits.time[us] = (int) availableNodes;
             limits.inc[us] *= npmsec;
             limits.npmsec = npmsec;
         }
@@ -97,7 +97,7 @@ public static class TimeManagement
         for (var hypMTG = 1; hypMTG <= MaxMTG; ++hypMTG)
         {
             // Calculate thinking time for hypothetical "moves to go"-value
-            var hypMyTime = limits.time[us] + limits.inc[us] * (hypMTG - 1) - moveOverhead * (2 + Math.Min(hypMTG, 40));
+            var hypMyTime = limits.time[us] + limits.inc[us]*(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
 
             hypMyTime = Math.Max(hypMyTime, 0);
 
@@ -110,7 +110,7 @@ public static class TimeManagement
 
         if (bool.Parse(OptionMap.Instance["Ponder"].v))
         {
-            optimumTime += optimumTime / 4;
+            optimumTime += optimumTime/4;
         }
 
         optimumTime = Math.Min(optimumTime, maximumTime);
@@ -123,7 +123,7 @@ public static class TimeManagement
 
     public static int available()
     {
-        return (int)(optimumTime * unstablePvFactor * 0.76);
+        return (int) (optimumTime*unstablePvFactor*0.76);
     }
 
     public static int maximum()
@@ -133,7 +133,9 @@ public static class TimeManagement
 
     public static int elapsed()
     {
-        return Search.Limits.npmsec != 0 ? Search.RootPos.nodes_searched() : (int)(DateTime.Now - start).TotalMilliseconds;
+        return Search.Limits.npmsec != 0
+            ? Search.RootPos.nodes_searched()
+            : (int) (DateTime.Now - start).TotalMilliseconds;
     }
 
     private enum TimeType

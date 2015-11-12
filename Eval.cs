@@ -19,145 +19,145 @@ public static class Eval
     private static readonly int KingSafety = 4;
 
     public static Weight[] Weights =
-        {
-            new Weight(289, 344), new Weight(233, 201), new Weight(221, 273),
-            new Weight(46, 0), new Weight(322, 0)
-        };
+    {
+        new Weight(289, 344), new Weight(233, 201), new Weight(221, 273),
+        new Weight(46, 0), new Weight(322, 0)
+    };
 
     // MobilityBonus[PieceType][attacked] contains bonuses for middle and end
     // game, indexed by piece type and number of attacked squares not occupied by
     // friendly pieces.
     public static Score[][] MobilityBonus =
+    {
+        new Score[] {}, new Score[] {},
+        new[]
         {
-            new Score[] { }, new Score[] { },
-            new[]
-                {
-                    Score.make_score(-68, -49), Score.make_score(-46, -33),
-                    Score.make_score(-3, -12), Score.make_score(5, -4),
-                    Score.make_score(9, 11), Score.make_score(15, 16), // Knights
-                    Score.make_score(23, 27), Score.make_score(33, 28),
-                    Score.make_score(37, 29)
-                },
-            new[]
-                {
-                    Score.make_score(-49, -44), Score.make_score(-23, -16),
-                    Score.make_score(16, 1), Score.make_score(29, 16),
-                    Score.make_score(40, 25), Score.make_score(51, 34), // Bishops
-                    Score.make_score(55, 43), Score.make_score(61, 49),
-                    Score.make_score(64, 51), Score.make_score(68, 52),
-                    Score.make_score(73, 55), Score.make_score(75, 60),
-                    Score.make_score(80, 65), Score.make_score(86, 66)
-                },
-            new[]
-                {
-                    Score.make_score(-50, -57), Score.make_score(-28, -22),
-                    Score.make_score(-11, 7), Score.make_score(-1, 29),
-                    Score.make_score(0, 39), Score.make_score(1, 46), // Rooks
-                    Score.make_score(10, 66), Score.make_score(16, 79),
-                    Score.make_score(22, 86), Score.make_score(23, 103),
-                    Score.make_score(30, 109), Score.make_score(33, 111),
-                    Score.make_score(37, 115), Score.make_score(38, 119),
-                    Score.make_score(48, 124)
-                },
-            new[]
-                {
-                    Score.make_score(-43, -30), Score.make_score(-27, -15),
-                    Score.make_score(1, -5), Score.make_score(2, -3),
-                    Score.make_score(14, 10), Score.make_score(18, 24), // Queens
-                    Score.make_score(20, 27), Score.make_score(33, 37),
-                    Score.make_score(33, 38), Score.make_score(34, 43),
-                    Score.make_score(40, 46), Score.make_score(43, 56),
-                    Score.make_score(46, 61), Score.make_score(52, 63),
-                    Score.make_score(52, 63), Score.make_score(57, 65),
-                    Score.make_score(60, 70), Score.make_score(61, 74),
-                    Score.make_score(67, 80), Score.make_score(76, 82),
-                    Score.make_score(77, 88), Score.make_score(82, 94),
-                    Score.make_score(86, 95), Score.make_score(90, 96),
-                    Score.make_score(94, 99), Score.make_score(96, 100),
-                    Score.make_score(99, 111), Score.make_score(99, 112)
-                }
-        };
+            Score.make_score(-68, -49), Score.make_score(-46, -33),
+            Score.make_score(-3, -12), Score.make_score(5, -4),
+            Score.make_score(9, 11), Score.make_score(15, 16), // Knights
+            Score.make_score(23, 27), Score.make_score(33, 28),
+            Score.make_score(37, 29)
+        },
+        new[]
+        {
+            Score.make_score(-49, -44), Score.make_score(-23, -16),
+            Score.make_score(16, 1), Score.make_score(29, 16),
+            Score.make_score(40, 25), Score.make_score(51, 34), // Bishops
+            Score.make_score(55, 43), Score.make_score(61, 49),
+            Score.make_score(64, 51), Score.make_score(68, 52),
+            Score.make_score(73, 55), Score.make_score(75, 60),
+            Score.make_score(80, 65), Score.make_score(86, 66)
+        },
+        new[]
+        {
+            Score.make_score(-50, -57), Score.make_score(-28, -22),
+            Score.make_score(-11, 7), Score.make_score(-1, 29),
+            Score.make_score(0, 39), Score.make_score(1, 46), // Rooks
+            Score.make_score(10, 66), Score.make_score(16, 79),
+            Score.make_score(22, 86), Score.make_score(23, 103),
+            Score.make_score(30, 109), Score.make_score(33, 111),
+            Score.make_score(37, 115), Score.make_score(38, 119),
+            Score.make_score(48, 124)
+        },
+        new[]
+        {
+            Score.make_score(-43, -30), Score.make_score(-27, -15),
+            Score.make_score(1, -5), Score.make_score(2, -3),
+            Score.make_score(14, 10), Score.make_score(18, 24), // Queens
+            Score.make_score(20, 27), Score.make_score(33, 37),
+            Score.make_score(33, 38), Score.make_score(34, 43),
+            Score.make_score(40, 46), Score.make_score(43, 56),
+            Score.make_score(46, 61), Score.make_score(52, 63),
+            Score.make_score(52, 63), Score.make_score(57, 65),
+            Score.make_score(60, 70), Score.make_score(61, 74),
+            Score.make_score(67, 80), Score.make_score(76, 82),
+            Score.make_score(77, 88), Score.make_score(82, 94),
+            Score.make_score(86, 95), Score.make_score(90, 96),
+            Score.make_score(94, 99), Score.make_score(96, 100),
+            Score.make_score(99, 111), Score.make_score(99, 112)
+        }
+    };
 
     // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
     // bishops outposts, bigger if outpost piece is supported by a pawn.
     public static Score[][] Outpost =
-        {
-            new[] { Score.make_score(42, 11), Score.make_score(63, 17) }, // Knights
-            new[] { Score.make_score(18, 5), Score.make_score(27, 8) } // Bishops
-        };
+    {
+        new[] {Score.make_score(42, 11), Score.make_score(63, 17)}, // Knights
+        new[] {Score.make_score(18, 5), Score.make_score(27, 8)} // Bishops
+    };
 
     // Threat[defended/weak][minor/rook attacking][attacked PieceType] contains
     // bonuses according to which piece type attacks which one.
     public static Score[][][] Threat =
+    {
+        new[]
         {
             new[]
-                {
-                    new[]
-                        {
-                            Score.make_score(0, 0), Score.make_score(0, 0),
-                            Score.make_score(19, 37), Score.make_score(24, 37),
-                            Score.make_score(44, 97), Score.make_score(35, 106)
-                        },
-                    // Minor on Defended
-                    new[]
-                        {
-                            Score.make_score(0, 0), Score.make_score(0, 0),
-                            Score.make_score(9, 14), Score.make_score(9, 14),
-                            Score.make_score(7, 14), Score.make_score(24, 48)
-                        }
-                },
-            // Rook on Defended
+            {
+                Score.make_score(0, 0), Score.make_score(0, 0),
+                Score.make_score(19, 37), Score.make_score(24, 37),
+                Score.make_score(44, 97), Score.make_score(35, 106)
+            },
+            // Minor on Defended
             new[]
-                {
-                    new[]
-                        {
-                            Score.make_score(0, 0), Score.make_score(0, 32),
-                            Score.make_score(33, 41), Score.make_score(31, 50),
-                            Score.make_score(41, 100), Score.make_score(35, 104)
-                        },
-                    // Minor on Weak
-                    new[]
-                        {
-                            Score.make_score(0, 0), Score.make_score(0, 27),
-                            Score.make_score(26, 57), Score.make_score(26, 57),
-                            Score.make_score(0, 43), Score.make_score(23, 51)
-                        }
-                }
-            // Rook on Weak
-        };
+            {
+                Score.make_score(0, 0), Score.make_score(0, 0),
+                Score.make_score(9, 14), Score.make_score(9, 14),
+                Score.make_score(7, 14), Score.make_score(24, 48)
+            }
+        },
+        // Rook on Defended
+        new[]
+        {
+            new[]
+            {
+                Score.make_score(0, 0), Score.make_score(0, 32),
+                Score.make_score(33, 41), Score.make_score(31, 50),
+                Score.make_score(41, 100), Score.make_score(35, 104)
+            },
+            // Minor on Weak
+            new[]
+            {
+                Score.make_score(0, 0), Score.make_score(0, 27),
+                Score.make_score(26, 57), Score.make_score(26, 57),
+                Score.make_score(0, 43), Score.make_score(23, 51)
+            }
+        }
+        // Rook on Weak
+    };
 
     // ThreatenedByPawn[PieceType] contains a penalty according to which piece
     // type is attacked by an enemy pawn.
     public static Score[] ThreatenedByPawn =
-        {
-            Score.make_score(0, 0), Score.make_score(0, 0),
-            Score.make_score(107, 138), Score.make_score(84, 122),
-            Score.make_score(114, 203), Score.make_score(121, 217)
-        };
+    {
+        Score.make_score(0, 0), Score.make_score(0, 0),
+        Score.make_score(107, 138), Score.make_score(84, 122),
+        Score.make_score(114, 203), Score.make_score(121, 217)
+    };
 
     // Passed[mg/eg][rank] contains midgame and endgame bonuses for passed pawns.
     // We don't use a Score because we process the two components independently.
     public static Value[][] Passed =
+    {
+        new[]
         {
-            new[]
-                {
-                    new Value(0), new Value(1), new Value(34), new Value(90), new Value(214),
-                    new Value(328)
-                },
-            new[]
-                {
-                    new Value(7), new Value(14), new Value(37), new Value(63), new Value(134),
-                    new Value(189)
-                }
-        };
+            new Value(0), new Value(1), new Value(34), new Value(90), new Value(214),
+            new Value(328)
+        },
+        new[]
+        {
+            new Value(7), new Value(14), new Value(37), new Value(63), new Value(134),
+            new Value(189)
+        }
+    };
 
     // PassedFile[File] contains a bonus according to the file of a passed pawn.
     public static Score[] PassedFile =
-        {
-            Score.make_score(14, 13), Score.make_score(2, 5), Score.make_score(-3, -4),
-            Score.make_score(-19, -14), Score.make_score(-19, -14),
-            Score.make_score(-3, -4), Score.make_score(2, 5), Score.make_score(14, 13)
-        };
+    {
+        Score.make_score(14, 13), Score.make_score(2, 5), Score.make_score(-3, -4),
+        Score.make_score(-19, -14), Score.make_score(-19, -14),
+        Score.make_score(-3, -4), Score.make_score(2, 5), Score.make_score(14, 13)
+    };
 
     public static Score ThreatenedByHangingPawn = Score.make_score(40, 60);
 
@@ -196,12 +196,12 @@ public static class Eval
     // based on how many squares inside this area are safe and available for
     // friendly minor pieces.
     public static Bitboard[] SpaceMask =
-        {
-            (Bitboard.FileCBB | Bitboard.FileDBB | Bitboard.FileEBB | Bitboard.FileFBB)
-            & (Bitboard.Rank2BB | Bitboard.Rank3BB | Bitboard.Rank4BB),
-            (Bitboard.FileCBB | Bitboard.FileDBB | Bitboard.FileEBB | Bitboard.FileFBB)
-            & (Bitboard.Rank7BB | Bitboard.Rank6BB | Bitboard.Rank5BB)
-        };
+    {
+        (Bitboard.FileCBB | Bitboard.FileDBB | Bitboard.FileEBB | Bitboard.FileFBB)
+        & (Bitboard.Rank2BB | Bitboard.Rank3BB | Bitboard.Rank4BB),
+        (Bitboard.FileCBB | Bitboard.FileDBB | Bitboard.FileEBB | Bitboard.FileFBB)
+        & (Bitboard.Rank7BB | Bitboard.Rank6BB | Bitboard.Rank5BB)
+    };
 
     // King danger constants and variables. The king danger scores are looked-up
     // in KingDanger[]. Various little "meta-bonuses" measuring the strength
@@ -210,7 +210,7 @@ public static class Eval
     public static Score[] KingDanger = new Score[512];
 
     // KingAttackWeights[PieceType] contains king attack weights by piece type
-    public static int[] KingAttackWeights = { 0, 0, 7, 5, 4, 1 };
+    public static int[] KingAttackWeights = {0, 0, 7, 5, 4, 1};
 
     // Penalties for enemy's safe checks
     public static int QueenContactCheck = 89;
@@ -223,7 +223,7 @@ public static class Eval
 
     public static int KnightCheck = 14;
 
-    private static double[,,] scores = new double[(int)Term.TERM_NB, Color.COLOR_NB, (int)Phase.PHASE_NB];
+    private static double[,,] scores = new double[(int) Term.TERM_NB, Color.COLOR_NB, (int) Phase.PHASE_NB];
 
     // init_eval_info() initializes king bitboards for given color adding
     // pawn attacks. To be done at the beginning of the evaluation.
@@ -251,7 +251,6 @@ public static class Eval
             ei.kingRing[Them] = new Bitboard(0);
             ei.kingAttackersCount[Us] = 0;
         }
-        
     }
 
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
@@ -281,13 +280,13 @@ public static class Eval
         {
             // Find attacked squares, including x-ray attacks for bishops and rooks
             b = Pt == PieceType.BISHOP
-                    ? Utils.attacks_bb(PieceType.BISHOP, s, pos.pieces() ^ pos.pieces(Us, PieceType.QUEEN))
-                    : Pt == PieceType.ROOK
-                          ? Utils.attacks_bb(
-                              PieceType.ROOK,
-                              s,
-                              pos.pieces() ^ pos.pieces(Us, PieceType.ROOK, PieceType.QUEEN))
-                          : pos.attacks_from(Pt, s);
+                ? Utils.attacks_bb(PieceType.BISHOP, s, pos.pieces() ^ pos.pieces(Us, PieceType.QUEEN))
+                : Pt == PieceType.ROOK
+                    ? Utils.attacks_bb(
+                        PieceType.ROOK,
+                        s,
+                        pos.pieces() ^ pos.pieces(Us, PieceType.ROOK, PieceType.QUEEN))
+                    : pos.attacks_from(Pt, s);
 
             if (ei.pinnedPieces[Us] & s)
             {
@@ -315,8 +314,8 @@ public static class Eval
             }
 
             var mob = Pt == PieceType.QUEEN
-                          ? Bitcount.popcount_Full(b & mobilityArea[Us])
-                          : Bitcount.popcount_Max15(b & mobilityArea[Us]);
+                ? Bitcount.popcount_Full(b & mobilityArea[Us])
+                : Bitcount.popcount_Max15(b & mobilityArea[Us]);
 
             mobility[Us] += MobilityBonus[Pt][mob];
 
@@ -339,7 +338,7 @@ public static class Eval
                 // Penalty for pawns on same color square of bishop
                 if (Pt == PieceType.BISHOP)
                 {
-                    score -= BishopPawns * ei.pi.pawns_on_same_color_squares(Us, s);
+                    score -= BishopPawns*ei.pi.pawns_on_same_color_squares(Us, s);
                 }
 
                 // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -352,10 +351,10 @@ public static class Eval
                     if (pos.piece_on(s + d) == Piece.make_piece(Us, PieceType.PAWN))
                     {
                         score -= !pos.empty(s + d + Square.pawn_push(Us))
-                                     ? TrappedBishopA1H1 * 4
-                                     : pos.piece_on(s + d + d) == Piece.make_piece(Us, PieceType.PAWN)
-                                           ? TrappedBishopA1H1 * 2
-                                           : TrappedBishopA1H1;
+                            ? TrappedBishopA1H1*4
+                            : pos.piece_on(s + d + d) == Piece.make_piece(Us, PieceType.PAWN)
+                                ? TrappedBishopA1H1*2
+                                : TrappedBishopA1H1;
                     }
                 }
             }
@@ -368,7 +367,7 @@ public static class Eval
                     var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK, s];
                     if (alignedPawns)
                     {
-                        score += Bitcount.popcount_Max15(alignedPawns) * RookOnPawn;
+                        score += Bitcount.popcount_Max15(alignedPawns)*RookOnPawn;
                     }
                 }
 
@@ -387,7 +386,7 @@ public static class Eval
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
                         && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {
-                        score -= (TrappedRook - Score.make_score(mob * 22, 0)) * (1 + (pos.can_castle(Us) == 0 ? 1 : 0));
+                        score -= (TrappedRook - Score.make_score(mob*22, 0))*(1 + (pos.can_castle(Us) == 0 ? 1 : 0));
                     }
                 }
             }
@@ -398,7 +397,7 @@ public static class Eval
             add(Pt, Us, score);
         }
         // Recursively call evaluate_pieces() of next piece type until KING excluded
-         return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
+        return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
     }
 
     // evaluate_king() assigns bonuses and penalties to a king of a given color
@@ -429,10 +428,10 @@ public static class Eval
             // number and types of the enemy's attacking pieces, the number of
             // attacked and undefended squares around our king and the quality of
             // the pawn shelter (current 'score' value).
-            attackUnits = Math.Min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                          + 9 * ei.kingAdjacentZoneAttacksCount[Them] + 27 * Bitcount.popcount_Max15(undefended)
-                          + 11 * (ei.pinnedPieces[Us] != 0 ? 1 : 0)
-                          - 64 * (pos.count(PieceType.QUEEN, Them) == 0 ? 1 : 0) - Score.mg_value(score) / 8;
+            attackUnits = Math.Min(72, ei.kingAttackersCount[Them]*ei.kingAttackersWeight[Them])
+                          + 9*ei.kingAdjacentZoneAttacksCount[Them] + 27*Bitcount.popcount_Max15(undefended)
+                          + 11*(ei.pinnedPieces[Us] != 0 ? 1 : 0)
+                          - 64*(pos.count(PieceType.QUEEN, Them) == 0 ? 1 : 0) - Score.mg_value(score)/8;
 
             // Analyse the enemy's safe queen contact checks. Firstly, find the
             // undefended squares around the king reachable by the enemy queen...
@@ -445,7 +444,7 @@ public static class Eval
 
                 if (b)
                 {
-                    attackUnits += QueenContactCheck * Bitcount.popcount_Max15(b);
+                    attackUnits += QueenContactCheck*Bitcount.popcount_Max15(b);
                 }
             }
 
@@ -459,7 +458,7 @@ public static class Eval
             b = (b1 | b2) & ei.attackedBy[Them, PieceType.QUEEN];
             if (b)
             {
-                attackUnits += QueenCheck * Bitcount.popcount_Max15(b);
+                attackUnits += QueenCheck*Bitcount.popcount_Max15(b);
                 score -= Checked;
             }
 
@@ -467,7 +466,7 @@ public static class Eval
             b = b1 & ei.attackedBy[Them, PieceType.ROOK];
             if (b)
             {
-                attackUnits += RookCheck * Bitcount.popcount_Max15(b);
+                attackUnits += RookCheck*Bitcount.popcount_Max15(b);
                 score -= Checked;
             }
 
@@ -475,7 +474,7 @@ public static class Eval
             b = b2 & ei.attackedBy[Them, PieceType.BISHOP];
             if (b)
             {
-                attackUnits += BishopCheck * Bitcount.popcount_Max15(b);
+                attackUnits += BishopCheck*Bitcount.popcount_Max15(b);
                 score -= Checked;
             }
 
@@ -483,7 +482,7 @@ public static class Eval
             b = pos.attacks_from(PieceType.KNIGHT, ksq) & ei.attackedBy[Them, PieceType.KNIGHT] & safe;
             if (b)
             {
-                attackUnits += KnightCheck * Bitcount.popcount_Max15(b);
+                attackUnits += KnightCheck*Bitcount.popcount_Max15(b);
                 score -= Checked;
             }
 
@@ -581,7 +580,7 @@ public static class Eval
             b = weak & ~ei.attackedBy[Them, PieceType.ALL_PIECES];
             if (b)
             {
-                score += Hanging * Bitcount.popcount_Max15(b);
+                score += Hanging*Bitcount.popcount_Max15(b);
             }
 
             b = weak & ei.attackedBy[Us, PieceType.KING];
@@ -603,12 +602,12 @@ public static class Eval
 
         if (b)
         {
-            score += Bitcount.popcount_Max15(b) * PawnAttackThreat;
+            score += Bitcount.popcount_Max15(b)*PawnAttackThreat;
         }
 
         if (DoTrace)
         {
-            add((int)Term.THREAT, Us, score);
+            add((int) Term.THREAT, Us, score);
         }
 
         return score;
@@ -631,22 +630,22 @@ public static class Eval
             Debug.Assert(pos.pawn_passed(Us, s));
 
             int r = Rank.relative_rank(Us, s) - Rank.RANK_2;
-            var rr = r * (r - 1);
+            var rr = r*(r - 1);
 
-            Value mbonus = Passed[(int)Phase.MG][r], ebonus = Passed[(int)Phase.EG][r];
+            Value mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
 
             if (rr != 0)
             {
                 var blockSq = s + Square.pawn_push(Us);
 
                 // Adjust bonus based on the king's proximity
-                ebonus += Utils.distance_Square(pos.square(PieceType.KING, Them), blockSq) * 5 * rr
-                          - Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq) * 2 * rr;
+                ebonus += Utils.distance_Square(pos.square(PieceType.KING, Them), blockSq)*5*rr
+                          - Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq)*2*rr;
 
                 // If blockSq is not the queening square then consider also a second push
                 if (Rank.relative_rank(Us, blockSq) != Rank.RANK_8)
                 {
-                    ebonus -= Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq + Square.pawn_push(Us)) * rr;
+                    ebonus -= Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq + Square.pawn_push(Us))*rr;
                 }
 
                 // If the pawn is free to advance, then increase the bonus
@@ -686,19 +685,19 @@ public static class Eval
                         k += 4;
                     }
 
-                    mbonus += k * rr;
-                    ebonus += k * rr;
+                    mbonus += k*rr;
+                    ebonus += k*rr;
                 }
                 else if (pos.pieces(Us) & blockSq)
                 {
-                    mbonus += rr * 3 + r * 2 + 3;
-                    ebonus += rr + r * 2;
+                    mbonus += rr*3 + r*2 + 3;
+                    ebonus += rr + r*2;
                 }
             } // rr != 0
 
             if (pos.count(PieceType.PAWN, Us) < pos.count(PieceType.PAWN, Them))
             {
-                ebonus += ebonus / 4;
+                ebonus += ebonus/4;
             }
 
             score += Score.make_score(mbonus, ebonus) + PassedFile[Square.file_of(s)];
@@ -706,11 +705,11 @@ public static class Eval
 
         if (DoTrace)
         {
-            add((int)Term.PASSED, Us, score * Weights[PassedPawns]);
+            add((int) Term.PASSED, Us, score*Weights[PassedPawns]);
         }
 
         // Add the scores to the middlegame and endgame eval
-        return score * Weights[PassedPawns];
+        return score*Weights[PassedPawns];
     }
 
     // evaluate_space() computes the space evaluation for a given side. The
@@ -735,14 +734,14 @@ public static class Eval
         behind |= (Us == Color.WHITE ? behind >> 16 : behind << 16);
 
         // Since SpaceMask[Us] is fully on our half of the board...
-        Debug.Assert((uint)(safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
+        Debug.Assert((uint) (safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
 
         // ...count safe + (behind & safe) with a single popcount
         var bonus = Bitcount.popcount_Full((Us == Color.WHITE ? safe << 32 : safe >> 32) | (behind & safe));
         var weight = pos.count(PieceType.KNIGHT, Us) + pos.count(PieceType.BISHOP, Us)
                      + pos.count(PieceType.KNIGHT, Them) + pos.count(PieceType.BISHOP, Them);
 
-        return Score.make_score(bonus * weight * weight, 0);
+        return Score.make_score(bonus*weight*weight, 0);
     }
 
     /// evaluate() is the main evaluation function. It returns a static evaluation
@@ -753,7 +752,7 @@ public static class Eval
 
         var ei = new EvalInfo();
         Score score;
-        Score[] mobility = { Score.SCORE_ZERO, Score.SCORE_ZERO };
+        Score[] mobility = {Score.SCORE_ZERO, Score.SCORE_ZERO};
 
         // Initialize score by reading the incrementally updated scores included
         // in the position object (material + piece square tables).
@@ -773,7 +772,7 @@ public static class Eval
 
         // Probe the pawn hash table
         ei.pi = Pawns.probe(pos);
-        score += ei.pi.pawns_score() * Weights[PawnStructure];
+        score += ei.pi.pawns_score()*Weights[PawnStructure];
 
         // Initialize attack and king safety bitboards
         ei.attackedBy[Color.WHITE, PieceType.ALL_PIECES] =
@@ -783,28 +782,28 @@ public static class Eval
 
         // Pawns blocked or on ranks 2 and 3. Will be excluded from the mobility area
         Bitboard[] blockedPawns =
-            {
-                pos.pieces(Color.WHITE, PieceType.PAWN)
-                & (Bitboard.shift_bb(Square.DELTA_S, pos.pieces()) | Bitboard.Rank2BB
-                   | Bitboard.Rank3BB),
-                pos.pieces(Color.BLACK, PieceType.PAWN)
-                & (Bitboard.shift_bb(Square.DELTA_N, pos.pieces()) | Bitboard.Rank7BB
-                   | Bitboard.Rank6BB)
-            };
+        {
+            pos.pieces(Color.WHITE, PieceType.PAWN)
+            & (Bitboard.shift_bb(Square.DELTA_S, pos.pieces()) | Bitboard.Rank2BB
+               | Bitboard.Rank3BB),
+            pos.pieces(Color.BLACK, PieceType.PAWN)
+            & (Bitboard.shift_bb(Square.DELTA_N, pos.pieces()) | Bitboard.Rank7BB
+               | Bitboard.Rank6BB)
+        };
 
         // Do not include in mobility squares protected by enemy pawns, or occupied
         // by our blocked pawns or king.
         Bitboard[] mobilityArea =
-            {
-                ~(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
-                  | pos.square(PieceType.KING, Color.WHITE)),
-                ~(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
-                  | pos.square(PieceType.KING, Color.BLACK))
-            };
+        {
+            ~(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
+              | pos.square(PieceType.KING, Color.WHITE)),
+            ~(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
+              | pos.square(PieceType.KING, Color.BLACK))
+        };
 
         // Evaluate pieces and mobility
         score += evaluate_pieces(PieceType.KNIGHT, Color.WHITE, DoTrace, pos, ei, mobility, mobilityArea);
-        score += (mobility[Color.WHITE] - mobility[Color.BLACK]) * Weights[Mobility];
+        score += (mobility[Color.WHITE] - mobility[Color.BLACK])*Weights[Mobility];
 
         // Evaluate kings after all other pieces because we need complete attack
         // information when computing the king safety evaluation.
@@ -823,19 +822,19 @@ public static class Eval
             Bitboard b;
             if ((b = ei.pi.passed_pawns(Color.WHITE)) != 0)
             {
-                score += (int)(Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b))) * Unstoppable;
+                score += (int) (Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)))*Unstoppable;
             }
 
             if ((b = ei.pi.passed_pawns(Color.BLACK)) != 0)
             {
-                score -= (int)(Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b))) * Unstoppable;
+                score -= (int) (Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)))*Unstoppable;
             }
         }
 
         // Evaluate space for both sides, only during opening
         if (pos.non_pawn_material(Color.WHITE) + pos.non_pawn_material(Color.BLACK) >= 12222)
         {
-            score += (evaluate_space(Color.WHITE, pos, ei) - evaluate_space(Color.BLACK, pos, ei)) * Weights[Space];
+            score += (evaluate_space(Color.WHITE, pos, ei) - evaluate_space(Color.BLACK, pos, ei))*Weights[Space];
         }
 
         // Scale winning side if position is more drawish than it appears
@@ -854,14 +853,14 @@ public static class Eval
                 if (pos.non_pawn_material(Color.WHITE) == Value.BishopValueMg
                     && pos.non_pawn_material(Color.BLACK) == Value.BishopValueMg)
                 {
-                    sf = Bitboard.more_than_one(pos.pieces(PieceType.PAWN)) ? (ScaleFactor)(31) : (ScaleFactor)(9);
+                    sf = Bitboard.more_than_one(pos.pieces(PieceType.PAWN)) ? (ScaleFactor) (31) : (ScaleFactor) (9);
                 }
 
                 // Endgame with opposite-colored bishops, but also other pieces. Still
                 // a bit drawish, but not as drawish as with only the two bishops.
                 else
                 {
-                    sf = (ScaleFactor)(46 * (int)sf / (int)ScaleFactor.SCALE_FACTOR_NORMAL);
+                    sf = (ScaleFactor) (46*(int) sf/(int) ScaleFactor.SCALE_FACTOR_NORMAL);
                 }
             }
             // Endings where weaker side can place his king in front of the opponent's
@@ -869,37 +868,37 @@ public static class Eval
             else if (Math.Abs(Score.eg_value(score)) <= Value.BishopValueEg && ei.pi.pawn_span(strongSide) <= 1
                      && !pos.pawn_passed(~strongSide, pos.square(PieceType.KING, ~strongSide)))
             {
-                sf = ei.pi.pawn_span(strongSide) != 0 ? (ScaleFactor)(51) : (ScaleFactor)(37);
+                sf = ei.pi.pawn_span(strongSide) != 0 ? (ScaleFactor) (51) : (ScaleFactor) (37);
             }
         }
 
         // Scale endgame by number of pawns
         var p = pos.count(PieceType.PAWN, Color.WHITE) + pos.count(PieceType.PAWN, Color.BLACK);
         var v_eg = 1 + Math.Abs(Score.eg_value(score));
-        sf = (ScaleFactor)(Math.Max((int)sf / 2, (int)sf - 8 * (int)ScaleFactor.SCALE_FACTOR_NORMAL * (12 - p) / v_eg));
+        sf = (ScaleFactor) (Math.Max((int) sf/2, (int) sf - 8*(int) ScaleFactor.SCALE_FACTOR_NORMAL*(12 - p)/v_eg));
 
         // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-        var v = Score.mg_value(score) * (int)(me.game_phase())
-                + Score.eg_value(score) * (Phase.PHASE_MIDGAME - me.game_phase()) * (int)sf
-                / (int)ScaleFactor.SCALE_FACTOR_NORMAL;
+        var v = Score.mg_value(score)*(int) (me.game_phase())
+                + Score.eg_value(score)*(Phase.PHASE_MIDGAME - me.game_phase())*(int) sf
+                /(int) ScaleFactor.SCALE_FACTOR_NORMAL;
 
-        v /= (int)(Phase.PHASE_MIDGAME);
+        v /= (int) (Phase.PHASE_MIDGAME);
 
         // In case of tracing add all single evaluation terms
         if (DoTrace)
         {
-            add((int)Term.MATERIAL, pos.psq_score());
-            add((int)Term.IMBALANCE, me.imbalance());
+            add((int) Term.MATERIAL, pos.psq_score());
+            add((int) Term.IMBALANCE, me.imbalance());
             add(PieceType.PAWN, ei.pi.pawns_score());
             add(
-                (int)Term.MOBILITY,
-                mobility[Color.WHITE] * Weights[Mobility],
-                mobility[Color.BLACK] * Weights[Mobility]);
+                (int) Term.MOBILITY,
+                mobility[Color.WHITE]*Weights[Mobility],
+                mobility[Color.BLACK]*Weights[Mobility]);
             add(
-                (int)Term.SPACE,
-                evaluate_space(Color.WHITE, pos, ei) * Weights[Space],
-                evaluate_space(Color.BLACK, pos, ei) * Weights[Space]);
-            add((int)Term.TOTAL, score);
+                (int) Term.SPACE,
+                evaluate_space(Color.WHITE, pos, ei)*Weights[Space],
+                evaluate_space(Color.BLACK, pos, ei)*Weights[Space]);
+            add((int) Term.TOTAL, score);
         }
 
         return (pos.side_to_move() == Color.WHITE ? v : -v) + Tempo; // Side to move point of view
@@ -914,20 +913,20 @@ public static class Eval
 
         for (var i = 0; i < 400; ++i)
         {
-            t = Math.Min(Peak, Math.Min(i * i * 27, t + MaxSlope));
-            KingDanger[i] = Score.make_score(t / 1000, 0) * Weights[KingSafety];
+            t = Math.Min(Peak, Math.Min(i*i*27, t + MaxSlope));
+            KingDanger[i] = Score.make_score(t/1000, 0)*Weights[KingSafety];
         }
     }
 
     private static double to_cp(Value v)
     {
-        return (double)v / Value.PawnValueEg;
+        return (double) v/Value.PawnValueEg;
     }
 
     private static void add(int idx, Color c, Score s)
     {
-        scores[idx, c, (int)Phase.MG] = to_cp(Score.mg_value(s));
-        scores[idx, c, (int)Phase.EG] = to_cp(Score.eg_value(s));
+        scores[idx, c, (int) Phase.MG] = to_cp(Score.mg_value(s));
+        scores[idx, c, (int) Phase.EG] = to_cp(Score.eg_value(s));
     }
 
     private static void add(int idx, Score w, Score b)
@@ -945,20 +944,20 @@ public static class Eval
     private static string termString(Term t)
     {
         var os = new StringBuilder();
-        if (t == Term.MATERIAL || t == Term.IMBALANCE || t == (Term)((int)PieceType.PAWN) || t == Term.TOTAL)
+        if (t == Term.MATERIAL || t == Term.IMBALANCE || t == (Term) ((int) PieceType.PAWN) || t == Term.TOTAL)
         {
             os.Append("  ---   --- |   ---   --- | ");
         }
         else
         {
-            os.Append($"{scores[(int)t, Color.WHITE, (int)Phase.MG],5:N2} ");
-            os.Append($"{scores[(int)t, Color.WHITE, (int)Phase.EG],5:N2} | ");
-            os.Append($"{scores[(int)t, Color.BLACK, (int)Phase.MG],5:N2} ");
-            os.Append($"{scores[(int)t, Color.BLACK, (int)Phase.EG],5:N2} | ");
+            os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.MG],5:N2} ");
+            os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.EG],5:N2} | ");
+            os.Append($"{scores[(int) t, Color.BLACK, (int) Phase.MG],5:N2} ");
+            os.Append($"{scores[(int) t, Color.BLACK, (int) Phase.EG],5:N2} | ");
         }
 
-        os.Append($"{scores[(int)t, Color.WHITE, (int)Phase.MG] - scores[(int)t, Color.BLACK, (int)Phase.MG],5:N2} ");
-        os.Append($"{scores[(int)t, Color.WHITE, (int)Phase.EG] - scores[(int)t, Color.BLACK, (int)Phase.EG],5:N2} ");
+        os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.MG] - scores[(int) t, Color.BLACK, (int) Phase.MG],5:N2} ");
+        os.Append($"{scores[(int) t, Color.WHITE, (int) Phase.EG] - scores[(int) t, Color.BLACK, (int) Phase.EG],5:N2} ");
 
         return os.ToString();
     }
@@ -968,7 +967,7 @@ public static class Eval
     /// descriptions and values of each evaluation term. Useful for debugging.
     public static string trace(Position pos)
     {
-        scores = new double[(int)Term.TERM_NB, Color.COLOR_NB, (int)Phase.PHASE_NB];
+        scores = new double[(int) Term.TERM_NB, Color.COLOR_NB, (int) Phase.PHASE_NB];
 
         var v = evaluate(true, pos);
         v = pos.side_to_move() == Color.WHITE ? v : -v; // White's point of view
@@ -980,13 +979,13 @@ public static class Eval
         ss.AppendLine("----------------+-------------+-------------+-------------");
         ss.AppendLine($"       Material | {termString(Term.MATERIAL)}");
         ss.AppendLine($"      Imbalance | {termString(Term.IMBALANCE)}");
-        ss.AppendLine($"          Pawns | {termString((Term)(int)PieceType.PAWN)}");
-        ss.AppendLine($"        Knights | {termString((Term)(int)PieceType.KNIGHT)}");
-        ss.AppendLine($"         Bishop | {termString((Term)(int)PieceType.BISHOP)}");
-        ss.AppendLine($"          Rooks | {termString((Term)(int)PieceType.ROOK)}");
-        ss.AppendLine($"         Queens | {termString((Term)(int)PieceType.QUEEN)}");
+        ss.AppendLine($"          Pawns | {termString((Term) (int) PieceType.PAWN)}");
+        ss.AppendLine($"        Knights | {termString((Term) (int) PieceType.KNIGHT)}");
+        ss.AppendLine($"         Bishop | {termString((Term) (int) PieceType.BISHOP)}");
+        ss.AppendLine($"          Rooks | {termString((Term) (int) PieceType.ROOK)}");
+        ss.AppendLine($"         Queens | {termString((Term) (int) PieceType.QUEEN)}");
         ss.AppendLine($"       Mobility | {termString(Term.MOBILITY)}");
-        ss.AppendLine($"    King safety | {termString((Term)(int)PieceType.KING)}");
+        ss.AppendLine($"    King safety | {termString((Term) (int) PieceType.KING)}");
         ss.AppendLine($"        Threats | {termString(Term.THREAT)}");
         ss.AppendLine($"   Passed pawns | {termString(Term.PASSED)}");
         ss.AppendLine($"          Space | {termString(Term.SPACE)}");

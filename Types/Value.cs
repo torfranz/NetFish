@@ -14,9 +14,9 @@ public struct Value
 
     public static Value VALUE_NONE = new Value(32002);
 
-    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2 * _.MAX_PLY);
+    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2*_.MAX_PLY);
 
-    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2 * _.MAX_PLY);
+    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2*_.MAX_PLY);
 
     public static Value PawnValueMg = new Value(198);
 
@@ -43,39 +43,38 @@ public struct Value
     public static Value EndgameLimit = new Value(3998);
 
     public static Value[][] PieceValue =
+    {
+        new[]
         {
-            new[]
-                {
-                    VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
-                    QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-                    VALUE_ZERO
-                },
-            new[]
-                {
-                    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
-                    QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-                    VALUE_ZERO
-                }
-        };
+            VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
+            QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+            VALUE_ZERO
+        },
+        new[]
+        {
+            VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
+            QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+            VALUE_ZERO
+        }
+    };
 
     private int value { get; }
 
     #region constructors
-#if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
 
-    public static implicit operator bool (Value b)
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static implicit operator bool(Value b)
     {
         return b.value != 0;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Value(int value)
     {
         this.value = value;
@@ -85,100 +84,89 @@ public struct Value
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator +(Value v1, Value v2)
     {
         return new Value(v1.value + v2.value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator +(Value v1, int v2)
     {
         return new Value(v1.value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator +(int v1, Value v2)
     {
         return new Value(v1 + v2.value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator -(Value v1, Value v2)
     {
         return new Value(v1.value - v2.value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator -(Value v1, int v2)
     {
         return new Value(v1.value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator -(Value v1)
     {
         return new Value(-v1.value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator *(int v1, Value v2)
     {
-        return new Value(v1 * v2.value);
+        return new Value(v1*v2.value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator *(Value v1, int v2)
     {
-        return new Value(v1.value * v2);
+        return new Value(v1.value*v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(Value v)
     {
         return v.value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(Value v1, Value v2)
     {
         return v1.value == v2.value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(Value v1, Value v2)
     {
         return v1.value != v2.value;
@@ -188,42 +176,38 @@ public struct Value
 
     #region extended operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int operator /(Value v1, Value v2)
     {
-        return v1.value / v2.value;
+        return v1.value/v2.value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value operator /(Value v1, int v2)
     {
-        return new Value(v1.value / v2);
+        return new Value(v1.value/v2);
     }
 
     public override string ToString()
     {
-        return $"{this.value}";
+        return $"{value}";
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value mate_in(int ply)
     {
         return new Value(VALUE_MATE - ply);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Value mated_in(int ply)
     {
         return new Value(-VALUE_MATE + ply);

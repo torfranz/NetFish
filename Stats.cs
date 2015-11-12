@@ -11,28 +11,26 @@ using System.Runtime.CompilerServices;
 public class Stats<T>
     where T : new()
 {
-    public readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
-
     public static Value Max = new Value(1 << 28);
-
-#if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-
-    public T value(Piece p, Square to)
-    {
-        return this.table[p, to];
-    }
+    public readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
 
     public Stats()
     {
-        for (int idx1 = 0; idx1 < table.GetLength(0); idx1++)
+        for (var idx1 = 0; idx1 < table.GetLength(0); idx1++)
         {
-            for (int idx2 = 0; idx2 < table.GetLength(1); idx2++)
+            for (var idx2 = 0; idx2 < table.GetLength(1); idx2++)
             {
-                table[idx1,idx2] = new T();
+                table[idx1, idx2] = new T();
             }
         }
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public T value(Piece p, Square to)
+    {
+        return table[p, to];
     }
 };
 
@@ -40,9 +38,9 @@ public class MovesStats : Stats<Move>
 {
     public void update(Piece pc, Square to, Move m)
     {
-        if (m != this.table[pc, to])
+        if (m != table[pc, to])
         {
-            this.table[pc, to] = m;
+            table[pc, to] = m;
         }
     }
 }
@@ -55,8 +53,8 @@ public class HistoryStats : Stats<Value>
         {
             return;
         }
-        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 324;
-        this.table[pc, to] += v * 32;
+        table[pc, to] -= table[pc, to]*Math.Abs(v)/324;
+        table[pc, to] += v*32;
     }
 
     public void updateCMH(Piece pc, Square to, Value v)
@@ -65,8 +63,8 @@ public class HistoryStats : Stats<Value>
         {
             return;
         }
-        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 512;
-        this.table[pc, to] += v * 64;
+        table[pc, to] -= table[pc, to]*Math.Abs(v)/512;
+        table[pc, to] += v*64;
     }
 }
 

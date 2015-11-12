@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-
 using Key = System.UInt64;
 using Bitboard = System.UInt64;
 using Move = System.Int32;
@@ -24,16 +23,16 @@ public static class Bitcount
     /// is 32 or 64 bits, and to the maximum number of nonzero bits.
     /// We also support hardware popcnt instruction. See Readme.txt
     /// on how to pgo compile with popcnt support.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static int popcount_Full(ulong b)
     {
 #if X64
-            b -=  (b >> 1) & 0x5555555555555555UL;
-         b  = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
-        b  = ((b >> 4) + b) & 0x0F0F0F0F0F0F0F0FUL;
-         return (int)((b * 0x0101010101010101UL) >> 56);
+        b -= (b >> 1) & 0x5555555555555555UL;
+        b = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
+        b = ((b >> 4) + b) & 0x0F0F0F0F0F0F0F0FUL;
+        return (int) ((b*0x0101010101010101UL) >> 56);
 #else
         uint w = (uint)(b >> 32), v = (uint)b;
         v -= (v >> 1) & 0x55555555; // 0-2 in 2 bits
@@ -45,16 +44,15 @@ public static class Bitcount
 #endif
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int popcount_Max15(ulong b)
     {
 #if X64
-            b -=  (b >> 1) & 0x5555555555555555UL;
-  b  = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
-  return (int)((b * 0x1111111111111111UL) >> 60);
+        b -= (b >> 1) & 0x5555555555555555UL;
+        b = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
+        return (int) ((b*0x1111111111111111UL) >> 60);
 #else
         uint w = (uint)(b >> 32), v = (uint)(b);
         v -= (v >> 1) & 0x55555555; // 0-2 in 2 bits

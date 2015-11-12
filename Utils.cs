@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -63,50 +63,49 @@ public static class Utils
     public static Square[] BSFTable = new Square[Square.SQUARE_NB]; // To implement software bitscan
 
     private static bool firstLog = true;
+
+    [Conditional("DEBUG")]
     public static void WriteToLog(string s)
     {
-#if DEBUG
-        using (StreamWriter sw = firstLog ? System.IO.File.CreateText("Logfile_Netfish.txt") : System.IO.File.AppendText("Logfile_Netfish.txt"))
+        using (
+            var sw = firstLog
+                ? System.IO.File.CreateText("Logfile_Netfish.txt")
+                : System.IO.File.AppendText("Logfile_Netfish.txt"))
         {
             firstLog = false;
             sw.WriteLine(s);
         }
-        
-#endif
     }
 
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
 #if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard rank_bb(Rank r)
     {
         return RankBB[r];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Bitboard rank_bb(Square s)
     {
         return RankBB[Square.rank_of(s)];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Bitboard file_bb(File f)
     {
         return FileBB[f];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Bitboard file_bb(Square s)
     {
         return FileBB[Square.file_of(s)];
@@ -114,8 +113,8 @@ public static class Utils
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
     /// adjacent files of the given one.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard adjacent_files_bb(File f)
     {
@@ -126,8 +125,8 @@ public static class Utils
     /// given ones. For instance, between_bb(SQ_C4, SQ_F7) returns a bitboard with
     /// the bits for square d5 and e6 set. If s1 and s2 are not on the same rank, file
     /// or diagonal, 0 is returned.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard between_bb(Square s1, Square s2)
     {
@@ -137,8 +136,8 @@ public static class Utils
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
     /// in front of the given one, from the point of view of the given color. For
     /// instance, in_front_bb(BLACK, RANK_3) will return the squares on ranks 1 and 2.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard in_front_bb(Color c, Rank r)
     {
@@ -148,8 +147,8 @@ public static class Utils
     /// forward_bb() returns a bitboard representing all the squares along the line
     /// in front of the given one, from the point of view of the given color:
     /// ForwardBB[c][s] = in_front_bb(c, s) & file_bb(s)
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard forward_bb(Color c, Square s)
     {
@@ -160,8 +159,8 @@ public static class Utils
     /// attacked by a pawn of the given color when it moves along its file, starting
     /// from the given square:
     /// PawnAttackSpan[c][s] = in_front_bb(c, s) & adjacent_files_bb(s);
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard pawn_attack_span(Color c, Square s)
     {
@@ -171,8 +170,8 @@ public static class Utils
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
     /// pawn of the given color and on the given square is a passed pawn:
     /// PassedPawnMask[c][s] = pawn_attack_span(c, s) | forward_bb(c, s)
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Bitboard passed_pawn_mask(Color c, Square s)
     {
@@ -181,8 +180,8 @@ public static class Utils
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
     /// straight or on a diagonal line.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static bool aligned(Square s1, Square s2, Square s3)
     {
@@ -191,8 +190,8 @@ public static class Utils
 
     /// distance() functions return the distance between x and y, defined as the
     /// number of steps for a king in x to reach y. Works with squares, ranks, files.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static int distance_Square(Square x, Square y)
     {
@@ -200,18 +199,16 @@ public static class Utils
     }
 
 #if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int distance_Rank(Rank x, Rank y)
     {
         return x < y ? y - x : x - y;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int distance_File(Square x, Square y)
     {
         int xFile = Square.file_of(x);
@@ -219,10 +216,9 @@ public static class Utils
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int distance_Rank(Square x, Square y)
     {
         int xRank = Square.rank_of(x);
@@ -250,7 +246,7 @@ public static class Utils
         var Shifts = Pt == PieceType.ROOK ? RookShifts : BishopShifts;
 
 #if X64
-        return (uint)((((occupied & Masks[s]) * Magics[s]) >> (int)Shifts[s]));
+        return (uint) ((((occupied & Masks[s])*Magics[s]) >> (int) Shifts[s]));
 #else
 
         var lo = (uint)((occupied & Masks[s]));
@@ -262,14 +258,13 @@ public static class Utils
     public static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
-                   ? RookAttacks[s][magic_index(Pt, s, occupied)]
-                   : BishopAttacks[s][magic_index(Pt, s, occupied)];
+            ? RookAttacks[s][magic_index(Pt, s, occupied)]
+            : BishopAttacks[s][magic_index(Pt, s, occupied)];
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
         switch (Piece.type_of(pc))
@@ -293,7 +288,7 @@ public static class Utils
         ulong value = b;
         value ^= value - 1;
 #if X64
-        return (uint)((value * DeBruijn64) >> 58);
+        return (uint) ((value*DeBruijn64) >> 58);
 #else
         return (uint)((value ^ (value >> 32)) * DeBruijn32) >> 26;
 #endif
@@ -316,7 +311,7 @@ public static class Utils
             result = 32;
         }
 
-        b32 = (uint)value;
+        b32 = (uint) value;
 
         if (b32 > 0xFFFF)
         {
@@ -334,8 +329,8 @@ public static class Utils
     }
 
     /// pop_lsb() finds and clears the least significant bit in a non-zero bitboard
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Square pop_lsb(ref Bitboard b)
     {
@@ -349,18 +344,17 @@ public static class Utils
 
     /// frontmost_sq() and backmost_sq() return the square corresponding to the
     /// most/least advanced bit relative to the given color.
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static Square frontmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Square backmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
@@ -382,10 +376,10 @@ public static class Utils
         // Assembly and file version
         var assembly = Assembly.GetExecutingAssembly();
         Version fileVersion = null;
-        var attribs = assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
+        var attribs = assembly.GetCustomAttributes(typeof (AssemblyFileVersionAttribute), false);
         if (attribs.Length > 0)
         {
-            var fileVersionRaw = (AssemblyFileVersionAttribute)(attribs[0]);
+            var fileVersionRaw = (AssemblyFileVersionAttribute) (attribs[0]);
             fileVersion = new Version(fileVersionRaw.Version);
         }
 
@@ -398,8 +392,8 @@ public static class Utils
         var buildDateTime =
             new DateTime(2000, 1, 1).Add(
                 new TimeSpan(
-                    TimeSpan.TicksPerDay * version.Build + // days since 1 January 2000
-                    TimeSpan.TicksPerSecond * 2 * version.Revision));
+                    TimeSpan.TicksPerDay*version.Build + // days since 1 January 2000
+                    TimeSpan.TicksPerSecond*2*version.Revision));
         // seconds since midnight, (multiply by 2 to get original)
 
         // Get version info

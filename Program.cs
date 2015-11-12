@@ -21,7 +21,7 @@ internal class Program
 
     private static void Run(object arguments)
     {
-        var args = (string[])arguments;
+        var args = (string[]) arguments;
 
         var sw = Stopwatch.StartNew();
         PSQT.init();
@@ -55,7 +55,7 @@ internal class Program
         var stack = Position.CreateStack("go depth 7");
         //UCI.go(pos, stack);
         //ThreadPool.wait_for_think_finished();
-        
+
         var sb = new StringBuilder();
         for (var i = 1; i < args.Length; i++)
         {

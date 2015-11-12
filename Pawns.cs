@@ -4,205 +4,206 @@ using System.Linq;
 
 public static class Pawns
 {
+    public const int Size = 16384;
     // Doubled pawn penalty by file
     private static readonly Score[] Doubled =
-        {
-            Score.make_score(13, 43), Score.make_score(20, 48),
-            Score.make_score(23, 48), Score.make_score(23, 48),
-            Score.make_score(23, 48), Score.make_score(23, 48),
-            Score.make_score(20, 48), Score.make_score(13, 43)
-        };
+    {
+        Score.make_score(13, 43), Score.make_score(20, 48),
+        Score.make_score(23, 48), Score.make_score(23, 48),
+        Score.make_score(23, 48), Score.make_score(23, 48),
+        Score.make_score(20, 48), Score.make_score(13, 43)
+    };
 
     // Isolated pawn penalty by opposed flag and file
     private static readonly Score[][] Isolated =
+    {
+        new[]
         {
-            new[]
-                {
-                    Score.make_score(37, 45), Score.make_score(54, 52),
-                    Score.make_score(60, 52), Score.make_score(60, 52),
-                    Score.make_score(60, 52), Score.make_score(60, 52),
-                    Score.make_score(54, 52), Score.make_score(37, 45)
-                },
-            new[]
-                {
-                    Score.make_score(25, 30), Score.make_score(36, 35),
-                    Score.make_score(40, 35), Score.make_score(40, 35),
-                    Score.make_score(40, 35), Score.make_score(40, 35),
-                    Score.make_score(36, 35), Score.make_score(25, 30)
-                }
-        };
+            Score.make_score(37, 45), Score.make_score(54, 52),
+            Score.make_score(60, 52), Score.make_score(60, 52),
+            Score.make_score(60, 52), Score.make_score(60, 52),
+            Score.make_score(54, 52), Score.make_score(37, 45)
+        },
+        new[]
+        {
+            Score.make_score(25, 30), Score.make_score(36, 35),
+            Score.make_score(40, 35), Score.make_score(40, 35),
+            Score.make_score(40, 35), Score.make_score(40, 35),
+            Score.make_score(36, 35), Score.make_score(25, 30)
+        }
+    };
 
     // Backward pawn penalty by opposed flag
-    private static readonly Score[] Backward = { Score.make_score(67, 42), Score.make_score(49, 24) };
+    private static readonly Score[] Backward = {Score.make_score(67, 42), Score.make_score(49, 24)};
 
     // Connected pawn bonus by opposed, phalanx, twice supported and rank
     private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB];
 
     // Levers bonus by rank
     private static readonly Score[] Lever =
-        {
-            Score.make_score(0, 0), Score.make_score(0, 0), Score.make_score(0, 0),
-            Score.make_score(0, 0), Score.make_score(20, 20), Score.make_score(40, 40),
-            Score.make_score(0, 0), Score.make_score(0, 0)
-        };
+    {
+        Score.make_score(0, 0), Score.make_score(0, 0), Score.make_score(0, 0),
+        Score.make_score(0, 0), Score.make_score(20, 20), Score.make_score(40, 40),
+        Score.make_score(0, 0), Score.make_score(0, 0)
+    };
 
     // Unsupported pawn penalty
     private static readonly Score UnsupportedPawnPenalty = Score.make_score(20, 10);
 
     // Center bind bonus: Two pawns controlling the same central square
     private static readonly Bitboard[] CenterBindMask =
-        {
-            (Bitboard.FileDBB | Bitboard.FileEBB)
-            & (Bitboard.Rank5BB | Bitboard.Rank6BB | Bitboard.Rank7BB),
-            (Bitboard.FileDBB | Bitboard.FileEBB)
-            & (Bitboard.Rank4BB | Bitboard.Rank3BB | Bitboard.Rank2BB)
-        };
+    {
+        (Bitboard.FileDBB | Bitboard.FileEBB)
+        & (Bitboard.Rank5BB | Bitboard.Rank6BB | Bitboard.Rank7BB),
+        (Bitboard.FileDBB | Bitboard.FileEBB)
+        & (Bitboard.Rank4BB | Bitboard.Rank3BB | Bitboard.Rank2BB)
+    };
 
     private static readonly Score CenterBind = Score.make_score(16, 0);
 
     // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
     private static readonly Value[][] ShelterWeakness =
+    {
+        new[]
         {
-            new[]
-                {
-                    new Value(97), new Value(21), new Value(26),
-                    new Value(51), new Value(87), new Value(89),
-                    new Value(99)
-                },
-            new[]
-                {
-                    new Value(120), new Value(0), new Value(28),
-                    new Value(76), new Value(88), new Value(103),
-                    new Value(104)
-                },
-            new[]
-                {
-                    new Value(101), new Value(7), new Value(54),
-                    new Value(78), new Value(77), new Value(92),
-                    new Value(101)
-                },
-            new[]
-                {
-                    new Value(80), new Value(11), new Value(44),
-                    new Value(68), new Value(87), new Value(90),
-                    new Value(119)
-                }
-        };
+            new Value(97), new Value(21), new Value(26),
+            new Value(51), new Value(87), new Value(89),
+            new Value(99)
+        },
+        new[]
+        {
+            new Value(120), new Value(0), new Value(28),
+            new Value(76), new Value(88), new Value(103),
+            new Value(104)
+        },
+        new[]
+        {
+            new Value(101), new Value(7), new Value(54),
+            new Value(78), new Value(77), new Value(92),
+            new Value(101)
+        },
+        new[]
+        {
+            new Value(80), new Value(11), new Value(44),
+            new Value(68), new Value(87), new Value(90),
+            new Value(119)
+        }
+    };
 
     // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
     private static readonly Value[][][] StormDanger =
+    {
+        new[]
         {
             new[]
-                {
-                    new[]
-                        {
-                            new Value(0), new Value(67), new Value(134),
-                            new Value(38), new Value(32), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(57), new Value(139),
-                            new Value(37), new Value(22), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(43), new Value(115),
-                            new Value(43), new Value(27), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(68), new Value(124),
-                            new Value(57), new Value(32), new Value(0),
-                            new Value(0), new Value(0)
-                        }
-                },
+            {
+                new Value(0), new Value(67), new Value(134),
+                new Value(38), new Value(32), new Value(0),
+                new Value(0), new Value(0)
+            },
             new[]
-                {
-                    new[]
-                        {
-                            new Value(20), new Value(43), new Value(100),
-                            new Value(56), new Value(20), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(23), new Value(20), new Value(98),
-                            new Value(40), new Value(15), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(23), new Value(39), new Value(103),
-                            new Value(36), new Value(18), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(28), new Value(19), new Value(108),
-                            new Value(42), new Value(26), new Value(0),
-                            new Value(0), new Value(0)
-                        }
-                },
+            {
+                new Value(0), new Value(57), new Value(139),
+                new Value(37), new Value(22), new Value(0),
+                new Value(0), new Value(0)
+            },
             new[]
-                {
-                    new[]
-                        {
-                            new Value(0), new Value(0), new Value(75),
-                            new Value(14), new Value(2), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(0), new Value(150),
-                            new Value(30), new Value(4), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(0), new Value(160),
-                            new Value(22), new Value(5), new Value(0),
-                            new Value(0), new Value(0)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(0), new Value(166),
-                            new Value(24), new Value(13), new Value(0),
-                            new Value(0), new Value(0)
-                        }
-                },
+            {
+                new Value(0), new Value(43), new Value(115),
+                new Value(43), new Value(27), new Value(0),
+                new Value(0), new Value(0)
+            },
             new[]
-                {
-                    new[]
-                        {
-                            new Value(0), new Value(-283), new Value(-281),
-                            new Value(57), new Value(31)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(58), new Value(141),
-                            new Value(39), new Value(18)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(65), new Value(142),
-                            new Value(48), new Value(32)
-                        },
-                    new[]
-                        {
-                            new Value(0), new Value(60), new Value(126),
-                            new Value(51), new Value(19)
-                        }
-                }
-        };
+            {
+                new Value(0), new Value(68), new Value(124),
+                new Value(57), new Value(32), new Value(0),
+                new Value(0), new Value(0)
+            }
+        },
+        new[]
+        {
+            new[]
+            {
+                new Value(20), new Value(43), new Value(100),
+                new Value(56), new Value(20), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(23), new Value(20), new Value(98),
+                new Value(40), new Value(15), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(23), new Value(39), new Value(103),
+                new Value(36), new Value(18), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(28), new Value(19), new Value(108),
+                new Value(42), new Value(26), new Value(0),
+                new Value(0), new Value(0)
+            }
+        },
+        new[]
+        {
+            new[]
+            {
+                new Value(0), new Value(0), new Value(75),
+                new Value(14), new Value(2), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(0), new Value(0), new Value(150),
+                new Value(30), new Value(4), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(0), new Value(0), new Value(160),
+                new Value(22), new Value(5), new Value(0),
+                new Value(0), new Value(0)
+            },
+            new[]
+            {
+                new Value(0), new Value(0), new Value(166),
+                new Value(24), new Value(13), new Value(0),
+                new Value(0), new Value(0)
+            }
+        },
+        new[]
+        {
+            new[]
+            {
+                new Value(0), new Value(-283), new Value(-281),
+                new Value(57), new Value(31)
+            },
+            new[]
+            {
+                new Value(0), new Value(58), new Value(141),
+                new Value(39), new Value(18)
+            },
+            new[]
+            {
+                new Value(0), new Value(65), new Value(142),
+                new Value(48), new Value(32)
+            },
+            new[]
+            {
+                new Value(0), new Value(60), new Value(126),
+                new Value(51), new Value(19)
+            }
+        }
+    };
 
     // Max bonus for king safety. Corresponds to start position with all the pawns
     // in front of the king and no enemy pawn on the horizon.
     private static readonly Value MaxSafetyBonus = new Value(258);
 
-    private static readonly int[] Seed = { 0, 6, 15, 10, 57, 75, 135, 258 };
+    private static readonly int[] Seed = {0, 6, 15, 10, 57, 75, 135, 258};
 
     public static Score evaluate(Color Us, Position pos, Entry e)
     {
@@ -235,7 +236,7 @@ public static class Pawns
             var f = Square.file_of(s);
 
             // This file cannot be semi-open
-            e.semiopenFiles[Us] &= ~(1 << (int)f);
+            e.semiopenFiles[Us] &= ~(1 << f);
 
             // Flag the pawn
             neighbours = ourPawns & Utils.adjacent_files_bb(f);
@@ -309,7 +310,7 @@ public static class Pawns
 
             if (doubled)
             {
-                score -= Doubled[f] / Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
+                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
             }
 
             if (lever)
@@ -318,12 +319,12 @@ public static class Pawns
             }
         }
 
-        b = new Bitboard((uint)(e.semiopenFiles[Us] ^ 0xFF));
+        b = new Bitboard((uint) (e.semiopenFiles[Us] ^ 0xFF));
         e.pawnSpan[Us] = b ? (Utils.msb(b) - Utils.lsb(b)) : 0;
 
         // Center binds: Two pawns controlling the same central square
         b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us];
-        score += Bitcount.popcount_Max15(b) * CenterBind;
+        score += Bitcount.popcount_Max15(b)*CenterBind;
 
         return score;
     }
@@ -341,16 +342,15 @@ public static class Pawns
                 {
                     for (var r = Rank.RANK_2; r < Rank.RANK_8; ++r)
                     {
-                        var v = (Seed[r] + (phalanx != 0 ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
-                        v += (apex != 0 ? v / 2 : 0);
-                        Connected[opposed, phalanx, apex, r] = Score.make_score(3 * v / 2, v);
+                        var v = (Seed[r] + (phalanx != 0 ? (Seed[r + 1] - Seed[r])/2 : 0)) >> opposed;
+                        v += (apex != 0 ? v/2 : 0);
+                        Connected[opposed, phalanx, apex, r] = Score.make_score(3*v/2, v);
                     }
                 }
             }
         }
     }
 
-    public const int Size = 16384;
     /// Pawns::probe() looks up the current position's pawns configuration in
     /// the pawns hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
@@ -360,7 +360,7 @@ public static class Pawns
         var key = pos.pawn_key();
         var hashKey = (uint) key & (Size - 1);
         Entry e;
-        if ((e = pos.this_thread().pawnsTable[hashKey])==null)
+        if ((e = pos.this_thread().pawnsTable[hashKey]) == null)
         {
             e = new Entry();
             pos.this_thread().pawnsTable[hashKey] = e;
@@ -402,52 +402,52 @@ public static class Pawns
 
         public Score pawns_score()
         {
-            return this.score;
+            return score;
         }
 
         public Bitboard pawn_attacks(Color c)
         {
-            return this.pawnAttacks[c];
+            return pawnAttacks[c];
         }
 
         public Bitboard passed_pawns(Color c)
         {
-            return this.passedPawns[c];
+            return passedPawns[c];
         }
 
         public int pawn_span(Color c)
         {
-            return this.pawnSpan[c];
+            return pawnSpan[c];
         }
 
         public int semiopen_file(Color c, File f)
         {
-            return this.semiopenFiles[c] & (1 << (int)f);
+            return semiopenFiles[c] & (1 << f);
         }
 
         public int semiopen_side(Color c, File f, bool leftSide)
         {
-            return this.semiopenFiles[c] & (leftSide ? (1 << (int)f) - 1 : ~((1 << ((int)f + 1)) - 1));
+            return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << ((int) f + 1)) - 1));
         }
 
         public int pawns_on_same_color_squares(Color c, Square s)
         {
-            return this.pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
+            return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
         public Score king_safety(Color Us, Position pos, Square ksq)
         {
-            return this.kingSquares[Us] == ksq && this.castlingRights[Us] == pos.can_castle(Us)
-                       ? this.kingSafety[Us]
-                       : (this.kingSafety[Us] = this.do_king_safety(Us, pos, ksq));
+            return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
+                ? kingSafety[Us]
+                : (kingSafety[Us] = do_king_safety(Us, pos, ksq));
         }
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
         private Score do_king_safety(Color Us, Position pos, Square ksq)
         {
-            this.kingSquares[Us] = ksq;
-            this.castlingRights[Us] = pos.can_castle(Us);
+            kingSquares[Us] = ksq;
+            castlingRights[Us] = pos.can_castle(Us);
             var minKingPawnDistance = 0;
 
             var pawns = pos.pieces(Us, PieceType.PAWN);
@@ -460,25 +460,25 @@ public static class Pawns
 
             if (Rank.relative_rank(Us, ksq) > Rank.RANK_4)
             {
-                return Score.make_score(0, -16 * minKingPawnDistance);
+                return Score.make_score(0, -16*minKingPawnDistance);
             }
 
-            var bonus = this.shelter_storm(Us, pos, ksq);
+            var bonus = shelter_storm(Us, pos, ksq);
 
             // If we can castle use the bonus after the castling if it is bigger
             if (pos.can_castle(Movegen.MakeCastling(Us, CastlingSide.KING_SIDE)))
             {
                 bonus = new Value(
-                    Math.Max(bonus, this.shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_G1))));
+                    Math.Max(bonus, shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_G1))));
             }
 
             if (pos.can_castle(Movegen.MakeCastling(Us, CastlingSide.QUEEN_SIDE)))
             {
                 bonus = new Value(
-                    Math.Max(bonus, this.shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_C1))));
+                    Math.Max(bonus, shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_C1))));
             }
 
-            return Score.make_score(bonus, -16 * minKingPawnDistance);
+            return Score.make_score(bonus, -16*minKingPawnDistance);
         }
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
@@ -510,9 +510,9 @@ public static class Pawns
                               f == Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
                                   : rkUs == Rank.RANK_1
-                                        ? NoFriendlyPawn
-                                        : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H - f)][
-                                            rkThem];
+                                      ? NoFriendlyPawn
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H - f)][
+                                          rkThem];
             }
 
             return safety;

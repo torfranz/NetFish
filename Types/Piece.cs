@@ -35,108 +35,97 @@ public struct Piece
 
     #region constructors
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Piece(Piece value)
         : this(value.Value)
     {
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Piece(int value)
     {
-        this.Value = value;
-        Debug.Assert(this.Value >= 0 && this.Value <= 16);
-        Debug.Assert(this.Value != 7);
-        Debug.Assert(this.Value != 8);
-        Debug.Assert(this.Value != 15);
+        Value = value;
+        Debug.Assert(Value >= 0 && Value <= 16);
+        Debug.Assert(Value != 7);
+        Debug.Assert(Value != 8);
+        Debug.Assert(Value != 15);
     }
 
     #endregion
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator +(Piece v1, Piece v2)
     {
         return new Piece(v1.Value + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator +(Piece v1, int v2)
     {
         return new Piece(v1.Value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator +(int v1, Piece v2)
     {
         return new Piece(v1 + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator -(Piece v1, Piece v2)
     {
         return new Piece(v1.Value - v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator -(Piece v1, int v2)
     {
         return new Piece(v1.Value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(Piece p)
     {
         return p.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(Piece v1, Piece v2)
     {
         return v1.Value == v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(Piece v1, Piece v2)
     {
         return v1.Value != v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece operator ++(Piece v1)
     {
         v1.Value += 1;
@@ -145,7 +134,7 @@ public struct Piece
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     /*
@@ -196,28 +185,25 @@ public struct Piece
 
     #endregion
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static PieceType type_of(Piece p)
     {
         return new PieceType(p.Value & 7);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Color color_of(Piece p)
     {
         return new Color(p.Value >> 3);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Piece make_piece(Color c, PieceType pt)
     {
         return new Piece((c << 3) | pt);

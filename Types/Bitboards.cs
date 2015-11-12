@@ -61,12 +61,12 @@ public static class Bitboards
         }
 
         int[][] steps =
-            {
-                new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 7, 9, 0, 0, 0, 0, 0, 0, 0 },
-                new[] { 17, 15, 10, 6, -6, -10, -15, -17, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                new[] { 9, 7, -7, -9, 8, 1, -1, -8, 0 }
-            };
+        {
+            new[] {0, 0, 0, 0, 0, 0, 0, 0, 0}, new[] {7, 9, 0, 0, 0, 0, 0, 0, 0},
+            new[] {17, 15, 10, 6, -6, -10, -15, -17, 0}, new[] {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            new[] {0, 0, 0, 0, 0, 0, 0, 0, 0}, new[] {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            new[] {9, 7, -7, -9, 8, 1, -1, -8, 0}
+        };
 
         for (var c = Color.WHITE; c <= Color.BLACK; ++c)
         {
@@ -87,8 +87,8 @@ public static class Bitboards
             }
         }
 
-        Square[] RookDeltas = { Square.DELTA_N, Square.DELTA_E, Square.DELTA_S, Square.DELTA_W };
-        Square[] BishopDeltas = { Square.DELTA_NE, Square.DELTA_SE, Square.DELTA_SW, Square.DELTA_NW };
+        Square[] RookDeltas = {Square.DELTA_N, Square.DELTA_E, Square.DELTA_S, Square.DELTA_W};
+        Square[] BishopDeltas = {Square.DELTA_NE, Square.DELTA_SE, Square.DELTA_SW, Square.DELTA_NW};
 
         init_magics(
             Utils.RookAttacks,
@@ -164,10 +164,10 @@ public static class Bitboards
         Utils.Fn index)
     {
         int[][] seeds =
-            {
-                new[] { 8977, 44560, 54343, 38998, 5731, 95205, 104912, 17020 },
-                new[] { 728, 10316, 55013, 32803, 12281, 15100, 16645, 255 }
-            };
+        {
+            new[] {8977, 44560, 54343, 38998, 5731, 95205, 104912, 17020},
+            new[] {728, 10316, 55013, 32803, 12281, 15100, 16645, 255}
+        };
 
         var occupancy = new Bitboard[4096];
         var reference = new Bitboard[4096];
@@ -190,7 +190,7 @@ public static class Bitboards
             masks[s] = sliding_attack(deltas, s, new Bitboard(0)) & ~edges;
 
 #if X64
-            shifts[s] = (uint)(64 - Bitcount.popcount_Max15(masks[s]));
+            shifts[s] = (uint) (64 - Bitcount.popcount_Max15(masks[s]));
 #else
             shifts[s] = (uint)(32 - Bitcount.popcount_Max15(masks[s]));
 #endif
@@ -209,8 +209,7 @@ public static class Bitboards
 
                 size++;
                 b = (b - masks[s]) & masks[s];
-            }
-            while (b);
+            } while (b);
 
             // Set the offset for the table of the next square. We have individual
             // table sizes for each square with "Fancy Magic Bitboards".
@@ -220,7 +219,7 @@ public static class Bitboards
             //  continue;
 
 #if X64
-            var rng = new PRNG((ulong)seeds[1][Square.rank_of(s)]);
+            var rng = new PRNG((ulong) seeds[1][Square.rank_of(s)]);
 #else
             var rng = new PRNG((ulong)seeds[0][Square.rank_of(s)]);
 #endif
@@ -229,8 +228,8 @@ public static class Bitboards
             // until we find the one that passes the verification test.
             do
             {
-                do magics[s] = new Bitboard(rng.sparse_rand());
-                while (Bitcount.popcount_Max15((magics[s] * masks[s]) >> 56) < 6);
+                do magics[s] = new Bitboard(rng.sparse_rand()); while (
+                    Bitcount.popcount_Max15((magics[s]*masks[s]) >> 56) < 6);
 
                 Array.Clear(attacks[s], 0, size);
 
@@ -252,8 +251,7 @@ public static class Bitboards
                         break;
                     }
                 }
-            }
-            while (i < size);
+            } while (i < size);
         }
     }
 }

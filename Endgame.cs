@@ -8,27 +8,27 @@ public abstract class Endgame
     // Table used to drive the king towards the edge of the board
     // in KX vs K and KQ vs KR endgames.
     public static int[] PushToEdges =
-        {
-            100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30,
-            30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70,
-            80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50, 60, 70, 90, 100, 90, 80, 70,
-            70, 80, 90, 100
-        };
+    {
+        100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30,
+        30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70,
+        80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50, 60, 70, 90, 100, 90, 80, 70,
+        70, 80, 90, 100
+    };
 
     // Table used to drive the king towards a corner square of the
     // right color in KBN vs K endgames.
     public static int[] PushToCorners =
-        {
-            200, 190, 180, 170, 160, 150, 140, 130, 190, 180, 170, 160, 150, 140, 130, 140,
-            180, 170, 155, 140, 140, 125, 140, 150, 170, 160, 140, 120, 110, 140, 150, 160,
-            160, 150, 140, 110, 120, 140, 160, 170, 150, 140, 125, 140, 140, 155, 170, 180,
-            140, 130, 140, 150, 160, 170, 180, 190, 130, 140, 150, 160, 170, 180, 190, 200
-        };
+    {
+        200, 190, 180, 170, 160, 150, 140, 130, 190, 180, 170, 160, 150, 140, 130, 140,
+        180, 170, 155, 140, 140, 125, 140, 150, 170, 160, 140, 120, 110, 140, 150, 160,
+        160, 150, 140, 110, 120, 140, 160, 170, 150, 140, 125, 140, 140, 155, 170, 180,
+        140, 130, 140, 150, 160, 170, 180, 190, 130, 140, 150, 160, 170, 180, 190, 200
+    };
 
     // Tables used to drive a piece towards or away from another piece
-    public static int[] PushClose = { 0, 0, 100, 80, 60, 40, 20, 10 };
+    public static int[] PushClose = {0, 0, 100, 80, 60, 40, 20, 10};
 
-    public static int[] PushAway = { 0, 5, 20, 40, 60, 80, 90, 100 };
+    public static int[] PushAway = {0, 5, 20, 40, 60, 80, 90, 100};
 
     protected readonly Color strongSide;
 
@@ -36,13 +36,13 @@ public abstract class Endgame
 
     public Endgame(Color c)
     {
-        this.strongSide = c;
-        this.weakSide = ~c;
+        strongSide = c;
+        weakSide = ~c;
     }
 
     public Color strong_side()
     {
-        return this.strongSide;
+        return strongSide;
     }
 
     protected static bool verify_material(Position pos, Color c, Value npm, int pawnsCnt)
@@ -78,37 +78,37 @@ public abstract class Endgame
         Debug.Assert(code[0] == 'K');
 
         string[] sides =
-            {
-                code.Substring(code.IndexOf('K', 1)), // Weak
-                code.Substring(0, code.IndexOf('K', 1))
-            }; // Strong
+        {
+            code.Substring(code.IndexOf('K', 1)), // Weak
+            code.Substring(0, code.IndexOf('K', 1))
+        }; // Strong
         sides[c] = sides[c].ToLower();
 
-        var fen = sides[0] + (char)(8 - sides[0].Length + '0') + "/8/8/8/8/8/8/" + sides[1]
-                  + (char)(8 - sides[1].Length + '0') + " w - - 0 10";
+        var fen = sides[0] + (char) (8 - sides[0].Length + '0') + "/8/8/8/8/8/8/" + sides[1]
+                  + (char) (8 - sides[1].Length + '0') + " w - - 0 10";
 
         return new Position(fen, false, null).material_key();
     }
 }
 
-public abstract class EndgameValue:Endgame
+public abstract class EndgameValue : Endgame
 {
     protected EndgameValue(Color c)
         : base(c)
     {
     }
+
     public abstract Value GetValue(Position pos);
-    
 }
 
-public abstract class EndgameScaleFactor:Endgame
+public abstract class EndgameScaleFactor : Endgame
 {
     protected EndgameScaleFactor(Color c)
         : base(c)
     {
     }
-    public abstract ScaleFactor GetScaleFactor(Position pos);
 
+    public abstract ScaleFactor GetScaleFactor(Position pos);
 }
 
 /// Mate with KX vs K. This function is used to evaluate positions with
@@ -124,33 +124,33 @@ public class EndgameKXK : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
         Debug.Assert(!pos.checkers()); // Eval is never called when in check
 
         // Stalemate detection with lone king
-        if (pos.side_to_move() == this.weakSide && new MoveList(GenType.LEGAL, pos).size() == 0)
+        if (pos.side_to_move() == weakSide && new MoveList(GenType.LEGAL, pos).size() == 0)
         {
             return Value.VALUE_DRAW;
         }
 
-        var winnerKSq = pos.square(PieceType.KING, this.strongSide);
-        var loserKSq = pos.square(PieceType.KING, this.weakSide);
+        var winnerKSq = pos.square(PieceType.KING, strongSide);
+        var loserKSq = pos.square(PieceType.KING, weakSide);
 
-        var result = pos.non_pawn_material(this.strongSide)
-                     + pos.count(PieceType.PAWN, this.strongSide) * Value.PawnValueEg + PushToEdges[loserKSq]
+        var result = pos.non_pawn_material(strongSide)
+                     + pos.count(PieceType.PAWN, strongSide)*Value.PawnValueEg + PushToEdges[loserKSq]
                      + PushClose[Utils.distance_Square(winnerKSq, loserKSq)];
 
-        if (pos.count(PieceType.QUEEN, this.strongSide) > 0 || pos.count(PieceType.ROOK, this.strongSide) > 0
-            || (pos.count(PieceType.BISHOP, this.strongSide) > 0 && pos.count(PieceType.KNIGHT, this.strongSide) > 0)
-            || (pos.count(PieceType.BISHOP, this.strongSide) > 1
+        if (pos.count(PieceType.QUEEN, strongSide) > 0 || pos.count(PieceType.ROOK, strongSide) > 0
+            || (pos.count(PieceType.BISHOP, strongSide) > 0 && pos.count(PieceType.KNIGHT, strongSide) > 0)
+            || (pos.count(PieceType.BISHOP, strongSide) > 1
                 && Square.opposite_colors(
-                    pos.squares(PieceType.BISHOP, this.strongSide)[0],
-                    pos.squares(PieceType.BISHOP, this.strongSide)[1])))
+                    pos.squares(PieceType.BISHOP, strongSide)[0],
+                    pos.squares(PieceType.BISHOP, strongSide)[1])))
         {
             result += Value.VALUE_KNOWN_WIN;
         }
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -165,12 +165,12 @@ public class EndgameKBNK : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.KnightValueMg + Value.BishopValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.KnightValueMg + Value.BishopValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
 
-        var winnerKSq = pos.square(PieceType.KING, this.strongSide);
-        var loserKSq = pos.square(PieceType.KING, this.weakSide);
-        var bishopSq = pos.square(PieceType.BISHOP, this.strongSide);
+        var winnerKSq = pos.square(PieceType.KING, strongSide);
+        var loserKSq = pos.square(PieceType.KING, weakSide);
+        var bishopSq = pos.square(PieceType.BISHOP, strongSide);
 
         // kbnk_mate_table() tries to drive toward corners A1 or H8. If we have a
         // bishop that cannot reach the above squares, we flip the kings in order
@@ -184,7 +184,7 @@ public class EndgameKBNK : EndgameValue
         var result = Value.VALUE_KNOWN_WIN + PushClose[Utils.distance_Square(winnerKSq, loserKSq)]
                      + PushToCorners[loserKSq];
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -198,15 +198,15 @@ public class EndgameKPK : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.VALUE_ZERO, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.VALUE_ZERO, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
 
         // Assume strongSide is white and the pawn is on files A-D
-        var wksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.strongSide));
-        var bksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.weakSide));
-        var psq = normalize(pos, this.strongSide, pos.square(PieceType.PAWN, this.strongSide));
+        var wksq = normalize(pos, strongSide, pos.square(PieceType.KING, strongSide));
+        var bksq = normalize(pos, strongSide, pos.square(PieceType.KING, weakSide));
+        var psq = normalize(pos, strongSide, pos.square(PieceType.PAWN, strongSide));
 
-        var us = this.strongSide == pos.side_to_move() ? Color.WHITE : Color.BLACK;
+        var us = strongSide == pos.side_to_move() ? Color.WHITE : Color.BLACK;
 
         if (!Bitbases.probe(wksq, psq, bksq, us))
         {
@@ -215,7 +215,7 @@ public class EndgameKPK : EndgameValue
 
         var result = Value.VALUE_KNOWN_WIN + Value.PawnValueEg + new Value(Square.rank_of(psq));
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -232,13 +232,13 @@ public class EndgameKRKP : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 1));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
 
-        var wksq = Square.relative_square(this.strongSide, pos.square(PieceType.KING, this.strongSide));
-        var bksq = Square.relative_square(this.strongSide, pos.square(PieceType.KING, this.weakSide));
-        var rsq = Square.relative_square(this.strongSide, pos.square(PieceType.ROOK, this.strongSide));
-        var psq = Square.relative_square(this.strongSide, pos.square(PieceType.PAWN, this.weakSide));
+        var wksq = Square.relative_square(strongSide, pos.square(PieceType.KING, strongSide));
+        var bksq = Square.relative_square(strongSide, pos.square(PieceType.KING, weakSide));
+        var rsq = Square.relative_square(strongSide, pos.square(PieceType.ROOK, strongSide));
+        var psq = Square.relative_square(strongSide, pos.square(PieceType.PAWN, weakSide));
 
         var queeningSq = Square.make_square(Square.file_of(psq), Rank.RANK_1);
         Value result;
@@ -251,7 +251,7 @@ public class EndgameKRKP : EndgameValue
 
         // If the weaker side's king is too far from the pawn and the rook,
         // it's a win.
-        else if (Utils.distance_Square(bksq, psq) >= 3 + (pos.side_to_move() == this.weakSide ? 1 : 0)
+        else if (Utils.distance_Square(bksq, psq) >= 3 + (pos.side_to_move() == weakSide ? 1 : 0)
                  && Utils.distance_Square(bksq, rsq) >= 3)
         {
             result = Value.RookValueEg - Utils.distance_Square(wksq, psq);
@@ -261,21 +261,21 @@ public class EndgameKRKP : EndgameValue
         // the position is drawish
         else if (Square.rank_of(bksq) <= Rank.RANK_3 && Utils.distance_Square(bksq, psq) == 1
                  && Square.rank_of(wksq) >= Rank.RANK_4
-                 && Utils.distance_Square(wksq, psq) > 2 + (pos.side_to_move() == this.strongSide ? 1 : 0))
+                 && Utils.distance_Square(wksq, psq) > 2 + (pos.side_to_move() == strongSide ? 1 : 0))
         {
-            result = new Value(80) - 8 * Utils.distance_Square(wksq, psq);
+            result = new Value(80) - 8*Utils.distance_Square(wksq, psq);
         }
 
         else
         {
             result = new Value(200)
                      - 8
-                     * (Utils.distance_Square(wksq, psq + Square.DELTA_S)
-                        - Utils.distance_Square(bksq, psq + Square.DELTA_S)
-                        - Utils.distance_Square(psq, queeningSq));
+                     *(Utils.distance_Square(wksq, psq + Square.DELTA_S)
+                       - Utils.distance_Square(bksq, psq + Square.DELTA_S)
+                       - Utils.distance_Square(psq, queeningSq));
         }
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -290,11 +290,11 @@ public class EndgameKRKB : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.BishopValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
-        var result = new Value(PushToEdges[pos.square(PieceType.KING, this.weakSide)]);
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        var result = new Value(PushToEdges[pos.square(PieceType.KING, weakSide)]);
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -309,13 +309,13 @@ public class EndgameKRKN : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.KnightValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.KnightValueMg, 0));
 
-        var bksq = pos.square(PieceType.KING, this.weakSide);
-        var bnsq = pos.square(PieceType.KNIGHT, this.weakSide);
+        var bksq = pos.square(PieceType.KING, weakSide);
+        var bnsq = pos.square(PieceType.KNIGHT, weakSide);
         var result = new Value(PushToEdges[bksq] + PushAway[Utils.distance_Square(bksq, bnsq)]);
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -332,22 +332,22 @@ public class EndgameKQKP : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.QueenValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 1));
+        Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
 
-        var winnerKSq = pos.square(PieceType.KING, this.strongSide);
-        var loserKSq = pos.square(PieceType.KING, this.weakSide);
-        var pawnSq = pos.square(PieceType.PAWN, this.weakSide);
+        var winnerKSq = pos.square(PieceType.KING, strongSide);
+        var loserKSq = pos.square(PieceType.KING, weakSide);
+        var pawnSq = pos.square(PieceType.PAWN, weakSide);
 
         var result = new Value(PushClose[Utils.distance_Square(winnerKSq, loserKSq)]);
 
-        if (Rank.relative_rank(this.weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
+        if (Rank.relative_rank(weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
             || !((Bitboard.FileABB | Bitboard.FileCBB | Bitboard.FileFBB | Bitboard.FileHBB) & pawnSq))
         {
             result += Value.QueenValueEg - Value.PawnValueEg;
         }
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -364,16 +364,16 @@ public class EndgameKQKR : EndgameValue
 
     public override Value GetValue(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.QueenValueMg, 0));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.RookValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
+        Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 0));
 
-        var winnerKSq = pos.square(PieceType.KING, this.strongSide);
-        var loserKSq = pos.square(PieceType.KING, this.weakSide);
+        var winnerKSq = pos.square(PieceType.KING, strongSide);
+        var loserKSq = pos.square(PieceType.KING, weakSide);
 
         var result = Value.QueenValueEg - Value.RookValueEg + PushToEdges[loserKSq]
                      + PushClose[Utils.distance_Square(winnerKSq, loserKSq)];
 
-        return this.strongSide == pos.side_to_move() ? result : -result;
+        return strongSide == pos.side_to_move() ? result : -result;
     }
 }
 
@@ -404,21 +404,21 @@ public class EndgameKBPsK : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(pos.non_pawn_material(this.strongSide) == Value.BishopValueMg);
-        Debug.Assert(pos.count(PieceType.PAWN, this.strongSide) >= 1);
+        Debug.Assert(pos.non_pawn_material(strongSide) == Value.BishopValueMg);
+        Debug.Assert(pos.count(PieceType.PAWN, strongSide) >= 1);
 
         // No assertions about the material of weakSide, because we want draws to
         // be detected even when the weaker side has some pawns.
 
-        var pawns = pos.pieces(this.strongSide, PieceType.PAWN);
+        var pawns = pos.pieces(strongSide, PieceType.PAWN);
         var pawnsFile = Square.file_of(Utils.lsb(pawns));
 
         // All pawns are on a single rook file?
         if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && !(pawns & ~Utils.file_bb(pawnsFile)))
         {
-            var bishopSq = pos.square(PieceType.BISHOP, this.strongSide);
-            var queeningSq = Square.relative_square(this.strongSide, Square.make_square(pawnsFile, Rank.RANK_8));
-            var kingSq = pos.square(PieceType.KING, this.weakSide);
+            var bishopSq = pos.square(PieceType.BISHOP, strongSide);
+            var queeningSq = Square.relative_square(strongSide, Square.make_square(pawnsFile, Rank.RANK_8));
+            var kingSq = pos.square(PieceType.KING, weakSide);
 
             if (Square.opposite_colors(queeningSq, bishopSq) && Utils.distance_Square(queeningSq, kingSq) <= 1)
             {
@@ -428,21 +428,21 @@ public class EndgameKBPsK : EndgameScaleFactor
 
         // If all the pawns are on the same B or G file, then it's potentially a draw
         if ((pawnsFile == File.FILE_B || pawnsFile == File.FILE_G)
-            && !(pos.pieces(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(this.weakSide) == 0
-            && pos.count(PieceType.PAWN, this.weakSide) >= 1)
+            && !(pos.pieces(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
+            && pos.count(PieceType.PAWN, weakSide) >= 1)
         {
             // Get weakSide pawn that is closest to the home rank
-            var weakPawnSq = Utils.backmost_sq(this.weakSide, pos.pieces(this.weakSide, PieceType.PAWN));
+            var weakPawnSq = Utils.backmost_sq(weakSide, pos.pieces(weakSide, PieceType.PAWN));
 
-            var strongKingSq = pos.square(PieceType.KING, this.strongSide);
-            var weakKingSq = pos.square(PieceType.KING, this.weakSide);
-            var bishopSq = pos.square(PieceType.BISHOP, this.strongSide);
+            var strongKingSq = pos.square(PieceType.KING, strongSide);
+            var weakKingSq = pos.square(PieceType.KING, weakSide);
+            var bishopSq = pos.square(PieceType.BISHOP, strongSide);
 
             // There's potential for a draw if our pawn is blocked on the 7th rank,
             // the bishop cannot attack it or they only have one pawn left
-            if (Rank.relative_rank(this.strongSide, weakPawnSq) == Rank.RANK_7
-                && (pos.pieces(this.strongSide, PieceType.PAWN) & (weakPawnSq + Square.pawn_push(this.weakSide)))
-                && (Square.opposite_colors(bishopSq, weakPawnSq) || pos.count(PieceType.PAWN, this.strongSide) == 1))
+            if (Rank.relative_rank(strongSide, weakPawnSq) == Rank.RANK_7
+                && (pos.pieces(strongSide, PieceType.PAWN) & (weakPawnSq + Square.pawn_push(weakSide)))
+                && (Square.opposite_colors(bishopSq, weakPawnSq) || pos.count(PieceType.PAWN, strongSide) == 1))
             {
                 var strongKingDist = Utils.distance_Square(weakPawnSq, strongKingSq);
                 var weakKingDist = Utils.distance_Square(weakPawnSq, weakKingSq);
@@ -453,7 +453,7 @@ public class EndgameKBPsK : EndgameScaleFactor
                 // unreachable positions such as 5k1K/6p1/6P1/8/8/3B4/8/8 w
                 // and positions where qsearch will immediately correct the
                 // problem such as 8/4k1p1/6P1/1K6/3B4/8/8/8 w)
-                if (Rank.relative_rank(this.strongSide, weakKingSq) >= Rank.RANK_7 && weakKingDist <= 2
+                if (Rank.relative_rank(strongSide, weakKingSq) >= Rank.RANK_7 && weakKingDist <= 2
                     && weakKingDist <= strongKingDist)
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -476,18 +476,18 @@ public class EndgameKQKRPs : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.QueenValueMg, 0));
-        Debug.Assert(pos.count(PieceType.ROOK, this.weakSide) == 1);
-        Debug.Assert(pos.count(PieceType.PAWN, this.weakSide) >= 1);
+        Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
+        Debug.Assert(pos.count(PieceType.ROOK, weakSide) == 1);
+        Debug.Assert(pos.count(PieceType.PAWN, weakSide) >= 1);
 
-        var kingSq = pos.square(PieceType.KING, this.weakSide);
-        var rsq = pos.square(PieceType.ROOK, this.weakSide);
+        var kingSq = pos.square(PieceType.KING, weakSide);
+        var rsq = pos.square(PieceType.ROOK, weakSide);
 
-        if (Rank.relative_rank(this.weakSide, kingSq) <= Rank.RANK_2
-            && Rank.relative_rank(this.weakSide, pos.square(PieceType.KING, this.strongSide)) >= Rank.RANK_4
-            && Rank.relative_rank(this.weakSide, rsq) == Rank.RANK_3
-            && (pos.pieces(this.weakSide, PieceType.PAWN) & pos.attacks_from(PieceType.KING, kingSq)
-                & pos.attacks_from(PieceType.PAWN, rsq, this.strongSide)))
+        if (Rank.relative_rank(weakSide, kingSq) <= Rank.RANK_2
+            && Rank.relative_rank(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
+            && Rank.relative_rank(weakSide, rsq) == Rank.RANK_3
+            && (pos.pieces(weakSide, PieceType.PAWN) & pos.attacks_from(PieceType.KING, kingSq)
+                & pos.attacks_from(PieceType.PAWN, rsq, strongSide)))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -511,20 +511,20 @@ public class EndgameKRPKR : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.RookValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 0));
 
         // Assume strongSide is white and the pawn is on files A-D
-        var wksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.strongSide));
-        var bksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.weakSide));
-        var wrsq = normalize(pos, this.strongSide, pos.square(PieceType.ROOK, this.strongSide));
-        var wpsq = normalize(pos, this.strongSide, pos.square(PieceType.PAWN, this.strongSide));
-        var brsq = normalize(pos, this.strongSide, pos.square(PieceType.ROOK, this.weakSide));
+        var wksq = normalize(pos, strongSide, pos.square(PieceType.KING, strongSide));
+        var bksq = normalize(pos, strongSide, pos.square(PieceType.KING, weakSide));
+        var wrsq = normalize(pos, strongSide, pos.square(PieceType.ROOK, strongSide));
+        var wpsq = normalize(pos, strongSide, pos.square(PieceType.PAWN, strongSide));
+        var brsq = normalize(pos, strongSide, pos.square(PieceType.ROOK, weakSide));
 
         var f = Square.file_of(wpsq);
         var r = Square.rank_of(wpsq);
         var queeningSq = Square.make_square(f, Rank.RANK_8);
-        var tempo = (pos.side_to_move() == this.strongSide) ? 1 : 0;
+        var tempo = (pos.side_to_move() == strongSide) ? 1 : 0;
 
         // If the pawn is not too far advanced and the defending king defends the
         // queening square, use the third-rank defence.
@@ -574,7 +574,7 @@ public class EndgameKRPKR : EndgameScaleFactor
             && (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, queeningSq) - 2 + tempo)
             && (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, wrsq) + tempo))
         {
-            return ScaleFactor.SCALE_FACTOR_MAX - 2 * Utils.distance_Square(wksq, queeningSq);
+            return ScaleFactor.SCALE_FACTOR_MAX - 2*Utils.distance_Square(wksq, queeningSq);
         }
 
         // Similar to the above, but with the pawn further back
@@ -586,8 +586,8 @@ public class EndgameKRPKR : EndgameScaleFactor
                 || (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, wrsq) + tempo
                     && (Utils.distance_Square(wksq, wpsq + Square.DELTA_N) < Utils.distance_Square(bksq, wrsq) + tempo))))
         {
-            return ScaleFactor.SCALE_FACTOR_MAX - 8 * Utils.distance_Square(wpsq, queeningSq)
-                   - 2 * Utils.distance_Square(wksq, queeningSq);
+            return ScaleFactor.SCALE_FACTOR_MAX - 8*Utils.distance_Square(wpsq, queeningSq)
+                   - 2*Utils.distance_Square(wksq, queeningSq);
         }
 
         // If the pawn is not far advanced and the defending king is somewhere in
@@ -596,11 +596,11 @@ public class EndgameKRPKR : EndgameScaleFactor
         {
             if (Square.file_of(bksq) == Square.file_of(wpsq))
             {
-                return (ScaleFactor)(10);
+                return (ScaleFactor) (10);
             }
             if (Utils.distance_File(bksq, wpsq) == 1 && Utils.distance_Square(wksq, bksq) > 2)
             {
-                return (ScaleFactor)(24 - 2 * Utils.distance_Square(wksq, bksq));
+                return (ScaleFactor) (24 - 2*Utils.distance_Square(wksq, bksq));
             }
         }
         return ScaleFactor.SCALE_FACTOR_NONE;
@@ -616,17 +616,17 @@ public class EndgameKRPKB : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.BishopValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
         // Test for a rook pawn
         if (pos.pieces(PieceType.PAWN) & (Bitboard.FileABB | Bitboard.FileHBB))
         {
-            var ksq = pos.square(PieceType.KING, this.weakSide);
-            var bsq = pos.square(PieceType.BISHOP, this.weakSide);
-            var psq = pos.square(PieceType.PAWN, this.strongSide);
-            var rk = Rank.relative_rank(this.strongSide, psq);
-            var push = Square.pawn_push(this.strongSide);
+            var ksq = pos.square(PieceType.KING, weakSide);
+            var bsq = pos.square(PieceType.BISHOP, weakSide);
+            var psq = pos.square(PieceType.PAWN, strongSide);
+            var rk = Rank.relative_rank(strongSide, psq);
+            var push = Square.pawn_push(strongSide);
 
             // If the pawn is on the 5th rank and the pawn (currently) is on
             // the same color square as the bishop then there is a chance of
@@ -635,23 +635,23 @@ public class EndgameKRPKB : EndgameScaleFactor
             // corner but not trapped there.
             if (rk == Rank.RANK_5 && !Square.opposite_colors(bsq, psq))
             {
-                var d = Utils.distance_Square(psq + 3 * push, ksq);
+                var d = Utils.distance_Square(psq + 3*push, ksq);
 
-                if (d <= 2 && !(d == 0 && ksq == pos.square(PieceType.KING, this.strongSide) + 2 * push))
+                if (d <= 2 && !(d == 0 && ksq == pos.square(PieceType.KING, strongSide) + 2*push))
                 {
-                    return (ScaleFactor)(24);
+                    return (ScaleFactor) (24);
                 }
-                return (ScaleFactor)(48);
+                return (ScaleFactor) (48);
             }
 
             // When the pawn has moved to the 6th rank we can be fairly sure
             // it's drawn if the bishop attacks the square in front of the
             // pawn from a reasonable distance and the defending king is near
             // the corner
-            if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2 * push, ksq) <= 1
+            if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2*push, ksq) <= 1
                 && (Utils.PseudoAttacks[PieceType.BISHOP, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
             {
-                return (ScaleFactor)(8);
+                return (ScaleFactor) (8);
             }
         }
 
@@ -670,37 +670,37 @@ public class EndgameKRPPKRP : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.RookValueMg, 2));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.RookValueMg, 1));
+        Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 2));
+        Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 1));
 
-        var wpsq1 = pos.squares(PieceType.PAWN, this.strongSide)[0];
-        var wpsq2 = pos.squares(PieceType.PAWN, this.strongSide)[1];
-        var bksq = pos.square(PieceType.KING, this.weakSide);
+        var wpsq1 = pos.squares(PieceType.PAWN, strongSide)[0];
+        var wpsq2 = pos.squares(PieceType.PAWN, strongSide)[1];
+        var bksq = pos.square(PieceType.KING, weakSide);
 
         // Does the stronger side have a passed pawn?
-        if (pos.pawn_passed(this.strongSide, wpsq1) || pos.pawn_passed(this.strongSide, wpsq2))
+        if (pos.pawn_passed(strongSide, wpsq1) || pos.pawn_passed(strongSide, wpsq2))
         {
             return ScaleFactor.SCALE_FACTOR_NONE;
         }
 
         var r =
-            new Rank(Math.Max(Rank.relative_rank(this.strongSide, wpsq1), Rank.relative_rank(this.strongSide, wpsq2)));
+            new Rank(Math.Max(Rank.relative_rank(strongSide, wpsq1), Rank.relative_rank(strongSide, wpsq2)));
 
         if (Utils.distance_File(bksq, wpsq1) <= 1 && Utils.distance_File(bksq, wpsq2) <= 1
-            && Rank.relative_rank(this.strongSide, bksq) > r)
+            && Rank.relative_rank(strongSide, bksq) > r)
         {
             switch (r)
             {
                 case Rank.RANK_2C:
-                    return (ScaleFactor)(9);
+                    return (ScaleFactor) (9);
                 case Rank.RANK_3C:
-                    return (ScaleFactor)(10);
+                    return (ScaleFactor) (10);
                 case Rank.RANK_4C:
-                    return (ScaleFactor)(14);
+                    return (ScaleFactor) (14);
                 case Rank.RANK_5C:
-                    return (ScaleFactor)(21);
+                    return (ScaleFactor) (21);
                 case Rank.RANK_6C:
-                    return (ScaleFactor)(44);
+                    return (ScaleFactor) (44);
                 default:
                     Debug.Assert(false);
                     break;
@@ -721,17 +721,17 @@ public class EndgameKPsK : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(pos.non_pawn_material(this.strongSide) == Value.VALUE_ZERO);
-        Debug.Assert(pos.count(PieceType.PAWN, this.strongSide) >= 2);
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 0));
+        Debug.Assert(pos.non_pawn_material(strongSide) == Value.VALUE_ZERO);
+        Debug.Assert(pos.count(PieceType.PAWN, strongSide) >= 2);
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
 
-        var ksq = pos.square(PieceType.KING, this.weakSide);
-        var pawns = pos.pieces(this.strongSide, PieceType.PAWN);
+        var ksq = pos.square(PieceType.KING, weakSide);
+        var pawns = pos.pieces(strongSide, PieceType.PAWN);
 
         // If all pawns are ahead of the king, on a single rook file and
         // the king is within one file of the pawns, it's a draw.
-        if (!(pawns & ~Utils.in_front_bb(this.weakSide, Square.rank_of(ksq)))
-            && !((bool)(pawns & ~Bitboard.FileABB) && (pawns & ~Bitboard.FileHBB))
+        if (!(pawns & ~Utils.in_front_bb(weakSide, Square.rank_of(ksq)))
+            && !((bool) (pawns & ~Bitboard.FileABB) && (pawns & ~Bitboard.FileHBB))
             && Utils.distance_File(ksq, Utils.lsb(pawns)) <= 1)
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -754,19 +754,19 @@ public class EndgameKBPKB : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.BishopValueMg, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.BishopValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
-        var pawnSq = pos.square(PieceType.PAWN, this.strongSide);
-        var strongBishopSq = pos.square(PieceType.BISHOP, this.strongSide);
-        var weakBishopSq = pos.square(PieceType.BISHOP, this.weakSide);
-        var weakKingSq = pos.square(PieceType.KING, this.weakSide);
+        var pawnSq = pos.square(PieceType.PAWN, strongSide);
+        var strongBishopSq = pos.square(PieceType.BISHOP, strongSide);
+        var weakBishopSq = pos.square(PieceType.BISHOP, weakSide);
+        var weakKingSq = pos.square(PieceType.KING, weakSide);
 
         // Case 1: Defending king blocks the pawn, and cannot be driven away
         if (Square.file_of(weakKingSq) == Square.file_of(pawnSq)
-            && Rank.relative_rank(this.strongSide, pawnSq) < Rank.relative_rank(this.strongSide, weakKingSq)
+            && Rank.relative_rank(strongSide, pawnSq) < Rank.relative_rank(strongSide, weakKingSq)
             && (Square.opposite_colors(weakKingSq, strongBishopSq)
-                || Rank.relative_rank(this.strongSide, weakKingSq) <= Rank.RANK_6))
+                || Rank.relative_rank(strongSide, weakKingSq) <= Rank.RANK_6))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -784,13 +784,13 @@ public class EndgameKBPKB : EndgameScaleFactor
             // These rules are probably not perfect, but in practice they work
             // reasonably well.
 
-            if (Rank.relative_rank(this.strongSide, pawnSq) <= Rank.RANK_5)
+            if (Rank.relative_rank(strongSide, pawnSq) <= Rank.RANK_5)
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
-            var path = Utils.forward_bb(this.strongSide, pawnSq);
+            var path = Utils.forward_bb(strongSide, pawnSq);
 
-            if (path & pos.pieces(this.weakSide, PieceType.KING))
+            if (path & pos.pieces(weakSide, PieceType.KING))
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
@@ -815,32 +815,32 @@ public class EndgameKBPPKB : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.BishopValueMg, 2));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.BishopValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 2));
+        Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
-        var wbsq = pos.square(PieceType.BISHOP, this.strongSide);
-        var bbsq = pos.square(PieceType.BISHOP, this.weakSide);
+        var wbsq = pos.square(PieceType.BISHOP, strongSide);
+        var bbsq = pos.square(PieceType.BISHOP, weakSide);
 
         if (!Square.opposite_colors(wbsq, bbsq))
         {
             return ScaleFactor.SCALE_FACTOR_NONE;
         }
 
-        var ksq = pos.square(PieceType.KING, this.weakSide);
-        var psq1 = pos.squares(PieceType.PAWN, this.strongSide)[0];
-        var psq2 = pos.squares(PieceType.PAWN, this.strongSide)[1];
+        var ksq = pos.square(PieceType.KING, weakSide);
+        var psq1 = pos.squares(PieceType.PAWN, strongSide)[0];
+        var psq2 = pos.squares(PieceType.PAWN, strongSide)[1];
         var r1 = Square.rank_of(psq1);
         var r2 = Square.rank_of(psq2);
         Square blockSq1, blockSq2;
 
-        if (Rank.relative_rank(this.strongSide, psq1) > Rank.relative_rank(this.strongSide, psq2))
+        if (Rank.relative_rank(strongSide, psq1) > Rank.relative_rank(strongSide, psq2))
         {
-            blockSq1 = psq1 + Square.pawn_push(this.strongSide);
+            blockSq1 = psq1 + Square.pawn_push(strongSide);
             blockSq2 = Square.make_square(Square.file_of(psq2), Square.rank_of(psq1));
         }
         else
         {
-            blockSq1 = psq2 + Square.pawn_push(this.strongSide);
+            blockSq1 = psq2 + Square.pawn_push(strongSide);
             blockSq2 = Square.make_square(Square.file_of(psq1), Square.rank_of(psq2));
         }
 
@@ -850,7 +850,7 @@ public class EndgameKBPPKB : EndgameScaleFactor
                 // Both pawns are on the same file. It's an easy draw if the defender firmly
                 // controls some square in the frontmost pawn's path.
                 if (Square.file_of(ksq) == Square.file_of(blockSq1)
-                    && Rank.relative_rank(this.strongSide, ksq) >= Rank.relative_rank(this.strongSide, blockSq1)
+                    && Rank.relative_rank(strongSide, ksq) >= Rank.relative_rank(strongSide, blockSq1)
                     && Square.opposite_colors(ksq, wbsq))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -863,7 +863,7 @@ public class EndgameKBPPKB : EndgameScaleFactor
                 // behind this square on the file of the other pawn.
                 if (ksq == blockSq1 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq2
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq2) & pos.pieces(this.weakSide, PieceType.BISHOP))
+                        || (pos.attacks_from(PieceType.BISHOP, blockSq2) & pos.pieces(weakSide, PieceType.BISHOP))
                         || Utils.distance_Rank(r1, r2) >= 2))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -871,7 +871,7 @@ public class EndgameKBPPKB : EndgameScaleFactor
 
                 if (ksq == blockSq2 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq1
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq1) & pos.pieces(this.weakSide, PieceType.BISHOP))))
+                        || (pos.attacks_from(PieceType.BISHOP, blockSq1) & pos.pieces(weakSide, PieceType.BISHOP))))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
                 }
@@ -896,17 +896,17 @@ public class EndgameKBPKN : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.BishopValueMg, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.KnightValueMg, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.KnightValueMg, 0));
 
-        var pawnSq = pos.square(PieceType.PAWN, this.strongSide);
-        var strongBishopSq = pos.square(PieceType.BISHOP, this.strongSide);
-        var weakKingSq = pos.square(PieceType.KING, this.weakSide);
+        var pawnSq = pos.square(PieceType.PAWN, strongSide);
+        var strongBishopSq = pos.square(PieceType.BISHOP, strongSide);
+        var weakKingSq = pos.square(PieceType.KING, weakSide);
 
         if (Square.file_of(weakKingSq) == Square.file_of(pawnSq)
-            && Rank.relative_rank(this.strongSide, pawnSq) < Rank.relative_rank(this.strongSide, weakKingSq)
+            && Rank.relative_rank(strongSide, pawnSq) < Rank.relative_rank(strongSide, weakKingSq)
             && (Square.opposite_colors(weakKingSq, strongBishopSq)
-                || Rank.relative_rank(this.strongSide, weakKingSq) <= Rank.RANK_6))
+                || Rank.relative_rank(strongSide, weakKingSq) <= Rank.RANK_6))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -926,12 +926,12 @@ public class EndgameKNPK : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.KnightValueMg, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 0));
+        Debug.Assert(verify_material(pos, strongSide, Value.KnightValueMg, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
 
         // Assume strongSide is white and the pawn is on files A-D
-        var pawnSq = normalize(pos, this.strongSide, pos.square(PieceType.PAWN, this.strongSide));
-        var weakKingSq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.weakSide));
+        var pawnSq = normalize(pos, strongSide, pos.square(PieceType.PAWN, strongSide));
+        var weakKingSq = normalize(pos, strongSide, pos.square(PieceType.KING, weakSide));
 
         if (pawnSq == Square.SQ_A7 && Utils.distance_Square(Square.SQ_A8, weakKingSq) <= 1)
         {
@@ -953,15 +953,15 @@ public class EndgameKNPKB : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        var pawnSq = pos.square(PieceType.PAWN, this.strongSide);
-        var bishopSq = pos.square(PieceType.BISHOP, this.weakSide);
-        var weakKingSq = pos.square(PieceType.KING, this.weakSide);
+        var pawnSq = pos.square(PieceType.PAWN, strongSide);
+        var bishopSq = pos.square(PieceType.BISHOP, weakSide);
+        var weakKingSq = pos.square(PieceType.KING, weakSide);
 
         // King needs to get close to promoting pawn to prevent knight from blocking.
         // Rules for this are very tricky, so just approximate.
-        if (Utils.forward_bb(this.strongSide, pawnSq) & pos.attacks_from(PieceType.BISHOP, bishopSq))
+        if (Utils.forward_bb(strongSide, pawnSq) & pos.attacks_from(PieceType.BISHOP, bishopSq))
         {
-            return (ScaleFactor)(Utils.distance_Square(weakKingSq, pawnSq));
+            return (ScaleFactor) (Utils.distance_Square(weakKingSq, pawnSq));
         }
 
         return ScaleFactor.SCALE_FACTOR_NONE;
@@ -982,15 +982,15 @@ public class EndgameKPKP : EndgameScaleFactor
 
     public override ScaleFactor GetScaleFactor(Position pos)
     {
-        Debug.Assert(verify_material(pos, this.strongSide, Value.VALUE_ZERO, 1));
-        Debug.Assert(verify_material(pos, this.weakSide, Value.VALUE_ZERO, 1));
+        Debug.Assert(verify_material(pos, strongSide, Value.VALUE_ZERO, 1));
+        Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
 
         // Assume strongSide is white and the pawn is on files A-D
-        var wksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.strongSide));
-        var bksq = normalize(pos, this.strongSide, pos.square(PieceType.KING, this.weakSide));
-        var psq = normalize(pos, this.strongSide, pos.square(PieceType.PAWN, this.strongSide));
+        var wksq = normalize(pos, strongSide, pos.square(PieceType.KING, strongSide));
+        var bksq = normalize(pos, strongSide, pos.square(PieceType.KING, weakSide));
+        var psq = normalize(pos, strongSide, pos.square(PieceType.PAWN, strongSide));
 
-        var us = this.strongSide == pos.side_to_move() ? Color.WHITE : Color.BLACK;
+        var us = strongSide == pos.side_to_move() ? Color.WHITE : Color.BLACK;
 
         // If the pawn has advanced to the fifth rank or further, and is not a
         // rook pawn, it's too dangerous to assume that it's at least a draw.

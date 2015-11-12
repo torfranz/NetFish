@@ -40,22 +40,20 @@ public struct Rank
 
     #region constructors
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Rank(uint value)
-        : this((int)value)
+        : this((int) value)
     {
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Rank(int value)
     {
-        this.Value = value;
+        Value = value;
         //Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
@@ -63,119 +61,106 @@ public struct Rank
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator +(Rank v1, Rank v2)
     {
         return new Rank(v1.Value + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator +(Rank v1, int v2)
     {
         return new Rank(v1.Value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator +(int v1, Rank v2)
     {
         return new Rank(v1 + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator -(Rank v1, Rank v2)
     {
         return new Rank(v1.Value - v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator -(Rank v1, int v2)
     {
         return new Rank(v1.Value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator -(Rank v1)
     {
         return new Rank(-v1.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator *(int v1, Rank v2)
     {
-        return new Rank(v1 * v2.Value);
+        return new Rank(v1*v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator *(Rank v1, int v2)
     {
-        return new Rank(v1.Value * v2);
+        return new Rank(v1.Value*v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(Rank r)
     {
         return r.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(Rank v1, Rank v2)
     {
         return v1.Value == v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(Rank v1, Rank v2)
     {
         return v1.Value != v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator ++(Rank v1)
     {
         v1.Value += 1;
         return v1;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator --(Rank v1)
 
     {
@@ -185,46 +170,42 @@ public struct Rank
 
     public override string ToString()
     {
-        return this.Value.ToString();
+        return Value.ToString();
     }
 
     #endregion
 
     #region extended operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int operator /(Rank v1, Rank v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank operator /(Rank v1, int v2)
     {
-        return new Rank(v1.Value / v2);
+        return new Rank(v1.Value/v2);
     }
 
     #endregion
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank relative_rank(Color c, Rank r)
     {
-        return new Rank(r.Value ^ (c * 7));
+        return new Rank(r.Value ^ (c*7));
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Rank relative_rank(Color c, Square s)
     {
         return relative_rank(c, Square.rank_of(s));

@@ -20,141 +20,126 @@ public struct Depth
 
     #region constructors
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public Depth(int value)
     {
-        this.Value = value;
+        Value = value;
     }
 
     #endregion
 
     #region base operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator +(Depth v1, Depth v2)
     {
         return new Depth(v1.Value + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator +(Depth v1, int v2)
     {
         return new Depth(v1.Value + v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator +(int v1, Depth v2)
     {
         return new Depth(v1 + v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator -(Depth v1, Depth v2)
     {
         return new Depth(v1.Value - v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator -(Depth v1, int v2)
     {
         return new Depth(v1.Value - v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator -(Depth v1)
     {
         return new Depth(-v1.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator *(int v1, Depth v2)
     {
-        return new Depth(v1 * v2.Value);
+        return new Depth(v1*v2.Value);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator *(Depth v1, int v2)
     {
-        return new Depth(v1.Value * v2);
+        return new Depth(v1.Value*v2);
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static implicit operator int(Depth d)
     {
         return d.Value;
     }
 
 #if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator <(Depth v1, Depth v2)
     {
         return v1.Value < v2.Value;
     }
 
 #if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator >(Depth v1, Depth v2)
     {
         return v1.Value > v2.Value;
     }
 
 #if FORCEINLINE
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator ++(Depth v1)
     {
         v1.Value += 1;
         return v1;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator ==(Depth v1, Depth v2)
     {
         return v1.Value == v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static bool operator !=(Depth v1, Depth v2)
     {
         return v1.Value != v2.Value;
@@ -164,22 +149,20 @@ public struct Depth
 
     #region extended operators
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static int operator /(Depth v1, Depth v2)
     {
-        return v1.Value / v2.Value;
+        return v1.Value/v2.Value;
     }
 
-#if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-
     public static Depth operator /(Depth v1, int v2)
     {
-        return new Depth(v1.Value / v2);
+        return new Depth(v1.Value/v2);
     }
 
     #endregion

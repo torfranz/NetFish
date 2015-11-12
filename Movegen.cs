@@ -114,8 +114,8 @@ public static class Movegen
         var pawnsNotOn7 = pos.pieces(Us, PieceType.PAWN) & ~TRank7BB;
 
         var enemies = (Type == GenType.EVASIONS
-                           ? pos.pieces(Them) & target
-                           : Type == GenType.CAPTURES ? target : pos.pieces(Them));
+            ? pos.pieces(Them) & target
+            : Type == GenType.CAPTURES ? target : pos.pieces(Them));
 
         // Single and double pawn pushes, no promotions
         if (Type != GenType.CAPTURES)
@@ -264,7 +264,7 @@ public static class Movegen
                     continue;
                 }
 
-                if ((bool)ci.dcCandidates && (ci.dcCandidates & @from))
+                if ((bool) ci.dcCandidates && (ci.dcCandidates & @from))
                 {
                     continue;
                 }
@@ -312,7 +312,7 @@ public static class Movegen
             }
         }
 
-        if (Type != GenType.CAPTURES && Type != GenType.EVASIONS && pos.can_castle(Us)!=0)
+        if (Type != GenType.CAPTURES && Type != GenType.EVASIONS && pos.can_castle(Us) != 0)
         {
             if (pos.is_chess960())
             {
@@ -360,8 +360,8 @@ public static class Movegen
     public static CastlingRight MakeCastling(Color C, CastlingSide S)
     {
         return C == Color.WHITE
-                   ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
-                   : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
+            ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
+            : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
     }
 
     public static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
@@ -382,14 +382,14 @@ public static class Movegen
         var us = pos.side_to_move();
 
         var target = Type == GenType.CAPTURES
-                         ? pos.pieces(~us)
-                         : Type == GenType.QUIETS
-                               ? ~pos.pieces()
-                               : Type == GenType.NON_EVASIONS ? ~pos.pieces(us) : new Bitboard(0);
+            ? pos.pieces(~us)
+            : Type == GenType.QUIETS
+                ? ~pos.pieces()
+                : Type == GenType.NON_EVASIONS ? ~pos.pieces(us) : new Bitboard(0);
 
         return us == Color.WHITE
-                   ? generate_all(Color.WHITE, Type, pos, moveList, target)
-                   : generate_all(Color.BLACK, Type, pos, moveList, target);
+            ? generate_all(Color.WHITE, Type, pos, moveList, target)
+            : generate_all(Color.BLACK, Type, pos, moveList, target);
     }
 
     /// generate
@@ -428,8 +428,8 @@ public static class Movegen
         }
 
         return us == Color.WHITE
-                   ? generate_all(Color.WHITE, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci)
-                   : generate_all(Color.BLACK, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci);
+            ? generate_all(Color.WHITE, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci)
+            : generate_all(Color.BLACK, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci);
     }
 
     /// generate
@@ -471,8 +471,8 @@ public static class Movegen
         var target = Utils.between_bb(checksq, ksq) | checksq;
 
         return us == Color.WHITE
-                   ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)
-                   : generate_all(Color.BLACK, GenType.EVASIONS, pos, moveList, target);
+            ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)
+            : generate_all(Color.BLACK, GenType.EVASIONS, pos, moveList, target);
     }
 
     /// generate
@@ -484,8 +484,8 @@ public static class Movegen
         var cur = moveList.current;
 
         moveList = pos.checkers()
-                       ? generate(GenType.EVASIONS, pos, moveList)
-                       : generate(GenType.NON_EVASIONS, pos, moveList);
+            ? generate(GenType.EVASIONS, pos, moveList)
+            : generate(GenType.NON_EVASIONS, pos, moveList);
 
         while (cur != moveList.current)
         {

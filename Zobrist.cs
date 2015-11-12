@@ -4,7 +4,7 @@
 
     public static ulong[] enpassant = new ulong[File.FILE_NB];
 
-    public static ulong[] castling = new ulong[(int)CastlingRight.CASTLING_RIGHT_NB];
+    public static ulong[] castling = new ulong[(int) CastlingRight.CASTLING_RIGHT_NB];
 
     public static ulong side;
 
