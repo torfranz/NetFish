@@ -272,11 +272,16 @@ internal static class Eval
 
         var NextPt = (Us == Color.WHITE ? Pt : Pt + 1);
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
-        var pl = pos.squares(Pt, Us);
-
+        
         ei.attackedBy[Us.ValueMe, Pt] = new Bitboard(0);
-        foreach (var s in pl.TakeWhile(s1 => s1 != Square.SQ_NONE))
+
+        for(var idx=0; idx<16;idx++)
         {
+            var s = pos.square(Pt, Us, idx);
+            if (s == Square.SQ_NONE)
+            {
+                break;
+            }
             // Find attacked squares, including x-ray attacks for bishops and rooks
             var b = Pt == PieceType.BISHOP
                 ? Utils.attacks_bb(PieceType.BISHOP, s, pos.pieces() ^ pos.pieces(Us, PieceType.QUEEN))

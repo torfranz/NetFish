@@ -252,25 +252,29 @@ internal static class Movegen
     {
         Debug.Assert(Pt != PieceType.KING && Pt != PieceType.PAWN);
 
-        var pl = pos.squares(Pt, us);
-
-        foreach (var @from in pl.TakeWhile(@from => @from != Square.SQ_NONE))
+        for(var idx=0; idx<16;idx++)
         {
+            var square = pos.square(Pt, us, idx);
+            if (square == Square.SQ_NONE)
+            {
+                break;
+            }
+
             if (Checks)
             {
                 if ((Pt == PieceType.BISHOP || Pt == PieceType.ROOK || Pt == PieceType.QUEEN)
-                    && !(Utils.PseudoAttacks[Pt, @from] & target & ci.checkSquares[Pt]))
+                    && !(Utils.PseudoAttacks[Pt, square] & target & ci.checkSquares[Pt]))
                 {
                     continue;
                 }
 
-                if ((bool) ci.dcCandidates && (ci.dcCandidates & @from))
+                if ((bool) ci.dcCandidates && (ci.dcCandidates & square))
                 {
                     continue;
                 }
             }
 
-            var b = pos.attacks_from(Pt, @from) & target;
+            var b = pos.attacks_from(Pt, square) & target;
 
             if (Checks)
             {
@@ -279,7 +283,7 @@ internal static class Movegen
 
             while (b)
             {
-                (moveList).Add(Move.make_move(@from, Utils.pop_lsb(ref b)));
+                (moveList).Add(Move.make_move(square, Utils.pop_lsb(ref b)));
             }
         }
 

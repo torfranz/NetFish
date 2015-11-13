@@ -215,8 +215,7 @@ internal static class Pawns
         Bitboard b;
 
         var score = Score.SCORE_ZERO;
-        var pl = pos.squares(PieceType.PAWN, Us);
-
+        
         var ourPawns = pos.pieces(Us, PieceType.PAWN);
         var theirPawns = pos.pieces(Them, PieceType.PAWN);
 
@@ -228,8 +227,14 @@ internal static class Pawns
         e.pawnsOnSquares[Us.ValueMe, Color.WHITE_C] = pos.count(PieceType.PAWN, Us) - e.pawnsOnSquares[Us.ValueMe, Color.BLACK_C];
 
         // Loop through all pawns of the current color and score each pawn
-        foreach (var s in pl.TakeWhile(sq => sq != Square.SQ_NONE))
+        for (var idx = 0; idx < 16; idx++)
         {
+            var s = pos.square(PieceType.PAWN, Us, idx);
+            if (s == Square.SQ_NONE)
+            {
+                break;
+            }
+
             Debug.Assert(pos.piece_on(s) == Piece.make_piece(Us, PieceType.PAWN));
 
             var f = Square.file_of(s);

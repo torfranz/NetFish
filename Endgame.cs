@@ -144,8 +144,8 @@ internal class EndgameKXK : EndgameValue
             || (pos.count(PieceType.BISHOP, strongSide) > 0 && pos.count(PieceType.KNIGHT, strongSide) > 0)
             || (pos.count(PieceType.BISHOP, strongSide) > 1
                 && Square.opposite_colors(
-                    pos.squares(PieceType.BISHOP, strongSide)[0],
-                    pos.squares(PieceType.BISHOP, strongSide)[1])))
+                    pos.square(PieceType.BISHOP, strongSide, 0),
+                    pos.square(PieceType.BISHOP, strongSide, 1))))
         {
             result += Value.VALUE_KNOWN_WIN;
         }
@@ -673,8 +673,8 @@ internal class EndgameKRPPKRP : EndgameScaleFactor
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 2));
         Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 1));
 
-        var wpsq1 = pos.squares(PieceType.PAWN, strongSide)[0];
-        var wpsq2 = pos.squares(PieceType.PAWN, strongSide)[1];
+        var wpsq1 = pos.square(PieceType.PAWN, strongSide, 0);
+        var wpsq2 = pos.square(PieceType.PAWN, strongSide, 1);
         var bksq = pos.square(PieceType.KING, weakSide);
 
         // Does the stronger side have a passed pawn?
@@ -827,8 +827,8 @@ internal class EndgameKBPPKB : EndgameScaleFactor
         }
 
         var ksq = pos.square(PieceType.KING, weakSide);
-        var psq1 = pos.squares(PieceType.PAWN, strongSide)[0];
-        var psq2 = pos.squares(PieceType.PAWN, strongSide)[1];
+        var psq1 = pos.square(PieceType.PAWN, strongSide, 0);
+        var psq2 = pos.square(PieceType.PAWN, strongSide, 1);
         var r1 = Square.rank_of(psq1);
         var r2 = Square.rank_of(psq2);
         Square blockSq1, blockSq2;

@@ -861,16 +861,7 @@ internal static class Search
             // At root obey the "searchmoves" option and skip moves not listed in Root
             // Move List. As a consequence any illegal move is also skipped. In MultiPV
             // mode we also skip PV moves which have been already searched.
-            var foundAny = false;
-            for (var idx = (int) PVIdx; idx < RootMoves.Count; idx++)
-            {
-                if (RootMoves[idx] == move)
-                {
-                    foundAny = true;
-                    break;
-                }
-            }
-            if (RootNode && !foundAny)
+            if (RootNode && RootMoves.All(rootMove => rootMove != move))
                 continue;
 
             if (SpNode)

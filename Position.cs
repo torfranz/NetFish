@@ -209,14 +209,9 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square[] squares(PieceType Pt, Color c)
+    internal Square square(PieceType Pt, Color c, int idx)
     {
-        var result = new Square[16];
-        for (var idx = 0; idx < result.Length; idx++)
-        {
-            result[idx] = pieceList[c.ValueMe, Pt, idx];
-        }
-        return result;
+        return pieceList[c.ValueMe, Pt, idx];
     }
 
 #if FORCEINLINE
