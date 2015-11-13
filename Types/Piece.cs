@@ -1,62 +1,86 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-internal struct Piece
+internal class Piece
 {
-    internal static Piece NO_PIECE = new Piece(0);
+    internal const int NO_PIECE_C = 0;
+    internal const int W_PAWN_C = 1;
+    internal const int W_KNIGHT_C = 2;
+    internal const int W_BISHOP_C = 3;
+    internal const int W_ROOK_C = 4;
+    internal const int W_QUEEN_C = 5;
+    internal const int W_KING_C = 6;
+    
+    internal const int B_PAWN_C = 9;
+    internal const int B_KNIGHT_C = 10;
+    internal const int B_BISHOP_C = 11;
+    internal const int B_ROOK_C = 12;
+    internal const int B_QUEEN_C = 13;
+    internal const int B_KING_C = 14;
+    internal const int PIECE_NB_C = 16;
 
-    internal static Piece W_PAWN = new Piece(1);
 
-    internal static Piece W_KNIGHT = new Piece(2);
+    internal static Piece NO_PIECE = new Piece(NO_PIECE_C);
 
-    internal static Piece W_BISHOP = new Piece(3);
+    internal static Piece W_PAWN = new Piece(W_PAWN_C);
 
-    internal static Piece W_ROOK = new Piece(4);
+    internal static Piece W_KNIGHT = new Piece(W_KNIGHT_C);
 
-    internal static Piece W_QUEEN = new Piece(5);
+    internal static Piece W_BISHOP = new Piece(W_BISHOP_C);
 
-    internal static Piece W_KING = new Piece(6);
+    internal static Piece W_ROOK = new Piece(W_ROOK_C);
 
-    internal static Piece B_PAWN = new Piece(9);
+    internal static Piece W_QUEEN = new Piece(W_QUEEN_C);
 
-    internal static Piece B_KNIGHT = new Piece(10);
+    internal static Piece W_KING = new Piece(W_KING_C);
 
-    internal static Piece B_BISHOP = new Piece(11);
+    internal static Piece B_PAWN = new Piece(B_PAWN_C);
 
-    internal static Piece B_ROOK = new Piece(12);
+    internal static Piece B_KNIGHT = new Piece(B_KNIGHT_C);
 
-    internal static Piece B_QUEEN = new Piece(13);
+    internal static Piece B_BISHOP = new Piece(B_BISHOP_C);
 
-    internal static Piece B_KING = new Piece(14);
+    internal static Piece B_ROOK = new Piece(B_ROOK_C);
 
-    internal static Piece PIECE_NB = new Piece(16);
+    internal static Piece B_QUEEN = new Piece(B_QUEEN_C);
 
-    private int Value
-    {
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        get;
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        set;
-    }
+    internal static Piece B_KING = new Piece(B_KING_C);
 
-        #region constructors
+    private readonly int Value;
 
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    internal Piece(Piece value)
-        : this(value.Value)
-    {
-    }
+    #region constructors
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Piece(int value)
+    internal static Piece Create(int value)
+    {
+        switch (value)
+        {
+            case NO_PIECE_C: return NO_PIECE;
+            case W_PAWN_C: return W_PAWN;
+            case W_KNIGHT_C: return W_KNIGHT;
+            case W_BISHOP_C: return W_BISHOP;
+            case W_ROOK_C: return W_ROOK;
+            case W_QUEEN_C: return W_QUEEN;
+            case W_KING_C: return W_KING;
+
+            case B_PAWN_C: return B_PAWN;
+            case B_KNIGHT_C: return B_KNIGHT;
+            case B_BISHOP_C: return B_BISHOP;
+            case B_ROOK_C: return B_ROOK;
+            case B_QUEEN_C: return B_QUEEN;
+            case B_KING_C: return B_KING;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    private Piece(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 16);
@@ -72,11 +96,11 @@ internal struct Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static implicit operator int(Piece p)
+    public static explicit operator int(Piece p)
     {
         return p.Value;
     }
-
+    /*
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -92,15 +116,7 @@ internal struct Piece
     {
         return v1.Value != v2.Value;
     }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Piece operator ++(Piece v1)
-    {
-        v1.Value += 1;
-        return v1;
-    }
+    */
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -108,52 +124,6 @@ internal struct Piece
     {
         return Value.ToString();
     }
-
-    /*
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static Piece operator -(Piece v1)
-    {
-        return new Piece(-v1.value);
-    }
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static Piece operator *(int v1, Piece v2)
-    {
-        return new Piece(v1 * v2.value);
-    }
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static Piece operator *(Piece v1, int v2)
-    {
-        return new Piece(v1.value * v2);
-    }
-
-    #endregion
-
-    #region extended operators
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static int operator /(Piece v1, Piece v2)
-    {
-        return v1.value / v2.value;
-    }
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static Piece operator /(Piece v1, int v2)
-    {
-        return new Piece(v1.value / v2);
-    }
-    */
 
     #endregion
 
@@ -186,6 +156,6 @@ internal struct Piece
 #endif
     internal static Piece make_piece(int c, PieceType pt)
     {
-        return new Piece((c << 3) | (int)pt);
+        return Piece.Create((c << 3) | (int)pt);
     }
 }

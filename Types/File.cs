@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 internal struct File
 {
@@ -38,7 +39,7 @@ internal struct File
     internal File(int value)
     {
         Value = value;
-        //Debug.Assert(this.ValueMe >= -8 && this.ValueMe <= 8);
+        Debug.Assert(this.Value >= -8 && this.Value <= 8);
     }
 
     #endregion

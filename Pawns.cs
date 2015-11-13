@@ -247,7 +247,7 @@ internal static class Pawns
             var doubled = ourPawns & Utils.forward_bb(Us, s);
             bool opposed = theirPawns & Utils.forward_bb(Us, s);
             var passed = !(theirPawns & Utils.passed_pawn_mask(Us, s));
-            bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), (int)s];
+            bool lever = theirPawns & Utils.StepAttacksBB[(int)Piece.make_piece(Us, PieceType.PAWN), (int)s];
             var phalanx = neighbours & Utils.rank_bb(s);
             var supported = neighbours & Utils.rank_bb(s - Up);
             bool connected = supported | phalanx;

@@ -76,8 +76,18 @@ internal class Position
         Debug.Assert(pos_is_ok());
     }
 
+    private void clearBoard()
+    {
+        for (int idx = 0; idx < board.Length; idx++)
+        {
+            board[idx] = Piece.NO_PIECE;
+        }
+    }
+
     internal Position(string f, bool c960, Thread th)
     {
+        this.clearBoard();
+
         set(f, c960, th);
     }
 
@@ -281,7 +291,7 @@ internal class Position
     internal Bitboard attacks_from(PieceType Pt, Square s, Color c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
-        return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), (int)s];
+        return Utils.StepAttacksBB[(int)Piece.make_piece(c, PieceType.PAWN), (int)s];
     }
 
 #if FORCEINLINE
@@ -833,7 +843,7 @@ internal class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb(new Piece((int)Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
+                return Utils.attacks_bb(Piece.Create((int)Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -1224,8 +1234,8 @@ internal class Position
         // Early return if SEE cannot be negative because captured piece value
         // is not less then capturing one. Note that king moves always return
         // here because king midgame value is set to 0.
-        if (Value.PieceValue[(int) Phase.MG][moved_piece(m)]
-            <= Value.PieceValue[(int) Phase.MG][piece_on(Move.to_sq(m))])
+        if (Value.PieceValue[(int) Phase.MG][(int)moved_piece(m)]
+            <= Value.PieceValue[(int) Phase.MG][(int)piece_on(Move.to_sq(m))])
         {
             return Value.VALUE_KNOWN_WIN;
         }
@@ -1242,7 +1252,7 @@ internal class Position
 
         var @from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        swapList[0] = Value.PieceValue[(int) Phase.MG][piece_on(to)];
+        swapList[0] = Value.PieceValue[(int) Phase.MG][(int)piece_on(to)];
         var stm = Piece.color_of(piece_on(@from));
         var occupied = pieces() ^ @from;
 
@@ -1467,7 +1477,7 @@ internal class Position
 
                 if (f <= File.FILE_H)
                 {
-                    ss.Append(PieceToChar[piece_on(Square.make_square(f, r))]);
+                    ss.Append(PieceToChar[(int)piece_on(Square.make_square(f, r))]);
                 }
             }
 
@@ -1626,7 +1636,7 @@ internal class Position
                 var p = PieceToChar.IndexOf(token);
                 if (p > -1)
                 {
-                    put_piece(Piece.color_of(new Piece(p)), Piece.type_of(new Piece(p)), sq);
+                    put_piece(Piece.color_of(Piece.Create(p)), Piece.type_of(Piece.Create(p)), sq);
                     sq++;
                 }
             }
@@ -1722,7 +1732,7 @@ internal class Position
     /// empty board, white to move, and no castling rights.
     internal void clear()
     {
-        board = new Piece[Square.SQUARE_NB_C];
+        this.clearBoard();
 
         byColorBB = new Bitboard[Color.COLOR_NB_C];
 
@@ -1823,7 +1833,7 @@ internal class Position
             for (var f = File.FILE_A; f <= File.FILE_H; ++f)
             {
                 sb.Append(" | ");
-                sb.Append(PieceToChar[piece_on(Square.make_square(f, r))]);
+                sb.Append(PieceToChar[(int)piece_on(Square.make_square(f, r))]);
             }
 
             sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");

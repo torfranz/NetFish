@@ -80,7 +80,7 @@ internal static class Bitboards
 
                         if (to.is_ok() && Utils.distance_Square(s, to) < 3)
                         {
-                            Utils.StepAttacksBB[Piece.make_piece(c, PieceType.Create(pt)), (int)s] |= to;
+                            Utils.StepAttacksBB[(int)Piece.make_piece(c, PieceType.Create(pt)), (int)s] |= to;
                         }
                     }
                 }
@@ -114,7 +114,7 @@ internal static class Bitboards
             var bb = Utils.PseudoAttacks[PieceType.ROOK_C, s1] = Utils.attacks_bb(PieceType.ROOK, s1Square, new Bitboard(0));
             Utils.PseudoAttacks[PieceType.QUEEN_C, s1] = Utils.PseudoAttacks[PieceType.QUEEN_C, s1] | bb;
 
-            for (var pc = Piece.W_BISHOP; pc <= Piece.W_ROOK; ++pc)
+            for (var pc = Piece.W_BISHOP_C; pc <= Piece.W_ROOK_C; ++pc)
             {
                 for (var s2 = Square.SQ_A1_C; s2 <= Square.SQ_H8_C; ++s2)
                 {
@@ -124,10 +124,11 @@ internal static class Bitboards
                         continue;
                     }
 
-                    Utils.LineBB[s1, s2] = (Utils.attacks_bb(pc, s1Square, new Bitboard(0))
-                                            & Utils.attacks_bb(pc, s2Square, new Bitboard(0))) | s1Square | s2Square;
-                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb(pc, s1Square, Utils.SquareBB[s2])
-                                              & Utils.attacks_bb(pc, s2Square, Utils.SquareBB[s1]);
+                    var piece = Piece.Create(pc);
+                    Utils.LineBB[s1, s2] = (Utils.attacks_bb(piece, s1Square, new Bitboard(0))
+                                            & Utils.attacks_bb(piece, s2Square, new Bitboard(0))) | s1Square | s2Square;
+                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb(piece, s1Square, Utils.SquareBB[s2])
+                                              & Utils.attacks_bb(piece, s2Square, Utils.SquareBB[s1]);
                 }
             }
         }

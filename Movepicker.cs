@@ -189,7 +189,7 @@ internal class MovePicker
             var m = moves[i];
             moves[i] = new ExtMove(
                 m,
-                Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
+                Value.PieceValue[(int) Phase.MG][(int)pos.piece_on(Move.to_sq(m))]
                 - new Value(200*Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
         }
     }
@@ -228,7 +228,7 @@ internal class MovePicker
             {
                 moves[i] = new ExtMove(
                     m,
-                    Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
+                    Value.PieceValue[(int) Phase.MG][(int)pos.piece_on(Move.to_sq(m))]
                     - new Value((int)Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
             }
             else

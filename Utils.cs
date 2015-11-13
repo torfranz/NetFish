@@ -42,7 +42,7 @@ internal static class Utils
 
     internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
 
-    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
+    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
     internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB_C, Square.SQUARE_NB_C];
 
@@ -56,7 +56,7 @@ internal static class Utils
 
     internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
+    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
     internal static int[] MSBTable = new int[256]; // To implement software msb()
 
@@ -276,7 +276,7 @@ internal static class Utils
             case PieceType.QUEEN_C:
                 return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
             default:
-                return StepAttacksBB[pc, (int)s];
+                return StepAttacksBB[(int)pc, (int)s];
         }
     }
 

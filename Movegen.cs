@@ -82,7 +82,7 @@ internal static class Movegen
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
-        if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, (int)to] & ci.ksq))
+        if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[(int)Piece.W_KNIGHT, (int)to] & ci.ksq))
         {
             (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }

@@ -298,8 +298,8 @@
         for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
         {
             var piece = Piece.make_piece(Color.BLACK, PieceType.Create(pt));
-            Value.PieceValue[(int) Phase.MG][piece] = Value.PieceValue[(int) Phase.MG][pt];
-            Value.PieceValue[(int) Phase.EG][piece] = Value.PieceValue[(int) Phase.EG][pt];
+            Value.PieceValue[(int) Phase.MG][(int)piece] = Value.PieceValue[(int) Phase.MG][pt];
+            Value.PieceValue[(int) Phase.EG][(int)piece] = Value.PieceValue[(int) Phase.EG][pt];
 
             var v = Score.make_score(Value.PieceValue[(int) Phase.MG][pt], Value.PieceValue[(int) Phase.EG][pt]);
 

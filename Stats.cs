@@ -12,7 +12,7 @@ internal class Stats<T>
     where T : new()
 {
     internal static Value Max = new Value(1 << 28);
-    internal readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB_C];
+    internal readonly T[,] table = new T[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
     internal Stats()
     {
@@ -30,7 +30,7 @@ internal class Stats<T>
 #endif
     internal T value(Piece p, Square to)
     {
-        return table[p, (int)to];
+        return table[(int)p, (int)to];
     }
 };
 
@@ -38,7 +38,7 @@ internal class MovesStats : Stats<Move>
 {
     internal void update(Piece pc, Square to, Move m)
     {
-        table[pc, (int)to] = m;
+        table[(int)pc, (int)to] = m;
     }
 }
 
@@ -50,8 +50,8 @@ internal class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[pc, (int)to] -= table[pc, (int)to]*Math.Abs(v)/324;
-        table[pc, (int)to] += v*32;
+        table[(int)pc, (int)to] -= table[(int)pc, (int)to]*Math.Abs(v)/324;
+        table[(int)pc, (int)to] += v*32;
     }
 
     internal void updateCMH(Piece pc, Square to, Value v)
@@ -60,8 +60,8 @@ internal class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[pc, (int)to] -= table[pc, (int)to]*Math.Abs(v)/512;
-        table[pc, (int)to] += v*64;
+        table[(int)pc, (int)to] -= table[(int)pc, (int)to]*Math.Abs(v)/512;
+        table[(int)pc, (int)to] += v*64;
     }
 }
 
