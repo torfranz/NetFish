@@ -305,7 +305,7 @@
 
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                int edgeDistance = Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
+                int edgeDistance = (int)Square.file_of(s) < File.FILE_E_C ? (int)Square.file_of(s) : File.FILE_H_C - (int)Square.file_of(s);
                 psq[Color.BLACK_C, pt, (int)~s] = -(psq[Color.WHITE_C, pt, (int)s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }

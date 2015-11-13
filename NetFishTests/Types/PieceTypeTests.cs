@@ -18,10 +18,10 @@ namespace Tests
             var v1 = PieceType.PAWN;
             var v2 = PieceType.KNIGHT;
             var v3 = v1 + (int)v2;
-            Assert.AreEqual(3, v3);
+            Assert.AreEqual(3, (int)v3);
 
             var v4 = v3 + 1;
-            Assert.AreEqual(4, v4);
+            Assert.AreEqual(4, (int)v4);
             /*
 
             var v5 = 1 + v4;

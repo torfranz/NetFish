@@ -56,7 +56,7 @@ internal abstract class Endgame
     {
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) == 1);
 
-        if (Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= File.FILE_E)
+        if ((int)Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= File.FILE_E_C)
         {
             sq = new Square((int)sq ^ 7); // Mirror SQ_H1 -> SQ_A1
         }
@@ -553,7 +553,7 @@ internal class EndgameKRPKR : EndgameScaleFactor
         // and the black rook is behind the pawn.
         if (wpsq == Square.SQ_A7 && wrsq == Square.SQ_A8 && (bksq == Square.SQ_H7 || bksq == Square.SQ_G7)
             && Square.file_of(brsq) == File.FILE_A
-            && (Square.rank_of(brsq) <= Rank.RANK_3 || Square.file_of(wksq) >= File.FILE_D
+            && (Square.rank_of(brsq) <= Rank.RANK_3 || (int)Square.file_of(wksq) >= File.FILE_D_C
                 || Square.rank_of(wksq) <= Rank.RANK_5))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;

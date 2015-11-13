@@ -15,9 +15,9 @@ internal static class Bitboards
             Utils.MSBTable[b] = Utils.MSBTable[b - 1] + (!(Bitboard.more_than_one(new Bitboard(b))) ? 1 : 0);
         }
 
-        for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+        foreach (var f in File.AllFiles)
         {
-            Utils.FileBB[f] = f > File.FILE_A ? Utils.FileBB[f - 1] << 1 : Bitboard.FileABB;
+            Utils.FileBB[(int)f] = (int)f > File.FILE_A_C ? Utils.FileBB[(int)f - 1] << 1 : Bitboard.FileABB;
         }
 
         for (var r = Rank.RANK_1; r <= Rank.RANK_8; ++r)
@@ -25,10 +25,10 @@ internal static class Bitboards
             Utils.RankBB[r] = r > Rank.RANK_1 ? Utils.RankBB[r - 1] << 8 : Bitboard.Rank1BB;
         }
 
-        for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+        foreach (var f in File.AllFiles)
         {
-            Utils.AdjacentFilesBB[f] = (f > File.FILE_A ? Utils.FileBB[f - 1] : new Bitboard(0))
-                                       | (f < File.FILE_H ? Utils.FileBB[f + 1] : new Bitboard(0));
+            Utils.AdjacentFilesBB[(int)f] = ((int)f > File.FILE_A_C ? Utils.FileBB[(int)f - 1] : new Bitboard(0))
+                                       | ((int)f < File.FILE_H_C ? Utils.FileBB[(int)f + 1] : new Bitboard(0));
         }
 
         for (var r = Rank.RANK_1; r < Rank.RANK_8; ++r)
@@ -41,9 +41,9 @@ internal static class Bitboards
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                Utils.ForwardBB[c, (int)s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[Square.file_of(s)];
+                Utils.ForwardBB[c, (int)s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[(int)Square.file_of(s)];
                 Utils.PawnAttackSpan[c, (int)s] = Utils.InFrontBB[c, Square.rank_of(s)]
-                                             & Utils.AdjacentFilesBB[Square.file_of(s)];
+                                             & Utils.AdjacentFilesBB[(int)Square.file_of(s)];
                 Utils.PassedPawnMask[c, (int)s] = Utils.ForwardBB[c, (int)s] | Utils.PawnAttackSpan[c, (int)s];
             }
         }

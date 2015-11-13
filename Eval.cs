@@ -387,9 +387,9 @@ internal static class Eval
                 {
                     var ksq = pos.square(PieceType.KING, Us);
 
-                    if (((Square.file_of(ksq) < File.FILE_E) == (Square.file_of(s) < Square.file_of(ksq)))
+                    if ((((int)Square.file_of(ksq) < File.FILE_E_C) == ((int)Square.file_of(s) < (int)Square.file_of(ksq)))
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
-                        && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
+                        && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), (int)Square.file_of(s) < (int)Square.file_of(ksq)))
                     {
                         score -= (TrappedRook - Score.make_score(mob*22, 0))*(1 + (pos.can_castle(Us) == 0 ? 1 : 0));
                     }
@@ -704,7 +704,7 @@ internal static class Eval
                 ebonus += ebonus/4;
             }
 
-            score += Score.make_score(mbonus, ebonus) + PassedFile[Square.file_of(s)];
+            score += Score.make_score(mbonus, ebonus) + PassedFile[(int)Square.file_of(s)];
         }
 
         if (DoTrace)

@@ -290,7 +290,7 @@ internal static class Pawns
             // Score this pawn
             if (isolated)
             {
-                score -= Isolated[opposed ? 1 : 0][f];
+                score -= Isolated[opposed ? 1 : 0][(int)f];
             }
 
             else if (backward)
@@ -315,7 +315,7 @@ internal static class Pawns
 
             if (doubled)
             {
-                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
+                score -= Doubled[(int)f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
             }
 
             if (lever)
@@ -500,23 +500,23 @@ internal static class Pawns
             var ourPawns = b & pos.pieces(Us);
             var theirPawns = b & pos.pieces(Them);
             var safety = MaxSafetyBonus;
-            var center = new File(Math.Max(File.FILE_B, Math.Min(File.FILE_G, Square.file_of(ksq))));
+            var center = File.Create(Math.Max(File.FILE_B_C, Math.Min(File.FILE_G_C, (int)Square.file_of(ksq))));
 
-            for (var f = center - new File(1); f <= center + new File(1); ++f)
+            for (var f = (int)center - 1; f <= (int)center + 1; ++f)
             {
-                b = ourPawns & Utils.file_bb(f);
+                b = ourPawns & Utils.file_bb(File.Create(f));
                 var rkUs = b ? Rank.relative_rank(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
 
-                b = theirPawns & Utils.file_bb(f);
+                b = theirPawns & Utils.file_bb(File.Create(f));
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
-                safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
+                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][rkUs]
                           + StormDanger[
-                              f == Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
+                              f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
                                   : rkUs == Rank.RANK_1
                                       ? NoFriendlyPawn
-                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H - f)][
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][
                                           rkThem];
             }
 

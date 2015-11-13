@@ -34,9 +34,9 @@ internal static class Utils
 
     internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
+    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB_C];
 
-    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB];
+    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB_C];
 
     internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
 
@@ -100,7 +100,7 @@ internal static class Utils
 #endif
     internal static Bitboard file_bb(File f)
     {
-        return FileBB[f];
+        return FileBB[(int)f];
     }
 
 #if FORCEINLINE
@@ -108,7 +108,7 @@ internal static class Utils
 #endif
     internal static Bitboard file_bb(Square s)
     {
-        return FileBB[Square.file_of(s)];
+        return FileBB[(int)Square.file_of(s)];
     }
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -118,7 +118,7 @@ internal static class Utils
 #endif
     internal static Bitboard adjacent_files_bb(File f)
     {
-        return AdjacentFilesBB[f];
+        return AdjacentFilesBB[(int)f];
     }
 
     /// between_bb() returns a bitboard representing all the squares between the two
@@ -211,8 +211,8 @@ internal static class Utils
 #endif
     internal static int distance_File(Square x, Square y)
     {
-        int xFile = Square.file_of(x);
-        int yFile = Square.file_of(y);
+        int xFile = (int)Square.file_of(x);
+        int yFile = (int)Square.file_of(y);
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 

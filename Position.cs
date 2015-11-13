@@ -108,9 +108,9 @@ internal class Position
             }
         }
 
-        for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+        foreach (var f in File.AllFiles)
         {
-            Zobrist.enpassant[f] = rng.rand();
+            Zobrist.enpassant[(int)f] = rng.rand();
         }
 
         for (var cr = (int) CastlingRight.NO_CASTLING; cr <= (int) CastlingRight.ANY_CASTLING; ++cr)
@@ -590,7 +590,7 @@ internal class Position
 
         if (si.epSquare != Square.SQ_NONE)
         {
-            si.key ^= Zobrist.enpassant[Square.file_of(si.epSquare)];
+            si.key ^= Zobrist.enpassant[(int)Square.file_of(si.epSquare)];
         }
 
         if (sideToMove == Color.BLACK)
@@ -974,7 +974,7 @@ internal class Position
         // Reset en passant square
         if (st.epSquare != Square.SQ_NONE)
         {
-            k ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
+            k ^= Zobrist.enpassant[(int)Square.file_of(st.epSquare)];
             st.epSquare = Square.SQ_NONE;
         }
 
@@ -1000,7 +1000,7 @@ internal class Position
                 && (attacks_from(PieceType.PAWN, to - Square.pawn_push(us), us) & pieces(them, PieceType.PAWN)))
             {
                 st.epSquare = (from + to)/2;
-                k ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
+                k ^= Zobrist.enpassant[(int)Square.file_of(st.epSquare)];
             }
 
             else if (Move.type_of(m) == MoveType.PROMOTION)
@@ -1146,7 +1146,7 @@ internal class Position
 
         if (st.epSquare != Square.SQ_NONE)
         {
-            st.key ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
+            st.key ^= Zobrist.enpassant[(int)Square.file_of(st.epSquare)];
             st.epSquare = Square.SQ_NONE;
         }
 
@@ -1462,10 +1462,10 @@ internal class Position
 
         for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
         {
-            for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+            for (var f = File.FILE_A_C; f <= File.FILE_H_C; ++f)
             {
                 int emptyCnt;
-                for (emptyCnt = 0; f <= File.FILE_H && empty(Square.make_square(f, r)); ++f)
+                for (emptyCnt = 0; f <= File.FILE_H_C && empty(Square.make_square(File.Create(f), r)); ++f)
                 {
                     ++emptyCnt;
                 }
@@ -1475,9 +1475,9 @@ internal class Position
                     ss.Append(emptyCnt);
                 }
 
-                if (f <= File.FILE_H)
+                if (f <= File.FILE_H_C)
                 {
-                    ss.Append(PieceToChar[(int)piece_on(Square.make_square(f, r))]);
+                    ss.Append(PieceToChar[(int)piece_on(Square.make_square(File.Create(f), r))]);
                 }
             }
 
@@ -1493,7 +1493,7 @@ internal class Position
         {
             ss.Append(
                 (chess960
-                    ? (char) ('A' + Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.KING_SIDE)))
+                    ? (char) ('A' + (int)Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.KING_SIDE)))
                     : 'K'));
         }
 
@@ -1501,7 +1501,7 @@ internal class Position
         {
             ss.Append(
                 (chess960
-                    ? (char) ('A' + Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.QUEEN_SIDE)))
+                    ? (char) ('A' + (int)Square.file_of(castling_rook_square(Color.WHITE | CastlingSide.QUEEN_SIDE)))
                     : 'Q'));
         }
 
@@ -1509,7 +1509,7 @@ internal class Position
         {
             ss.Append(
                 (chess960
-                    ? (char) ('a' + Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.KING_SIDE)))
+                    ? (char) ('a' + (int)Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.KING_SIDE)))
                     : 'k'));
         }
 
@@ -1517,7 +1517,7 @@ internal class Position
         {
             ss.Append(
                 (chess960
-                    ? (char) ('a' + Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.QUEEN_SIDE)))
+                    ? (char) ('a' + (int)Square.file_of(castling_rook_square(Color.BLACK | CastlingSide.QUEEN_SIDE)))
                     : 'q'));
         }
 
@@ -1696,7 +1696,7 @@ internal class Position
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
                 {
-                    st.epSquare = Square.make_square(new File(col - 'a'), new Rank(row - '1'));
+                    st.epSquare = Square.make_square(File.Create(col - 'a'), new Rank(row - '1'));
 
                     if ((attackers_to(st.epSquare) & pieces(sideToMove, PieceType.PAWN)) == 0)
                     {
@@ -1830,7 +1830,7 @@ internal class Position
         var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
         for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
         {
-            for (var f = File.FILE_A; f <= File.FILE_H; ++f)
+            foreach (var f in File.AllFiles)
             {
                 sb.Append(" | ");
                 sb.Append(PieceToChar[(int)piece_on(Square.make_square(f, r))]);
