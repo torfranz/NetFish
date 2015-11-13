@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 
-public abstract class Endgame
+internal abstract class Endgame
 {
-    public delegate int EndgameEvaluator(int c, Position pos);
+    internal delegate int EndgameEvaluator(int c, Position pos);
 
     // Table used to drive the king towards the edge of the board
     // in KX vs K and KQ vs KR endgames.
-    public static int[] PushToEdges =
+    internal static int[] PushToEdges =
     {
         100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30,
         30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70,
@@ -17,7 +17,7 @@ public abstract class Endgame
 
     // Table used to drive the king towards a corner square of the
     // right color in KBN vs K endgames.
-    public static int[] PushToCorners =
+    internal static int[] PushToCorners =
     {
         200, 190, 180, 170, 160, 150, 140, 130, 190, 180, 170, 160, 150, 140, 130, 140,
         180, 170, 155, 140, 140, 125, 140, 150, 170, 160, 140, 120, 110, 140, 150, 160,
@@ -26,21 +26,21 @@ public abstract class Endgame
     };
 
     // Tables used to drive a piece towards or away from another piece
-    public static int[] PushClose = {0, 0, 100, 80, 60, 40, 20, 10};
+    internal static int[] PushClose = {0, 0, 100, 80, 60, 40, 20, 10};
 
-    public static int[] PushAway = {0, 5, 20, 40, 60, 80, 90, 100};
+    internal static int[] PushAway = {0, 5, 20, 40, 60, 80, 90, 100};
 
     protected readonly Color strongSide;
 
     protected Color weakSide;
 
-    public Endgame(Color c)
+    protected Endgame(Color c)
     {
         strongSide = c;
         weakSide = ~c;
     }
 
-    public Color strong_side()
+    internal Color strong_side()
     {
         return strongSide;
     }
@@ -72,7 +72,7 @@ public abstract class Endgame
     // Get the material key of Position out of the given endgame key code
     // like "KBPKN". The trick here is to first forge an ad-hoc FEN string
     // and then let a Position object do the work for us.
-    public static ulong key(string code, Color c)
+    internal static ulong key(string code, Color c)
     {
         Debug.Assert(code.Length > 0 && code.Length < 8);
         Debug.Assert(code[0] == 'K');
@@ -82,7 +82,7 @@ public abstract class Endgame
             code.Substring(code.IndexOf('K', 1)), // Weak
             code.Substring(0, code.IndexOf('K', 1))
         }; // Strong
-        sides[c] = sides[c].ToLower();
+        sides[c.Value] = sides[c.Value].ToLower();
 
         var fen = sides[0] + (char) (8 - sides[0].Length + '0') + "/8/8/8/8/8/8/" + sides[1]
                   + (char) (8 - sides[1].Length + '0') + " w - - 0 10";
@@ -91,38 +91,38 @@ public abstract class Endgame
     }
 }
 
-public abstract class EndgameValue : Endgame
+internal abstract class EndgameValue : Endgame
 {
     protected EndgameValue(Color c)
         : base(c)
     {
     }
 
-    public abstract Value GetValue(Position pos);
+    internal abstract Value GetValue(Position pos);
 }
 
-public abstract class EndgameScaleFactor : Endgame
+internal abstract class EndgameScaleFactor : Endgame
 {
     protected EndgameScaleFactor(Color c)
         : base(c)
     {
     }
 
-    public abstract ScaleFactor GetScaleFactor(Position pos);
+    internal abstract ScaleFactor GetScaleFactor(Position pos);
 }
 
 /// Mate with KX vs K. This function is used to evaluate positions with
 /// king and plenty of material vs a lone king. It simply gives the
 /// attacking side a bonus for driving the defending king towards the edge
 /// of the board, and for keeping the distance between the two kings small.
-public class EndgameKXK : EndgameValue
+internal class EndgameKXK : EndgameValue
 {
-    public EndgameKXK(Color c)
+    internal EndgameKXK(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
         Debug.Assert(!pos.checkers()); // Eval is never called when in check
@@ -156,14 +156,14 @@ public class EndgameKXK : EndgameValue
 
 /// Mate with KBN vs K. This is similar to KX vs K, but we have to drive the
 /// defending king towards a corner square of the right color.
-public class EndgameKBNK : EndgameValue
+internal class EndgameKBNK : EndgameValue
 {
-    public EndgameKBNK(Color c)
+    internal EndgameKBNK(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.KnightValueMg + Value.BishopValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
@@ -189,14 +189,14 @@ public class EndgameKBNK : EndgameValue
 }
 
 /// KP vs K. This endgame is evaluated with the help of a bitbase.
-public class EndgameKPK : EndgameValue
+internal class EndgameKPK : EndgameValue
 {
-    public EndgameKPK(Color c)
+    internal EndgameKPK(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.VALUE_ZERO, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
@@ -223,14 +223,14 @@ public class EndgameKPK : EndgameValue
 /// a bitbase. The function below returns drawish scores when the pawn is
 /// far advanced with support of the king, while the attacking king is far
 /// away.
-public class EndgameKRKP : EndgameValue
+internal class EndgameKRKP : EndgameValue
 {
-    public EndgameKRKP(Color c)
+    internal EndgameKRKP(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
@@ -281,14 +281,14 @@ public class EndgameKRKP : EndgameValue
 
 /// KR vs KB. This is very simple, and always returns drawish scores.  The
 /// score is slightly bigger when the defending king is close to the edge.
-public class EndgameKRKB : EndgameValue
+internal class EndgameKRKB : EndgameValue
 {
-    public EndgameKRKB(Color c)
+    internal EndgameKRKB(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
@@ -300,14 +300,14 @@ public class EndgameKRKB : EndgameValue
 
 /// KR vs KN. The attacking side has slightly better winning chances than
 /// in KR vs KB, particularly if the king and the knight are far apart.
-public class EndgameKRKN : EndgameValue
+internal class EndgameKRKN : EndgameValue
 {
-    public EndgameKRKN(Color c)
+    internal EndgameKRKN(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.KnightValueMg, 0));
@@ -323,14 +323,14 @@ public class EndgameKRKN : EndgameValue
 /// few important exceptions. A pawn on 7th rank and on the A,C,F or H files
 /// with a king positioned next to it can be a draw, so in that case, we only
 /// use the distance between the kings.
-public class EndgameKQKP : EndgameValue
+internal class EndgameKQKP : EndgameValue
 {
-    public EndgameKQKP(Color c)
+    internal EndgameKQKP(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
@@ -355,14 +355,14 @@ public class EndgameKQKP : EndgameValue
 /// king a bonus for having the kings close together, and for forcing the
 /// defending king towards the edge. If we also take care to avoid null move for
 /// the defending side in the search, this is usually sufficient to win KQ vs KR.
-public class EndgameKQKR : EndgameValue
+internal class EndgameKQKR : EndgameValue
 {
-    public EndgameKQKR(Color c)
+    internal EndgameKQKR(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 0));
@@ -378,14 +378,14 @@ public class EndgameKQKR : EndgameValue
 }
 
 /// Some cases of trivial draws
-public class EndgameKNNK : EndgameValue
+internal class EndgameKNNK : EndgameValue
 {
-    public EndgameKNNK(Color c)
+    internal EndgameKNNK(Color c)
         : base(c)
     {
     }
 
-    public override Value GetValue(Position pos)
+    internal override Value GetValue(Position pos)
     {
         return Value.VALUE_DRAW;
     }
@@ -395,14 +395,14 @@ public class EndgameKNNK : EndgameValue
 /// a bishop of the wrong color. If such a draw is detected, SCALE_FACTOR_DRAW
 /// is returned. If not, the return value is SCALE_FACTOR_NONE, i.e. no scaling
 /// will be used.
-public class EndgameKBPsK : EndgameScaleFactor
+internal class EndgameKBPsK : EndgameScaleFactor
 {
-    public EndgameKBPsK(Color c)
+    internal EndgameKBPsK(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(pos.non_pawn_material(strongSide) == Value.BishopValueMg);
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) >= 1);
@@ -467,14 +467,14 @@ public class EndgameKBPsK : EndgameScaleFactor
 
 /// KQ vs KR and one or more pawns. It tests for fortress draws with a rook on
 /// the third rank defended by a pawn.
-public class EndgameKQKRPs : EndgameScaleFactor
+internal class EndgameKQKRPs : EndgameScaleFactor
 {
-    public EndgameKQKRPs(Color c)
+    internal EndgameKQKRPs(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
         Debug.Assert(pos.count(PieceType.ROOK, weakSide) == 1);
@@ -502,14 +502,14 @@ public class EndgameKQKRPs : EndgameScaleFactor
 /// 
 /// It would also be nice to rewrite the actual code for this function,
 /// which is mostly copied from Glaurung 1.x, and isn't very pretty.
-public class EndgameKRPKR : EndgameScaleFactor
+internal class EndgameKRPKR : EndgameScaleFactor
 {
-    public EndgameKRPKR(Color c)
+    internal EndgameKRPKR(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 0));
@@ -607,14 +607,14 @@ public class EndgameKRPKR : EndgameScaleFactor
     }
 }
 
-public class EndgameKRPKB : EndgameScaleFactor
+internal class EndgameKRPKB : EndgameScaleFactor
 {
-    public EndgameKRPKB(Color c)
+    internal EndgameKRPKB(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
@@ -661,14 +661,14 @@ public class EndgameKRPKB : EndgameScaleFactor
 
 /// KRPP vs KRP. There is just a single rule: if the stronger side has no passed
 /// pawns and the defending king is actively placed, the position is drawish.
-public class EndgameKRPPKRP : EndgameScaleFactor
+internal class EndgameKRPPKRP : EndgameScaleFactor
 {
-    public EndgameKRPPKRP(Color c)
+    internal EndgameKRPPKRP(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 2));
         Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 1));
@@ -712,14 +712,14 @@ public class EndgameKRPPKRP : EndgameScaleFactor
 
 /// K and two or more pawns vs K. There is just a single rule here: If all pawns
 /// are on the same rook file and are blocked by the defending king, it's a draw.
-public class EndgameKPsK : EndgameScaleFactor
+internal class EndgameKPsK : EndgameScaleFactor
 {
-    public EndgameKPsK(Color c)
+    internal EndgameKPsK(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(pos.non_pawn_material(strongSide) == Value.VALUE_ZERO);
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) >= 2);
@@ -745,14 +745,14 @@ public class EndgameKPsK : EndgameScaleFactor
 /// path of the pawn, and the square of the king is not of the same color as the
 /// stronger side's bishop, it's a draw. If the two bishops have opposite color,
 /// it's almost always a draw.
-public class EndgameKBPKB : EndgameScaleFactor
+internal class EndgameKBPKB : EndgameScaleFactor
 {
-    public EndgameKBPKB(Color c)
+    internal EndgameKBPKB(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
@@ -806,14 +806,14 @@ public class EndgameKBPKB : EndgameScaleFactor
 }
 
 /// KBPP vs KB. It detects a few basic draws with opposite-colored bishops
-public class EndgameKBPPKB : EndgameScaleFactor
+internal class EndgameKBPPKB : EndgameScaleFactor
 {
-    public EndgameKBPPKB(Color c)
+    internal EndgameKBPPKB(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 2));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
@@ -887,14 +887,14 @@ public class EndgameKBPPKB : EndgameScaleFactor
 /// KBP vs KN. There is a single rule: If the defending king is somewhere along
 /// the path of the pawn, and the square of the king is not of the same color as
 /// the stronger side's bishop, it's a draw.
-public class EndgameKBPKN : EndgameScaleFactor
+internal class EndgameKBPKN : EndgameScaleFactor
 {
-    public EndgameKBPKN(Color c)
+    internal EndgameKBPKN(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.BishopValueMg, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.KnightValueMg, 0));
@@ -917,14 +917,14 @@ public class EndgameKBPKN : EndgameScaleFactor
 
 /// KNP vs K. There is a single rule: if the pawn is a rook pawn on the 7th rank
 /// and the defending king prevents the pawn from advancing, the position is drawn.
-public class EndgameKNPK : EndgameScaleFactor
+internal class EndgameKNPK : EndgameScaleFactor
 {
-    public EndgameKNPK(Color c)
+    internal EndgameKNPK(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.KnightValueMg, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
@@ -944,14 +944,14 @@ public class EndgameKNPK : EndgameScaleFactor
 
 /// KNP vs KB. If knight can block bishop from taking pawn, it's a win.
 /// Otherwise the position is drawn.
-public class EndgameKNPKB : EndgameScaleFactor
+internal class EndgameKNPKB : EndgameScaleFactor
 {
-    public EndgameKNPKB(Color c)
+    internal EndgameKNPKB(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         var pawnSq = pos.square(PieceType.PAWN, strongSide);
         var bishopSq = pos.square(PieceType.BISHOP, weakSide);
@@ -973,14 +973,14 @@ public class EndgameKNPKB : EndgameScaleFactor
 /// has at least a draw with the pawn as well. The exception is when the stronger
 /// side's pawn is far advanced and not on a rook file; in this case it is often
 /// possible to win (e.g. 8/4k3/3p4/3P4/6K1/8/8/8 w - - 0 1).
-public class EndgameKPKP : EndgameScaleFactor
+internal class EndgameKPKP : EndgameScaleFactor
 {
-    public EndgameKPKP(Color c)
+    internal EndgameKPKP(Color c)
         : base(c)
     {
     }
 
-    public override ScaleFactor GetScaleFactor(Position pos)
+    internal override ScaleFactor GetScaleFactor(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.VALUE_ZERO, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));

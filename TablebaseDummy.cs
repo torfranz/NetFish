@@ -1,33 +1,33 @@
 ﻿using System.Collections.Generic;
 
-public static class Tablebases
+internal static class Tablebases
 {
-    public static int Hits;
+    internal static int Hits;
 
-    public static bool UseRule50;
+    internal static bool UseRule50;
 
-    public static int ProbeDepth;
+    internal static int ProbeDepth;
 
-    public static int Cardinality;
+    internal static int Cardinality;
 
 
-    public static int MaxCardinality;
+    internal static int MaxCardinality;
 
-    public static bool RootInTB;
+    internal static bool RootInTB;
 
-    public static Value Score;
+    internal static Value Score;
 
-    public static bool root_probe(Position rootPos, List<RootMove> rootMoves, Value score)
+    internal static bool root_probe(Position rootPos, List<RootMove> rootMoves, Value score)
     {
         return false;
     }
 
-    public static bool root_probe_wdl(Position rootPos, List<RootMove> rootMoves, Value score)
+    internal static bool root_probe_wdl(Position rootPos, List<RootMove> rootMoves, Value score)
     {
         return false;
     }
 
-    public static int probe_wdl(Position pos, ref int found)
+    internal static int probe_wdl(Position pos, ref int found)
     {
         found = 0;
         return 0;

@@ -4,25 +4,25 @@ using System.Diagnostics;
 using System.Linq;
 using Key = System.UInt64;
 
-public static class Search
+internal static class Search
 {
-    public static SignalsType Signals;
+    internal static SignalsType Signals;
 
-    public static LimitsType Limits;
+    internal static LimitsType Limits;
 
-    public static List<RootMove> RootMoves = new List<RootMove>();
+    internal static List<RootMove> RootMoves = new List<RootMove>();
 
-    public static Position RootPos;
+    internal static Position RootPos;
 
-    public static StateInfoWrapper SetupStates;
+    internal static StateInfoWrapper SetupStates;
 
-    public static uint PVIdx;
+    internal static uint PVIdx;
 
     private static readonly EasyMoveManager EasyMove = new EasyMoveManager();
 
     private static double BestMoveChanges;
 
-    private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
+    private static readonly Value[] DrawValue = new Value[Color.COLOR_NB_C];
 
     private static HistoryStats History = new HistoryStats();
 
@@ -33,20 +33,17 @@ public static class Search
     /// check_time() is called by the timer thread when the timer triggers. It is
     /// used to print debug info and, more importantly, to detect when we are out of
     /// available time and thus stop the search.
-    private static DateTime lastInfoTime = DateTime.Now;
-
+    
     // Futility and reductions lookup tables, initialized at startup
     private static readonly int[,] FutilityMoveCounts = new int[2, 16]; // [improving][depth]
     private static readonly Depth[,,,] Reductions = new Depth[2, 2, 64, 64]; // [pv][improving][depth][moveNumber]
 
-    public static void check_time()
+    internal static void check_time()
     {
-        lastInfoTime = DateTime.Now;
         var elapsed = TimeManagement.elapsed();
 
         if (elapsed >= 1000)
         {
-            lastInfoTime = DateTime.Now;
             //TODO: enable db_print?
             //dbg_print();
         }
@@ -89,13 +86,7 @@ public static class Search
 
                     nodes += sp.nodes;
 
-                    for (var idx = 0; idx < ThreadPool.threads.Count; ++idx)
-                    {
-                        if ((sp.slavesMask & (1u << idx)) != 0 && ThreadPool.threads[idx].activePosition != null)
-                        {
-                            nodes += ThreadPool.threads[idx].activePosition.nodes_searched();
-                        }
-                    }
+                    nodes = ThreadPool.threads.Where((t, idx) => (sp.slavesMask & (1u << idx)) != 0 && t.activePosition != null).Aggregate(nodes, (current, t) => current + t.activePosition.nodes_searched());
 
                     ThreadHelper.lock_release(sp.spinlock);
                 }
@@ -109,7 +100,7 @@ public static class Search
     }
 
     /// Search::reset() clears all search memory, to obtain reproducible search results
-    public static void reset()
+    internal static void reset()
     {
         TranspositionTable.clear();
         History = new HistoryStats();
@@ -120,14 +111,14 @@ public static class Search
     /// Search::think() is the external interface to Stockfish's search, and is
     /// called by the main thread when the program receives the UCI 'go' command. It
     /// searches from RootPos and at the end prints the "bestmove" to output.
-    public static void think()
+    internal static void think()
     {
         var us = RootPos.side_to_move();
         TimeManagement.init(Limits, us, RootPos.game_ply(), DateTime.Now);
 
         int contempt = int.Parse(OptionMap.Instance["Contempt"].v)*Value.PawnValueEg/100; // From centipawns
-        DrawValue[us] = Value.VALUE_DRAW - contempt;
-        DrawValue[~us] = Value.VALUE_DRAW + contempt;
+        DrawValue[us.Value] = Value.VALUE_DRAW - contempt;
+        DrawValue[(~us).Value] = Value.VALUE_DRAW + contempt;
 
         Tablebases.Hits = 0;
         Tablebases.RootInTB = false;
@@ -201,7 +192,7 @@ public static class Search
         // the available ones before to exit.
         if (Limits.npmsec != 0)
         {
-            TimeManagement.availableNodes += Limits.inc[us] - RootPos.nodes_searched();
+            TimeManagement.availableNodes += Limits.inc[us.Value] - RootPos.nodes_searched();
         }
 
         // When we reach the maximum depth, we can arrive here without a raise of
@@ -248,8 +239,7 @@ public static class Search
 
         var ss = new StackArrayWrapper(stack, 2); // To allow referencing (ss-2) and (ss+2)
 
-        Depth depth;
-        Value bestValue, alpha, beta, delta;
+        Value alpha, delta;
 
         var easyMove = EasyMove.get(pos.key());
         EasyMove.clear();
@@ -257,10 +247,10 @@ public static class Search
         //TODO: need to memset?
         //Math.Memset(ss - 2, 0, 5 * sizeof(Stack));
 
-        depth = Depth.DEPTH_ZERO;
+        var depth = Depth.DEPTH_ZERO;
         BestMoveChanges = 0;
-        bestValue = delta = alpha = -Value.VALUE_INFINITE;
-        beta = Value.VALUE_INFINITE;
+        var bestValue = delta = alpha = -Value.VALUE_INFINITE;
+        var beta = Value.VALUE_INFINITE;
 
         TranspositionTable.new_search();
 
@@ -458,10 +448,10 @@ public static class Search
 
     /// Search::perft() is our utility to verify move generation. All the leaf nodes
     /// up to the given depth are generated and counted and the sum returned.
-    public static long perft(bool Root, Position pos, Depth depth)
+    internal static long perft(bool Root, Position pos, Depth depth)
     {
         var st = new StateInfo();
-        long cnt, nodes = 0;
+        long nodes = 0;
         var ci = new CheckInfo(pos);
         var leaf = (depth == 2*Depth.ONE_PLY);
 
@@ -469,6 +459,7 @@ public static class Search
         for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
+            long cnt;
             if (Root && depth <= Depth.ONE_PLY)
             {
                 cnt = 1;
@@ -506,7 +497,7 @@ public static class Search
         return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min(d, 63*Depth.ONE_PLY), Math.Min(mn, 63)];
     }
 
-    public static void init()
+    internal static void init()
     {
         double[][] K = {new[] {0.83, 2.25}, new[] {0.50, 3.00}};
 
@@ -571,15 +562,13 @@ public static class Search
         SplitPoint splitPoint = null;
         ulong posKey = 0;
         Move ttMove, move, excludedMove, bestMove;
-        Depth extension, newDepth, predictedDepth;
-        Value bestValue, value, ttValue, eval, nullValue, futilityValue;
-        bool ttHit = false, inCheck, givesCheck, singularExtensionNode, improving;
-        bool captureOrPromotion, doFullDepthSearch;
+        Value bestValue, value, ttValue, eval;
+        bool ttHit;
         int moveCount = 0, quietCount = 0;
 
         // Step 1. Initialize node
         var thisThread = pos.this_thread();
-        inCheck = pos.checkers();
+        bool inCheck = pos.checkers();
 
         if (SpNode)
         {
@@ -587,7 +576,6 @@ public static class Search
             bestMove = new Move(splitPoint.bestMove);
             bestValue = new Value(splitPoint.bestValue);
             tte = new TTEntry();
-            ttHit = false;
             ttMove = excludedMove = Move.MOVE_NONE;
             ttValue = Value.VALUE_NONE;
 
@@ -610,7 +598,7 @@ public static class Search
             if (Signals.stop || pos.is_draw() || ss[ss.current].ply >= _.MAX_PLY)
                 return ss[ss.current].ply >= _.MAX_PLY && !inCheck
                     ? Eval.evaluate(false, pos)
-                    : DrawValue[pos.side_to_move()];
+                    : DrawValue[pos.side_to_move().Value];
 
             // Step 3. Mate distance pruning. Even if we mate at the next move our score
             // would be at best mate_in(ss.ply+1), but if alpha is already bigger because
@@ -636,7 +624,7 @@ public static class Search
         // TT value, so we use a different position key in case of an excluded move.
         excludedMove = ss[ss.current].excludedMove;
         posKey = excludedMove ? pos.exclusion_key() : pos.key();
-        tte = TranspositionTable.probe(posKey, ref ttHit);
+        tte = TranspositionTable.probe(posKey, out ttHit);
         ss[ss.current].ttMove = ttMove = RootNode ? RootMoves[(int) PVIdx].pv[0] : ttHit ? tte.move() : Move.MOVE_NONE;
         ttValue = ttHit ? value_from_tt(tte.value(), ss[ss.current].ply) : Value.VALUE_NONE;
 
@@ -694,7 +682,7 @@ public static class Search
         // Step 5. Evaluate the position statically
         if (inCheck)
         {
-            ss[ss.current].staticEval = eval = Value.VALUE_NONE;
+            ss[ss.current].staticEval = Value.VALUE_NONE;
             goto moves_loop;
         }
 
@@ -762,7 +750,7 @@ public static class Search
 
             pos.do_null_move(st);
             ss[ss.current + 1].skipEarlyPruning = true;
-            nullValue = depth - R < Depth.ONE_PLY
+            var nullValue = depth - R < Depth.ONE_PLY
                 ? -qsearch(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -beta + 1,
                     Depth.DEPTH_ZERO)
                 : -search(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -beta + 1,
@@ -834,7 +822,7 @@ public static class Search
             search(PvNode ? NodeType.PV : NodeType.NonPV, false, pos, ss, alpha, beta, d, true);
             ss[ss.current].skipEarlyPruning = false;
 
-            tte = TranspositionTable.probe(posKey, ref ttHit);
+            tte = TranspositionTable.probe(posKey, out ttHit);
             ttMove = ttHit ? tte.move() : Move.MOVE_NONE;
         }
 
@@ -846,19 +834,19 @@ public static class Search
         var mp = new MovePicker(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
         var ci = new CheckInfo(pos);
         value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-        improving = ss[ss.current].staticEval >= ss[ss.current - 2].staticEval
-                    || ss[ss.current].staticEval == Value.VALUE_NONE
-                    || ss[ss.current - 2].staticEval == Value.VALUE_NONE;
+        var improving = ss[ss.current].staticEval >= ss[ss.current - 2].staticEval
+                         || ss[ss.current].staticEval == Value.VALUE_NONE
+                         || ss[ss.current - 2].staticEval == Value.VALUE_NONE;
 
-        singularExtensionNode = !RootNode
-                                && !SpNode
-                                && depth >= 8*Depth.ONE_PLY
-                                && ttMove != Move.MOVE_NONE
+        var singularExtensionNode = !RootNode
+                                     && !SpNode
+                                     && depth >= 8*Depth.ONE_PLY
+                                     && ttMove != Move.MOVE_NONE
             /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
-                                && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
-                                && !excludedMove // Recursive singular search is not allowed
-                                && ((tte.bound() & Bound.BOUND_LOWER) != 0)
-                                && tte.depth() >= depth - 3*Depth.ONE_PLY;
+                                     && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
+                                     && !excludedMove // Recursive singular search is not allowed
+                                     && ((tte.bound() & Bound.BOUND_LOWER) != 0)
+                                     && tte.depth() >= depth - 3*Depth.ONE_PLY;
 
         // Step 11. Loop through moves
         // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
@@ -909,10 +897,10 @@ public static class Search
             if (PvNode)
                 ss[ss.current + 1].pv = new List<Move>();
 
-            extension = Depth.DEPTH_ZERO;
-            captureOrPromotion = pos.capture_or_promotion(move);
+            var extension = Depth.DEPTH_ZERO;
+            var captureOrPromotion = pos.capture_or_promotion(move);
 
-            givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
+            var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
                 ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
@@ -942,7 +930,7 @@ public static class Search
             }
 
             // Update the current move (this must be done after singular extension search)
-            newDepth = depth - Depth.ONE_PLY + extension;
+            var newDepth = depth - Depth.ONE_PLY + extension;
 
             // Step 13. Pruning at shallow depth
             if (!RootNode
@@ -962,12 +950,12 @@ public static class Search
                     continue;
                 }
 
-                predictedDepth = newDepth - reduction(PvNode, improving, depth, moveCount);
+                var predictedDepth = newDepth - reduction(PvNode, improving, depth, moveCount);
 
                 // Futility pruning: parent node
                 if (predictedDepth < 7*Depth.ONE_PLY)
                 {
-                    futilityValue = ss[ss.current].staticEval + futility_margin(predictedDepth) + 256;
+                    var futilityValue = ss[ss.current].staticEval + futility_margin(predictedDepth) + 256;
 
                     if (futilityValue <= alpha)
                     {
@@ -1010,6 +998,7 @@ public static class Search
 
             // Step 15. Reduced depth search (LMR). If the move fails high it will be
             // re-searched at full depth.
+            bool doFullDepthSearch;
             if (depth >= 3*Depth.ONE_PLY
                 && moveCount > 1
                 && !captureOrPromotion
@@ -1215,7 +1204,7 @@ public static class Search
         if (moveCount == 0)
             bestValue = excludedMove
                 ? alpha
-                : inCheck ? Value.mated_in(ss[ss.current].ply) : DrawValue[pos.side_to_move()];
+                : inCheck ? Value.mated_in(ss[ss.current].ply) : DrawValue[pos.side_to_move().Value];
 
         // Quiet best move: update killers, history and countermoves
         else if (bestMove && !pos.capture_or_promotion(bestMove))
@@ -1254,19 +1243,16 @@ public static class Search
         var PvNode = NT == NodeType.PV;
 
         Debug.Assert(NT == NodeType.PV || NT == NodeType.NonPV);
-        Debug.Assert(InCheck == !!pos.checkers());
+        Debug.Assert(InCheck == pos.checkers());
         Debug.Assert(alpha >= -Value.VALUE_INFINITE && alpha < beta && beta <= Value.VALUE_INFINITE);
         Debug.Assert(PvNode || (alpha == beta - 1));
         Debug.Assert(depth <= Depth.DEPTH_ZERO);
 
         var pv = new List<Move>(_.MAX_MOVES + 1) {Move.MOVE_NONE};
         var st = new StateInfo();
-        TTEntry tte;
-        ulong posKey;
-        Move ttMove, move, bestMove;
-        Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha = new Value(0);
-        bool ttHit = false, givesCheck, evasionPrunable;
-        Depth ttDepth;
+        Move move, bestMove;
+        Value bestValue, futilityBase, oldAlpha = new Value(0);
+        bool ttHit;
 
         if (PvNode)
         {
@@ -1282,22 +1268,22 @@ public static class Search
         if (pos.is_draw() || ss[ss.current].ply >= _.MAX_PLY)
             return ss[ss.current].ply >= _.MAX_PLY && !InCheck
                 ? Eval.evaluate(false, pos)
-                : DrawValue[pos.side_to_move()];
+                : DrawValue[pos.side_to_move().Value];
 
         Debug.Assert(0 <= ss[ss.current].ply && ss[ss.current].ply < _.MAX_PLY);
 
         // Decide whether or not to include checks: this fixes also the type of
         // TT entry depth that we are going to use. Note that in qsearch we use
         // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
-        ttDepth = InCheck || depth >= Depth.DEPTH_QS_CHECKS
+        var ttDepth = InCheck || depth >= Depth.DEPTH_QS_CHECKS
             ? Depth.DEPTH_QS_CHECKS
             : Depth.DEPTH_QS_NO_CHECKS;
 
         // Transposition table lookup
-        posKey = pos.key();
-        tte = TranspositionTable.probe(posKey, ref ttHit);
-        ttMove = ttHit ? tte.move() : Move.MOVE_NONE;
-        ttValue = ttHit ? value_from_tt(tte.value(), ss[ss.current].ply) : Value.VALUE_NONE;
+        var posKey = pos.key();
+        var tte = TranspositionTable.probe(posKey, out ttHit);
+        var ttMove = ttHit ? tte.move() : Move.MOVE_NONE;
+        var ttValue = ttHit ? value_from_tt(tte.value(), ss[ss.current].ply) : Value.VALUE_NONE;
 
         if (!PvNode
             && ttHit
@@ -1363,7 +1349,7 @@ public static class Search
         {
             Debug.Assert(Move.is_ok(move));
 
-            givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
+            var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
                 ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
@@ -1375,7 +1361,7 @@ public static class Search
             {
                 Debug.Assert(Move.type_of(move) != MoveType.ENPASSANT); // Due to !pos.advanced_pawn_push
 
-                futilityValue = futilityBase + Value.PieceValue[(int) Phase.EG][pos.piece_on(Move.to_sq(move))];
+                var futilityValue = futilityBase + Value.PieceValue[(int) Phase.EG][pos.piece_on(Move.to_sq(move))];
 
                 if (futilityValue <= alpha)
                 {
@@ -1391,9 +1377,9 @@ public static class Search
             }
 
             // Detect non-capture evasions that are candidates to be pruned
-            evasionPrunable = InCheck
-                              && bestValue > Value.VALUE_MATED_IN_MAX_PLY
-                              && !pos.capture(move);
+            var evasionPrunable = InCheck
+                                   && bestValue > Value.VALUE_MATED_IN_MAX_PLY
+                                   && !pos.capture(move);
 
             // Don't search moves with negative SEE values
             if ((!InCheck || evasionPrunable)
@@ -1412,7 +1398,7 @@ public static class Search
 
             // Make and search the move
             pos.do_move(move, st, givesCheck);
-            value = givesCheck
+            var value = givesCheck
                 ? -qsearch(NT, true, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -alpha,
                     depth - Depth.ONE_PLY)
                 : -qsearch(NT, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -beta, -alpha,

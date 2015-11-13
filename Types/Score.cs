@@ -3,12 +3,21 @@
 /// Score enum stores a middlegame and an endgame value in a single integer
 /// (enum). The least significant 16 bits are used to store the endgame value
 /// and the upper 16 bits are used to store the middlegame value.
-public struct Score
+internal struct Score
 {
-    public static Score SCORE_ZERO = new Score(0);
+    internal static Score SCORE_ZERO = new Score(0);
 
-    private int Value { get; }
+    private int Value
+    {
+#if FORCEINLINE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        get;
+    }
 
+#if FORCEINLINE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public override string ToString()
     {
         return $"{Value}";
@@ -19,7 +28,7 @@ public struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Score(int value)
+    internal Score(int value)
     {
         Value = value;
     }
@@ -39,30 +48,9 @@ public struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Score operator +(Score v1, int v2)
-    {
-        return new Score(v1.Value + v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Score operator +(int v1, Score v2)
-    {
-        return new Score(v1 + v2.Value);
-    }
-
     public static Score operator -(Score v1, Score v2)
     {
         return new Score(v1.Value - v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Score operator -(Score v1, int v2)
-    {
-        return new Score(v1.Value - v2);
     }
 
 #if FORCEINLINE
@@ -97,22 +85,6 @@ public struct Score
         return s.Value;
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator ==(Score v1, Score v2)
-    {
-        return v1.Value == v2.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator !=(Score v1, Score v2)
-    {
-        return v1.Value != v2.Value;
-    }
-
     #endregion
 
     #region extended operators
@@ -134,7 +106,7 @@ public struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Value mg_value(Score s)
+    internal static Value mg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // mg = { uint16_t(unsigned(s + 0x8000) >> 16) };
@@ -152,7 +124,7 @@ public struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Value eg_value(Score s)
+    internal static Value eg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // eg = { uint16_t(unsigned(s)) };
@@ -162,7 +134,7 @@ public struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Score make_score(int mg, int eg)
+    internal static Score make_score(int mg, int eg)
     {
         return new Score((mg << 16) + eg);
     }

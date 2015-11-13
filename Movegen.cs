@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 
-public static class Movegen
+internal static class Movegen
 {
-    public static ExtMoveArrayWrapper generate_castling(
+    internal static ExtMoveArrayWrapper generate_castling(
         CastlingRight Cr,
         bool Checks,
         bool Chess960,
@@ -59,7 +59,7 @@ public static class Movegen
         return moveList;
     }
 
-    public static ExtMoveArrayWrapper make_promotions(
+    internal static ExtMoveArrayWrapper make_promotions(
         GenType Type,
         Square Delta,
         ExtMoveArrayWrapper moveList,
@@ -90,7 +90,7 @@ public static class Movegen
         return moveList;
     }
 
-    public static ExtMoveArrayWrapper generate_pawn_moves(
+    internal static ExtMoveArrayWrapper generate_pawn_moves(
         Color Us,
         GenType Type,
         Position pos,
@@ -241,7 +241,7 @@ public static class Movegen
         return moveList;
     }
 
-    public static ExtMoveArrayWrapper generate_moves(
+    internal static ExtMoveArrayWrapper generate_moves(
         PieceType Pt,
         bool Checks,
         Position pos,
@@ -286,7 +286,7 @@ public static class Movegen
         return moveList;
     }
 
-    public static ExtMoveArrayWrapper generate_all(
+    internal static ExtMoveArrayWrapper generate_all(
         Color Us,
         GenType Type,
         Position pos,
@@ -357,14 +357,14 @@ public static class Movegen
         return moveList;
     }
 
-    public static CastlingRight MakeCastling(Color C, CastlingSide S)
+    internal static CastlingRight MakeCastling(Color C, CastlingSide S)
     {
         return C == Color.WHITE
             ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
             : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
     }
 
-    public static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
+    internal static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
     {
         switch (Type)
         {
@@ -393,7 +393,7 @@ public static class Movegen
     }
 
     /// generate
-    /// <QUIET_CHECKS>
+    /// QUIET_CHECKS
     ///     generates all pseudo-legal non-captures and knight
     ///     underpromotions that give check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
@@ -433,7 +433,7 @@ public static class Movegen
     }
 
     /// generate
-    /// <EVASIONS>
+    /// EVASIONS
     ///     generates all pseudo-legal check evasions when the side
     ///     to move is in check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
@@ -476,7 +476,7 @@ public static class Movegen
     }
 
     /// generate
-    /// <LEGAL> generates all the legal moves in the given position
+    /// LEGAL generates all the legal moves in the given position
     private static ExtMoveArrayWrapper generate_LEGAL(Position pos, ExtMoveArrayWrapper moveList)
     {
         var pinned = pos.pinned_pieces(pos.side_to_move());

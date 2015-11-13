@@ -3,21 +3,21 @@
 /// LimitsType struct stores information sent by GUI about available time to
 /// search the current move, maximum depth/time, if we are in analysis mode or
 /// if we have to ponder while it's our opponent's turn to move.
-public class LimitsType
+internal class LimitsType
 {
-    public int[] inc = new int[Color.COLOR_NB];
+    internal int[] inc = new int[Color.COLOR_NB_C];
 
-    public ulong nodes;
+    internal ulong nodes;
 
-    public int npmsec, movestogo, depth, movetime, mate, infinite;
+    internal int npmsec, movestogo, depth, movetime, mate, infinite;
 
-    public bool ponder;
+    internal bool ponder;
 
-    public List<Move> searchmoves = new List<Move>();
+    internal List<Move> searchmoves = new List<Move>();
 
-    public int[] time = new int[Color.COLOR_NB];
+    internal int[] time = new int[Color.COLOR_NB_C];
 
-    public bool use_time_management()
+    internal bool use_time_management()
     {
         return (mate | movetime | depth | (int) nodes | infinite) == 0;
     }

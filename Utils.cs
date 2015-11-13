@@ -5,67 +5,67 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-public static class Utils
+internal static class Utils
 {
-    public delegate uint Fn(Square s, Bitboard occ);
+    internal delegate uint Fn(Square s, Bitboard occ);
 
     // De Bruijn sequences. See chessprogramming.wikispaces.com/BitScan
     private const ulong DeBruijn64 = 0x3F79D71B4CB0A89UL;
 
     private const ulong DeBruijn32 = 0x783A9B23;
 
-    public static int[,] SquareDistance = new int[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static int[,] SquareDistance = new int[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    public static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB];
 
-    public static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB];
 
-    public static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB][];
 
-    public static uint[] RookShifts = new uint[Square.SQUARE_NB];
+    internal static uint[] RookShifts = new uint[Square.SQUARE_NB];
 
-    public static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB];
 
-    public static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB];
 
-    public static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB][];
 
-    public static uint[] BishopShifts = new uint[Square.SQUARE_NB];
+    internal static uint[] BishopShifts = new uint[Square.SQUARE_NB];
 
-    public static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB];
 
-    public static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
+    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
 
-    public static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB];
+    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB];
 
-    public static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
+    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
 
-    public static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB, Rank.RANK_NB];
+    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
 
-    public static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
 
-    public static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    public static Bitboard[,] LineBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] LineBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    public static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB, 8];
+    internal static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB, 8];
 
-    public static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
 
-    public static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
 
-    public static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
 
-    public static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
 
-    public static int[] MSBTable = new int[256]; // To implement software msb()
+    internal static int[] MSBTable = new int[256]; // To implement software msb()
 
-    public static Square[] BSFTable = new Square[Square.SQUARE_NB]; // To implement software bitscan
+    internal static Square[] BSFTable = new Square[Square.SQUARE_NB]; // To implement software bitscan
 
     private static bool firstLog = true;
 
     [Conditional("DEBUG")]
-    public static void WriteToLog(string s)
+    internal static void WriteToLog(string s)
     {
         using (
             var sw = firstLog
@@ -82,7 +82,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard rank_bb(Rank r)
+    internal static Bitboard rank_bb(Rank r)
     {
         return RankBB[r];
     }
@@ -90,7 +90,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard rank_bb(Square s)
+    internal static Bitboard rank_bb(Square s)
     {
         return RankBB[Square.rank_of(s)];
     }
@@ -98,7 +98,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard file_bb(File f)
+    internal static Bitboard file_bb(File f)
     {
         return FileBB[f];
     }
@@ -106,7 +106,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard file_bb(Square s)
+    internal static Bitboard file_bb(Square s)
     {
         return FileBB[Square.file_of(s)];
     }
@@ -116,7 +116,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard adjacent_files_bb(File f)
+    internal static Bitboard adjacent_files_bb(File f)
     {
         return AdjacentFilesBB[f];
     }
@@ -128,7 +128,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard between_bb(Square s1, Square s2)
+    internal static Bitboard between_bb(Square s1, Square s2)
     {
         return BetweenBB[s1, s2];
     }
@@ -139,9 +139,9 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard in_front_bb(Color c, Rank r)
+    internal static Bitboard in_front_bb(Color c, Rank r)
     {
-        return InFrontBB[c, r];
+        return InFrontBB[c.Value, r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -150,9 +150,9 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard forward_bb(Color c, Square s)
+    internal static Bitboard forward_bb(Color c, Square s)
     {
-        return ForwardBB[c, s];
+        return ForwardBB[c.Value, s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -162,9 +162,9 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard pawn_attack_span(Color c, Square s)
+    internal static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return PawnAttackSpan[c, s];
+        return PawnAttackSpan[c.Value, s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -173,9 +173,9 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard passed_pawn_mask(Color c, Square s)
+    internal static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return PassedPawnMask[c, s];
+        return PassedPawnMask[c.Value, s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -183,7 +183,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static bool aligned(Square s1, Square s2, Square s3)
+    internal static bool aligned(Square s1, Square s2, Square s3)
     {
         return LineBB[s1, s2] & s3;
     }
@@ -193,7 +193,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int distance_Square(Square x, Square y)
+    internal static int distance_Square(Square x, Square y)
     {
         return SquareDistance[x, y];
     }
@@ -201,7 +201,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int distance_Rank(Rank x, Rank y)
+    internal static int distance_Rank(Rank x, Rank y)
     {
         return x < y ? y - x : x - y;
     }
@@ -209,7 +209,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int distance_File(Square x, Square y)
+    internal static int distance_File(Square x, Square y)
     {
         int xFile = Square.file_of(x);
         int yFile = Square.file_of(y);
@@ -219,19 +219,19 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int distance_Rank(Square x, Square y)
+    internal static int distance_Rank(Square x, Square y)
     {
         int xRank = Square.rank_of(x);
         int yRank = Square.rank_of(y);
         return xRank > yRank ? xRank - yRank : yRank - xRank;
     }
 
-    public static uint magic_index_Rook(Square s, Bitboard occupied)
+    internal static uint magic_index_Rook(Square s, Bitboard occupied)
     {
         return magic_index(PieceType.ROOK, s, occupied);
     }
 
-    public static uint magic_index_Bishop(Square s, Bitboard occupied)
+    internal static uint magic_index_Bishop(Square s, Bitboard occupied)
     {
         return magic_index(PieceType.BISHOP, s, occupied);
     }
@@ -239,7 +239,7 @@ public static class Utils
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
-    public static uint magic_index(PieceType Pt, Square s, Bitboard occupied)
+    internal static uint magic_index(PieceType Pt, Square s, Bitboard occupied)
     {
         var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
         var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
@@ -255,7 +255,7 @@ public static class Utils
 #endif
     }
 
-    public static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
             ? RookAttacks[s][magic_index(Pt, s, occupied)]
@@ -265,7 +265,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
         switch (Piece.type_of(pc))
         {
@@ -283,7 +283,7 @@ public static class Utils
     // bsf_index() returns the index into BSFTable[] to look up the bitscan. Uses
     // Matt Taylor's folding for 32 bit case, extended to 64 bit by Kim Walisch.
 
-    public static uint bsf_index(Bitboard b)
+    internal static uint bsf_index(Bitboard b)
     {
         ulong value = b;
         value ^= value - 1;
@@ -294,15 +294,14 @@ public static class Utils
 #endif
     }
 
-    public static Square lsb(Bitboard b)
+    internal static Square lsb(Bitboard b)
     {
         return BSFTable[bsf_index(b)];
     }
 
-    public static Square msb(Bitboard b)
+    internal static Square msb(Bitboard b)
     {
         ulong value = b;
-        uint b32;
         var result = 0;
 
         if (value > 0xFFFFFFFF)
@@ -311,7 +310,7 @@ public static class Utils
             result = 32;
         }
 
-        b32 = (uint) value;
+        var b32 = (uint) value;
 
         if (b32 > 0xFFFF)
         {
@@ -332,7 +331,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Square pop_lsb(ref Bitboard b)
+    internal static Square pop_lsb(ref Bitboard b)
     {
         var s = lsb(b);
 
@@ -347,7 +346,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Square frontmost_sq(Color c, Bitboard b)
+    internal static Square frontmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
@@ -355,7 +354,7 @@ public static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Square backmost_sq(Color c, Bitboard b)
+    internal static Square backmost_sq(Color c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
     }
@@ -363,10 +362,10 @@ public static class Utils
     /// engine_info() returns the full name of the current Stockfish version.
     /// This will be either "Portfish YYMMDD" (where YYMMDD is the date when
     /// the program was compiled) or "Portfish
-    /// <version number>
+    /// version number
     ///     ", depending
     ///     on whether Version is empty.
-    public static string engine_info(bool to_uci = false)
+    internal static string engine_info(bool to_uci = false)
     {
 #if X64
         const string cpu64 = " 64bit";
@@ -411,14 +410,14 @@ public static class Utils
         return sb.ToString();
     }
 
-    public static void stable_sort(List<RootMove> data, int firstMove, int lastMove)
+    internal static void stable_sort(List<RootMove> data, int firstMove, int lastMove)
     {
-        RootMove tmp;
-        int p, q;
+        int p;
 
         for (p = firstMove + 1; p < lastMove; p++)
         {
-            tmp = data[p];
+            var tmp = data[p];
+            int q;
             for (q = p; q != firstMove && data[q - 1].score < tmp.score; --q)
             {
                 data[q] = data[q - 1];

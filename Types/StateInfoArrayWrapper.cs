@@ -1,15 +1,23 @@
-﻿public class StateInfoWrapper
+﻿using System.Runtime.CompilerServices;
+
+internal class StateInfoWrapper
 {
-    public int current;
+    internal int current;
 
-    public StateInfo[] table;
+    internal StateInfo[] table;
 
-    public StateInfoWrapper()
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal StateInfoWrapper()
         : this(new StateInfo[_.MAX_PLY], 0)
     {
     }
 
-    public StateInfoWrapper(StateInfo[] table, int current)
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal StateInfoWrapper(StateInfo[] table, int current)
     {
         this.table = table;
         this.current = current;
@@ -20,8 +28,11 @@
         }
     }
 
-    public StateInfo this[int index] => table[index];
+    internal StateInfo this[int index] => table[index];
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static StateInfoWrapper operator ++(StateInfoWrapper p)
     {
         p.current += 1;
@@ -31,10 +42,5 @@
         }
         return p;
     }
-
-    public static StateInfoWrapper operator --(StateInfoWrapper p)
-    {
-        p.current -= 1;
-        return p;
-    }
+    
 }

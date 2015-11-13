@@ -1,10 +1,10 @@
-﻿public static class PSQT
+﻿internal static class PSQT
 {
     // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
     // type on a given square a (middlegame, endgame) score pair is assigned. Table
     // is defined for files A..D and white side: it is symmetric for black side and
     // second half of the files.
-    public static Score[][][] Bonus =
+    internal static Score[][][] Bonus =
     {
         new[] {new Score[] {}}, new[]
         {
@@ -288,12 +288,12 @@
         }
     };
 
-    public static Score[,,] psq = new Score[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB];
+    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the
     // tables are initialized by flipping and changing the sign of the white scores.
-    public static void init()
+    internal static void init()
     {
         for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
         {
@@ -306,7 +306,7 @@
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 int edgeDistance = Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
-                psq[Color.BLACK, pt, ~s] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
+                psq[Color.BLACK_C, pt, ~s] = -(psq[Color.WHITE_C, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }

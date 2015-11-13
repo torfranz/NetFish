@@ -4,16 +4,16 @@
   Copyright (C) 2008-2015 Marco Costalba, Joona Kiiski, Tord Romstad
 
   Stockfish is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
+  it under the terms of the GNU General internal License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
   Stockfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+  GNU General internal License for more details.
 
-  You should have received a copy of the GNU General Public License
+  You should have received a copy of the GNU General internal License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
@@ -84,7 +84,7 @@ internal enum EndgameType
 };
 
 // Different node types, used as template parameter
-public enum NodeType
+internal enum NodeType
 {
     Root,
 
@@ -93,7 +93,7 @@ public enum NodeType
     NonPV
 };
 
-public enum Stages
+internal enum Stages
 {
     MAIN_SEARCH,
 
@@ -132,7 +132,7 @@ public enum Stages
     STOP
 };
 
-public enum GenType
+internal enum GenType
 {
     CAPTURES,
 
@@ -147,7 +147,7 @@ public enum GenType
     LEGAL
 };
 
-public enum Result
+internal enum Result
 {
     INVALID = 0,
 
@@ -158,7 +158,7 @@ public enum Result
     WIN = 4
 };
 
-public enum MoveType
+internal enum MoveType
 {
     NORMAL,
 
@@ -169,7 +169,7 @@ public enum MoveType
     CASTLING = 3 << 14
 };
 
-public enum CastlingSide
+internal enum CastlingSide
 {
     KING_SIDE,
 
@@ -178,7 +178,7 @@ public enum CastlingSide
     CASTLING_SIDE_NB = 2
 };
 
-public enum CastlingRight
+internal enum CastlingRight
 {
     NO_CASTLING,
 
@@ -195,7 +195,7 @@ public enum CastlingRight
     CASTLING_RIGHT_NB = 16
 };
 
-public enum Phase
+internal enum Phase
 {
     PHASE_ENDGAME = 0,
 
@@ -208,7 +208,7 @@ public enum Phase
     PHASE_NB = 2
 };
 
-public enum ScaleFactor
+internal enum ScaleFactor
 {
     SCALE_FACTOR_DRAW = 0,
 
@@ -221,7 +221,7 @@ public enum ScaleFactor
     SCALE_FACTOR_NONE = 255
 };
 
-public enum Bound
+internal enum Bound
 {
     BOUND_NONE,
 

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-public class Endgames
+internal class Endgames
 {
-    public Dictionary<ulong, EndgameScaleFactor> endgamesScaleFactor = new Dictionary<ulong, EndgameScaleFactor>();
-    public Dictionary<ulong, EndgameValue> endgamesValue = new Dictionary<ulong, EndgameValue>();
+    internal Dictionary<ulong, EndgameScaleFactor> endgamesScaleFactor = new Dictionary<ulong, EndgameScaleFactor>();
+    internal Dictionary<ulong, EndgameValue> endgamesValue = new Dictionary<ulong, EndgameValue>();
 
-    public Endgames()
+    internal Endgames()
     {
         endgamesValue.Add(Endgame.key("KPK", Color.WHITE), new EndgameKPK(Color.WHITE));
         endgamesValue.Add(Endgame.key("KNNK", Color.WHITE), new EndgameKNNK(Color.WHITE));
@@ -42,7 +42,7 @@ public class Endgames
         endgamesScaleFactor.Add(Endgame.key("KRPPKRP", Color.BLACK), new EndgameKRPPKRP(Color.BLACK));
     }
 
-    public EndgameValue probeEndgameValue(ulong key)
+    internal EndgameValue probeEndgameValue(ulong key)
     {
         EndgameValue eg;
         if (endgamesValue.TryGetValue(key, out eg))
@@ -53,7 +53,7 @@ public class Endgames
         return null;
     }
 
-    public EndgameScaleFactor probeEndgameScaleFactor(ulong key)
+    internal EndgameScaleFactor probeEndgameScaleFactor(ulong key)
     {
         EndgameScaleFactor eg;
         if (endgamesScaleFactor.TryGetValue(key, out eg))

@@ -21,14 +21,14 @@ namespace Tests
             Assert.AreEqual(Color.BLACK, v3);
 
             var v4 = v3 + 1;
-            Assert.AreEqual(Color.NO_COLOR, v4);
+            Assert.AreEqual(Color.COLOR_NB, v4);
             Assert.AreEqual(Color.COLOR_NB, v4);
 
             var v5 = v4 - v2;
             Assert.AreEqual(Color.BLACK, v5);
 
             var v6 = 1 + v5;
-            Assert.AreEqual(Color.NO_COLOR, v6);
+            Assert.AreEqual(Color.COLOR_NB, v6);
 
             var v7 = v6 - 1;
             Assert.AreEqual(Color.BLACK, v7);

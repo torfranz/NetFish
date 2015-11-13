@@ -1,24 +1,36 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-public struct Color
+internal struct Color
 {
-    public static Color WHITE = new Color(0);
+    internal const int WHITE_C = 0;
+    internal const int BLACK_C = 1;
+    internal const int COLOR_NB_C = 2;
+    internal static Color WHITE = new Color(WHITE_C);
 
-    public static Color BLACK = new Color(1);
+    internal static Color BLACK = new Color(BLACK_C);
 
-    public static Color NO_COLOR = new Color(2);
+    internal static Color COLOR_NB = new Color(COLOR_NB_C);
 
-    public static Color COLOR_NB = new Color(2);
-
-    private int Value { get; set; }
+    internal int Value;
+//    internal int Value
+//    {
+//#if FORCEINLINE
+//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//#endif
+//        get;
+//#if FORCEINLINE
+//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//#endif
+//        private set;
+//    }
 
     #region constructors
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Color(uint value)
+    internal Color(uint value)
         : this((int) value)
     {
     }
@@ -26,7 +38,7 @@ public struct Color
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Color(int value)
+    internal Color(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 2);
@@ -36,53 +48,13 @@ public struct Color
 
     #region base operators
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Color operator +(Color v1, Color v2)
-    {
-        return new Color(v1.Value + v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Color operator +(Color v1, int v2)
-    {
-        return new Color(v1.Value + v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Color operator +(int v1, Color v2)
-    {
-        return new Color(v1 + v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Color operator -(Color v1, Color v2)
-    {
-        return new Color(v1.Value - v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Color operator -(Color v1, int v2)
-    {
-        return new Color(v1.Value - v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(Color c)
-    {
-        return c.Value;
-    }
+//#if FORCEINLINE
+//    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//#endif
+//    internal static implicit operator int(Color c)
+//    {
+//        return c.Value;
+//    }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -113,7 +85,7 @@ public struct Color
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public static Color operator -(Color v1)
+    internal static Color operator -(Color v1)
     {
         return new Color(-v1.value);
     }
@@ -121,7 +93,7 @@ public struct Color
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public static Color operator *(int v1, Color v2)
+    internal static Color operator *(int v1, Color v2)
     {
         return new Color(v1 * v2.value);
     }
@@ -129,7 +101,7 @@ public struct Color
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public static Color operator *(Color v1, int v2)
+    internal static Color operator *(Color v1, int v2)
     {
         return new Color(v1.value * v2);
     }
@@ -141,7 +113,7 @@ public struct Color
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public static int operator /(Color v1, Color v2)
+    internal static int operator /(Color v1, Color v2)
     {
         return v1.value / v2.value;
     }
@@ -149,12 +121,51 @@ public struct Color
     #if FORCEINLINE  
 	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
 #endif
-    public static Color operator /(Color v1, int v2)
+    internal static Color operator /(Color v1, int v2)
     {
         return new Color(v1.value / v2);
     }
     */
 
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Color operator +(Color v1, Color v2)
+    {
+        return new Color(v1.Value + v2.Value);
+    }
+
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Color operator -(Color v1, Color v2)
+    {
+        return new Color(v1.Value - v2.Value);
+    }
+
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Color operator -(Color v1, int v2)
+    {
+        return new Color(v1.Value - v2);
+    }
+
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Color operator +(Color v1, int v2)
+    {
+        return new Color(v1.Value + v2);
+    }
+
+#if FORCEINLINE
+	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+#endif
+    public static Color operator +(int v1, Color v2)
+    {
+        return new Color(v1 + v2.Value);
+    }
     #endregion
 
 #if FORCEINLINE
@@ -162,7 +173,7 @@ public struct Color
 #endif
     public static Color operator ~(Color c)
     {
-        return new Color(c.Value ^ BLACK);
+        return new Color(c.Value ^ BLACK.Value);
     }
 
 #if FORCEINLINE

@@ -1,22 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using Key = System.UInt64;
-using Bitboard = System.UInt64;
-using Move = System.Int32;
-using File = System.Int32;
-using Rank = System.Int32;
-using Score = System.Int32;
-using Square = System.Int32;
-using Color = System.Int32;
-using Value = System.Int32;
-using PieceType = System.Int32;
-using Piece = System.Int32;
-using CastleRight = System.Int32;
-using Depth = System.Int32;
-using Result = System.Int32;
-using ScaleFactor = System.Int32;
-using Phase = System.Int32;
 
-public static class Bitcount
+internal static class Bitcount
 {
     /// count_1s() counts the number of nonzero bits in a bitboard.
     /// We have different optimized versions according if platform
@@ -26,7 +10,7 @@ public static class Bitcount
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int popcount_Full(ulong b)
+    internal static int popcount_Full(ulong b)
     {
 #if X64
         b -= (b >> 1) & 0x5555555555555555UL;
@@ -47,7 +31,7 @@ public static class Bitcount
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static int popcount_Max15(ulong b)
+    internal static int popcount_Max15(ulong b)
     {
 #if X64
         b -= (b >> 1) & 0x5555555555555555UL;

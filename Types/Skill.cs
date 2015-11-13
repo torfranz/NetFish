@@ -2,15 +2,15 @@
 
 using System;
 
-public struct Skill
+internal struct Skill
 {
-    public Skill(int l)
+    internal Skill(int l)
     {
         level = l;
         best = Move.MOVE_NONE;
     }
 
-    public bool enabled()
+    internal bool enabled()
     {
         return level < 20;
     }
@@ -18,12 +18,12 @@ public struct Skill
     // PRNG sequence should be non-deterministic, so we seed it with the time at init
     private static readonly PRNG rng = new PRNG((ulong) DateTime.Now.Millisecond);
 
-    public bool time_to_pick(Depth depth)
+    internal bool time_to_pick(Depth depth)
     {
         return depth/Depth.ONE_PLY == 1 + level;
     }
 
-    public Move best_move(uint multiPV)
+    internal Move best_move(uint multiPV)
     {
         return best ? best : pick_best(multiPV);
     }
@@ -31,7 +31,7 @@ public struct Skill
     // When playing with strength handicap, choose best move among a set of RootMoves
     // using a statistical rule dependent on 'level'. Idea by Heinz van Saanen.
 
-    public Move pick_best(uint multiPV)
+    internal Move pick_best(uint multiPV)
     {
         // RootMoves are already sorted by score in descending order
         var variance = Math.Min(Search.RootMoves[0].score - Search.RootMoves[(int) multiPV - 1].score, Value.PawnValueMg);

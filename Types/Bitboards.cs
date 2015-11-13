@@ -1,12 +1,12 @@
 ﻿using System;
 
-public static class Bitboards
+internal static class Bitboards
 {
-    public static void init()
+    internal static void init()
     {
         for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
         {
-            Utils.SquareBB[s] = new Bitboard(1UL << s);
+            Utils.SquareBB[s] = new Bitboard(1UL << (int)s);
             Utils.BSFTable[Utils.bsf_index(Utils.SquareBB[s])] = s;
         }
 
@@ -33,11 +33,11 @@ public static class Bitboards
 
         for (var r = Rank.RANK_1; r < Rank.RANK_8; ++r)
         {
-            var value = (Utils.InFrontBB[Color.BLACK, r + 1] = Utils.InFrontBB[Color.BLACK, r] | Utils.RankBB[r]);
-            Utils.InFrontBB[Color.WHITE, r] = ~value;
+            var value = (Utils.InFrontBB[Color.BLACK_C, r + 1] = Utils.InFrontBB[Color.BLACK_C, r] | Utils.RankBB[r]);
+            Utils.InFrontBB[Color.WHITE_C, r] = ~value;
         }
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
@@ -68,7 +68,7 @@ public static class Bitboards
             new[] {9, 7, -7, -9, 8, 1, -1, -8, 0}
         };
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
             for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
             {
@@ -76,7 +76,7 @@ public static class Bitboards
                 {
                     for (var i = 0; steps[pt][i] != 0; ++i)
                     {
-                        var to = s + new Square(c == Color.WHITE ? steps[pt][i] : -steps[pt][i]);
+                        var to = s + new Square(c == Color.WHITE_C ? steps[pt][i] : -steps[pt][i]);
 
                         if (to.is_ok() && Utils.distance_Square(s, to) < 3)
                         {
@@ -173,14 +173,13 @@ public static class Bitboards
         var reference = new Bitboard[4096];
 
         var age = new int[4096];
-        int current = 0, i;
-        Bitboard edges;
+        int current = 0;
 
         for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
         {
             // Board edges are not considered in the relevant occupancies
-            edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb(s)
-                     | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb(s)));
+            var edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb(s)
+                              | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb(s)));
 
             // Given a square 's', the mask is the bitboard of sliding attacks from
             // 's' computed on an empty board. The index must be big enough to contain
@@ -226,6 +225,7 @@ public static class Bitboards
 
             // Find a magic for square 's' picking up an (almost) random number
             // until we find the one that passes the verification test.
+            int i;
             do
             {
                 do magics[s] = new Bitboard(rng.sparse_rand()); while (

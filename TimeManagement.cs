@@ -2,7 +2,7 @@
 
 /// The TimeManagement class computes the optimal time to think depending on
 /// the maximum available time, the game move number and other parameters.
-public static class TimeManagement
+internal static class TimeManagement
 {
     private const int MoveHorizon = 50; // Plan time management at most this many moves ahead
 
@@ -10,15 +10,15 @@ public static class TimeManagement
 
     private const double StealRatio = 0.33; // However we must not steal time from remaining moves over this ratio
 
-    public static DateTime start;
+    internal static DateTime start;
 
-    public static int optimumTime;
+    internal static int optimumTime;
 
-    public static int maximumTime;
+    internal static int maximumTime;
 
-    public static double unstablePvFactor;
+    internal static double unstablePvFactor;
 
-    public static long availableNodes; // When in 'nodes as time' mode
+    internal static long availableNodes; // When in 'nodes as time' mode
 
     // move_importance() is a skew-logistic function based on naive statistical
     // analysis of "how many games are still undecided after n half-moves". Game
@@ -61,7 +61,7 @@ public static class TimeManagement
     /// inc == 0 && movestogo != 0 means: x moves in y minutes
     /// inc >  0 && movestogo == 0 means: x basetime + z increment
     /// inc >  0 && movestogo != 0 means: x moves in y minutes + z increment
-    public static void init(LimitsType limits, Color us, int ply, DateTime now)
+    internal static void init(LimitsType limits, Color us, int ply, DateTime now)
     {
         var minThinkingTime = int.Parse(OptionMap.Instance["Minimum Thinking Time"].v);
         var moveOverhead = int.Parse(OptionMap.Instance["Move Overhead"].v);
@@ -76,18 +76,18 @@ public static class TimeManagement
         {
             if (availableNodes == 0) // Only once at game start
             {
-                availableNodes = npmsec*limits.time[us]; // Time is in msec
+                availableNodes = npmsec*limits.time[us.Value]; // Time is in msec
             }
 
             // Convert from millisecs to nodes
-            limits.time[us] = (int) availableNodes;
-            limits.inc[us] *= npmsec;
+            limits.time[us.Value] = (int) availableNodes;
+            limits.inc[us.Value] *= npmsec;
             limits.npmsec = npmsec;
         }
 
         start = now;
         unstablePvFactor = 1;
-        optimumTime = maximumTime = Math.Max(limits.time[us], minThinkingTime);
+        optimumTime = maximumTime = Math.Max(limits.time[us.Value], minThinkingTime);
 
         var MaxMTG = limits.movestogo != 0 ? Math.Min(limits.movestogo, MoveHorizon) : MoveHorizon;
 
@@ -97,7 +97,7 @@ public static class TimeManagement
         for (var hypMTG = 1; hypMTG <= MaxMTG; ++hypMTG)
         {
             // Calculate thinking time for hypothetical "moves to go"-value
-            var hypMyTime = limits.time[us] + limits.inc[us]*(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
+            var hypMyTime = limits.time[us.Value] + limits.inc[us.Value] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
 
             hypMyTime = Math.Max(hypMyTime, 0);
 
@@ -116,22 +116,22 @@ public static class TimeManagement
         optimumTime = Math.Min(optimumTime, maximumTime);
     }
 
-    public static void pv_instability(double bestMoveChanges)
+    internal static void pv_instability(double bestMoveChanges)
     {
         unstablePvFactor = 1 + bestMoveChanges;
     }
 
-    public static int available()
+    internal static int available()
     {
         return (int) (optimumTime*unstablePvFactor*0.76);
     }
 
-    public static int maximum()
+    internal static int maximum()
     {
         return maximumTime;
     }
 
-    public static int elapsed()
+    internal static int elapsed()
     {
         return Search.Limits.npmsec != 0
             ? Search.RootPos.nodes_searched()

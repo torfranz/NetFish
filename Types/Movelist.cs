@@ -1,30 +1,30 @@
 ﻿/// The MoveList struct is a simple wrapper around generate(). It sometimes comes
 /// in handy to use this class instead of the low level generate() function.
-public class MoveList
+internal class MoveList
 {
-    public readonly ExtMoveArrayWrapper moveList = new ExtMoveArrayWrapper(new ExtMove[_.MAX_MOVES]);
+    internal readonly ExtMoveArrayWrapper moveList = new ExtMoveArrayWrapper(new ExtMove[_.MAX_MOVES]);
 
-    public MoveList(GenType Type, Position pos)
+    internal MoveList(GenType Type, Position pos)
     {
         Movegen.generate(Type, pos, moveList);
     }
 
-    public int begin()
+    internal int begin()
     {
         return 0;
     }
 
-    public int end()
+    internal int end()
     {
         return moveList.current;
     }
 
-    public int size()
+    internal int size()
     {
         return moveList.current;
     }
 
-    public bool contains(Move move)
+    internal bool contains(Move move)
     {
         for (var idx = 0; idx < moveList.current; idx++)
         {

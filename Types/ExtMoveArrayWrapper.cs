@@ -1,84 +1,112 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-public class ExtMoveArrayWrapper
+internal class ExtMoveArrayWrapper
 {
-    public int current;
+    internal int current;
 
-    public ExtMove[] table;
+    internal ExtMove[] table;
 
-    public ExtMoveArrayWrapper(ExtMoveArrayWrapper wrapper)
+    internal ExtMoveArrayWrapper(ExtMoveArrayWrapper wrapper)
         : this(wrapper.table, wrapper.current)
     {
     }
 
-    public ExtMoveArrayWrapper(ExtMove[] table)
+    internal ExtMoveArrayWrapper(ExtMove[] table)
         : this(table, 0)
     {
     }
 
-    public ExtMoveArrayWrapper(ExtMove[] table, int current)
+    internal ExtMoveArrayWrapper(ExtMove[] table, int current)
     {
         this.table = table;
         this.current = current;
     }
 
-    public ExtMove this[int index]
+    internal ExtMove this[int index]
     {
         get { return table[index]; }
         set { table[index] = value; }
     }
 
-    public void set(ExtMove[] table)
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal void set(ExtMove[] table)
     {
         this.table = table;
         current = 0;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static ExtMoveArrayWrapper operator +(ExtMoveArrayWrapper p, int value)
     {
         p.current += value;
         return p;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static bool operator ==(ExtMoveArrayWrapper p1, ExtMoveArrayWrapper p2)
     {
         return p1.table == p2.table && p1.current == p2.current;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static bool operator !=(ExtMoveArrayWrapper p1, ExtMoveArrayWrapper p2)
     {
         return p1.table != p2.table || p1.current != p2.current;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static ExtMoveArrayWrapper operator ++(ExtMoveArrayWrapper p)
     {
         p.current += 1;
         return p;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public static ExtMoveArrayWrapper operator --(ExtMoveArrayWrapper p)
     {
         p.current -= 1;
         return p;
     }
 
-    public void Add(Move m)
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal void Add(Move m)
     {
         table[current] = new ExtMove(m, table[current].Value);
         current++;
     }
 
-    public void setCurrentMove(Move m)
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal void setCurrentMove(Move m)
     {
         table[current] = new ExtMove(m, table[current].Value);
     }
 
-    public Move getCurrentMove()
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal Move getCurrentMove()
     {
         return table[current].Move;
     }
 
-    public static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
+    internal static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
@@ -90,12 +118,14 @@ public class ExtMoveArrayWrapper
         {
             // find any out-of-order pair
             for (; _First != _Last && (begin[_First].Value > Value.VALUE_ZERO); ++_First)
-                ; // skip in-place elements at beginning
+            {
+            }
             if (_First == _Last)
                 break; // done
 
             for (; _First != --_Last && !(begin[_Last].Value > Value.VALUE_ZERO);)
-                ; // skip in-place elements at end
+            {
+            }
             if (_First == _Last)
                 break; // done
 
@@ -107,15 +137,15 @@ public class ExtMoveArrayWrapper
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
-    public static void insertion_sort(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
+    internal static void insertion_sort(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current <= end.current);
 
-        int q;
         for (var p = begin.current + 1; p < end.current; ++p)
         {
             var tmp = begin[p];
+            int q;
             for (q = p; q != begin.current && begin[q - 1].Value < tmp.Value; --q)
             {
                 begin[q] = begin[q - 1];

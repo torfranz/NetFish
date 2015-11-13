@@ -17,7 +17,7 @@ namespace Tests
         {
             var v1 = PieceType.PAWN;
             var v2 = PieceType.KNIGHT;
-            var v3 = v1 + v2;
+            var v3 = v1 + v2.Value;
             Assert.AreEqual(3, v3);
 
             var v4 = v3 + 1;

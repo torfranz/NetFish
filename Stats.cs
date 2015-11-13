@@ -8,13 +8,13 @@ using System.Runtime.CompilerServices;
 /// Countermoves store the move that refute a previous one. Entries are stored
 /// using only the moving piece and destination square, hence two moves with
 /// different origin but same destination and piece will be considered identical.
-public class Stats<T>
+internal class Stats<T>
     where T : new()
 {
-    public static Value Max = new Value(1 << 28);
-    public readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static Value Max = new Value(1 << 28);
+    internal readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
 
-    public Stats()
+    internal Stats()
     {
         for (var idx1 = 0; idx1 < table.GetLength(0); idx1++)
         {
@@ -28,26 +28,23 @@ public class Stats<T>
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public T value(Piece p, Square to)
+    internal T value(Piece p, Square to)
     {
         return table[p, to];
     }
 };
 
-public class MovesStats : Stats<Move>
+internal class MovesStats : Stats<Move>
 {
-    public void update(Piece pc, Square to, Move m)
+    internal void update(Piece pc, Square to, Move m)
     {
-        if (m != table[pc, to])
-        {
-            table[pc, to] = m;
-        }
+        table[pc, to] = m;
     }
 }
 
-public class HistoryStats : Stats<Value>
+internal class HistoryStats : Stats<Value>
 {
-    public void updateH(Piece pc, Square to, Value v)
+    internal void updateH(Piece pc, Square to, Value v)
     {
         if (Math.Abs(v) >= 324)
         {
@@ -57,7 +54,7 @@ public class HistoryStats : Stats<Value>
         table[pc, to] += v*32;
     }
 
-    public void updateCMH(Piece pc, Square to, Value v)
+    internal void updateCMH(Piece pc, Square to, Value v)
     {
         if (Math.Abs(v) >= 324)
         {
@@ -68,6 +65,6 @@ public class HistoryStats : Stats<Value>
     }
 }
 
-public class CounterMovesHistoryStats : Stats<HistoryStats>
+internal class CounterMovesHistoryStats : Stats<HistoryStats>
 {
 }

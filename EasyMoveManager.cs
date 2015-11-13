@@ -4,27 +4,27 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-public class EasyMoveManager
+internal class EasyMoveManager
 {
     private readonly Move[] pv = new Move[3];
 
     private ulong expectedPosKey;
 
-    public int stableCnt;
+    internal int stableCnt;
 
-    public void clear()
+    internal void clear()
     {
         stableCnt = 0;
         expectedPosKey = 0;
         pv[0] = pv[1] = pv[2] = Move.MOVE_NONE;
     }
 
-    public Move get(ulong key)
+    internal Move get(ulong key)
     {
         return expectedPosKey == key ? pv[2] : Move.MOVE_NONE;
     }
 
-    public void update(Position pos, List<Move> newPv)
+    internal void update(Position pos, List<Move> newPv)
     {
         Debug.Assert(newPv.Count >= 3);
 

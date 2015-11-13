@@ -7,46 +7,46 @@
 /// generation  6 bit
 /// bound type  2 bit
 /// depth       8 bit
-public class TTEntry
+internal class TTEntry
 {
-    public int depth8;
+    internal int depth8;
 
     private short eval16;
 
-    public byte genBound8;
+    internal byte genBound8;
 
-    public ushort key16;
+    internal ushort key16;
 
     private ushort move16;
 
     private short value16;
 
-    public Move move()
+    internal Move move()
     {
         return new Move(move16);
     }
 
-    public Value value()
+    internal Value value()
     {
         return new Value(value16);
     }
 
-    public Value eval()
+    internal Value eval()
     {
         return new Value(eval16);
     }
 
-    public Depth depth()
+    internal Depth depth()
     {
         return new Depth(depth8);
     }
 
-    public Bound bound()
+    internal Bound bound()
     {
         return (Bound) ((genBound8 & 0x3));
     }
 
-    public void save(ulong k, Value v, Bound b, Depth d, Move m, Value ev, byte g)
+    internal void save(ulong k, Value v, Bound b, Depth d, Move m, Value ev, byte g)
     {
         // Preserve any existing move for the same position
         if ((m != 0) || (k >> 48) != key16)

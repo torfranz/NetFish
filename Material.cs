@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-public class Material
+internal class Material
 {
     // Polynomial material imbalance parameters
 
@@ -87,7 +87,7 @@ public class Material
         // Second-degree polynomial material imbalance by Tord Romstad
         for (int pt1 = PieceType.NO_PIECE_TYPE; pt1 <= PieceType.QUEEN; ++pt1)
         {
-            if (pieceCount[Us][pt1] == 0)
+            if (pieceCount[Us.Value][pt1] == 0)
             {
                 continue;
             }
@@ -96,10 +96,10 @@ public class Material
 
             for (int pt2 = PieceType.NO_PIECE_TYPE; pt2 <= pt1; ++pt2)
             {
-                v += QuadraticOurs[pt1][pt2]*pieceCount[Us][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them][pt2];
+                v += QuadraticOurs[pt1][pt2]*pieceCount[Us.Value][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them.Value][pt2];
             }
 
-            bonus += pieceCount[Us][pt1]*v;
+            bonus += pieceCount[Us.Value][pt1]*v;
         }
 
         return bonus;
@@ -109,7 +109,7 @@ public class Material
     /// the material hash table. It returns a pointer to the Entry if the position
     /// is found. Otherwise a new Entry is computed and stored there, so we don't
     /// have to recompute all when the same material configuration occurs again.
-    public static MaterialEntry probe(Position pos)
+    internal static MaterialEntry probe(Position pos)
     {
         var key = pos.material_key();
         MaterialEntry e;
@@ -126,7 +126,7 @@ public class Material
         e.reset();
 
         e.key = key;
-        e.factor[Color.WHITE] = e.factor[Color.BLACK] = (ushort) ScaleFactor.SCALE_FACTOR_NORMAL;
+        e.factor[Color.WHITE_C] = e.factor[Color.BLACK_C] = (ushort) ScaleFactor.SCALE_FACTOR_NORMAL;
         e.gamePhase = pos.game_phase();
 
         // Let's look if we have a specialized evaluation function for this particular
@@ -137,11 +137,11 @@ public class Material
             return e;
         }
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
         {
             if (is_KXK(pos, c))
             {
-                e.evaluationFunction = EvaluateKXK[c];
+                e.evaluationFunction = EvaluateKXK[c.Value];
                 return e;
             }
         }
@@ -152,23 +152,23 @@ public class Material
 
         if ((sf = pos.this_thread().endgames.probeEndgameScaleFactor(key)) != null)
         {
-            e.scalingFunction[sf.strong_side()] = sf; // Only strong color assigned
+            e.scalingFunction[sf.strong_side().Value] = sf; // Only strong color assigned
             return e;
         }
 
         // We didn't find any specialized scaling function, so fall back on generic
         // ones that refer to more than one material distribution. Note that in this
         // case we don't return after setting the function.
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
         {
             if (is_KBPsKs(pos, c))
             {
-                e.scalingFunction[c] = ScaleKBPsK[c];
+                e.scalingFunction[c.Value] = ScaleKBPsK[c.Value];
             }
 
             else if (is_KQKRPs(pos, c))
             {
-                e.scalingFunction[c] = ScaleKQKRPs[c];
+                e.scalingFunction[c.Value] = ScaleKQKRPs[c.Value];
             }
         }
 
@@ -181,20 +181,20 @@ public class Material
             {
                 Debug.Assert(pos.count(PieceType.PAWN, Color.WHITE) >= 2);
 
-                e.scalingFunction[Color.WHITE] = ScaleKPsK[Color.WHITE];
+                e.scalingFunction[Color.WHITE_C] = ScaleKPsK[Color.WHITE_C];
             }
             else if (pos.count(PieceType.PAWN, Color.WHITE) == 0)
             {
                 Debug.Assert(pos.count(PieceType.PAWN, Color.BLACK) >= 2);
 
-                e.scalingFunction[Color.BLACK] = ScaleKPsK[Color.BLACK];
+                e.scalingFunction[Color.BLACK_C] = ScaleKPsK[Color.BLACK_C];
             }
             else if (pos.count(PieceType.PAWN, Color.WHITE) == 1 && pos.count(PieceType.PAWN, Color.BLACK) == 1)
             {
                 // This is a special case because we set scaling functions
                 // for both colors instead of only one.
-                e.scalingFunction[Color.WHITE] = ScaleKPKP[Color.WHITE];
-                e.scalingFunction[Color.BLACK] = ScaleKPKP[Color.BLACK];
+                e.scalingFunction[Color.WHITE_C] = ScaleKPKP[Color.WHITE_C];
+                e.scalingFunction[Color.BLACK_C] = ScaleKPKP[Color.BLACK_C];
             }
         }
 
@@ -203,7 +203,7 @@ public class Material
         // drawish scale factor for cases such as KRKBP and KmmKm (except for KBBKN).
         if (pos.count(PieceType.PAWN, Color.WHITE) == 0 && npm_w - npm_b <= Value.BishopValueMg)
         {
-            e.factor[Color.WHITE] =
+            e.factor[Color.WHITE_C] =
                 (ushort)
                     (npm_w < Value.RookValueMg
                         ? (ushort) ScaleFactor.SCALE_FACTOR_DRAW
@@ -212,7 +212,7 @@ public class Material
 
         if (pos.count(PieceType.PAWN, Color.BLACK) == 0 && npm_b - npm_w <= Value.BishopValueMg)
         {
-            e.factor[Color.BLACK] =
+            e.factor[Color.BLACK_C] =
                 (ushort)
                     (npm_b < Value.RookValueMg
                         ? (ushort) ScaleFactor.SCALE_FACTOR_DRAW
@@ -221,12 +221,12 @@ public class Material
 
         if (pos.count(PieceType.PAWN, Color.WHITE) == 1 && npm_w - npm_b <= Value.BishopValueMg)
         {
-            e.factor[Color.WHITE] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
+            e.factor[Color.WHITE_C] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
         }
 
         if (pos.count(PieceType.PAWN, Color.BLACK) == 1 && npm_b - npm_w <= Value.BishopValueMg)
         {
-            e.factor[Color.BLACK] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
+            e.factor[Color.BLACK_C] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
         }
 
         // Evaluate the material imbalance. We use PIECE_TYPE_NONE as a place holder

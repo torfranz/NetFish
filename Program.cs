@@ -51,8 +51,8 @@ internal class Program
         ThreadPool.init();
 
         // .Net warmup sequence
-        var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
-        var stack = Position.CreateStack("go depth 7");
+        //var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
+        //var stack = Position.CreateStack("go depth 7");
         //UCI.go(pos, stack);
         //ThreadPool.wait_for_think_finished();
 

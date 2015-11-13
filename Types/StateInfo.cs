@@ -1,35 +1,35 @@
 ﻿/// StateInfo struct stores information needed to restore a Position object to
 /// its previous state when we retract a move. Whenever a move is made on the
 /// board (by calling Position::do_move), a StateInfo object must be passed.
-public class StateInfo
+internal class StateInfo
 {
-    public PieceType capturedType;
+    internal PieceType capturedType;
 
-    public int castlingRights;
+    internal int castlingRights;
 
-    public Bitboard checkersBB;
+    internal Bitboard checkersBB;
 
-    public Square epSquare = Square.SQ_NONE;
+    internal Square epSquare = Square.SQ_NONE;
 
     // Not copied when making a move
-    public ulong key;
+    internal ulong key;
 
-    public ulong materialKey;
+    internal ulong materialKey;
 
-    public Value[] nonPawnMaterial = new Value[Color.COLOR_NB];
+    internal Value[] nonPawnMaterial = new Value[Color.COLOR_NB_C];
 
     // Copied when making a move
-    public ulong pawnKey;
+    internal ulong pawnKey;
 
-    public int pliesFromNull;
+    internal int pliesFromNull;
 
-    public StateInfo previous;
+    internal StateInfo previous;
 
-    public Score psq;
+    internal Score psq;
 
-    public int rule50;
+    internal int rule50;
 
-    public void copyFrom(StateInfo other)
+    internal void copyFrom(StateInfo other)
     {
         pawnKey = other.pawnKey;
         materialKey = other.materialKey;

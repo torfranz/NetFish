@@ -6,47 +6,47 @@
 /// The scale factors are used to scale the evaluation score up or down. For
 /// instance, in KRB vs KR endgames, the score is scaled down by a factor of 4,
 /// which will result in scores of absolute value less than one pawn.
-public class MaterialEntry
+internal class MaterialEntry
 {
-    public EndgameValue evaluationFunction;
+    internal EndgameValue evaluationFunction;
 
-    public ushort[] factor = new ushort[Color.COLOR_NB];
+    internal ushort[] factor = new ushort[Color.COLOR_NB_C];
 
     // side (e.g. KPKP, KBPsKs)
-    public Phase gamePhase;
+    internal Phase gamePhase;
 
-    public ulong key;
+    internal ulong key;
 
-    public EndgameScaleFactor[] scalingFunction = new EndgameScaleFactor[Color.COLOR_NB]; // Could be one for each
+    internal EndgameScaleFactor[] scalingFunction = new EndgameScaleFactor[Color.COLOR_NB_C]; // Could be one for each
 
-    public short value;
+    internal short value;
 
-    public void reset()
+    internal void reset()
     {
         evaluationFunction = null;
-        factor = new ushort[Color.COLOR_NB];
+        factor = new ushort[Color.COLOR_NB_C];
         gamePhase = Phase.PHASE_ENDGAME;
         key = 0;
-        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
+        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB_C];
         value = 0;
     }
 
-    public Score imbalance()
+    internal Score imbalance()
     {
         return Score.make_score(value, value);
     }
 
-    public Phase game_phase()
+    internal Phase game_phase()
     {
         return gamePhase;
     }
 
-    public bool specialized_eval_exists()
+    internal bool specialized_eval_exists()
     {
         return evaluationFunction != null;
     }
 
-    public Value evaluate(Position pos)
+    internal Value evaluate(Position pos)
     {
         return evaluationFunction.GetValue(pos);
     }
@@ -56,14 +56,14 @@ public class MaterialEntry
     // because the scale factor may also be a function which should be applied to
     // the position. For instance, in KBP vs K endgames, the scaling function looks
     // for rook pawns and wrong-colored bishops.
-    public ScaleFactor scale_factor(Position pos, Color c)
+    internal ScaleFactor scale_factor(Position pos, Color c)
     {
-        if (scalingFunction[c] == null)
+        if (scalingFunction[c.Value] == null)
         {
-            return (ScaleFactor) (factor[c]);
+            return (ScaleFactor) (factor[c.Value]);
         }
-        return scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
-            ? (ScaleFactor) (factor[c])
-            : scalingFunction[c].GetScaleFactor(pos);
+        return scalingFunction[c.Value].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
+            ? (ScaleFactor) (factor[c.Value])
+            : scalingFunction[c.Value].GetScaleFactor(pos);
     }
 }

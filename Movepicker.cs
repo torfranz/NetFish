@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-public class MovePicker
+internal class MovePicker
 {
     private readonly Move countermove;
 
@@ -12,7 +12,7 @@ public class MovePicker
 
     private readonly ExtMove[] killers = new ExtMove[3];
 
-    public readonly ExtMove[] moves = new ExtMove[_.MAX_MOVES];
+    internal readonly ExtMove[] moves = new ExtMove[_.MAX_MOVES];
 
     private readonly Position pos;
 
@@ -39,7 +39,7 @@ public class MovePicker
     /// moves to return (in the quiescence search, for instance, we only want to
     /// search captures, promotions and some checks) and how important good move
     /// ordering is at the current node.
-    public MovePicker(
+    internal MovePicker(
         Position p,
         Move ttm,
         Depth d,
@@ -65,7 +65,7 @@ public class MovePicker
         endMoves += ttMove != Move.MOVE_NONE ? 1 : 0;
     }
 
-    public MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Square s)
+    internal MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Square s)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -103,7 +103,7 @@ public class MovePicker
         endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
-    public MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, Value th)
+    internal MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, Value th)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -154,7 +154,7 @@ public class MovePicker
         return moves[begin.current];
     }
 
-    public void score(GenType Type)
+    internal void score(GenType Type)
     {
         switch (Type)
         {
@@ -214,11 +214,11 @@ public class MovePicker
         // Try winning and equal captures captures ordered by MVV/LVA, then non-captures
         // ordered by history value, then bad-captures and quiet moves with a negative
         // SEE ordered by SEE value.
-        Value see;
 
         for (var i = 0; i < endMoves.current; i++)
         {
             var m = moves[i];
+            Value see;
             if ((see = pos.see_sign(m)) < Value.VALUE_ZERO)
             {
                 moves[i] = new ExtMove(m, see - HistoryStats.Max); // At the bottom
@@ -336,17 +336,15 @@ public class MovePicker
     /// a new pseudo legal move every time it is called, until there are no more moves
     /// left. It picks the move with the biggest value from a list of generated moves
     /// taking care not to return the ttMove if it has already been searched.
-    public Move next_move(bool useSplitpoint)
+    internal Move next_move(bool useSplitpoint)
     {
-        /// Version of next_move() to use at split point nodes where the move is grabbed
-        /// from the split point's shared MovePicker object. This function is not thread
-        /// safe so must be lock protected by the caller.
+        // Version of next_move() to use at split point nodes where the move is grabbed
+        // from the split point's shared MovePicker object. This function is not thread
+        // safe so must be lock protected by the caller.
         if (useSplitpoint)
         {
             return ss[ss.current].splitPoint.movePicker.next_move(false);
         }
-
-        Move move;
 
         while (true)
         {
@@ -355,6 +353,7 @@ public class MovePicker
                 generate_next_stage();
             }
 
+            Move move;
             switch (stage)
             {
                 case Stages.MAIN_SEARCH:

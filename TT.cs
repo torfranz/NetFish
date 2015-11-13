@@ -1,11 +1,9 @@
-﻿using System.Linq;
-
-/// A TranspositionTable consists of a power of 2 number of clusters and each
+﻿/// A TranspositionTable consists of a power of 2 number of clusters and each
 /// cluster consists of ClusterSize number of TTEntry. Each non-empty entry
 /// contains information of exactly one position. The size of a cluster should
 /// not be bigger than a cache line size. In case it is less, it should be padded
 /// to guarantee always aligned accesses.
-public static class TranspositionTable
+internal static class TranspositionTable
 {
     private const int CacheLineSize = 64;
 
@@ -18,25 +16,25 @@ public static class TranspositionTable
     //void* mem;
     private static byte generation8; // Size must be not bigger than TTEntry::genBound8
 
-    public static void new_search()
+    internal static void new_search()
     {
         generation8 += 4;
     } // Lower 2 bits are used by Bound
 
-    public static byte generation()
+    internal static byte generation()
     {
         return generation8;
     }
 
     // The lowest order bits of the key are used to get the index of the cluster
-    public static Cluster first_entry(ulong key)
+    internal static Cluster first_entry(ulong key)
     {
         return table[(uint) key & (clusterCount - 1)];
     }
 
     /// Returns an approximation of the hashtable occupation during a search. The
     /// hash is x permill full, as per UCI protocol.
-    public static int hashfull()
+    internal static int hashfull()
     {
         var cnt = 0;
         for (var i = 0; i < 1000/ClusterSize; i++)
@@ -56,9 +54,9 @@ public static class TranspositionTable
     /// TranspositionTable::clear() overwrites the entire transposition table
     /// with zeros. It is called whenever the table is resized, or when the
     /// user asks the program to clear the table (from the UCI interface).
-    public static void clear()
+    internal static void clear()
     {
-        for (var idx = 0; idx < table.Count(); idx++)
+        for (var idx = 0; idx < table.Length; idx++)
         {
             table[idx] = new Cluster();
         }
@@ -67,7 +65,7 @@ public static class TranspositionTable
     /// TranspositionTable::resize() sets the size of the transposition table,
     /// measured in megabytes. Transposition table consists of a power of 2 number
     /// of clusters and each cluster consists of ClusterSize number of TTEntry.
-    public static void resize(uint mbSize)
+    internal static void resize(uint mbSize)
     {
         var newClusterCount = mbSize*1024*1024/32;
 
@@ -79,7 +77,7 @@ public static class TranspositionTable
         clusterCount = newClusterCount;
 
         table = new Cluster[clusterCount + CacheLineSize - 1];
-        for (var idx = 0; idx < table.Count(); idx++)
+        for (var idx = 0; idx < table.Length; idx++)
         {
             table[idx] = new Cluster();
         }
@@ -91,7 +89,7 @@ public static class TranspositionTable
     /// to be replaced later. The replace value of an entry is calculated as its depth
     /// minus 8 times its relative age. TTEntry t1 is considered more valuable than
     /// TTEntry t2 if its replace value is greater than that of t2.
-    public static TTEntry probe(ulong key, ref bool found)
+    internal static TTEntry probe(ulong key, out bool found)
     {
         var cluster = first_entry(key);
         var key16 = (ushort) (key >> 48); // Use the high 16 bits as key inside the cluster
@@ -130,8 +128,8 @@ public static class TranspositionTable
         return replace;
     }
 
-    public class Cluster
+    internal class Cluster
     {
-        public TTEntry[] entry = {new TTEntry(), new TTEntry(), new TTEntry()}; //ClusterSize = 3
+        internal TTEntry[] entry = {new TTEntry(), new TTEntry(), new TTEntry()}; //ClusterSize = 3
     };
 };

@@ -3,29 +3,29 @@
 /// Stack struct keeps track of the information we need to remember from nodes
 /// shallower and deeper in the tree during the search. Each search thread has
 /// its own array of Stack objects, indexed by the current ply.
-public class Stack
+internal class Stack
 {
-    public Move currentMove;
+    internal Move currentMove;
 
-    public Move excludedMove;
+    internal Move excludedMove;
 
-    public Move killers0;
+    internal Move killers0;
 
-    public Move killers1;
+    internal Move killers1;
 
-    public int moveCount;
+    internal int moveCount;
 
-    public int ply;
+    internal int ply;
 
-    public List<Move> pv = new List<Move>();
+    internal List<Move> pv = new List<Move>();
 
-    public Depth reduction;
+    internal Depth reduction;
 
-    public bool skipEarlyPruning;
+    internal bool skipEarlyPruning;
 
-    public SplitPoint splitPoint;
+    internal SplitPoint splitPoint;
 
-    public Value staticEval;
+    internal Value staticEval;
 
-    public Move ttMove;
+    internal Move ttMove;
 };

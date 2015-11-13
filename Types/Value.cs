@@ -1,48 +1,48 @@
 ﻿using System.Runtime.CompilerServices;
 
-public struct Value
+internal struct Value
 {
-    public static Value VALUE_ZERO = new Value(0);
+    internal static Value VALUE_ZERO = new Value(0);
 
-    public static Value VALUE_DRAW = new Value(0);
+    internal static Value VALUE_DRAW = new Value(0);
 
-    public static Value VALUE_KNOWN_WIN = new Value(10000);
+    internal static Value VALUE_KNOWN_WIN = new Value(10000);
 
-    public static Value VALUE_MATE = new Value(32000);
+    internal static Value VALUE_MATE = new Value(32000);
 
-    public static Value VALUE_INFINITE = new Value(32001);
+    internal static Value VALUE_INFINITE = new Value(32001);
 
-    public static Value VALUE_NONE = new Value(32002);
+    internal static Value VALUE_NONE = new Value(32002);
 
-    public static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2*_.MAX_PLY);
+    internal static Value VALUE_MATE_IN_MAX_PLY = new Value(VALUE_MATE - 2*_.MAX_PLY);
 
-    public static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2*_.MAX_PLY);
+    internal static Value VALUE_MATED_IN_MAX_PLY = new Value(-VALUE_MATE + 2*_.MAX_PLY);
 
-    public static Value PawnValueMg = new Value(198);
+    internal static Value PawnValueMg = new Value(198);
 
-    public static Value PawnValueEg = new Value(258);
+    internal static Value PawnValueEg = new Value(258);
 
-    public static Value KnightValueMg = new Value(817);
+    internal static Value KnightValueMg = new Value(817);
 
-    public static Value KnightValueEg = new Value(846);
+    internal static Value KnightValueEg = new Value(846);
 
-    public static Value BishopValueMg = new Value(836);
+    internal static Value BishopValueMg = new Value(836);
 
-    public static Value BishopValueEg = new Value(857);
+    internal static Value BishopValueEg = new Value(857);
 
-    public static Value RookValueMg = new Value(1270);
+    internal static Value RookValueMg = new Value(1270);
 
-    public static Value RookValueEg = new Value(1281);
+    internal static Value RookValueEg = new Value(1281);
 
-    public static Value QueenValueMg = new Value(2521);
+    internal static Value QueenValueMg = new Value(2521);
 
-    public static Value QueenValueEg = new Value(2558);
+    internal static Value QueenValueEg = new Value(2558);
 
-    public static Value MidgameLimit = new Value(15581);
+    internal static Value MidgameLimit = new Value(15581);
 
-    public static Value EndgameLimit = new Value(3998);
+    internal static Value EndgameLimit = new Value(3998);
 
-    public static Value[][] PieceValue =
+    internal static Value[][] PieceValue =
     {
         new[]
         {
@@ -60,7 +60,13 @@ public struct Value
         }
     };
 
-    private int value { get; }
+    private int value
+    {
+#if FORCEINLINE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        get;
+    }
 
     #region constructors
 
@@ -75,7 +81,7 @@ public struct Value
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Value(int value)
+    internal Value(int value)
     {
         this.value = value;
     }
@@ -98,14 +104,6 @@ public struct Value
     public static Value operator +(Value v1, int v2)
     {
         return new Value(v1.value + v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Value operator +(int v1, Value v2)
-    {
-        return new Value(v1 + v2.value);
     }
 
 #if FORCEINLINE
@@ -192,6 +190,9 @@ public struct Value
         return new Value(v1.value/v2);
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public override string ToString()
     {
         return $"{value}";
@@ -200,7 +201,7 @@ public struct Value
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Value mate_in(int ply)
+    internal static Value mate_in(int ply)
     {
         return new Value(VALUE_MATE - ply);
     }
@@ -208,7 +209,7 @@ public struct Value
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Value mated_in(int ply)
+    internal static Value mated_in(int ply)
     {
         return new Value(-VALUE_MATE + ply);
     }

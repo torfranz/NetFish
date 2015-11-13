@@ -62,10 +62,7 @@ internal sealed class UCIOption
                     currentValue = value;
                 }
 
-                if (on_change != null)
-                {
-                    on_change(this);
-                }
+                on_change?.Invoke(this);
             }
         }
     }
@@ -104,7 +101,7 @@ internal static class UCIOptionChanges
     }
 }
 
-public class OptionMap
+internal class OptionMap
 {
     private readonly Dictionary<string, UCIOption> o = new Dictionary<string, UCIOption>();
 
@@ -136,19 +133,14 @@ public class OptionMap
         Add("SyzygyProbeLimit", new UCIOption(idx++, 6, 0, 6, null));
     }
 
-    internal UCIOption this[string name]
-    {
-        get { return o[name.ToLowerInvariant()]; }
-    }
+    internal UCIOption this[string name] => o[name.ToLowerInvariant()];
 
     internal bool Contains(string name)
     {
         return o.ContainsKey(name.ToLowerInvariant());
     }
 
-    /// operator
-    /// <
-    /// <() is used to print all the options default values in chronological
+    /// ToString() is used to print all the options default values in chronological
     ///     insertion order ( the idx field) and in the format defined by the UCI protocol.
     public override string ToString()
     {

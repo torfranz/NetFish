@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
-public static class Benchmark
+internal static class Benchmark
 {
     private static readonly string[] Defaults =
     {
@@ -59,15 +60,12 @@ public static class Benchmark
     /// depth 13), an optional file name where to look for positions in FEN
     /// format (defaults are the positions defined above) and the type of the
     /// limit value: depth (default), time in millisecs or number of nodes.
-    public static void benchmark(Position current, Stack<string> stack)
+    internal static void benchmark(Position current, Stack<string> stack)
     {
         var fens = new List<string>();
 
         var limits = new LimitsType();
         long nodes = 0;
-        long nodesAll = 0;
-        long e = 0;
-        long eAll = 0;
 
         // Assign default values to missing arguments
         var ttSize = (stack.Count > 0) ? (stack.Pop()) : "16";
@@ -118,13 +116,7 @@ public static class Benchmark
             sr.Dispose();
 
             var split = fensFromFile.Replace("\r", "").Split('\n');
-            foreach (var fen in split)
-            {
-                if (fen.Trim().Length > 0)
-                {
-                    fens.Add(fen.Trim());
-                }
-            }
+            fens.AddRange(from fen in split where fen.Trim().Length > 0 select fen.Trim());
         }
 
         var time = Stopwatch.StartNew();
@@ -151,7 +143,7 @@ public static class Benchmark
 
         var elapsed = time.ElapsedMilliseconds; // Ensure positivity to avoid a 'divide by zero'
 
-        Console.Write($"\n===========================");
+        Console.Write("\n===========================");
         Console.Write($"\nTotal time (ms) : {elapsed}");
         Console.Write($"\nNodes searched  : {nodes}");
         Console.WriteLine($"\nNodes/second    : {1000*nodes/elapsed}");

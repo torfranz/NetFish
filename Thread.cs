@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-public sealed class SplitPoint
+internal sealed class SplitPoint
 {
     // Shared variable data
     internal readonly object spinlock = new object();
@@ -19,7 +20,7 @@ public sealed class SplitPoint
 
     internal Value beta;
 
-    public bool cutNode;
+    internal bool cutNode;
 
     internal volatile bool cutoff;
 
@@ -52,14 +53,14 @@ class LimitedSizeDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     Queue<TKey> queue;
     int size;
 
-    public LimitedSizeDictionary(int size) 
+    internal LimitedSizeDictionary(int size) 
         : base(size + 1)
     {
         this.size = size;
         queue = new Queue<TKey>(size);
     }
 
-    public void Add(TKey key, TValue value)
+    internal void Add(TKey key, TValue value)
     {
         base.Add(key, value);
         if (queue.Count == size)
@@ -67,7 +68,7 @@ class LimitedSizeDictionary<TKey, TValue> : Dictionary<TKey, TValue>
         queue.Enqueue(key);
     }
 
-    public bool Remove(TKey key)
+    internal bool Remove(TKey key)
     {
         if (base.Remove(key))
         {
@@ -86,22 +87,22 @@ class LimitedSizeDictionary<TKey, TValue> : Dictionary<TKey, TValue>
 
 /// ThreadBase struct is the base of the hierarchy from where we derive all the
 /// specialized thread classes.
-public abstract class ThreadBase
+internal abstract class ThreadBase
 {
-    public readonly object sleepCondition = new object();
+    internal readonly object sleepCondition = new object();
 
-    //public Mutex mutex = new Mutex(true);
+    //internal Mutex mutex = new Mutex(true);
 
-    public readonly object spinlock = new object();
+    internal readonly object spinlock = new object();
 
-    public volatile bool exit;
+    internal volatile bool exit;
 
-    protected ThreadBase(ManualResetEvent initEvent)
+    protected ThreadBase(WaitHandle initEvent)
     {
         System.Threading.ThreadPool.QueueUserWorkItem(StartThread, initEvent);
     }
 
-    public abstract void idle_loop(ManualResetEvent initEvent);
+    internal abstract void idle_loop(ManualResetEvent initEvent);
 
     internal void StartThread(object state)
     {
@@ -113,7 +114,7 @@ public abstract class ThreadBase
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public void notify_one()
+    internal void notify_one()
     {
         ThreadHelper.lock_grab(spinlock);
         ThreadHelper.cond_signal(sleepCondition);
@@ -125,29 +126,29 @@ public abstract class ThreadBase
 /// and especially split points. We also use per-thread pawn and material hash
 /// tables so that once we get a pointer to an entry its life time is unlimited
 /// and we don't have to care about someone changing the entry under our feet.
-public class Thread : ThreadBase
+internal class Thread : ThreadBase
 {
     private readonly int idx;
 
     internal readonly SplitPoint[] splitPoints = new SplitPoint[_.MAX_SPLITPOINTS_PER_THREAD];
 
-    public Position activePosition;
+    internal Position activePosition;
 
-    public volatile SplitPoint activeSplitPoint;
+    internal volatile SplitPoint activeSplitPoint;
 
-    public Endgames endgames = new Endgames();
+    internal Endgames endgames = new Endgames();
 
-    public Dictionary<ulong, MaterialEntry> materialTable = new Dictionary<ulong, MaterialEntry>(8192);
+    internal Dictionary<ulong, MaterialEntry> materialTable = new Dictionary<ulong, MaterialEntry>(8192);
 
-    public int maxPly;
+    internal int maxPly;
 
-    public Pawns.Entry[] pawnsTable = new Pawns.Entry[Pawns.Size];
+    internal Pawns.Entry[] pawnsTable = new Pawns.Entry[Pawns.Size];
 
     protected volatile bool searching;
 
-    public volatile int splitPointsSize;
+    internal volatile int splitPointsSize;
 
-    internal Thread(ManualResetEvent initEvent)
+    internal Thread(WaitHandle initEvent)
         : base(initEvent)
     {
         searching = false;
@@ -162,25 +163,22 @@ public class Thread : ThreadBase
         }
     }
 
-    public override void idle_loop(ManualResetEvent initEvent)
+    internal override void idle_loop(ManualResetEvent initEvent)
     {
-        if (initEvent != null)
-        {
-            // Signal done
-            initEvent.Set();
-        }
+        // Signal done
+        initEvent?.Set();
 
         base_idle_loop(initEvent);
     }
 
-    public void base_idle_loop(ManualResetEvent initEvent)
+    internal void base_idle_loop(ManualResetEvent initEvent)
     {
         // Pointer 'this_sp' is not null only if we are called from split(), and not
         // at the thread creation. This means we are the split point's master.
         var this_sp = splitPointsSize > 0 ? activeSplitPoint : null;
         Debug.Assert(this_sp == null || (this_sp.master == this && searching));
 
-        while (!exit && !(this_sp != null) && (this_sp.slavesMask == 0))
+        while (!exit && this_sp == null && (this_sp.slavesMask == 0))
         {
             // If this thread has been assigned work, launch a search
             while (searching)
@@ -321,7 +319,7 @@ public class Thread : ThreadBase
     // Thread::cutoff_occurred() checks whether a beta cutoff has occurred in the
     // current active split point, or in some ancestor of the split point.
 
-    public bool cutoff_occurred()
+    internal bool cutoff_occurred()
     {
         for (var sp = activeSplitPoint; sp != null; sp = sp.parentSplitPoint)
         {
@@ -341,7 +339,7 @@ public class Thread : ThreadBase
     // point, it is only available as a slave for the split points below his active
     // one (the "helpful master" concept in YBWC terminology).
 
-    public bool can_join(SplitPoint sp)
+    internal bool can_join(SplitPoint sp)
     {
         if (searching)
         {
@@ -368,7 +366,7 @@ public class Thread : ThreadBase
     // leave their idle loops and call search(). When all threads have returned from
     // search() then split() returns.
 
-    public void split(
+    internal void split(
         Position pos,
         StackArrayWrapper ss,
         Value alpha,
@@ -416,7 +414,7 @@ public class Thread : ThreadBase
         activePosition = null;
 
         // Try to allocate available threads
-        Thread slave = null;
+        Thread slave;
 
         while (Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT
                && (slave = ThreadPool.available_slave(sp)) != null)
@@ -471,18 +469,18 @@ public class Thread : ThreadBase
 
 internal sealed class TimerThread : ThreadBase
 {
-    public const int Resolution = 5; // Millisec between two check_time() calls
+    internal const int Resolution = 5; // Millisec between two check_time() calls
 
-    public bool run = false;
+    internal bool run = false;
 
-    internal TimerThread(ManualResetEvent initEvent)
+    internal TimerThread(WaitHandle initEvent)
         : base(initEvent)
     {
     }
 
     // Thread::timer_loop() is where the timer thread waits maxPly milliseconds and
     // then calls do_timer_event(). If maxPly is 0 thread sleeps until is woken up.
-    public override void idle_loop(ManualResetEvent initEvent)
+    internal override void idle_loop(ManualResetEvent initEvent)
     {
         // Signal done
         initEvent.Set();
@@ -505,11 +503,11 @@ internal sealed class TimerThread : ThreadBase
     }
 }
 
-public sealed class MainThread : Thread
+internal sealed class MainThread : Thread
 {
     internal volatile bool thinking = true; // Avoid a race with start_thinking()
 
-    public MainThread(ManualResetEvent initEvent)
+    internal MainThread(WaitHandle initEvent)
         : base(initEvent)
     {
     }
@@ -517,13 +515,10 @@ public sealed class MainThread : Thread
     // MainThread::idle_loop() is where the main thread is parked waiting to be started
     // when there is a new search. The main thread will launch all the slave threads.
 
-    public override void idle_loop(ManualResetEvent initEvent)
+    internal override void idle_loop(ManualResetEvent initEvent)
     {
-        if (initEvent != null)
-        {
-            // Signal done
-            initEvent.Set();
-        }
+        // Signal done
+        initEvent?.Set();
 
         while (!exit)
         {
@@ -554,7 +549,7 @@ public sealed class MainThread : Thread
     }
 
     // MainThread::join() waits for main thread to finish the search
-    public void join()
+    internal void join()
     {
         ThreadHelper.lock_grab(spinlock /*mutex*/);
 
@@ -571,7 +566,7 @@ public sealed class MainThread : Thread
 /// ThreadPool struct handles all the threads related stuff like init, starting,
 /// parking and, most importantly, launching a slave thread at a split point.
 /// All the access to shared thread data is done through this class.
-public static class ThreadPool
+internal static class ThreadPool
 {
     /* As long as the single ThreadsManager object is defined as a global we don't
        need to explicitly initialize to zero its data members because variables with
@@ -582,9 +577,9 @@ public static class ThreadPool
 
     internal static TimerThread timer;
 
-    public static Depth minimumSplitDepth;
+    internal static Depth minimumSplitDepth;
 
-    public static MainThread main()
+    internal static MainThread main()
     {
         return (MainThread) threads[0];
     }
@@ -594,7 +589,7 @@ public static class ThreadPool
     // number. Thread objects are dynamically allocated to avoid creating all possible
     // threads in advance (which include pawns and material tables), even if only a
     // few are to be used.
-    internal static void read_uci_options(ManualResetEvent[] initEvents)
+    internal static void read_uci_options(WaitHandle[] initEvents)
     {
         minimumSplitDepth = int.Parse(OptionMap.Instance["Min Split Depth"].v)*Depth.ONE_PLY;
 
@@ -640,10 +635,10 @@ public static class ThreadPool
     // that will go immediately to sleep. We cannot use a c'tor because Threads is a
     // static object and we need a fully initialized engine at this point due to
     // allocation of Endgames in Thread c'tor.
-    public static void init()
+    internal static void init()
     {
         var requested = int.Parse(OptionMap.Instance["Threads"].v);
-        var initEvents = new ManualResetEvent[requested + 1];
+        WaitHandle[] initEvents = new WaitHandle[requested + 1];
         for (var i = 0; i < (requested + 1); i++)
         {
             initEvents[i] = new ManualResetEvent(false);
@@ -655,7 +650,7 @@ public static class ThreadPool
 
     private static void launch_threads(object state)
     {
-        var initEvents = (ManualResetEvent[]) state;
+        var initEvents = (WaitHandle[]) state;
         timer = new TimerThread(initEvents[0]);
         threads.Add(new MainThread(initEvents[1]));
         read_uci_options(initEvents);
@@ -668,9 +663,9 @@ public static class ThreadPool
         delete_thread(timer); // As first because check_time() accesses threads data
         timer = null;
 
-        for (var i = 0; i < threads.Count; i++)
+        foreach (Thread t in threads)
         {
-            delete_thread(threads[i]);
+            delete_thread(t);
         }
         threads.Clear();
     }
@@ -679,15 +674,7 @@ public static class ThreadPool
     // to join SplitPoint 'sp'.
     internal static Thread available_slave(SplitPoint sp)
     {
-        for (var i = 0; i < threads.Count; i++)
-        {
-            if (threads[i].can_join(sp))
-            {
-                return threads[i];
-            }
-        }
-
-        return null;
+        return threads.FirstOrDefault(t => t.can_join(sp));
     }
 
     // ThreadPool::start_thinking() wakes up the main thread sleeping in

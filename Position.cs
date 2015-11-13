@@ -9,14 +9,14 @@ using System.Text;
 /// pieces, side to move, hash keys, castling info, etc. Important methods are
 /// do_move() and undo_move(), used by the search to update node info when
 /// traversing the search tree.
-public class Position
+internal class Position
 {
-    public const string PieceToChar = " PNBRQK  pnbrqk";
+    internal const string PieceToChar = " PNBRQK  pnbrqk";
 
     // Data members
     private Piece[] board = new Piece[Square.SQUARE_NB];
 
-    private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
+    private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB_C];
 
     private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
 
@@ -34,24 +34,24 @@ public class Position
 
     private int nodes;
 
-    private int[,] pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
+    private int[,] pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB];
 
-    private Square[,,] pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+    private Square[,,] pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, 16];
 
     private Color sideToMove;
 
-    public StateInfo st;
+    internal StateInfo st;
 
     private StateInfo startState;
 
     private Thread thisThread;
 
-    public Position(Position other)
+    internal Position(Position other)
         : this(other, other.thisThread)
     {
     }
 
-    public Position(Position other, Thread thread)
+    internal Position(Position other, Thread thread)
     {
         Array.Copy(other.board, board, other.board.Length);
         Array.Copy(other.byColorBB, byColorBB, other.byColorBB.Length);
@@ -76,18 +76,18 @@ public class Position
         Debug.Assert(pos_is_ok());
     }
 
-    public Position(string f, bool c960, Thread th)
+    internal Position(string f, bool c960, Thread th)
     {
         set(f, c960, th);
     }
 
     /// Position::init() initializes at startup the various arrays used to compute
     /// hash keys.
-    public static void init()
+    internal static void init()
     {
         var rng = new PRNG(1070372);
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
             for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
             {
@@ -109,7 +109,7 @@ public class Position
             var b = new Bitboard((ulong) cr);
             while (b)
             {
-                var k = Zobrist.castling[1 << Utils.pop_lsb(ref b)];
+                var k = Zobrist.castling[1 << (int)Utils.pop_lsb(ref b)];
                 Zobrist.castling[cr] ^= (k != 0 ? k : rng.rand());
             }
         }
@@ -121,7 +121,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces()
+    internal Bitboard pieces()
     {
         return byTypeBB[PieceType.ALL_PIECES];
     }
@@ -129,7 +129,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Color side_to_move()
+    internal Color side_to_move()
     {
         return sideToMove;
     }
@@ -137,7 +137,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool empty(Square s)
+    internal bool empty(Square s)
     {
         return board[s] == Piece.NO_PIECE;
     }
@@ -145,7 +145,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Piece piece_on(Square s)
+    internal Piece piece_on(Square s)
     {
         return board[s];
     }
@@ -153,7 +153,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Piece moved_piece(Move m)
+    internal Piece moved_piece(Move m)
     {
         return board[Move.from_sq(m)];
     }
@@ -161,7 +161,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces(PieceType pt)
+    internal Bitboard pieces(PieceType pt)
     {
         return byTypeBB[pt];
     }
@@ -169,7 +169,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces(PieceType pt1, PieceType pt2)
+    internal Bitboard pieces(PieceType pt1, PieceType pt2)
     {
         return byTypeBB[pt1] | byTypeBB[pt2];
     }
@@ -177,44 +177,44 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces(Color c)
+    internal Bitboard pieces(Color c)
     {
-        return byColorBB[c];
+        return byColorBB[c.Value];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces(Color c, PieceType pt)
+    internal Bitboard pieces(Color c, PieceType pt)
     {
-        return byColorBB[c] & byTypeBB[pt];
+        return byColorBB[c.Value] & byTypeBB[pt];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
+    internal Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
-        return byColorBB[c] & (byTypeBB[pt1] | byTypeBB[pt2]);
+        return byColorBB[c.Value] & (byTypeBB[pt1] | byTypeBB[pt2]);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public int count(PieceType Pt, Color c)
+    internal int count(PieceType Pt, Color c)
     {
-        return pieceCount[c, Pt];
+        return pieceCount[c.Value, Pt];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Square[] squares(PieceType Pt, Color c)
+    internal Square[] squares(PieceType Pt, Color c)
     {
         var result = new Square[16];
         for (var idx = 0; idx < result.Length; idx++)
         {
-            result[idx] = pieceList[c, Pt, idx];
+            result[idx] = pieceList[c.Value, Pt, idx];
         }
         return result;
     }
@@ -222,16 +222,16 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Square square(PieceType Pt, Color c)
+    internal Square square(PieceType Pt, Color c)
     {
-        Debug.Assert(pieceCount[c, Pt] == 1);
-        return pieceList[c, Pt, 0];
+        Debug.Assert(pieceCount[c.Value, Pt] == 1);
+        return pieceList[c.Value, Pt, 0];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Square ep_square()
+    internal Square ep_square()
     {
         return st.epSquare;
     }
@@ -239,7 +239,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool can_castle(CastlingRight cr)
+    internal bool can_castle(CastlingRight cr)
     {
         return (st.castlingRights & (int) cr) != 0;
     }
@@ -247,15 +247,15 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public int can_castle(Color c)
+    internal int can_castle(Color c)
     {
-        return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c)));
+        return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c.Value)));
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool castling_impeded(CastlingRight cr)
+    internal bool castling_impeded(CastlingRight cr)
     {
         return byTypeBB[PieceType.ALL_PIECES] & castlingPath[(int) cr];
     }
@@ -263,7 +263,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Square castling_rook_square(CastlingRight cr)
+    internal Square castling_rook_square(CastlingRight cr)
     {
         return castlingRookSquare[(int) cr];
     }
@@ -271,7 +271,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard attacks_from(PieceType Pt, Square s)
+    internal Bitboard attacks_from(PieceType Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
             ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
@@ -283,7 +283,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard attacks_from(PieceType Pt, Square s, Color c)
+    internal Bitboard attacks_from(PieceType Pt, Square s, Color c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
@@ -292,7 +292,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard attacks_from(Piece pc, Square s)
+    internal Bitboard attacks_from(Piece pc, Square s)
     {
         return Utils.attacks_bb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -300,7 +300,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard attackers_to(Square s)
+    internal Bitboard attackers_to(Square s)
     {
         return attackers_to(s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -308,7 +308,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard checkers()
+    internal Bitboard checkers()
     {
         return st.checkersBB;
     }
@@ -316,7 +316,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard discovered_check_candidates()
+    internal Bitboard discovered_check_candidates()
     {
         return check_blockers(sideToMove, ~sideToMove);
     }
@@ -324,7 +324,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Bitboard pinned_pieces(Color c)
+    internal Bitboard pinned_pieces(Color c)
     {
         return check_blockers(c, c);
     }
@@ -332,7 +332,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool pawn_passed(Color c, Square s)
+    internal bool pawn_passed(Color c, Square s)
     {
         return !(pieces(~c, PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
@@ -340,7 +340,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool advanced_pawn_push(Move m)
+    internal bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(moved_piece(m)) == PieceType.PAWN
                && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
@@ -349,7 +349,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public ulong key()
+    internal ulong key()
     {
         return st.key;
     }
@@ -357,7 +357,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public ulong pawn_key()
+    internal ulong pawn_key()
     {
         return st.pawnKey;
     }
@@ -365,7 +365,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public ulong material_key()
+    internal ulong material_key()
     {
         return st.materialKey;
     }
@@ -373,7 +373,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Score psq_score()
+    internal Score psq_score()
     {
         return st.psq;
     }
@@ -381,15 +381,15 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Value non_pawn_material(Color c)
+    internal Value non_pawn_material(Color c)
     {
-        return st.nonPawnMaterial[c];
+        return st.nonPawnMaterial[c.Value];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public int game_ply()
+    internal int game_ply()
     {
         return gamePly;
     }
@@ -397,7 +397,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public int rule50_count()
+    internal int rule50_count()
     {
         return st.rule50;
     }
@@ -405,7 +405,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public int nodes_searched()
+    internal int nodes_searched()
     {
         return nodes;
     }
@@ -413,7 +413,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public void set_nodes_searched(int n)
+    internal void set_nodes_searched(int n)
     {
         nodes = n;
     }
@@ -421,10 +421,10 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool opposite_bishops()
+    internal bool opposite_bishops()
     {
-        return pieceCount[Color.WHITE, PieceType.BISHOP] == 1
-               && pieceCount[Color.BLACK, PieceType.BISHOP] == 1
+        return pieceCount[Color.WHITE_C, PieceType.BISHOP] == 1
+               && pieceCount[Color.BLACK_C, PieceType.BISHOP] == 1
                && Square.opposite_colors(
                    square(PieceType.BISHOP, Color.WHITE),
                    square(PieceType.BISHOP, Color.BLACK));
@@ -433,7 +433,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool is_chess960()
+    internal bool is_chess960()
     {
         return chess960;
     }
@@ -441,7 +441,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool capture_or_promotion(Move m)
+    internal bool capture_or_promotion(Move m)
     {
         Debug.Assert(Move.is_ok(m));
         return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !empty(Move.to_sq(m));
@@ -450,7 +450,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public bool capture(Move m)
+    internal bool capture(Move m)
     {
         // Castling is encoded as "king captures the rook"
         Debug.Assert(Move.is_ok(m));
@@ -461,7 +461,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public PieceType captured_piece_type()
+    internal PieceType captured_piece_type()
     {
         return st.capturedType;
     }
@@ -469,7 +469,7 @@ public class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public Thread this_thread()
+    internal Thread this_thread()
     {
         return thisThread;
     }
@@ -482,10 +482,10 @@ public class Position
         board[s] = Piece.make_piece(c, pt);
         byTypeBB[PieceType.ALL_PIECES] |= s;
         byTypeBB[pt] |= s;
-        byColorBB[c] |= s;
-        index[s] = pieceCount[c, pt]++;
-        pieceList[c, pt, index[s]] = s;
-        pieceCount[c, PieceType.ALL_PIECES]++;
+        byColorBB[c.Value] |= s;
+        index[s] = pieceCount[c.Value, pt]++;
+        pieceList[c.Value, pt, index[s]] = s;
+        pieceCount[c.Value, PieceType.ALL_PIECES]++;
     }
 
 #if FORCEINLINE
@@ -499,13 +499,13 @@ public class Position
         // are not guaranteed to be invariant to a do_move() + undo_move() sequence.
         byTypeBB[PieceType.ALL_PIECES] ^= s;
         byTypeBB[pt] ^= s;
-        byColorBB[c] ^= s;
+        byColorBB[c.Value] ^= s;
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
-        var lastSquare = pieceList[c, pt, --pieceCount[c, pt]];
+        var lastSquare = pieceList[c.Value, pt, --pieceCount[c.Value, pt]];
         index[lastSquare] = index[s];
-        pieceList[c, pt, index[lastSquare]] = lastSquare;
-        pieceList[c, pt, pieceCount[c, pt]] = Square.SQ_NONE;
-        pieceCount[c, PieceType.ALL_PIECES]--;
+        pieceList[c.Value, pt, index[lastSquare]] = lastSquare;
+        pieceList[c.Value, pt, pieceCount[c.Value, pt]] = Square.SQ_NONE;
+        pieceCount[c.Value, PieceType.ALL_PIECES]--;
     }
 
 #if FORCEINLINE
@@ -518,11 +518,11 @@ public class Position
         var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
         byTypeBB[PieceType.ALL_PIECES] ^= from_to_bb;
         byTypeBB[pt] ^= from_to_bb;
-        byColorBB[c] ^= from_to_bb;
+        byColorBB[c.Value] ^= from_to_bb;
         board[from] = Piece.NO_PIECE;
         board[to] = Piece.make_piece(c, pt);
         index[to] = index[from];
-        pieceList[c, pt, index[to]] = to;
+        pieceList[c.Value, pt, index[to]] = to;
     }
 
     /// Position::set_castling_right() is a helper function used to set castling
@@ -565,7 +565,7 @@ public class Position
     private void set_state(StateInfo si)
     {
         si.key = si.pawnKey = si.materialKey = 0;
-        si.nonPawnMaterial[Color.WHITE] = si.nonPawnMaterial[Color.BLACK] = Value.VALUE_ZERO;
+        si.nonPawnMaterial[Color.WHITE_C] = si.nonPawnMaterial[Color.BLACK_C] = Value.VALUE_ZERO;
         si.psq = Score.SCORE_ZERO;
 
         si.checkersBB = attackers_to(square(PieceType.KING, sideToMove)) & pieces(~sideToMove);
@@ -574,8 +574,8 @@ public class Position
         {
             var s = Utils.pop_lsb(ref b);
             var pc = piece_on(s);
-            si.key ^= Zobrist.psq[Piece.color_of(pc), Piece.type_of(pc), s];
-            si.psq += PSQT.psq[Piece.color_of(pc), Piece.type_of(pc), s];
+            si.key ^= Zobrist.psq[Piece.color_of(pc).Value, Piece.type_of(pc), s];
+            si.psq += PSQT.psq[Piece.color_of(pc).Value, Piece.type_of(pc), s];
         }
 
         if (si.epSquare != Square.SQ_NONE)
@@ -593,10 +593,10 @@ public class Position
         for (var b = pieces(PieceType.PAWN); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)), PieceType.PAWN, s];
+            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).Value, PieceType.PAWN, s];
         }
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
             for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
             {
@@ -607,7 +607,7 @@ public class Position
             }
         }
 
-        for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
             for (var pt = PieceType.KNIGHT; pt <= PieceType.QUEEN; ++pt)
             {
@@ -618,9 +618,9 @@ public class Position
 
     /// Position::game_phase() calculates the game phase interpolating total non-pawn
     /// material between endgame and midgame limits.
-    public Phase game_phase()
+    internal Phase game_phase()
     {
-        var npm = st.nonPawnMaterial[Color.WHITE] + st.nonPawnMaterial[Color.BLACK];
+        var npm = st.nonPawnMaterial[Color.WHITE_C] + st.nonPawnMaterial[Color.BLACK_C];
 
         npm = new Value(Math.Max(Value.EndgameLimit, Math.Min(npm, Value.MidgameLimit)));
 
@@ -636,17 +636,17 @@ public class Position
     /// or the opposite of 'kingColor'.
     private Bitboard check_blockers(Color c, Color kingColor)
     {
-        Bitboard b, pinners, result = new Bitboard(0);
+        Bitboard result = new Bitboard(0);
         var ksq = square(PieceType.KING, kingColor);
 
         // Pinners are sliders that give check when a pinned piece is removed
-        pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK, ksq])
-                   | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP, ksq]))
-                  & pieces(~kingColor);
+        var pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK, ksq])
+                            | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP, ksq]))
+                           & pieces(~kingColor);
 
         while (pinners)
         {
-            b = Utils.between_bb(ksq, Utils.pop_lsb(ref pinners)) & pieces();
+            var b = Utils.between_bb(ksq, Utils.pop_lsb(ref pinners)) & pieces();
 
             if (!Bitboard.more_than_one(b))
             {
@@ -669,7 +669,7 @@ public class Position
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
-    public bool legal(Move m, Bitboard pinned)
+    internal bool legal(Move m, Bitboard pinned)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(pinned == pinned_pieces(sideToMove));
@@ -717,7 +717,7 @@ public class Position
     /// Position::pseudo_legal() takes a random move and tests whether the move is
     /// pseudo legal. It is used to validate moves from TT that can be corrupted
     /// due to SMP concurrent access or hash position key aliasing.
-    public bool pseudo_legal(Move m)
+    internal bool pseudo_legal(Move m)
     {
         var us = sideToMove;
         var from = Move.from_sq(m);
@@ -806,7 +806,7 @@ public class Position
     }
 
     /// Position::gives_check() tests whether a pseudo-legal move gives a check
-    public bool gives_check(Move m, CheckInfo ci)
+    internal bool gives_check(Move m, CheckInfo ci)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(ci.dcCandidates == discovered_check_candidates());
@@ -869,7 +869,7 @@ public class Position
     /// Position::do_move() makes a move, and saves all information necessary
     /// to a StateInfo object. The move is assumed to be legal. Pseudo-legal
     /// moves should be filtered out before this function is called.
-    public void do_move(Move m, StateInfo newSt, bool givesCheck)
+    internal void do_move(Move m, StateInfo newSt, bool givesCheck)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(newSt != st);
@@ -912,8 +912,8 @@ public class Position
             do_castling(true, us, from, ref to, out rfrom, out rto);
 
             captured = PieceType.NO_PIECE_TYPE;
-            st.psq += PSQT.psq[us, PieceType.ROOK, rto] - PSQT.psq[us, PieceType.ROOK, rfrom];
-            k ^= Zobrist.psq[us, PieceType.ROOK, rfrom] ^ Zobrist.psq[us, PieceType.ROOK, rto];
+            st.psq += PSQT.psq[us.Value, PieceType.ROOK, rto] - PSQT.psq[us.Value, PieceType.ROOK, rfrom];
+            k ^= Zobrist.psq[us.Value, PieceType.ROOK, rfrom] ^ Zobrist.psq[us.Value, PieceType.ROOK, rto];
         }
 
         if (captured)
@@ -937,29 +937,29 @@ public class Position
                     board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
                 }
 
-                st.pawnKey ^= Zobrist.psq[them, PieceType.PAWN, capsq];
+                st.pawnKey ^= Zobrist.psq[them.Value, PieceType.PAWN, capsq];
             }
             else
             {
-                st.nonPawnMaterial[them] -= Value.PieceValue[(int) Phase.MG][captured];
+                st.nonPawnMaterial[them.Value] -= Value.PieceValue[(int) Phase.MG][captured];
             }
 
             // Update board and piece lists
             remove_piece(them, captured, capsq);
 
             // Update material hash key and prefetch access to materialTable
-            k ^= Zobrist.psq[them, captured, capsq];
-            st.materialKey ^= Zobrist.psq[them, captured, pieceCount[them, captured]];
+            k ^= Zobrist.psq[them.Value, captured, capsq];
+            st.materialKey ^= Zobrist.psq[them.Value, captured, pieceCount[them.Value, captured]];
 
             // Update incremental scores
-            st.psq -= PSQT.psq[them, captured, capsq];
+            st.psq -= PSQT.psq[them.Value, captured, capsq];
 
             // Reset rule 50 counter
             st.rule50 = 0;
         }
 
         // Update hash key
-        k ^= Zobrist.psq[us, pt, from] ^ Zobrist.psq[us, pt, to];
+        k ^= Zobrist.psq[us.Value, pt, from] ^ Zobrist.psq[us.Value, pt, to];
 
         // Reset en passant square
         if (st.epSquare != Square.SQ_NONE)
@@ -1004,27 +1004,27 @@ public class Position
                 put_piece(us, promotion, to);
 
                 // Update hash keys
-                k ^= Zobrist.psq[us, PieceType.PAWN, to] ^ Zobrist.psq[us, promotion, to];
-                st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, to];
-                st.materialKey ^= Zobrist.psq[us, promotion, pieceCount[us, promotion] - 1]
-                                  ^ Zobrist.psq[us, PieceType.PAWN, pieceCount[us, PieceType.PAWN]];
+                k ^= Zobrist.psq[us.Value, PieceType.PAWN, to] ^ Zobrist.psq[us.Value, promotion, to];
+                st.pawnKey ^= Zobrist.psq[us.Value, PieceType.PAWN, to];
+                st.materialKey ^= Zobrist.psq[us.Value, promotion, pieceCount[us.Value, promotion] - 1]
+                                  ^ Zobrist.psq[us.Value, PieceType.PAWN, pieceCount[us.Value, PieceType.PAWN]];
 
                 // Update incremental score
-                st.psq += PSQT.psq[us, promotion, to] - PSQT.psq[us, PieceType.PAWN, to];
+                st.psq += PSQT.psq[us.Value, promotion, to] - PSQT.psq[us.Value, PieceType.PAWN, to];
 
                 // Update material
-                st.nonPawnMaterial[us] += Value.PieceValue[(int) Phase.MG][promotion];
+                st.nonPawnMaterial[us.Value] += Value.PieceValue[(int) Phase.MG][promotion];
             }
 
             // Update pawn hash key and prefetch access to pawnsTable
-            st.pawnKey ^= Zobrist.psq[us, PieceType.PAWN, from] ^ Zobrist.psq[us, PieceType.PAWN, to];
+            st.pawnKey ^= Zobrist.psq[us.Value, PieceType.PAWN, from] ^ Zobrist.psq[us.Value, PieceType.PAWN, to];
 
             // Reset rule 50 draw counter
             st.rule50 = 0;
         }
 
         // Update incremental scores
-        st.psq += PSQT.psq[us, pt, to] - PSQT.psq[us, pt, from];
+        st.psq += PSQT.psq[us.Value, pt, to] - PSQT.psq[us.Value, pt, from];
 
         // Set capture piece
         st.capturedType = captured;
@@ -1044,7 +1044,7 @@ public class Position
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
     /// be restored to exactly the same state as before the move was made.
-    public void undo_move(Move m)
+    internal void undo_move(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1124,7 +1124,7 @@ public class Position
 
     /// Position::do(undo)_null_move() is used to do(undo) a "null move": It flips
     /// the side to move without executing any move on the board.
-    public void do_null_move(StateInfo newSt)
+    internal void do_null_move(StateInfo newSt)
     {
         Debug.Assert(!checkers());
         Debug.Assert(newSt != st);
@@ -1150,7 +1150,7 @@ public class Position
         Debug.Assert(pos_is_ok());
     }
 
-    public void undo_null_move()
+    internal void undo_null_move()
     {
         Debug.Assert(!checkers());
 
@@ -1209,15 +1209,15 @@ public class Position
 
         if (captured)
         {
-            k ^= Zobrist.psq[~us, captured, to];
+            k ^= Zobrist.psq[(~us).Value, captured, to];
         }
 
-        return k ^ Zobrist.psq[us, pt, to] ^ Zobrist.psq[us, pt, from];
+        return k ^ Zobrist.psq[us.Value, pt, to] ^ Zobrist.psq[us.Value, pt, from];
     }
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
     /// material gain or loss resulting from a move.
-    public Value see_sign(Move m)
+    internal Value see_sign(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1233,22 +1233,18 @@ public class Position
         return see(m);
     }
 
-    public Value see(Move m)
+    internal Value see(Move m)
     {
-        Square from, to;
-        Bitboard occupied, attackers, stmAttackers;
         var swapList = new Value[32];
         var slIndex = 1;
-        PieceType captured;
-        Color stm;
 
         Debug.Assert(Move.is_ok(m));
 
-        from = Move.from_sq(m);
-        to = Move.to_sq(m);
+        var @from = Move.from_sq(m);
+        var to = Move.to_sq(m);
         swapList[0] = Value.PieceValue[(int) Phase.MG][piece_on(to)];
-        stm = Piece.color_of(piece_on(from));
-        occupied = pieces() ^ from;
+        var stm = Piece.color_of(piece_on(@from));
+        var occupied = pieces() ^ @from;
 
         // Castling moves are implemented as king capturing the rook so cannot
         // be handled correctly. Simply return VALUE_ZERO that is always correct
@@ -1266,11 +1262,11 @@ public class Position
 
         // Find all attackers to the destination square, with the moving piece
         // removed, but possibly an X-ray attacker added behind it.
-        attackers = attackers_to(to, occupied) & occupied;
+        var attackers = attackers_to(to, occupied) & occupied;
 
         // If the opponent has no attackers we are finished
         stm = ~stm;
-        stmAttackers = attackers & pieces(stm);
+        var stmAttackers = attackers & pieces(stm);
         if (!stmAttackers)
         {
             return swapList[0];
@@ -1282,7 +1278,7 @@ public class Position
         // destination square, where the sides alternately capture, and always
         // capture with the least valuable piece. After each capture, we look for
         // new X-ray attacks from behind the capturing piece.
-        captured = Piece.type_of(piece_on(from));
+        var captured = Piece.type_of(piece_on(@from));
 
         do
         {
@@ -1317,7 +1313,7 @@ public class Position
 
     /// Position::is_draw() tests whether the position is drawn by 50-move rule
     /// or by repetition. It does not detect stalemates.
-    public bool is_draw()
+    internal bool is_draw()
     {
         if (st.rule50 > 99 && (!checkers() || new MoveList(GenType.LEGAL, this).size() > 0))
         {
@@ -1402,11 +1398,11 @@ public class Position
 
             if (step == (int) CheckStep.Lists)
             {
-                for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+                for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
                 {
                     for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
                     {
-                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(c, pt)))
+                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(new Color(c), pt)))
                         {
                             return false;
                         }
@@ -1425,18 +1421,19 @@ public class Position
 
             if (step == (int) CheckStep.Castling)
             {
-                for (var c = Color.WHITE; c <= Color.BLACK; ++c)
+                for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
                 {
                     for (var s = CastlingSide.KING_SIDE; s <= CastlingSide.QUEEN_SIDE; s++)
                     {
-                        if (!can_castle(c | s))
+                        var castlingSideColor = c | s;
+                        if (!can_castle(castlingSideColor))
                         {
                             continue;
                         }
 
-                        if (piece_on(castlingRookSquare[(int) (c | s)]) != Piece.make_piece(c, PieceType.ROOK)
-                            || castlingRightsMask[castlingRookSquare[(int) (c | s)]] != (int) (c | s)
-                            || (castlingRightsMask[square(PieceType.KING, c)] & (int) (c | s)) != (int) (c | s))
+                        if (piece_on(castlingRookSquare[(int) (castlingSideColor)]) != Piece.make_piece(c, PieceType.ROOK)
+                            || castlingRightsMask[castlingRookSquare[(int) (castlingSideColor)]] != (int) (castlingSideColor)
+                            || (castlingRightsMask[square(PieceType.KING, c)] & (int) (castlingSideColor)) != (int) (castlingSideColor))
                         {
                             return false;
                         }
@@ -1448,15 +1445,15 @@ public class Position
         return true;
     }
 
-    public string fen()
+    internal string fen()
     {
-        int emptyCnt;
         var ss = new StringBuilder();
 
         for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
         {
             for (var f = File.FILE_A; f <= File.FILE_H; ++f)
             {
+                int emptyCnt;
                 for (emptyCnt = 0; f <= File.FILE_H && empty(Square.make_square(f, r)); ++f)
                 {
                     ++emptyCnt;
@@ -1526,7 +1523,7 @@ public class Position
         return ss.ToString();
     }
 
-    public ulong exclusion_key()
+    internal ulong exclusion_key()
     {
         return st.key ^ Zobrist.exclusion;
     }
@@ -1546,12 +1543,12 @@ public class Position
         return token.ToString().ToUpperInvariant()[0];
     }
 
-    public static char tolower(char token)
+    internal static char tolower(char token)
     {
         return token.ToString().ToLowerInvariant()[0];
     }
 
-    public static Stack<string> CreateStack(string input)
+    internal static Stack<string> CreateStack(string input)
     {
         var lines = input.Trim().Split(' ');
         var stack = new Stack<string>(); // LIFO
@@ -1570,7 +1567,7 @@ public class Position
     /// Position::set() initializes the position object with the given FEN string.
     /// This function is not very robust - make sure that input FENs are correct,
     /// this is assumed to be the responsibility of the GUI.
-    public void set(string fenStr, bool isChess960, Thread th)
+    internal void set(string fenStr, bool isChess960, Thread th)
     {
         /*
            A FEN string defines a particular position using only the ASCII character set.
@@ -1605,8 +1602,7 @@ public class Position
            6) Fullmove number. The number of the full move. It starts at 1, and is
               incremented after Black's move.
         */
-        char col, row, token;
-        int p;
+        char token;
         var sq = Square.SQ_A8;
 
         var fen = fenStr.ToCharArray();
@@ -1626,7 +1622,7 @@ public class Position
             }
             else
             {
-                p = PieceToChar.IndexOf(token);
+                var p = PieceToChar.IndexOf(token);
                 if (p > -1)
                 {
                     put_piece(Piece.color_of(new Piece(p)), Piece.type_of(new Piece(p)), sq);
@@ -1681,10 +1677,10 @@ public class Position
 
         if (fenPos < fenStr.Length)
         {
-            col = fen[fenPos++];
+            var col = fen[fenPos++];
             if (fenPos < fenStr.Length)
             {
-                row = fen[fenPos++];
+                var row = fen[fenPos++];
 
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
@@ -1727,7 +1723,7 @@ public class Position
     {
         board = new Piece[Square.SQUARE_NB];
 
-        byColorBB = new Bitboard[Color.COLOR_NB];
+        byColorBB = new Bitboard[Color.COLOR_NB_C];
 
         byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
 
@@ -1739,14 +1735,14 @@ public class Position
 
         index = new int[Square.SQUARE_NB];
 
-        pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
+        pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB];
 
-        pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+        pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, 16];
         for (var i = 0; i < PieceType.PIECE_TYPE_NB; ++i)
         {
             for (var j = 0; j < 16; ++j)
             {
-                pieceList[Color.WHITE, i, j] = pieceList[Color.BLACK, i, j] = Square.SQ_NONE;
+                pieceList[Color.WHITE_C, i, j] = pieceList[Color.BLACK_C, i, j] = Square.SQ_NONE;
             }
         }
 
@@ -1766,7 +1762,7 @@ public class Position
 
     /// Position::flip() flips position with the white and black sides reversed. This
     /// is only useful for debugging e.g. for finding evaluation symmetry bugs.
-    public void flip()
+    internal void flip()
     {
         var tokens = CreateStack(fen());
         Debug.Assert(tokens.Count == 6);
@@ -1818,7 +1814,7 @@ public class Position
         set(flippedFen.ToString(), chess960, this_thread());
     }
 
-    public string displayString()
+    internal string displayString()
     {
         var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
         for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)

@@ -1,14 +1,14 @@
-﻿public class CheckInfo
+﻿internal class CheckInfo
 {
-    public readonly Bitboard[] checkSquares = new Bitboard[PieceType.PIECE_TYPE_NB];
+    internal readonly Bitboard[] checkSquares = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-    public readonly Square ksq;
+    internal readonly Square ksq;
 
-    public Bitboard dcCandidates;
+    internal Bitboard dcCandidates;
 
-    public Bitboard pinned;
+    internal Bitboard pinned;
 
-    public CheckInfo(Position pos)
+    internal CheckInfo(Position pos)
     {
         var them = ~pos.side_to_move();
         ksq = pos.square(PieceType.KING, them);

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
-public static class UCI
+internal static class UCI
 {
     // FEN string of the initial position, normal chess
     internal const string StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -13,27 +14,19 @@ public static class UCI
     internal static StateInfoWrapper SetupStates = new StateInfoWrapper();
 
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
-    public static string square(Square s)
+    internal static string square(Square s)
     {
         return $"{(char) ('a' + Square.file_of(s))}{(char) ('1' + Square.rank_of(s))}";
     }
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
     /// that all (if any) unsearched PV lines are sent using a previous search score.
-    public static string pv(Position pos, Depth depth, Value alpha, Value beta)
+    internal static string pv(Position pos, Depth depth, Value alpha, Value beta)
     {
         var ss = new StringBuilder();
         var elapsed = TimeManagement.elapsed() + 1;
         var multiPV = Math.Min(int.Parse(OptionMap.Instance["MultiPV"].v), Search.RootMoves.Count);
-        var selDepth = 0;
-
-        foreach (var th in ThreadPool.threads)
-        {
-            if (th.maxPly > selDepth)
-            {
-                selDepth = th.maxPly;
-            }
-        }
+        var selDepth = ThreadPool.threads.Select(th => th.maxPly).Concat(new[] {0}).Max();
 
         for (var i = 0; i < multiPV; ++i)
         {
@@ -47,9 +40,8 @@ public static class UCI
             var d = updated ? depth : depth - Depth.ONE_PLY;
             var v = updated ? Search.RootMoves[i].score : Search.RootMoves[i].previousScore;
 
-            //TODO: enable tablebases
-            var tb = false; //TB::RootInTB && Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY;
-            //v = tb? TB::Score : v;
+            var tb = Tablebases.RootInTB && Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY;
+            v = tb? Tablebases.Score : v;
 
             ss.Append($"info depth {d/Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
 
@@ -60,12 +52,11 @@ public static class UCI
 
             ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched()*1000/elapsed}");
 
-            //TODO: enable tablebases
-            /*if (elapsed > 1000) // Earlier makes little sense
-                ss.Append($" hashfull {TT.hashfull()}");
+            if (elapsed > 1000) // Earlier makes little sense
+                ss.Append($" hashfull {TranspositionTable.hashfull()}");
 
-            ss.Append($" tbhits {TB::Hits} time {elapsed} pv");
-            */
+            ss.Append($" tbhits {Tablebases.Hits} time {elapsed} pv");
+            
             foreach (var m in Search.RootMoves[i].pv)
             {
                 ss.Append($" {move(m, pos.is_chess960())}");
@@ -79,13 +70,13 @@ public static class UCI
     /// protocol specification:
     /// 
     /// cp
-    /// <x>
+    /// x
     ///     The score from the engine's point of view in centipawns.
     ///     mate
-    ///     <y>
+    ///     y
     ///         Mate in y moves, not plies. If the engine is getting mated
     ///         use negative values for y.
-    public static string value(Value v)
+    internal static string value(Value v)
     {
         if (Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY)
         {
@@ -101,14 +92,14 @@ public static class UCI
     internal static void position(Position pos, Stack<string> stack)
     {
         Move m;
-        string token, fen = string.Empty;
+        string fen = string.Empty;
 
         if (stack.Count == 0)
         {
             // do nothing for incomplete command
             return;
         }
-        token = stack.Pop();
+        var token = stack.Pop();
 
         if (token == "startpos")
         {
@@ -146,7 +137,7 @@ public static class UCI
     /// The only special case is castling, where we print in the e1g1 notation in
     /// normal chess mode, and in e1h1 notation in chess960 mode. Internally all
     /// castling moves are always encoded as 'king captures rook'.
-    public static string move(Move m, bool chess960)
+    internal static string move(Move m, bool chess960)
     {
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
@@ -248,19 +239,19 @@ public static class UCI
 
             if (token == "wtime")
             {
-                limits.time[Color.WHITE] = int.Parse(stack.Pop());
+                limits.time[Color.WHITE_C] = int.Parse(stack.Pop());
             }
             else if (token == "btime")
             {
-                limits.time[Color.BLACK] = int.Parse(stack.Pop());
+                limits.time[Color.BLACK_C] = int.Parse(stack.Pop());
             }
             else if (token == "winc")
             {
-                limits.inc[Color.WHITE] = int.Parse(stack.Pop());
+                limits.inc[Color.WHITE_C] = int.Parse(stack.Pop());
             }
             else if (token == "binc")
             {
-                limits.inc[Color.BLACK] = int.Parse(stack.Pop());
+                limits.inc[Color.BLACK_C] = int.Parse(stack.Pop());
             }
             else if (token == "movestogo")
             {
@@ -310,12 +301,13 @@ public static class UCI
     internal static void loop(string args)
     {
         var pos = new Position(StartFEN, false, ThreadPool.main()); // The root position
-        string cmd, token = string.Empty;
+        string token = string.Empty;
 
         do
         {
             try
             {
+                string cmd;
                 if (args.Length > 0)
                 {
                     cmd = args;
@@ -399,11 +391,7 @@ public static class UCI
                     token = stack.Pop(); // Read depth
                     var ss =
                         Position.CreateStack(
-                            string.Format(
-                                "{0} {1} {2} current perft",
-                                OptionMap.Instance["Hash"].v,
-                                OptionMap.Instance["Threads"].v,
-                                token));
+                            $"{OptionMap.Instance["Hash"].v} {OptionMap.Instance["Threads"].v} {token} current perft");
                     Benchmark.benchmark(pos, ss);
                 }
 
