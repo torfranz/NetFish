@@ -58,7 +58,7 @@ internal abstract class Endgame
 
         if (Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= File.FILE_E)
         {
-            sq = new Square(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
+            sq = new Square((int)sq ^ 7); // Mirror SQ_H1 -> SQ_A1
         }
 
         if (strongSide == Color.BLACK)
@@ -137,7 +137,7 @@ internal class EndgameKXK : EndgameValue
         var loserKSq = pos.square(PieceType.KING, weakSide);
 
         var result = pos.non_pawn_material(strongSide)
-                     + pos.count(PieceType.PAWN, strongSide)*Value.PawnValueEg + PushToEdges[loserKSq]
+                     + pos.count(PieceType.PAWN, strongSide)*Value.PawnValueEg + PushToEdges[(int)loserKSq]
                      + PushClose[Utils.distance_Square(winnerKSq, loserKSq)];
 
         if (pos.count(PieceType.QUEEN, strongSide) > 0 || pos.count(PieceType.ROOK, strongSide) > 0
@@ -182,7 +182,7 @@ internal class EndgameKBNK : EndgameValue
         }
 
         var result = Value.VALUE_KNOWN_WIN + PushClose[Utils.distance_Square(winnerKSq, loserKSq)]
-                     + PushToCorners[loserKSq];
+                     + PushToCorners[(int)loserKSq];
 
         return strongSide == pos.side_to_move() ? result : -result;
     }
@@ -293,7 +293,7 @@ internal class EndgameKRKB : EndgameValue
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
-        var result = new Value(PushToEdges[pos.square(PieceType.KING, weakSide)]);
+        var result = new Value(PushToEdges[(int)pos.square(PieceType.KING, weakSide)]);
         return strongSide == pos.side_to_move() ? result : -result;
     }
 }
@@ -314,7 +314,7 @@ internal class EndgameKRKN : EndgameValue
 
         var bksq = pos.square(PieceType.KING, weakSide);
         var bnsq = pos.square(PieceType.KNIGHT, weakSide);
-        var result = new Value(PushToEdges[bksq] + PushAway[Utils.distance_Square(bksq, bnsq)]);
+        var result = new Value(PushToEdges[(int)bksq] + PushAway[Utils.distance_Square(bksq, bnsq)]);
         return strongSide == pos.side_to_move() ? result : -result;
     }
 }
@@ -370,7 +370,7 @@ internal class EndgameKQKR : EndgameValue
         var winnerKSq = pos.square(PieceType.KING, strongSide);
         var loserKSq = pos.square(PieceType.KING, weakSide);
 
-        var result = Value.QueenValueEg - Value.RookValueEg + PushToEdges[loserKSq]
+        var result = Value.QueenValueEg - Value.RookValueEg + PushToEdges[(int)loserKSq]
                      + PushClose[Utils.distance_Square(winnerKSq, loserKSq)];
 
         return strongSide == pos.side_to_move() ? result : -result;
@@ -649,7 +649,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
             // pawn from a reasonable distance and the defending king is near
             // the corner
             if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2*push, ksq) <= 1
-                && (Utils.PseudoAttacks[PieceType.BISHOP_C, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
+                && (Utils.PseudoAttacks[PieceType.BISHOP_C, (int)bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
             {
                 return (ScaleFactor) (8);
             }

@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-internal struct PieceType
+internal class PieceType
 {
     internal const int NO_PIECE_TYPE_C = 0;
     internal const int ALL_PIECES_C = 0;
@@ -15,8 +16,6 @@ internal struct PieceType
     internal const int QUEEN_C = 5;
 
     internal const int KING_C = 6;
-
-    internal static PieceType NO_PIECE_TYPE = new PieceType(NO_PIECE_TYPE_C);
 
     internal static PieceType PAWN = new PieceType(PAWN_C);
 
@@ -32,8 +31,6 @@ internal struct PieceType
 
     internal static PieceType ALL_PIECES = new PieceType(ALL_PIECES_C);
 
-    internal static PieceType PIECE_TYPE_NB = new PieceType(PIECE_TYPE_NB_C);
-
     private int Value;
    
     #region constructors
@@ -41,12 +38,36 @@ internal struct PieceType
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal PieceType(int value)
+    internal static PieceType Create(int value)
+    {
+        switch (value)
+        {
+            case ALL_PIECES_C:
+                return ALL_PIECES;
+            case BISHOP_C:
+                return BISHOP;
+            case KING_C:
+                return KING;
+            case KNIGHT_C:
+                return KNIGHT;
+            case PAWN_C:
+                return PAWN;
+            case ROOK_C:
+                return ROOK;
+            case QUEEN_C:
+                return QUEEN;
+            default: throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    private PieceType(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 8);
     }
-
     #endregion
 
     #region base operators
@@ -56,7 +77,7 @@ internal struct PieceType
 #endif
     public static PieceType operator +(PieceType v1, int v2)
     {
-        return new PieceType(v1.Value + v2);
+        return PieceType.Create(v1.Value + v2);
     }
 
 #if FORCEINLINE
@@ -66,7 +87,7 @@ internal struct PieceType
     {
         return pt.Value;
     }
-
+    /*
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -82,7 +103,7 @@ internal struct PieceType
     {
         return v1.Value != v2.Value;
     }
-
+    */
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

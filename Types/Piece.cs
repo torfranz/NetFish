@@ -162,7 +162,7 @@ internal struct Piece
 #endif
     internal static PieceType type_of(Piece p)
     {
-        return new PieceType(p.Value & 7);
+        return PieceType.Create(p.Value & 7);
     }
 
 #if FORCEINLINE

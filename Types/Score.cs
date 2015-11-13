@@ -7,14 +7,8 @@ internal struct Score
 {
     internal static Score SCORE_ZERO = new Score(0);
 
-    private int Value
-    {
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        get;
-    }
-
+    private readonly int Value;
+    
 #if FORCEINLINE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -75,14 +69,6 @@ internal struct Score
     public static Score operator *(Score v1, int v2)
     {
         return new Score(v1.Value*v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(Score s)
-    {
-        return s.Value;
     }
 
     #endregion

@@ -70,7 +70,7 @@ internal struct Bitboard
 #endif
     public static Bitboard operator &(Bitboard b, Square s)
     {
-        return new Bitboard(b.Value & Utils.SquareBB[s].Value);
+        return new Bitboard(b.Value & Utils.SquareBB[(int)s].Value);
     }
 
 #if FORCEINLINE
@@ -126,7 +126,7 @@ internal struct Bitboard
 #endif
     public static Bitboard operator |(Bitboard b, Square s)
     {
-        return new Bitboard(b.Value | Utils.SquareBB[s].Value);
+        return new Bitboard(b.Value | Utils.SquareBB[(int)s].Value);
     }
 
 #if FORCEINLINE
@@ -182,7 +182,7 @@ internal struct Bitboard
 #endif
     public static Bitboard operator ^(Bitboard b, Square s)
     {
-        return new Bitboard(b.Value ^ Utils.SquareBB[s].Value);
+        return new Bitboard(b.Value ^ Utils.SquareBB[(int)s].Value);
     }
 
 #if FORCEINLINE

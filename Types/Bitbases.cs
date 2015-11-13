@@ -21,7 +21,7 @@ internal static class Bitbases
     {
         return
             (uint)
-                (wksq | (bksq << 6) | (us.ValueMe << 12) | (Square.file_of(psq) << 13) |
+                ((int)wksq | ((int)bksq << 6) | (us.ValueMe << 12) | (Square.file_of(psq) << 13) |
                  ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 

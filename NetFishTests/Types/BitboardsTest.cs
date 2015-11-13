@@ -28,8 +28,8 @@ namespace Tests
             Assert.AreEqual(4629771061636907072UL, Utils.AdjacentFilesBB[7]);
 
             // check some distance field
-            Assert.AreEqual(2, Utils.SquareDistance[Square.SQ_A1, Square.SQ_B3]);
-            Assert.AreEqual(7, Utils.SquareDistance[Square.SQ_A8, Square.SQ_H1]);
+            Assert.AreEqual(2, Utils.SquareDistance[(int)Square.SQ_A1, (int)Square.SQ_B3]);
+            Assert.AreEqual(7, Utils.SquareDistance[(int)Square.SQ_A8, (int)Square.SQ_H1]);
 
             // check some RookMasks fields
             Assert.AreEqual(282578800148862UL, Utils.RookMasks[0]);

@@ -14,25 +14,25 @@ internal static class Utils
 
     private const ulong DeBruijn32 = 0x783A9B23;
 
-    internal static int[,] SquareDistance = new int[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static int[,] SquareDistance = new int[Square.SQUARE_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB_C][];
 
-    internal static uint[] RookShifts = new uint[Square.SQUARE_NB];
+    internal static uint[] RookShifts = new uint[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB_C][];
 
-    internal static uint[] BishopShifts = new uint[Square.SQUARE_NB];
+    internal static uint[] BishopShifts = new uint[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB];
+    internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB_C];
 
     internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
 
@@ -42,25 +42,25 @@ internal static class Utils
 
     internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
 
-    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] LineBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] LineBB = new Bitboard[Square.SQUARE_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB, 8];
+    internal static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB_C, 8];
 
-    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
+    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
+    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB];
+    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
 
     internal static int[] MSBTable = new int[256]; // To implement software msb()
 
-    internal static Square[] BSFTable = new Square[Square.SQUARE_NB]; // To implement software bitscan
+    internal static Square[] BSFTable = new Square[Square.SQUARE_NB_C]; // To implement software bitscan
 
     private static bool firstLog = true;
 
@@ -130,7 +130,7 @@ internal static class Utils
 #endif
     internal static Bitboard between_bb(Square s1, Square s2)
     {
-        return BetweenBB[s1, s2];
+        return BetweenBB[(int)s1, (int)s2];
     }
 
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
@@ -152,7 +152,7 @@ internal static class Utils
 #endif
     internal static Bitboard forward_bb(Color c, Square s)
     {
-        return ForwardBB[c.ValueMe, s];
+        return ForwardBB[c.ValueMe, (int)s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -164,7 +164,7 @@ internal static class Utils
 #endif
     internal static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return PawnAttackSpan[c.ValueMe, s];
+        return PawnAttackSpan[c.ValueMe, (int)s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -175,7 +175,7 @@ internal static class Utils
 #endif
     internal static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return PassedPawnMask[c.ValueMe, s];
+        return PassedPawnMask[c.ValueMe, (int)s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -185,7 +185,7 @@ internal static class Utils
 #endif
     internal static bool aligned(Square s1, Square s2, Square s3)
     {
-        return LineBB[s1, s2] & s3;
+        return LineBB[(int)s1, (int)s2] & s3;
     }
 
     /// distance() functions return the distance between x and y, defined as the
@@ -195,7 +195,7 @@ internal static class Utils
 #endif
     internal static int distance_Square(Square x, Square y)
     {
-        return SquareDistance[x, y];
+        return SquareDistance[(int)x, (int)y];
     }
 
 #if FORCEINLINE
@@ -246,20 +246,20 @@ internal static class Utils
         var Shifts = Pt == PieceType.ROOK ? RookShifts : BishopShifts;
 
 #if X64
-        return (uint) ((((occupied & Masks[s])*Magics[s]) >> (int) Shifts[s]));
+        return (uint) ((((occupied & Masks[(int)s])*Magics[(int)s]) >> (int) Shifts[(int)s]));
 #else
 
-        var lo = (uint)((occupied & Masks[s]));
-        var hi = (uint)((occupied >> 32) & (Masks[s] >> 32));
-        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> (int)Shifts[s];
+        var lo = (uint)((occupied & Masks[(int)s]));
+        var hi = (uint)((occupied >> 32) & (Masks[(int)s] >> 32));
+        return (lo * (uint)(Magics[(int)s]) ^ hi * (uint)(Magics[(int)s] >> 32)) >> (int)Shifts[(int)s];
 #endif
     }
 
     internal static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
-            ? RookAttacks[s][magic_index(Pt, s, occupied)]
-            : BishopAttacks[s][magic_index(Pt, s, occupied)];
+            ? RookAttacks[(int)s][magic_index(Pt, s, occupied)]
+            : BishopAttacks[(int)s][magic_index(Pt, s, occupied)];
     }
 
 #if FORCEINLINE
@@ -276,7 +276,7 @@ internal static class Utils
             case PieceType.QUEEN_C:
                 return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
             default:
-                return StepAttacksBB[pc, s];
+                return StepAttacksBB[pc, (int)s];
         }
     }
 

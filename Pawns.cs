@@ -247,7 +247,7 @@ internal static class Pawns
             var doubled = ourPawns & Utils.forward_bb(Us, s);
             bool opposed = theirPawns & Utils.forward_bb(Us, s);
             var passed = !(theirPawns & Utils.passed_pawn_mask(Us, s));
-            bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), s];
+            bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), (int)s];
             var phalanx = neighbours & Utils.rank_bb(s);
             var supported = neighbours & Utils.rank_bb(s - Up);
             bool connected = supported | phalanx;
@@ -325,7 +325,7 @@ internal static class Pawns
         }
 
         b = new Bitboard((uint) (e.semiopenFiles[Us.ValueMe] ^ 0xFF));
-        e.pawnSpan[Us.ValueMe] = b ? (Utils.msb(b) - Utils.lsb(b)) : 0;
+        e.pawnSpan[Us.ValueMe] = b ? (int)(Utils.msb(b) - (int)Utils.lsb(b)) : 0;
 
         // Center binds: Two pawns controlling the same central square
         b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us.ValueMe];
@@ -458,7 +458,7 @@ internal static class Pawns
             var pawns = pos.pieces(Us, PieceType.PAWN);
             if (pawns)
             {
-                while (!(Utils.DistanceRingBB[ksq, minKingPawnDistance++] & pawns))
+                while (!(Utils.DistanceRingBB[(int)ksq, minKingPawnDistance++] & pawns))
                 {
                 }
             }

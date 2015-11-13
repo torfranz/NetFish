@@ -288,7 +288,7 @@
         }
     };
 
-    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB];
+    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB_C];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the
@@ -297,7 +297,7 @@
     {
         for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
         {
-            var piece = Piece.make_piece(Color.BLACK, new PieceType(pt));
+            var piece = Piece.make_piece(Color.BLACK, PieceType.Create(pt));
             Value.PieceValue[(int) Phase.MG][piece] = Value.PieceValue[(int) Phase.MG][pt];
             Value.PieceValue[(int) Phase.EG][piece] = Value.PieceValue[(int) Phase.EG][pt];
 
@@ -306,7 +306,7 @@
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 int edgeDistance = Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
-                psq[Color.BLACK_C, pt, ~s] = -(psq[Color.WHITE_C, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
+                psq[Color.BLACK_C, pt, (int)~s] = -(psq[Color.WHITE_C, pt, (int)s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }

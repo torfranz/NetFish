@@ -295,7 +295,7 @@ internal static class Eval
 
             if (ei.pinnedPieces[Us.ValueMe] & s)
             {
-                b &= Utils.LineBB[pos.square(PieceType.KING, Us), s];
+                b &= Utils.LineBB[(int)pos.square(PieceType.KING, Us), (int)s];
             }
 
             ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES_C] |= ei.attackedBy[Us.ValueMe, Pt] |= b;
@@ -369,7 +369,7 @@ internal static class Eval
                 // Bonus for aligning with enemy pawns on the same rank/file
                 if (Rank.relative_rank(Us, s) >= Rank.RANK_5)
                 {
-                    var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, s];
+                    var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, (int)s];
                     if (alignedPawns)
                     {
                         score += Bitcount.popcount_Max15(alignedPawns)*RookOnPawn;

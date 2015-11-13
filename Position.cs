@@ -14,7 +14,7 @@ internal class Position
     internal const string PieceToChar = " PNBRQK  pnbrqk";
 
     // Data members
-    private Piece[] board = new Piece[Square.SQUARE_NB];
+    private Piece[] board = new Piece[Square.SQUARE_NB_C];
 
     private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB_C];
 
@@ -22,7 +22,7 @@ internal class Position
 
     private Bitboard[] castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-    private int[] castlingRightsMask = new int[Square.SQUARE_NB];
+    private int[] castlingRightsMask = new int[Square.SQUARE_NB_C];
 
     private Square[] castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
 
@@ -30,7 +30,7 @@ internal class Position
 
     private int gamePly;
 
-    private int[] index = new int[Square.SQUARE_NB];
+    private int[] index = new int[Square.SQUARE_NB_C];
 
     private int nodes;
 
@@ -93,7 +93,7 @@ internal class Position
             {
                 for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
                 {
-                    Zobrist.psq[c, pt, s] = rng.rand();
+                    Zobrist.psq[c, pt, (int)s] = rng.rand();
                 }
             }
         }
@@ -139,7 +139,7 @@ internal class Position
 #endif
     internal bool empty(Square s)
     {
-        return board[s] == Piece.NO_PIECE;
+        return board[(int)s] == Piece.NO_PIECE;
     }
 
 #if FORCEINLINE
@@ -147,7 +147,7 @@ internal class Position
 #endif
     internal Piece piece_on(Square s)
     {
-        return board[s];
+        return board[(int)s];
     }
 
 #if FORCEINLINE
@@ -155,7 +155,7 @@ internal class Position
 #endif
     internal Piece moved_piece(Move m)
     {
-        return board[Move.from_sq(m)];
+        return board[(int)Move.from_sq(m)];
     }
 
 #if FORCEINLINE
@@ -272,7 +272,7 @@ internal class Position
             ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES_C])
             : Pt == PieceType.QUEEN
                 ? attacks_from(PieceType.ROOK, s) | attacks_from(PieceType.BISHOP, s)
-                : Utils.StepAttacksBB[(int)Pt, s];
+                : Utils.StepAttacksBB[(int)Pt, (int)s];
     }
 
 #if FORCEINLINE
@@ -281,7 +281,7 @@ internal class Position
     internal Bitboard attacks_from(PieceType Pt, Square s, Color c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
-        return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
+        return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), (int)s];
     }
 
 #if FORCEINLINE
@@ -475,12 +475,12 @@ internal class Position
     private void put_piece(Color c, PieceType pieceType, Square s)
     {
         var pt = (int) pieceType;
-        board[s] = Piece.make_piece(c, pieceType);
+        board[(int)s] = Piece.make_piece(c, pieceType);
         byTypeBB[PieceType.ALL_PIECES_C] |= s;
         byTypeBB[pt] |= s;
         byColorBB[c.ValueMe] |= s;
-        index[s] = pieceCount[c.ValueMe, pt]++;
-        pieceList[c.ValueMe, pt, index[s]] = s;
+        index[(int)s] = pieceCount[c.ValueMe, pt]++;
+        pieceList[c.ValueMe, pt, index[(int)s]] = s;
         pieceCount[c.ValueMe, PieceType.ALL_PIECES_C]++;
     }
 
@@ -499,8 +499,8 @@ internal class Position
         byColorBB[c.ValueMe] ^= s;
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
         var lastSquare = pieceList[c.ValueMe, pt, --pieceCount[c.ValueMe, pt]];
-        index[lastSquare] = index[s];
-        pieceList[c.ValueMe, pt, index[lastSquare]] = lastSquare;
+        index[(int)lastSquare] = index[(int)s];
+        pieceList[c.ValueMe, pt, index[(int)lastSquare]] = lastSquare;
         pieceList[c.ValueMe, pt, pieceCount[c.ValueMe, pt]] = Square.SQ_NONE;
         pieceCount[c.ValueMe, PieceType.ALL_PIECES_C]--;
     }
@@ -513,14 +513,14 @@ internal class Position
         var pt = (int) pieceType;
         // index[from] is not updated and becomes stale. This works as long as index[]
         // is accessed just by known occupied squares.
-        var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
+        var from_to_bb = Utils.SquareBB[(int)from] ^ Utils.SquareBB[(int)to];
         byTypeBB[PieceType.ALL_PIECES_C] ^= from_to_bb;
         byTypeBB[pt] ^= from_to_bb;
         byColorBB[c.ValueMe] ^= from_to_bb;
-        board[from] = Piece.NO_PIECE;
-        board[to] = Piece.make_piece(c, pieceType);
-        index[to] = index[from];
-        pieceList[c.ValueMe, pt, index[to]] = to;
+        board[(int)from] = Piece.NO_PIECE;
+        board[(int)to] = Piece.make_piece(c, pieceType);
+        index[(int)to] = index[(int)from];
+        pieceList[c.ValueMe, pt, index[(int)to]] = to;
     }
 
     /// Position::set_castling_right() is a helper function used to set castling
@@ -532,8 +532,8 @@ internal class Position
         var cr = (c | cs);
 
         st.castlingRights |= (int) cr;
-        castlingRightsMask[kfrom] |= (int) cr;
-        castlingRightsMask[rfrom] |= (int) cr;
+        castlingRightsMask[(int)kfrom] |= (int) cr;
+        castlingRightsMask[(int)rfrom] |= (int) cr;
         castlingRookSquare[(int) cr] = rfrom;
 
         var kto = Square.relative_square(c, cs == CastlingSide.KING_SIDE ? Square.SQ_G1 : Square.SQ_C1);
@@ -574,8 +574,8 @@ internal class Position
             var pc = piece_on(s);
             var color = Piece.color_of(pc).ValueMe;
             var pieceType = (int) Piece.type_of(pc);
-            si.key ^= Zobrist.psq[color, pieceType, s];
-            si.psq += PSQT.psq[color, pieceType, s];
+            si.key ^= Zobrist.psq[color, pieceType, (int)s];
+            si.psq += PSQT.psq[color, pieceType, (int)s];
         }
 
         if (si.epSquare != Square.SQ_NONE)
@@ -593,7 +593,7 @@ internal class Position
         for (var b = pieces(PieceType.PAWN); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).ValueMe, PieceType.PAWN_C, s];
+            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).ValueMe, PieceType.PAWN_C, (int)s];
         }
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
@@ -640,8 +640,8 @@ internal class Position
         var ksq = square(PieceType.KING, kingColor);
 
         // Pinners are sliders that give check when a pinned piece is removed
-        var pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK_C, ksq])
-                            | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP_C, ksq]))
+        var pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK_C, (int)ksq])
+                            | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP_C, (int)ksq]))
                            & pieces(~kingColor);
 
         while (pinners)
@@ -856,7 +856,7 @@ internal class Position
                 var kto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
-                return (bool) (Utils.PseudoAttacks[PieceType.ROOK_C, rto] & ci.ksq)
+                return (bool) (Utils.PseudoAttacks[PieceType.ROOK_C, (int)rto] & ci.ksq)
                        && (Utils.attacks_bb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
                            & ci.ksq);
             }
@@ -912,8 +912,8 @@ internal class Position
             do_castling(true, us, from, ref to, out rfrom, out rto);
 
             captured = PieceType.NO_PIECE_TYPE_C;
-            st.psq += PSQT.psq[us.ValueMe, PieceType.ROOK_C, rto] - PSQT.psq[us.ValueMe, PieceType.ROOK_C, rfrom];
-            k ^= Zobrist.psq[us.ValueMe, PieceType.ROOK_C, rfrom] ^ Zobrist.psq[us.ValueMe, PieceType.ROOK_C, rto];
+            st.psq += PSQT.psq[us.ValueMe, PieceType.ROOK_C, (int)rto] - PSQT.psq[us.ValueMe, PieceType.ROOK_C, (int)rfrom];
+            k ^= Zobrist.psq[us.ValueMe, PieceType.ROOK_C, (int)rfrom] ^ Zobrist.psq[us.ValueMe, PieceType.ROOK_C, (int)rto];
         }
 
         if (captured != 0)
@@ -934,10 +934,10 @@ internal class Position
                     Debug.Assert(piece_on(to) == Piece.NO_PIECE);
                     Debug.Assert(piece_on(capsq) == Piece.make_piece(them, PieceType.PAWN));
 
-                    board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
+                    board[(int)capsq] = Piece.NO_PIECE; // Not done by remove_piece()
                 }
 
-                st.pawnKey ^= Zobrist.psq[them.ValueMe, PieceType.PAWN_C, capsq];
+                st.pawnKey ^= Zobrist.psq[them.ValueMe, PieceType.PAWN_C, (int)capsq];
             }
             else
             {
@@ -945,21 +945,21 @@ internal class Position
             }
 
             // Update board and piece lists
-            remove_piece(them, new PieceType(captured), capsq);
+            remove_piece(them, PieceType.Create(captured), capsq);
 
             // Update material hash key and prefetch access to materialTable
-            k ^= Zobrist.psq[them.ValueMe, captured, capsq];
+            k ^= Zobrist.psq[them.ValueMe, captured, (int)capsq];
             st.materialKey ^= Zobrist.psq[them.ValueMe, captured, pieceCount[them.ValueMe, captured]];
 
             // Update incremental scores
-            st.psq -= PSQT.psq[them.ValueMe, captured, capsq];
+            st.psq -= PSQT.psq[them.ValueMe, captured, (int)capsq];
 
             // Reset rule 50 counter
             st.rule50 = 0;
         }
 
         // Update hash key
-        k ^= Zobrist.psq[us.ValueMe, pt, from] ^ Zobrist.psq[us.ValueMe, pt, to];
+        k ^= Zobrist.psq[us.ValueMe, pt, (int)from] ^ Zobrist.psq[us.ValueMe, pt, (int)to];
 
         // Reset en passant square
         if (st.epSquare != Square.SQ_NONE)
@@ -969,9 +969,9 @@ internal class Position
         }
 
         // Update castling rights if needed
-        if (st.castlingRights != 0 && ((castlingRightsMask[from] | castlingRightsMask[to]) != 0))
+        if (st.castlingRights != 0 && ((castlingRightsMask[(int)from] | castlingRightsMask[(int)to]) != 0))
         {
-            var cr = castlingRightsMask[from] | castlingRightsMask[to];
+            var cr = castlingRightsMask[(int)from] | castlingRightsMask[(int)to];
             k ^= Zobrist.castling[st.castlingRights & cr];
             st.castlingRights &= ~cr;
         }
@@ -979,14 +979,14 @@ internal class Position
         // Move the piece. The tricky Chess960 castling is handled earlier
         if (Move.type_of(m) != MoveType.CASTLING)
         {
-            move_piece(us, new PieceType(pt), from, to);
+            move_piece(us, PieceType.Create(pt), from, to);
         }
 
         // If the moving piece is a pawn do some special extra work
         if (pt == PieceType.PAWN_C)
         {
             // Set en-passant square if the moved pawn can be captured
-            if ((to ^ from) == 16
+            if (((int)to ^ (int)from) == 16
                 && (attacks_from(PieceType.PAWN, to - Square.pawn_push(us), us) & pieces(them, PieceType.PAWN)))
             {
                 st.epSquare = (from + to)/2;
@@ -1001,33 +1001,33 @@ internal class Position
                 Debug.Assert(promotion >= PieceType.KNIGHT_C && promotion <= PieceType.QUEEN_C);
 
                 remove_piece(us, PieceType.PAWN, to);
-                put_piece(us, new PieceType(promotion), to);
+                put_piece(us, PieceType.Create(promotion), to);
 
                 // Update hash keys
-                k ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to] ^ Zobrist.psq[us.ValueMe, promotion, to];
-                st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to];
+                k ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, (int)to] ^ Zobrist.psq[us.ValueMe, promotion, (int)to];
+                st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, (int)to];
                 st.materialKey ^= Zobrist.psq[us.ValueMe, promotion, pieceCount[us.ValueMe, promotion] - 1]
                                   ^ Zobrist.psq[us.ValueMe, PieceType.PAWN_C, pieceCount[us.ValueMe, PieceType.PAWN_C]];
 
                 // Update incremental score
-                st.psq += PSQT.psq[us.ValueMe, promotion, to] - PSQT.psq[us.ValueMe, PieceType.PAWN_C, to];
+                st.psq += PSQT.psq[us.ValueMe, promotion, (int)to] - PSQT.psq[us.ValueMe, PieceType.PAWN_C, (int)to];
 
                 // Update material
                 st.nonPawnMaterial[us.ValueMe] += Value.PieceValue[(int) Phase.MG][promotion];
             }
 
             // Update pawn hash key and prefetch access to pawnsTable
-            st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, from] ^ Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to];
+            st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, (int)from] ^ Zobrist.psq[us.ValueMe, PieceType.PAWN_C, (int)to];
 
             // Reset rule 50 draw counter
             st.rule50 = 0;
         }
 
         // Update incremental scores
-        st.psq += PSQT.psq[us.ValueMe, pt, to] - PSQT.psq[us.ValueMe, pt, from];
+        st.psq += PSQT.psq[us.ValueMe, pt, (int)to] - PSQT.psq[us.ValueMe, pt, (int)from];
 
         // Set capture piece
-        st.capturedType = new PieceType(captured);
+        st.capturedType = PieceType.Create(captured);
 
         // Update the key with the final value
         st.key = k;
@@ -1116,7 +1116,7 @@ internal class Position
         // Remove both pieces first since squares could overlap in Chess960
         remove_piece(us, PieceType.KING, Do ? from : to);
         remove_piece(us, PieceType.ROOK, Do ? rfrom : rto);
-        board[Do ? from : to] = board[Do ? rfrom : rto] = Piece.NO_PIECE;
+        board[Do ? (int)from : (int)to] = board[Do ? (int)rfrom : (int)rto] = Piece.NO_PIECE;
         // Since remove_piece doesn't do it for us
         put_piece(us, PieceType.KING, Do ? to : from);
         put_piece(us, PieceType.ROOK, Do ? rto : rfrom);
@@ -1209,10 +1209,10 @@ internal class Position
 
         if (captured!=0)
         {
-            k ^= Zobrist.psq[us.ValueThem, captured, to];
+            k ^= Zobrist.psq[us.ValueThem, captured, (int)to];
         }
 
-        return k ^ Zobrist.psq[us.ValueMe, pt, to] ^ Zobrist.psq[us.ValueMe, pt, from];
+        return k ^ Zobrist.psq[us.ValueMe, pt, (int)to] ^ Zobrist.psq[us.ValueMe, pt, (int)from];
     }
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
@@ -1388,7 +1388,7 @@ internal class Position
                 {
                     for (var p2 = PieceType.PAWN_C; p2 <= PieceType.KING_C; ++p2)
                     {
-                        if (p1 != p2 && (pieces(new PieceType(p1)) & pieces(new PieceType(p2))))
+                        if (p1 != p2 && (pieces(PieceType.Create(p1)) & pieces(PieceType.Create(p2))))
                         {
                             return false;
                         }
@@ -1402,7 +1402,7 @@ internal class Position
                 {
                     for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
                     {
-                        var pieceType = new PieceType(pt);
+                        var pieceType = PieceType.Create(pt);
                         if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(Color.Create(c), pieceType)))
                         {
                             return false;
@@ -1410,8 +1410,8 @@ internal class Position
 
                         for (var i = 0; i < pieceCount[c, pt]; ++i)
                         {
-                            if (board[pieceList[c, pt, i]] != Piece.make_piece(c, pieceType)
-                                || index[pieceList[c, pt, i]] != i)
+                            if (board[(int)pieceList[c, pt, i]] != Piece.make_piece(c, pieceType)
+                                || index[(int)pieceList[c, pt, i]] != i)
                             {
                                 return false;
                             }
@@ -1433,8 +1433,8 @@ internal class Position
                         }
 
                         if (piece_on(castlingRookSquare[(int) (castlingSideColor)]) != Piece.make_piece(c, PieceType.ROOK)
-                            || castlingRightsMask[castlingRookSquare[(int) (castlingSideColor)]] != (int) (castlingSideColor)
-                            || (castlingRightsMask[square(PieceType.KING, Color.Create(c))] & (int) (castlingSideColor)) != (int) (castlingSideColor))
+                            || castlingRightsMask[(int)castlingRookSquare[(int) (castlingSideColor)]] != (int) (castlingSideColor)
+                            || (castlingRightsMask[(int)square(PieceType.KING, Color.Create(c))] & (int) (castlingSideColor)) != (int) (castlingSideColor))
                         {
                             return false;
                         }
@@ -1722,7 +1722,7 @@ internal class Position
     /// empty board, white to move, and no castling rights.
     internal void clear()
     {
-        board = new Piece[Square.SQUARE_NB];
+        board = new Piece[Square.SQUARE_NB_C];
 
         byColorBB = new Bitboard[Color.COLOR_NB_C];
 
@@ -1730,11 +1730,11 @@ internal class Position
 
         castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        castlingRightsMask = new int[Square.SQUARE_NB];
+        castlingRightsMask = new int[Square.SQUARE_NB_C];
 
         castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        index = new int[Square.SQUARE_NB];
+        index = new int[Square.SQUARE_NB_C];
 
         pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C];
 

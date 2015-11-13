@@ -2,7 +2,11 @@
 
 internal struct Square
 {
-    internal static Square SQ_A1 = new Square(0);
+    internal const int SQ_A1_C = 0;
+    internal const int SQ_A8_C = 56;
+    internal const int SQ_H8_C = 63;
+    internal const int SQUARE_NB_C = 64;
+    internal static Square SQ_A1 = new Square(SQ_A1_C);
 
     internal static Square SQ_B1 = new Square(1);
 
@@ -128,7 +132,7 @@ internal struct Square
 
     internal static Square SQ_G8 = new Square(62);
 
-    internal static Square SQ_H8 = new Square(63);
+    internal static Square SQ_H8 = new Square(SQ_H8_C);
 
     internal static Square SQ_NONE = new Square(64);
 
@@ -154,19 +158,8 @@ internal struct Square
 
     internal static Square DELTA_NW = new Square(DELTA_N + DELTA_W);
 
-    private int Value
-    {
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        get;
-
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        set;
-    }
-
+    private int Value;
+    
     #region constructors
 
 #if FORCEINLINE
@@ -241,7 +234,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static implicit operator int(Square s)
+    public static explicit operator int(Square s)
     {
         return s.Value;
     }
@@ -289,7 +282,7 @@ internal struct Square
 #endif
     public static Square operator ~(Square s)
     {
-        return new Square(s.Value ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
+        return new Square(s.Value ^ SQ_A8_C); // Vertical flip SQ_A1 -> SQ_A8
     }
 
 #if FORCEINLINE
@@ -308,6 +301,34 @@ internal struct Square
         return v1.Value != v2.Value;
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static bool operator <(Square v1, Square v2)
+    {
+        return v1.Value < v2.Value;
+    }
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static bool operator <=(Square v1, Square v2)
+    {
+        return v1.Value <= v2.Value;
+    }
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static bool operator >=(Square v1, Square v2)
+    {
+        return v1.Value >= v2.Value;
+    }
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static bool operator >(Square v1, Square v2)
+    {
+        return v1.Value > v2.Value;
+    }
     #endregion
 
 #if FORCEINLINE
@@ -315,7 +336,7 @@ internal struct Square
 #endif
     internal bool is_ok()
     {
-        return Value >= SQ_A1 && Value <= SQ_H8;
+        return Value >= SQ_A1_C && Value <= SQ_H8_C;
     }
 
 #if FORCEINLINE

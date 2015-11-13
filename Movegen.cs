@@ -82,7 +82,7 @@ internal static class Movegen
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
-        if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, to] & ci.ksq))
+        if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, (int)to] & ci.ksq))
         {
             (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
@@ -264,7 +264,7 @@ internal static class Movegen
             if (Checks)
             {
                 if ((Pt == PieceType.BISHOP_C || Pt == PieceType.ROOK_C || Pt == PieceType.QUEEN_C)
-                    && !(Utils.PseudoAttacks[Pt, square] & target & ci.checkSquares[Pt]))
+                    && !(Utils.PseudoAttacks[Pt, (int)square] & target & ci.checkSquares[Pt]))
                 {
                     continue;
                 }
@@ -423,7 +423,7 @@ internal static class Movegen
 
             if (pt == PieceType.KING)
             {
-                b &= ~Utils.PseudoAttacks[PieceType.QUEEN_C, ci.ksq];
+                b &= ~Utils.PseudoAttacks[PieceType.QUEEN_C, (int)ci.ksq];
             }
 
             while (b)
@@ -456,7 +456,7 @@ internal static class Movegen
         while (sliders)
         {
             var checksq1 = Utils.pop_lsb(ref sliders);
-            sliderAttacks |= Utils.LineBB[checksq1, ksq] ^ checksq1;
+            sliderAttacks |= Utils.LineBB[(int)checksq1, (int)ksq] ^ checksq1;
         }
 
         // Generate evasions for king, capture and non capture moves
