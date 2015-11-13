@@ -267,7 +267,7 @@ internal static class Utils
 #endif
     internal static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
     {
-        switch (Piece.type_of(pc))
+        switch ((int)Piece.type_of(pc))
         {
             case PieceType.BISHOP_C:
                 return attacks_bb(PieceType.BISHOP, s, occupied);

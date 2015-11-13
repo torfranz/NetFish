@@ -85,7 +85,7 @@ internal class Material
         var bonus = 0;
 
         // Second-degree polynomial material imbalance by Tord Romstad
-        for (int pt1 = PieceType.NO_PIECE_TYPE; pt1 <= PieceType.QUEEN; ++pt1)
+        for (int pt1 = PieceType.NO_PIECE_TYPE_C; pt1 <= PieceType.QUEEN_C; ++pt1)
         {
             if (pieceCount[Us.ValueMe][pt1] == 0)
             {
@@ -94,7 +94,7 @@ internal class Material
 
             var v = Linear[pt1];
 
-            for (int pt2 = PieceType.NO_PIECE_TYPE; pt2 <= pt1; ++pt2)
+            for (int pt2 = PieceType.NO_PIECE_TYPE_C; pt2 <= pt1; ++pt2)
             {
                 v += QuadraticOurs[pt1][pt2]*pieceCount[Us.ValueMe][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them.ValueMe][pt2];
             }

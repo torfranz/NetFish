@@ -288,16 +288,16 @@
         }
     };
 
-    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB];
+    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the
     // tables are initialized by flipping and changing the sign of the white scores.
     internal static void init()
     {
-        for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
+        for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
         {
-            var piece = Piece.make_piece(Color.BLACK, pt);
+            var piece = Piece.make_piece(Color.BLACK, new PieceType(pt));
             Value.PieceValue[(int) Phase.MG][piece] = Value.PieceValue[(int) Phase.MG][pt];
             Value.PieceValue[(int) Phase.EG][piece] = Value.PieceValue[(int) Phase.EG][pt];
 

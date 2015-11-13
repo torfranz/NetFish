@@ -242,7 +242,7 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_moves(
-        PieceType Pt,
+        PieceType pieceType,
         bool Checks,
         Position pos,
         ExtMoveArrayWrapper moveList,
@@ -250,11 +250,12 @@ internal static class Movegen
         Bitboard target,
         CheckInfo ci)
     {
-        Debug.Assert(Pt != PieceType.KING && Pt != PieceType.PAWN);
+        var Pt = (int) pieceType;
+        Debug.Assert(Pt != PieceType.KING_C && Pt != PieceType.PAWN_C);
 
         for(var idx=0; idx<16;idx++)
         {
-            var square = pos.square(Pt, us, idx);
+            var square = pos.square(pieceType, us, idx);
             if (square == Square.SQ_NONE)
             {
                 break;
@@ -262,7 +263,7 @@ internal static class Movegen
 
             if (Checks)
             {
-                if ((Pt == PieceType.BISHOP || Pt == PieceType.ROOK || Pt == PieceType.QUEEN)
+                if ((Pt == PieceType.BISHOP_C || Pt == PieceType.ROOK_C || Pt == PieceType.QUEEN_C)
                     && !(Utils.PseudoAttacks[Pt, square] & target & ci.checkSquares[Pt]))
                 {
                     continue;
@@ -274,7 +275,7 @@ internal static class Movegen
                 }
             }
 
-            var b = pos.attacks_from(Pt, square) & target;
+            var b = pos.attacks_from(pieceType, square) & target;
 
             if (Checks)
             {
@@ -422,7 +423,7 @@ internal static class Movegen
 
             if (pt == PieceType.KING)
             {
-                b &= ~Utils.PseudoAttacks[PieceType.QUEEN, ci.ksq];
+                b &= ~Utils.PseudoAttacks[PieceType.QUEEN_C, ci.ksq];
             }
 
             while (b)

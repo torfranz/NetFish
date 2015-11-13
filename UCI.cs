@@ -161,7 +161,7 @@ internal static class UCI
 
         if (Move.type_of(m) == MoveType.PROMOTION)
         {
-            move += " pnbrqk"[Move.promotion_type(m)];
+            move += " pnbrqk"[(int)Move.promotion_type(m)];
         }
 
         return move;

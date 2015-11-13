@@ -229,7 +229,7 @@ internal class MovePicker
                 moves[i] = new ExtMove(
                     m,
                     Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                    - new Value(Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
+                    - new Value((int)Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {

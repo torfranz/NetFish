@@ -795,7 +795,7 @@ internal static class Search
             Debug.Assert(ss[ss.current - 1].currentMove != Move.MOVE_NULL);
 
             var mp2 = new MovePicker(pos, ttMove, History, CounterMovesHistory,
-                Value.PieceValue[(int) Phase.MG][pos.captured_piece_type()]);
+                Value.PieceValue[(int) Phase.MG][(int)pos.captured_piece_type()]);
             var ci2 = new CheckInfo(pos);
 
             while ((move = mp2.next_move(false)) != Move.MOVE_NONE)
@@ -892,7 +892,7 @@ internal static class Search
             var captureOrPromotion = pos.capture_or_promotion(move);
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? ci.checkSquares[(int)Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
             // Step 12. Extend checks
@@ -1205,7 +1205,7 @@ internal static class Search
         else if (!bestMove)
         {
             if (Move.is_ok(ss[ss.current - 2].currentMove) && Move.is_ok(ss[ss.current - 1].currentMove) &&
-                !pos.captured_piece_type() && !inCheck && depth >= 3*Depth.ONE_PLY)
+                !(bool)pos.captured_piece_type() && !inCheck && depth >= 3*Depth.ONE_PLY)
             {
                 var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
                 var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
@@ -1341,7 +1341,7 @@ internal static class Search
             Debug.Assert(Move.is_ok(move));
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? ci.checkSquares[(int)Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
             // Futility pruning
@@ -1474,7 +1474,7 @@ internal static class Search
 
         // Extra penalty for PV move in previous ply when it gets refuted
         if (Move.is_ok(ss[ss.current - 2].currentMove) && ss[ss.current - 1].moveCount == 1 &&
-            !pos.captured_piece_type())
+            !(bool)pos.captured_piece_type())
         {
             var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
             var ttMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];

@@ -186,6 +186,6 @@ internal struct Piece
 #endif
     internal static Piece make_piece(int c, PieceType pt)
     {
-        return new Piece((c << 3) | pt);
+        return new Piece((c << 3) | (int)pt);
     }
 }

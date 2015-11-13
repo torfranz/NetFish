@@ -649,7 +649,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
             // pawn from a reasonable distance and the defending king is near
             // the corner
             if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2*push, ksq) <= 1
-                && (Utils.PseudoAttacks[PieceType.BISHOP, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
+                && (Utils.PseudoAttacks[PieceType.BISHOP_C, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
             {
                 return (ScaleFactor) (8);
             }

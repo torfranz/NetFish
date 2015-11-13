@@ -70,7 +70,7 @@ internal static class Bitboards
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
+            for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
             {
                 for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
                 {
@@ -80,7 +80,7 @@ internal static class Bitboards
 
                         if (to.is_ok() && Utils.distance_Square(s, to) < 3)
                         {
-                            Utils.StepAttacksBB[Piece.make_piece(c, pt), s] |= to;
+                            Utils.StepAttacksBB[Piece.make_piece(c, new PieceType(pt)), s] |= to;
                         }
                     }
                 }
@@ -107,10 +107,10 @@ internal static class Bitboards
 
         for (var s1 = Square.SQ_A1; s1 <= Square.SQ_H8; ++s1)
         {
-            Utils.PseudoAttacks[PieceType.QUEEN, s1] =
-                Utils.PseudoAttacks[PieceType.BISHOP, s1] = Utils.attacks_bb(PieceType.BISHOP, s1, new Bitboard(0));
-            var bb = Utils.PseudoAttacks[PieceType.ROOK, s1] = Utils.attacks_bb(PieceType.ROOK, s1, new Bitboard(0));
-            Utils.PseudoAttacks[PieceType.QUEEN, s1] = Utils.PseudoAttacks[PieceType.QUEEN, s1] | bb;
+            Utils.PseudoAttacks[PieceType.QUEEN_C, s1] =
+                Utils.PseudoAttacks[PieceType.BISHOP_C, s1] = Utils.attacks_bb(PieceType.BISHOP, s1, new Bitboard(0));
+            var bb = Utils.PseudoAttacks[PieceType.ROOK_C, s1] = Utils.attacks_bb(PieceType.ROOK, s1, new Bitboard(0));
+            Utils.PseudoAttacks[PieceType.QUEEN_C, s1] = Utils.PseudoAttacks[PieceType.QUEEN_C, s1] | bb;
 
             for (var pc = Piece.W_BISHOP; pc <= Piece.W_ROOK; ++pc)
             {

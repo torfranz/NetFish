@@ -99,7 +99,7 @@ internal struct Move
 #endif
     internal static PieceType promotion_type(Move m)
     {
-        return new PieceType(((m.Value >> 12) & 3) + PieceType.KNIGHT);
+        return new PieceType(((m.Value >> 12) & 3) + PieceType.KNIGHT_C);
     }
 
 #if FORCEINLINE
@@ -123,7 +123,7 @@ internal struct Move
 #endif
     internal static Move make(MoveType moveType, Square from, Square to, PieceType pt)
     {
-        return new Move(to | (from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
+        return new Move(to | (from << 6) | (int) moveType | (((int)pt - PieceType.KNIGHT_C) << 12));
     }
 
 #if FORCEINLINE

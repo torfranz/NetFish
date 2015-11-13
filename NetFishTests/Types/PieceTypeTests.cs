@@ -17,11 +17,12 @@ namespace Tests
         {
             var v1 = PieceType.PAWN;
             var v2 = PieceType.KNIGHT;
-            var v3 = v1 + v2.Value;
+            var v3 = v1 + (int)v2;
             Assert.AreEqual(3, v3);
 
             var v4 = v3 + 1;
             Assert.AreEqual(4, v4);
+            /*
 
             var v5 = 1 + v4;
             Assert.AreEqual(5, v5);
@@ -32,7 +33,7 @@ namespace Tests
             var v7 = v6 - 1;
             Assert.AreEqual(3, v7);
 
-            /*
+            
             Assert.AreEqual(-3, -v7.ValueMe);
 
             var v8 = v7 * 2;

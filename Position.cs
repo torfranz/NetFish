@@ -18,7 +18,7 @@ internal class Position
 
     private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB_C];
 
-    private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+    private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB_C];
 
     private Bitboard[] castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
@@ -34,9 +34,9 @@ internal class Position
 
     private int nodes;
 
-    private int[,] pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB];
+    private int[,] pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C];
 
-    private Square[,,] pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, 16];
+    private Square[,,] pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, 16];
 
     private Color sideToMove;
 
@@ -89,7 +89,7 @@ internal class Position
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
+            for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
             {
                 for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
                 {
@@ -123,7 +123,7 @@ internal class Position
 #endif
     internal Bitboard pieces()
     {
-        return byTypeBB[PieceType.ALL_PIECES];
+        return byTypeBB[PieceType.ALL_PIECES_C];
     }
 
 #if FORCEINLINE
@@ -163,7 +163,7 @@ internal class Position
 #endif
     internal Bitboard pieces(PieceType pt)
     {
-        return byTypeBB[pt];
+        return byTypeBB[(int)pt];
     }
 
 #if FORCEINLINE
@@ -171,7 +171,7 @@ internal class Position
 #endif
     internal Bitboard pieces(PieceType pt1, PieceType pt2)
     {
-        return byTypeBB[pt1] | byTypeBB[pt2];
+        return byTypeBB[(int)pt1] | byTypeBB[(int)pt2];
     }
 
 #if FORCEINLINE
@@ -187,7 +187,7 @@ internal class Position
 #endif
     internal Bitboard pieces(Color c, PieceType pt)
     {
-        return byColorBB[c.ValueMe] & byTypeBB[pt];
+        return byColorBB[c.ValueMe] & byTypeBB[(int)pt];
     }
 
 #if FORCEINLINE
@@ -195,7 +195,7 @@ internal class Position
 #endif
     internal Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
-        return byColorBB[c.ValueMe] & (byTypeBB[pt1] | byTypeBB[pt2]);
+        return byColorBB[c.ValueMe] & (byTypeBB[(int)pt1] | byTypeBB[(int)pt2]);
     }
 
 #if FORCEINLINE
@@ -203,7 +203,7 @@ internal class Position
 #endif
     internal int count(PieceType Pt, Color c)
     {
-        return pieceCount[c.ValueMe, Pt];
+        return pieceCount[c.ValueMe, (int)Pt];
     }
 
 #if FORCEINLINE
@@ -211,7 +211,7 @@ internal class Position
 #endif
     internal Square square(PieceType Pt, Color c, int idx)
     {
-        return pieceList[c.ValueMe, Pt, idx];
+        return pieceList[c.ValueMe, (int)Pt, idx];
     }
 
 #if FORCEINLINE
@@ -219,8 +219,8 @@ internal class Position
 #endif
     internal Square square(PieceType Pt, Color c)
     {
-        Debug.Assert(pieceCount[c.ValueMe, Pt] == 1);
-        return pieceList[c.ValueMe, Pt, 0];
+        Debug.Assert(pieceCount[c.ValueMe, (int)Pt] == 1);
+        return pieceList[c.ValueMe, (int)Pt, 0];
     }
 
 #if FORCEINLINE
@@ -252,7 +252,7 @@ internal class Position
 #endif
     internal bool castling_impeded(CastlingRight cr)
     {
-        return byTypeBB[PieceType.ALL_PIECES] & castlingPath[(int) cr];
+        return byTypeBB[PieceType.ALL_PIECES_C] & castlingPath[(int) cr];
     }
 
 #if FORCEINLINE
@@ -269,10 +269,10 @@ internal class Position
     internal Bitboard attacks_from(PieceType Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
-            ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
+            ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES_C])
             : Pt == PieceType.QUEEN
                 ? attacks_from(PieceType.ROOK, s) | attacks_from(PieceType.BISHOP, s)
-                : Utils.StepAttacksBB[Pt, s];
+                : Utils.StepAttacksBB[(int)Pt, s];
     }
 
 #if FORCEINLINE
@@ -289,7 +289,7 @@ internal class Position
 #endif
     internal Bitboard attacks_from(Piece pc, Square s)
     {
-        return Utils.attacks_bb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
+        return Utils.attacks_bb(pc, s, byTypeBB[PieceType.ALL_PIECES_C]);
     }
 
 #if FORCEINLINE
@@ -297,7 +297,7 @@ internal class Position
 #endif
     internal Bitboard attackers_to(Square s)
     {
-        return attackers_to(s, byTypeBB[PieceType.ALL_PIECES]);
+        return attackers_to(s, byTypeBB[PieceType.ALL_PIECES_C]);
     }
 
 #if FORCEINLINE
@@ -418,8 +418,8 @@ internal class Position
 #endif
     internal bool opposite_bishops()
     {
-        return pieceCount[Color.WHITE_C, PieceType.BISHOP] == 1
-               && pieceCount[Color.BLACK_C, PieceType.BISHOP] == 1
+        return pieceCount[Color.WHITE_C, PieceType.BISHOP_C] == 1
+               && pieceCount[Color.BLACK_C, PieceType.BISHOP_C] == 1
                && Square.opposite_colors(
                    square(PieceType.BISHOP, Color.WHITE),
                    square(PieceType.BISHOP, Color.BLACK));
@@ -472,27 +472,29 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void put_piece(Color c, PieceType pt, Square s)
+    private void put_piece(Color c, PieceType pieceType, Square s)
     {
-        board[s] = Piece.make_piece(c, pt);
-        byTypeBB[PieceType.ALL_PIECES] |= s;
+        var pt = (int) pieceType;
+        board[s] = Piece.make_piece(c, pieceType);
+        byTypeBB[PieceType.ALL_PIECES_C] |= s;
         byTypeBB[pt] |= s;
         byColorBB[c.ValueMe] |= s;
         index[s] = pieceCount[c.ValueMe, pt]++;
         pieceList[c.ValueMe, pt, index[s]] = s;
-        pieceCount[c.ValueMe, PieceType.ALL_PIECES]++;
+        pieceCount[c.ValueMe, PieceType.ALL_PIECES_C]++;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void remove_piece(Color c, PieceType pt, Square s)
+    private void remove_piece(Color c, PieceType pieceType, Square s)
     {
+        var pt = (int) pieceType;
         // WARNING: This is not a reversible operation. If we remove a piece in
         // do_move() and then replace it in undo_move() we will put it at the end of
         // the list and not in its original place, it means index[] and pieceList[]
         // are not guaranteed to be invariant to a do_move() + undo_move() sequence.
-        byTypeBB[PieceType.ALL_PIECES] ^= s;
+        byTypeBB[PieceType.ALL_PIECES_C] ^= s;
         byTypeBB[pt] ^= s;
         byColorBB[c.ValueMe] ^= s;
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
@@ -500,22 +502,23 @@ internal class Position
         index[lastSquare] = index[s];
         pieceList[c.ValueMe, pt, index[lastSquare]] = lastSquare;
         pieceList[c.ValueMe, pt, pieceCount[c.ValueMe, pt]] = Square.SQ_NONE;
-        pieceCount[c.ValueMe, PieceType.ALL_PIECES]--;
+        pieceCount[c.ValueMe, PieceType.ALL_PIECES_C]--;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void move_piece(Color c, PieceType pt, Square from, Square to)
+    private void move_piece(Color c, PieceType pieceType, Square from, Square to)
     {
+        var pt = (int) pieceType;
         // index[from] is not updated and becomes stale. This works as long as index[]
         // is accessed just by known occupied squares.
         var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
-        byTypeBB[PieceType.ALL_PIECES] ^= from_to_bb;
+        byTypeBB[PieceType.ALL_PIECES_C] ^= from_to_bb;
         byTypeBB[pt] ^= from_to_bb;
         byColorBB[c.ValueMe] ^= from_to_bb;
         board[from] = Piece.NO_PIECE;
-        board[to] = Piece.make_piece(c, pt);
+        board[to] = Piece.make_piece(c, pieceType);
         index[to] = index[from];
         pieceList[c.ValueMe, pt, index[to]] = to;
     }
@@ -569,8 +572,10 @@ internal class Position
         {
             var s = Utils.pop_lsb(ref b);
             var pc = piece_on(s);
-            si.key ^= Zobrist.psq[Piece.color_of(pc).ValueMe, Piece.type_of(pc), s];
-            si.psq += PSQT.psq[Piece.color_of(pc).ValueMe, Piece.type_of(pc), s];
+            var color = Piece.color_of(pc).ValueMe;
+            var pieceType = (int) Piece.type_of(pc);
+            si.key ^= Zobrist.psq[color, pieceType, s];
+            si.psq += PSQT.psq[color, pieceType, s];
         }
 
         if (si.epSquare != Square.SQ_NONE)
@@ -588,12 +593,12 @@ internal class Position
         for (var b = pieces(PieceType.PAWN); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).ValueMe, PieceType.PAWN, s];
+            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).ValueMe, PieceType.PAWN_C, s];
         }
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
+            for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
             {
                 for (var cnt = 0; cnt < pieceCount[c, pt]; ++cnt)
                 {
@@ -604,7 +609,7 @@ internal class Position
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            for (var pt = PieceType.KNIGHT; pt <= PieceType.QUEEN; ++pt)
+            for (var pt = PieceType.KNIGHT_C; pt <= PieceType.QUEEN_C; ++pt)
             {
                 si.nonPawnMaterial[c] += pieceCount[c, pt]*Value.PieceValue[(int) Phase.MG][pt];
             }
@@ -635,8 +640,8 @@ internal class Position
         var ksq = square(PieceType.KING, kingColor);
 
         // Pinners are sliders that give check when a pinned piece is removed
-        var pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK, ksq])
-                            | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP, ksq]))
+        var pinners = ((pieces(PieceType.ROOK, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.ROOK_C, ksq])
+                            | (pieces(PieceType.BISHOP, PieceType.QUEEN) & Utils.PseudoAttacks[PieceType.BISHOP_C, ksq]))
                            & pieces(~kingColor);
 
         while (pinners)
@@ -726,7 +731,7 @@ internal class Position
         }
 
         // Is not a promotion, so promotion piece must be empty
-        if (Move.promotion_type(m) - PieceType.KNIGHT != PieceType.NO_PIECE_TYPE)
+        if ((int)Move.promotion_type(m) - PieceType.KNIGHT_C != PieceType.NO_PIECE_TYPE_C)
         {
             return false;
         }
@@ -811,7 +816,7 @@ internal class Position
         var to = Move.to_sq(m);
 
         // Is there a direct check?
-        if (ci.checkSquares[Piece.type_of(piece_on(from))] & to)
+        if (ci.checkSquares[(int)Piece.type_of(piece_on(from))] & to)
         {
             return true;
         }
@@ -828,7 +833,7 @@ internal class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb(new Piece(Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
+                return Utils.attacks_bb(new Piece((int)Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -851,7 +856,7 @@ internal class Position
                 var kto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
-                return (bool) (Utils.PseudoAttacks[PieceType.ROOK, rto] & ci.ksq)
+                return (bool) (Utils.PseudoAttacks[PieceType.ROOK_C, rto] & ci.ksq)
                        && (Utils.attacks_bb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
                            & ci.ksq);
             }
@@ -890,40 +895,40 @@ internal class Position
         var them = ~us;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = Piece.type_of(piece_on(from));
-        var captured = Move.type_of(m) == MoveType.ENPASSANT ? PieceType.PAWN : Piece.type_of(piece_on(to));
+        var pt = (int)Piece.type_of(piece_on(from));
+        var captured = Move.type_of(m) == MoveType.ENPASSANT ? PieceType.PAWN_C : (int)Piece.type_of(piece_on(to));
 
         Debug.Assert(Piece.color_of(piece_on(from)) == us);
         Debug.Assert(
             piece_on(to) == Piece.NO_PIECE
             || Piece.color_of(piece_on(to)) == (Move.type_of(m) != MoveType.CASTLING ? them : us));
-        Debug.Assert(captured != PieceType.KING);
+        Debug.Assert(captured != PieceType.KING_C);
 
         if (Move.type_of(m) == MoveType.CASTLING)
         {
-            Debug.Assert(pt == PieceType.KING);
+            Debug.Assert(pt == PieceType.KING_C);
 
             Square rfrom, rto;
             do_castling(true, us, from, ref to, out rfrom, out rto);
 
-            captured = PieceType.NO_PIECE_TYPE;
-            st.psq += PSQT.psq[us.ValueMe, PieceType.ROOK, rto] - PSQT.psq[us.ValueMe, PieceType.ROOK, rfrom];
-            k ^= Zobrist.psq[us.ValueMe, PieceType.ROOK, rfrom] ^ Zobrist.psq[us.ValueMe, PieceType.ROOK, rto];
+            captured = PieceType.NO_PIECE_TYPE_C;
+            st.psq += PSQT.psq[us.ValueMe, PieceType.ROOK_C, rto] - PSQT.psq[us.ValueMe, PieceType.ROOK_C, rfrom];
+            k ^= Zobrist.psq[us.ValueMe, PieceType.ROOK_C, rfrom] ^ Zobrist.psq[us.ValueMe, PieceType.ROOK_C, rto];
         }
 
-        if (captured)
+        if (captured != 0)
         {
             var capsq = to;
 
             // If the captured piece is a pawn, update pawn hash key, otherwise
             // update non-pawn material.
-            if (captured == PieceType.PAWN)
+            if (captured == PieceType.PAWN_C)
             {
                 if (Move.type_of(m) == MoveType.ENPASSANT)
                 {
                     capsq -= Square.pawn_push(us);
 
-                    Debug.Assert(pt == PieceType.PAWN);
+                    Debug.Assert(pt == PieceType.PAWN_C);
                     Debug.Assert(to == st.epSquare);
                     Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_6);
                     Debug.Assert(piece_on(to) == Piece.NO_PIECE);
@@ -932,7 +937,7 @@ internal class Position
                     board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
                 }
 
-                st.pawnKey ^= Zobrist.psq[them.ValueMe, PieceType.PAWN, capsq];
+                st.pawnKey ^= Zobrist.psq[them.ValueMe, PieceType.PAWN_C, capsq];
             }
             else
             {
@@ -940,7 +945,7 @@ internal class Position
             }
 
             // Update board and piece lists
-            remove_piece(them, captured, capsq);
+            remove_piece(them, new PieceType(captured), capsq);
 
             // Update material hash key and prefetch access to materialTable
             k ^= Zobrist.psq[them.ValueMe, captured, capsq];
@@ -974,11 +979,11 @@ internal class Position
         // Move the piece. The tricky Chess960 castling is handled earlier
         if (Move.type_of(m) != MoveType.CASTLING)
         {
-            move_piece(us, pt, from, to);
+            move_piece(us, new PieceType(pt), from, to);
         }
 
         // If the moving piece is a pawn do some special extra work
-        if (pt == PieceType.PAWN)
+        if (pt == PieceType.PAWN_C)
         {
             // Set en-passant square if the moved pawn can be captured
             if ((to ^ from) == 16
@@ -990,29 +995,29 @@ internal class Position
 
             else if (Move.type_of(m) == MoveType.PROMOTION)
             {
-                var promotion = Move.promotion_type(m);
+                var promotion = (int)Move.promotion_type(m);
 
                 Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_8);
-                Debug.Assert(promotion >= PieceType.KNIGHT && promotion <= PieceType.QUEEN);
+                Debug.Assert(promotion >= PieceType.KNIGHT_C && promotion <= PieceType.QUEEN_C);
 
                 remove_piece(us, PieceType.PAWN, to);
-                put_piece(us, promotion, to);
+                put_piece(us, new PieceType(promotion), to);
 
                 // Update hash keys
-                k ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, to] ^ Zobrist.psq[us.ValueMe, promotion, to];
-                st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, to];
+                k ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to] ^ Zobrist.psq[us.ValueMe, promotion, to];
+                st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to];
                 st.materialKey ^= Zobrist.psq[us.ValueMe, promotion, pieceCount[us.ValueMe, promotion] - 1]
-                                  ^ Zobrist.psq[us.ValueMe, PieceType.PAWN, pieceCount[us.ValueMe, PieceType.PAWN]];
+                                  ^ Zobrist.psq[us.ValueMe, PieceType.PAWN_C, pieceCount[us.ValueMe, PieceType.PAWN_C]];
 
                 // Update incremental score
-                st.psq += PSQT.psq[us.ValueMe, promotion, to] - PSQT.psq[us.ValueMe, PieceType.PAWN, to];
+                st.psq += PSQT.psq[us.ValueMe, promotion, to] - PSQT.psq[us.ValueMe, PieceType.PAWN_C, to];
 
                 // Update material
                 st.nonPawnMaterial[us.ValueMe] += Value.PieceValue[(int) Phase.MG][promotion];
             }
 
             // Update pawn hash key and prefetch access to pawnsTable
-            st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, from] ^ Zobrist.psq[us.ValueMe, PieceType.PAWN, to];
+            st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN_C, from] ^ Zobrist.psq[us.ValueMe, PieceType.PAWN_C, to];
 
             // Reset rule 50 draw counter
             st.rule50 = 0;
@@ -1022,7 +1027,7 @@ internal class Position
         st.psq += PSQT.psq[us.ValueMe, pt, to] - PSQT.psq[us.ValueMe, pt, from];
 
         // Set capture piece
-        st.capturedType = captured;
+        st.capturedType = new PieceType(captured);
 
         // Update the key with the final value
         st.key = k;
@@ -1057,7 +1062,7 @@ internal class Position
         {
             Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_8);
             Debug.Assert(pt == Move.promotion_type(m));
-            Debug.Assert(pt >= PieceType.KNIGHT && pt <= PieceType.QUEEN);
+            Debug.Assert((int)pt >= PieceType.KNIGHT_C && (int)pt <= PieceType.QUEEN_C);
 
             remove_piece(us, pt, to);
             put_piece(us, PieceType.PAWN, to);
@@ -1073,7 +1078,7 @@ internal class Position
         {
             move_piece(us, pt, to, from); // Put the piece back at the source square
 
-            if (st.capturedType)
+            if ((bool)st.capturedType)
             {
                 var capsq = to;
 
@@ -1168,7 +1173,7 @@ internal class Position
         {
             return PieceType.KING;
         }
-        var b = stmAttackers & bb[Pt];
+        var b = stmAttackers & bb[(int)Pt];
         if (!b)
         {
             return min_attacker(Pt + 1, bb, to, stmAttackers, ref occupied, ref attackers);
@@ -1178,12 +1183,12 @@ internal class Position
 
         if (Pt == PieceType.PAWN || Pt == PieceType.BISHOP || Pt == PieceType.QUEEN)
         {
-            attackers |= Utils.attacks_bb(PieceType.BISHOP, to, occupied) & (bb[PieceType.BISHOP] | bb[PieceType.QUEEN]);
+            attackers |= Utils.attacks_bb(PieceType.BISHOP, to, occupied) & (bb[PieceType.BISHOP_C] | bb[PieceType.QUEEN_C]);
         }
 
         if (Pt == PieceType.ROOK || Pt == PieceType.QUEEN)
         {
-            attackers |= Utils.attacks_bb(PieceType.ROOK, to, occupied) & (bb[PieceType.ROOK] | bb[PieceType.QUEEN]);
+            attackers |= Utils.attacks_bb(PieceType.ROOK, to, occupied) & (bb[PieceType.ROOK_C] | bb[PieceType.QUEEN_C]);
         }
 
         attackers &= occupied; // After X-ray that may add already processed pieces
@@ -1198,11 +1203,11 @@ internal class Position
         var us = sideToMove;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = Piece.type_of(piece_on(from));
-        var captured = Piece.type_of(piece_on(to));
+        var pt = (int)Piece.type_of(piece_on(from));
+        var captured = (int)Piece.type_of(piece_on(to));
         var k = st.key ^ Zobrist.side;
 
-        if (captured)
+        if (captured!=0)
         {
             k ^= Zobrist.psq[us.ValueThem, captured, to];
         }
@@ -1252,7 +1257,7 @@ internal class Position
         if (Move.type_of(m) == MoveType.ENPASSANT)
         {
             occupied ^= to - Square.pawn_push(stm); // Remove the captured pawn
-            swapList[0] = Value.PieceValue[(int) Phase.MG][PieceType.PAWN];
+            swapList[0] = Value.PieceValue[(int) Phase.MG][PieceType.PAWN_C];
         }
 
         // Find all attackers to the destination square, with the moving piece
@@ -1273,7 +1278,7 @@ internal class Position
         // destination square, where the sides alternately capture, and always
         // capture with the least valuable piece. After each capture, we look for
         // new X-ray attacks from behind the capturing piece.
-        var captured = Piece.type_of(piece_on(@from));
+        var captured = (int)Piece.type_of(piece_on(@from));
 
         do
         {
@@ -1283,11 +1288,11 @@ internal class Position
             swapList[slIndex] = -swapList[slIndex - 1] + Value.PieceValue[(int) Phase.MG][captured];
 
             // Locate and remove the next least valuable attacker
-            captured = min_attacker(PieceType.PAWN, byTypeBB, to, stmAttackers, ref occupied, ref attackers);
+            captured = (int)min_attacker(PieceType.PAWN, byTypeBB, to, stmAttackers, ref occupied, ref attackers);
             stm = ~stm;
             stmAttackers = attackers & pieces(stm);
             ++slIndex;
-        } while (stmAttackers && (captured != PieceType.KING || DecreaseValue(ref slIndex)));
+        } while (stmAttackers && (captured != PieceType.KING_C || DecreaseValue(ref slIndex)));
             // Stop before a king capture
 
         // Having built the swap list, we negamax through it to find the best
@@ -1379,11 +1384,11 @@ internal class Position
                     return false;
                 }
 
-                for (var p1 = PieceType.PAWN; p1 <= PieceType.KING; ++p1)
+                for (var p1 = PieceType.PAWN_C; p1 <= PieceType.KING_C; ++p1)
                 {
-                    for (var p2 = PieceType.PAWN; p2 <= PieceType.KING; ++p2)
+                    for (var p2 = PieceType.PAWN_C; p2 <= PieceType.KING_C; ++p2)
                     {
-                        if (p1 != p2 && (pieces(p1) & pieces(p2)))
+                        if (p1 != p2 && (pieces(new PieceType(p1)) & pieces(new PieceType(p2))))
                         {
                             return false;
                         }
@@ -1395,16 +1400,17 @@ internal class Position
             {
                 for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
                 {
-                    for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
+                    for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
                     {
-                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(Color.Create(c), pt)))
+                        var pieceType = new PieceType(pt);
+                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(Color.Create(c), pieceType)))
                         {
                             return false;
                         }
 
                         for (var i = 0; i < pieceCount[c, pt]; ++i)
                         {
-                            if (board[pieceList[c, pt, i]] != Piece.make_piece(c, pt)
+                            if (board[pieceList[c, pt, i]] != Piece.make_piece(c, pieceType)
                                 || index[pieceList[c, pt, i]] != i)
                             {
                                 return false;
@@ -1720,7 +1726,7 @@ internal class Position
 
         byColorBB = new Bitboard[Color.COLOR_NB_C];
 
-        byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+        byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB_C];
 
         castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
@@ -1730,10 +1736,10 @@ internal class Position
 
         index = new int[Square.SQUARE_NB];
 
-        pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB];
+        pieceCount = new int[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C];
 
-        pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB, 16];
-        for (var i = 0; i < PieceType.PIECE_TYPE_NB; ++i)
+        pieceList = new Square[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, 16];
+        for (var i = 0; i < PieceType.PIECE_TYPE_NB_C; ++i)
         {
             for (var j = 0; j < 16; ++j)
             {

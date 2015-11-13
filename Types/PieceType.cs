@@ -3,17 +3,24 @@ using System.Runtime.CompilerServices;
 
 internal struct PieceType
 {
+    internal const int NO_PIECE_TYPE_C = 0;
+    internal const int ALL_PIECES_C = 0;
+    internal const int PIECE_TYPE_NB_C = 8;
+    internal const int PAWN_C = 1;
+    internal const int KNIGHT_C = 2;
     internal const int BISHOP_C = 3;
 
     internal const int ROOK_C = 4;
 
     internal const int QUEEN_C = 5;
 
-    internal static PieceType NO_PIECE_TYPE = new PieceType(0);
+    internal const int KING_C = 6;
 
-    internal static PieceType PAWN = new PieceType(1);
+    internal static PieceType NO_PIECE_TYPE = new PieceType(NO_PIECE_TYPE_C);
 
-    internal static PieceType KNIGHT = new PieceType(2);
+    internal static PieceType PAWN = new PieceType(PAWN_C);
+
+    internal static PieceType KNIGHT = new PieceType(KNIGHT_C);
 
     internal static PieceType BISHOP = new PieceType(BISHOP_C);
 
@@ -21,24 +28,14 @@ internal struct PieceType
 
     internal static PieceType QUEEN = new PieceType(QUEEN_C);
 
-    internal static PieceType KING = new PieceType(6);
+    internal static PieceType KING = new PieceType(KING_C);
 
-    internal static PieceType ALL_PIECES = new PieceType(0);
+    internal static PieceType ALL_PIECES = new PieceType(ALL_PIECES_C);
 
-    internal static PieceType PIECE_TYPE_NB = new PieceType(8);
+    internal static PieceType PIECE_TYPE_NB = new PieceType(PIECE_TYPE_NB_C);
 
-    internal int Value
-    {
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        get;
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private set;
-    }
-
+    private int Value;
+   
     #region constructors
 
 #if FORCEINLINE
@@ -65,23 +62,7 @@ internal struct PieceType
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static PieceType operator +(int v1, PieceType v2)
-    {
-        return new PieceType(v1 + v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static PieceType operator -(PieceType v1, PieceType v2)
-    {
-        return new PieceType(v1.Value - v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(PieceType pt)
+    public static explicit operator int(PieceType pt)
     {
         return pt.Value;
     }
@@ -102,19 +83,11 @@ internal struct PieceType
         return v1.Value != v2.Value;
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static PieceType operator ++(PieceType v1)
-    {
-        v1.Value += 1;
-        return v1;
-    }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static implicit operator bool(PieceType pt)
+    public static explicit operator bool(PieceType pt)
     {
         return pt.Value != 0;
     }
