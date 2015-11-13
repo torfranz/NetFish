@@ -93,6 +93,7 @@
     <Compile Include="Material.cs" />
     <Compile Include="Movegen.cs" />
     <Compile Include="Movepicker.cs" />
+    <Compile Include="Output.cs" />
     <Compile Include="Pawns.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="PRNG.cs" />

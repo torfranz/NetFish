@@ -23,44 +23,33 @@ internal class Program
     {
         var args = (string[]) arguments;
 
-        var sw = Stopwatch.StartNew();
         PSQT.init();
-        Console.WriteLine($"   PSQT init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Bitboards.init();
-        Console.WriteLine($"   Bitboards init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Position.init();
-        Console.WriteLine($"   Position init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Bitbases.init();
-        Console.WriteLine($"   Bitbases init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Search.init();
-        Console.WriteLine($"   Search init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Eval.init();
-        Console.WriteLine($"   Eval init took {sw.ElapsedMilliseconds} ms");
-        sw = Stopwatch.StartNew();
         Pawns.init();
-        Console.WriteLine($"   Pawns init took {sw.ElapsedMilliseconds} ms");
-
+        
         //Tablebases::init(Options["SyzygyPath"]);
         TranspositionTable.resize(uint.Parse(OptionMap.Instance["Hash"].v));
 
         ThreadPool.init();
 
         // .Net warmup sequence
-        //var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
-        //var stack = Position.CreateStack("go depth 7");
-        //UCI.go(pos, stack);
-        //ThreadPool.wait_for_think_finished();
+        var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
+        var stack = Position.CreateStack("go depth 7");
+        UCI.go(pos, stack);
+        ThreadPool.wait_for_think_finished();
 
         var sb = new StringBuilder();
         for (var i = 1; i < args.Length; i++)
         {
             sb.Append(args[i]).Append(" ");
         }
+
+        // start showing output
+        Output.showOutput = true;
 
         UCI.loop(sb.ToString());
 

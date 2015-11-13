@@ -219,9 +219,9 @@ internal static class UCI
         }
         else
         {
-            Console.Write("No such option: ");
-            Console.Write(name);
-            Console.Write(Environment.NewLine);
+            Output.Write("No such option: ");
+            Output.Write(name);
+            Output.Write(Environment.NewLine);
         }
     }
 
@@ -341,11 +341,11 @@ internal static class UCI
                 }
                 else if (token == "uci")
                 {
-                    Console.Write("id name ");
-                    Console.Write(Utils.engine_info(true));
-                    Console.Write("\n");
-                    Console.Write(OptionMap.Instance.ToString());
-                    Console.WriteLine("\nuciok");
+                    Output.Write("id name ");
+                    Output.Write(Utils.engine_info(true));
+                    Output.Write("\n");
+                    Output.Write(OptionMap.Instance.ToString());
+                    Output.WriteLine("\nuciok");
                 }
                 else if (token == "ucinewgame")
                 {
@@ -354,7 +354,7 @@ internal static class UCI
                 }
                 else if (token == "isready")
                 {
-                    Console.WriteLine("readyok");
+                    Output.WriteLine("readyok");
                 }
                 else if (token == "go")
                 {
@@ -376,7 +376,7 @@ internal static class UCI
                 }
                 else if (token == "eval")
                 {
-                    Console.WriteLine(Eval.trace(pos));
+                    Output.WriteLine(Eval.trace(pos));
                 }
                 else if (token == "bench")
                 {
@@ -384,7 +384,7 @@ internal static class UCI
                 }
                 else if (token == "d")
                 {
-                    Console.Write(pos.displayString());
+                    Output.Write(pos.displayString());
                 }
                 else if (token == "perft")
                 {
@@ -397,13 +397,13 @@ internal static class UCI
 
                 else
                 {
-                    Console.Write("Unknown command: ");
-                    Console.WriteLine(cmd);
+                    Output.Write("Unknown command: ");
+                    Output.WriteLine(cmd);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex}");
+                Console.Error.WriteLine($"An error occurred: {ex}");
             }
         } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 

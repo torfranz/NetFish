@@ -136,7 +136,7 @@ internal static class Search
         if (RootMoves.Count == 0)
         {
             RootMoves.Add(new RootMove(Move.MOVE_NONE));
-            Console.WriteLine(
+            Output.WriteLine(
                 $"info depth 0 score {UCI.value(RootPos.checkers() ? -Value.VALUE_MATE : Value.VALUE_DRAW)}");
         }
         else
@@ -215,14 +215,14 @@ internal static class Search
             ThreadHelper.lock_release(RootPos.this_thread().spinlock /*mutex*/);
         }
 
-        Console.Write($"bestmove {UCI.move(RootMoves[0].pv[0], RootPos.is_chess960())}");
+        Output.Write($"bestmove {UCI.move(RootMoves[0].pv[0], RootPos.is_chess960())}");
 
         if (RootMoves[0].pv.Count > 1 || RootMoves[0].extract_ponder_from_tt(RootPos))
         {
-            Console.Write($" ponder {UCI.move(RootMoves[0].pv[1], RootPos.is_chess960())}");
+            Output.Write($" ponder {UCI.move(RootMoves[0].pv[1], RootPos.is_chess960())}");
         }
 
-        Console.WriteLine();
+        Output.WriteLine();
     }
 
     // id_loop() is the main iterative deepening loop. It calls search() repeatedly
@@ -329,7 +329,7 @@ internal static class Search
                     // the UI) before a re-search.
                     if (multiPV == 1 && (bestValue <= alpha || bestValue >= beta) && TimeManagement.elapsed() > 3000)
                     {
-                        Console.WriteLine(UCI.pv(pos, depth, alpha, beta));
+                        Output.WriteLine(UCI.pv(pos, depth, alpha, beta));
                     }
 
                     // In case of failing low/high increase aspiration window and
@@ -364,12 +364,12 @@ internal static class Search
 
                 if (Signals.stop)
                 {
-                    Console.WriteLine($"info nodes {RootPos.nodes_searched()} time {TimeManagement.elapsed()}");
+                    Output.WriteLine($"info nodes {RootPos.nodes_searched()} time {TimeManagement.elapsed()}");
                 }
 
                 else if (PVIdx + 1 == multiPV || TimeManagement.elapsed() > 3000)
                 {
-                    Console.WriteLine(UCI.pv(pos, depth, alpha, beta));
+                    Output.WriteLine(UCI.pv(pos, depth, alpha, beta));
                 }
             }
 
@@ -474,7 +474,7 @@ internal static class Search
             }
             if (Root)
             {
-                Console.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
+                Output.WriteLine($"{UCI.move(m, pos.is_chess960())}: {cnt}");
             }
         }
         return nodes;
@@ -881,7 +881,7 @@ internal static class Search
                 Signals.firstRootMove = (moveCount == 1);
 
                 if (thisThread == ThreadPool.main() && TimeManagement.elapsed() > 3000)
-                    Console.WriteLine(
+                    Output.WriteLine(
                         $"info depth {depth/Depth.ONE_PLY} currmove {UCI.move(move, pos.is_chess960())} currmovenumber {moveCount + PVIdx}");
             }
 

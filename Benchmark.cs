@@ -125,7 +125,7 @@ internal static class Benchmark
         {
             var pos = new Position(fens[i], bool.Parse(OptionMap.Instance["UCI_Chess960"].v), ThreadPool.main());
 
-            Console.WriteLine($"\nPosition: {i + 1} / {fens.Count}");
+            Output.WriteLine($"\nPosition: {i + 1} / {fens.Count}");
 
             if (limitType == "perft")
             {
@@ -143,9 +143,9 @@ internal static class Benchmark
 
         var elapsed = time.ElapsedMilliseconds; // Ensure positivity to avoid a 'divide by zero'
 
-        Console.Write("\n===========================");
-        Console.Write($"\nTotal time (ms) : {elapsed}");
-        Console.Write($"\nNodes searched  : {nodes}");
-        Console.WriteLine($"\nNodes/second    : {1000*nodes/elapsed}");
+        Output.Write("\n===========================");
+        Output.Write($"\nTotal time (ms) : {elapsed}");
+        Output.Write($"\nNodes searched  : {nodes}");
+        Output.WriteLine($"\nNodes/second    : {1000*nodes/elapsed}");
     }
 }
