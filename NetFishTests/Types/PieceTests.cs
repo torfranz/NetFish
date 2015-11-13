@@ -32,19 +32,19 @@ namespace Tests
             var v7 = v6 - 1;
             Assert.AreEqual(3, v7);
             /*
-            Assert.AreEqual(-3, -v7.Value);
+            Assert.AreEqual(-3, -v7.ValueMe);
 
             var v8 = v7 * 2;
-            Assert.AreEqual(6, v8.Value);
+            Assert.AreEqual(6, v8.ValueMe);
 
             var v9 = 2 * v8;
-            Assert.AreEqual(12, v9.Value);
+            Assert.AreEqual(12, v9.ValueMe);
 
             var v10 = v9 / 2;
-            Assert.AreEqual(6, v10.Value);
+            Assert.AreEqual(6, v10.ValueMe);
 
             var v11 = v10 / v2;
-            Assert.AreEqual(3, v11.Value);
+            Assert.AreEqual(3, v11.ValueMe);
             */
         }
 

@@ -191,7 +191,7 @@ internal struct Square
     internal Square(int value)
     {
         Value = value;
-        // Debug.Assert(this.Value >= -9 && this.Value <= 64);
+        // Debug.Assert(this.ValueMe >= -9 && this.ValueMe <= 64);
     }
 
     #endregion
@@ -332,7 +332,7 @@ internal struct Square
 #endif
     internal static Square relative_square(Color c, Square s)
     {
-        return new Square(s.Value ^ (c.Value * 56));
+        return new Square(s.Value ^ (c.ValueMe * 56));
     }
 
 #if FORCEINLINE

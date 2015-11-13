@@ -66,7 +66,7 @@ internal static class UCI
         return ss.ToString();
     }
 
-    /// UCI::value() converts a Value to a string suitable for use with the UCI
+    /// UCI::value() converts a ValueMe to a string suitable for use with the UCI
     /// protocol specification:
     /// 
     /// cp

@@ -82,7 +82,7 @@ internal abstract class Endgame
             code.Substring(code.IndexOf('K', 1)), // Weak
             code.Substring(0, code.IndexOf('K', 1))
         }; // Strong
-        sides[c.Value] = sides[c.Value].ToLower();
+        sides[c.ValueMe] = sides[c.ValueMe].ToLower();
 
         var fen = sides[0] + (char) (8 - sides[0].Length + '0') + "/8/8/8/8/8/8/" + sides[1]
                   + (char) (8 - sides[1].Length + '0') + " w - - 0 10";

@@ -38,7 +38,7 @@ internal struct File
     internal File(int value)
     {
         Value = value;
-        //Debug.Assert(this.Value >= -8 && this.Value <= 8);
+        //Debug.Assert(this.ValueMe >= -8 && this.ValueMe <= 8);
     }
 
     #endregion

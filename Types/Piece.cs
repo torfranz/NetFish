@@ -170,7 +170,7 @@ internal struct Piece
 #endif
     internal static Color color_of(Piece p)
     {
-        return new Color(p.Value >> 3);
+        return Color.Create(p.Value >> 3);
     }
 
 #if FORCEINLINE
@@ -178,7 +178,7 @@ internal struct Piece
 #endif
     internal static Piece make_piece(Color c, PieceType pt)
     {
-        return make_piece(c.Value, pt);
+        return make_piece(c.ValueMe, pt);
     }
 
 #if FORCEINLINE

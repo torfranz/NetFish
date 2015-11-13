@@ -58,12 +58,12 @@ internal class MaterialEntry
     // for rook pawns and wrong-colored bishops.
     internal ScaleFactor scale_factor(Position pos, Color c)
     {
-        if (scalingFunction[c.Value] == null)
+        if (scalingFunction[c.ValueMe] == null)
         {
-            return (ScaleFactor) (factor[c.Value]);
+            return (ScaleFactor) (factor[c.ValueMe]);
         }
-        return scalingFunction[c.Value].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
-            ? (ScaleFactor) (factor[c.Value])
-            : scalingFunction[c.Value].GetScaleFactor(pos);
+        return scalingFunction[c.ValueMe].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
+            ? (ScaleFactor) (factor[c.ValueMe])
+            : scalingFunction[c.ValueMe].GetScaleFactor(pos);
     }
 }

@@ -64,7 +64,7 @@ internal struct Rank
     internal Rank(int value)
     {
         Value = value;
-        //Debug.Assert(this.Value >= -8 && this.Value <= 8);
+        //Debug.Assert(this.ValueMe >= -8 && this.ValueMe <= 8);
     }
 
     #endregion
@@ -169,7 +169,7 @@ internal struct Rank
 #endif
     internal static Rank relative_rank(Color c, Rank r)
     {
-        return new Rank(r.Value ^ (c.Value * 7));
+        return new Rank(r.Value ^ (c.ValueMe * 7));
     }
 
 #if FORCEINLINE

@@ -117,8 +117,8 @@ internal static class Search
         TimeManagement.init(Limits, us, RootPos.game_ply(), DateTime.Now);
 
         int contempt = int.Parse(OptionMap.Instance["Contempt"].v)*Value.PawnValueEg/100; // From centipawns
-        DrawValue[us.Value] = Value.VALUE_DRAW - contempt;
-        DrawValue[(~us).Value] = Value.VALUE_DRAW + contempt;
+        DrawValue[us.ValueMe] = Value.VALUE_DRAW - contempt;
+        DrawValue[us.ValueThem] = Value.VALUE_DRAW + contempt;
 
         Tablebases.Hits = 0;
         Tablebases.RootInTB = false;
@@ -192,7 +192,7 @@ internal static class Search
         // the available ones before to exit.
         if (Limits.npmsec != 0)
         {
-            TimeManagement.availableNodes += Limits.inc[us.Value] - RootPos.nodes_searched();
+            TimeManagement.availableNodes += Limits.inc[us.ValueMe] - RootPos.nodes_searched();
         }
 
         // When we reach the maximum depth, we can arrive here without a raise of
@@ -598,7 +598,7 @@ internal static class Search
             if (Signals.stop || pos.is_draw() || ss[ss.current].ply >= _.MAX_PLY)
                 return ss[ss.current].ply >= _.MAX_PLY && !inCheck
                     ? Eval.evaluate(false, pos)
-                    : DrawValue[pos.side_to_move().Value];
+                    : DrawValue[pos.side_to_move().ValueMe];
 
             // Step 3. Mate distance pruning. Even if we mate at the next move our score
             // would be at best mate_in(ss.ply+1), but if alpha is already bigger because
@@ -842,7 +842,7 @@ internal static class Search
                                      && !SpNode
                                      && depth >= 8*Depth.ONE_PLY
                                      && ttMove != Move.MOVE_NONE
-            /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
+            /*  &&  ttValue != ValueMe.VALUE_NONE Already implicit in the next condition */
                                      && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
                                      && !excludedMove // Recursive singular search is not allowed
                                      && ((tte.bound() & Bound.BOUND_LOWER) != 0)
@@ -1204,7 +1204,7 @@ internal static class Search
         if (moveCount == 0)
             bestValue = excludedMove
                 ? alpha
-                : inCheck ? Value.mated_in(ss[ss.current].ply) : DrawValue[pos.side_to_move().Value];
+                : inCheck ? Value.mated_in(ss[ss.current].ply) : DrawValue[pos.side_to_move().ValueMe];
 
         // Quiet best move: update killers, history and countermoves
         else if (bestMove && !pos.capture_or_promotion(bestMove))
@@ -1268,7 +1268,7 @@ internal static class Search
         if (pos.is_draw() || ss[ss.current].ply >= _.MAX_PLY)
             return ss[ss.current].ply >= _.MAX_PLY && !InCheck
                 ? Eval.evaluate(false, pos)
-                : DrawValue[pos.side_to_move().Value];
+                : DrawValue[pos.side_to_move().ValueMe];
 
         Debug.Assert(0 <= ss[ss.current].ply && ss[ss.current].ply < _.MAX_PLY);
 

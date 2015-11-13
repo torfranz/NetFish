@@ -141,7 +141,7 @@ internal static class Utils
 #endif
     internal static Bitboard in_front_bb(Color c, Rank r)
     {
-        return InFrontBB[c.Value, r];
+        return InFrontBB[c.ValueMe, r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -152,7 +152,7 @@ internal static class Utils
 #endif
     internal static Bitboard forward_bb(Color c, Square s)
     {
-        return ForwardBB[c.Value, s];
+        return ForwardBB[c.ValueMe, s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -164,7 +164,7 @@ internal static class Utils
 #endif
     internal static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return PawnAttackSpan[c.Value, s];
+        return PawnAttackSpan[c.ValueMe, s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -175,7 +175,7 @@ internal static class Utils
 #endif
     internal static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return PassedPawnMask[c.Value, s];
+        return PassedPawnMask[c.ValueMe, s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a

@@ -87,7 +87,7 @@ internal class Material
         // Second-degree polynomial material imbalance by Tord Romstad
         for (int pt1 = PieceType.NO_PIECE_TYPE; pt1 <= PieceType.QUEEN; ++pt1)
         {
-            if (pieceCount[Us.Value][pt1] == 0)
+            if (pieceCount[Us.ValueMe][pt1] == 0)
             {
                 continue;
             }
@@ -96,10 +96,10 @@ internal class Material
 
             for (int pt2 = PieceType.NO_PIECE_TYPE; pt2 <= pt1; ++pt2)
             {
-                v += QuadraticOurs[pt1][pt2]*pieceCount[Us.Value][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them.Value][pt2];
+                v += QuadraticOurs[pt1][pt2]*pieceCount[Us.ValueMe][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them.ValueMe][pt2];
             }
 
-            bonus += pieceCount[Us.Value][pt1]*v;
+            bonus += pieceCount[Us.ValueMe][pt1]*v;
         }
 
         return bonus;
@@ -137,11 +137,11 @@ internal class Material
             return e;
         }
 
-        for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            if (is_KXK(pos, c))
+            if (is_KXK(pos, Color.Create(c)))
             {
-                e.evaluationFunction = EvaluateKXK[c.Value];
+                e.evaluationFunction = EvaluateKXK[c];
                 return e;
             }
         }
@@ -152,23 +152,22 @@ internal class Material
 
         if ((sf = pos.this_thread().endgames.probeEndgameScaleFactor(key)) != null)
         {
-            e.scalingFunction[sf.strong_side().Value] = sf; // Only strong color assigned
+            e.scalingFunction[sf.strong_side().ValueMe] = sf; // Only strong color assigned
             return e;
         }
 
         // We didn't find any specialized scaling function, so fall back on generic
         // ones that refer to more than one material distribution. Note that in this
         // case we don't return after setting the function.
-        for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
+        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
         {
-            if (is_KBPsKs(pos, c))
+            if (is_KBPsKs(pos, Color.Create(c)))
             {
-                e.scalingFunction[c.Value] = ScaleKBPsK[c.Value];
+                e.scalingFunction[c] = ScaleKBPsK[c];
             }
-
-            else if (is_KQKRPs(pos, c))
+            else if (is_KQKRPs(pos, Color.Create(c)))
             {
-                e.scalingFunction[c.Value] = ScaleKQKRPs[c.Value];
+                e.scalingFunction[c] = ScaleKQKRPs[c];
             }
         }
 

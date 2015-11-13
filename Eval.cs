@@ -233,23 +233,23 @@ internal static class Eval
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Down = (Us == Color.WHITE ? Square.DELTA_S : Square.DELTA_N);
 
-        ei.pinnedPieces[Us.Value] = pos.pinned_pieces(Us);
-        var b = ei.attackedBy[Them.Value, PieceType.KING] = pos.attacks_from(PieceType.KING, pos.square(PieceType.KING, Them));
-        ei.attackedBy[Them.Value, PieceType.ALL_PIECES] |= b;
-        ei.attackedBy[Us.Value, PieceType.ALL_PIECES] |= ei.attackedBy[Us.Value, PieceType.PAWN] = ei.pi.pawn_attacks(Us);
+        ei.pinnedPieces[Us.ValueMe] = pos.pinned_pieces(Us);
+        var b = ei.attackedBy[Them.ValueMe, PieceType.KING] = pos.attacks_from(PieceType.KING, pos.square(PieceType.KING, Them));
+        ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES] |= b;
+        ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES] |= ei.attackedBy[Us.ValueMe, PieceType.PAWN] = ei.pi.pawn_attacks(Us);
 
         // Init king safety tables only if we are going to use them
         if (pos.non_pawn_material(Us) >= Value.QueenValueMg)
         {
-            ei.kingRing[Them.Value] = b | Bitboard.shift_bb(Down, b);
-            b &= ei.attackedBy[Us.Value, PieceType.PAWN];
-            ei.kingAttackersCount[Us.Value] = b ? Bitcount.popcount_Max15(b) : 0;
-            ei.kingAdjacentZoneAttacksCount[Us.Value] = ei.kingAttackersWeight[Us.Value] = 0;
+            ei.kingRing[Them.ValueMe] = b | Bitboard.shift_bb(Down, b);
+            b &= ei.attackedBy[Us.ValueMe, PieceType.PAWN];
+            ei.kingAttackersCount[Us.ValueMe] = b ? Bitcount.popcount_Max15(b) : 0;
+            ei.kingAdjacentZoneAttacksCount[Us.ValueMe] = ei.kingAttackersWeight[Us.ValueMe] = 0;
         }
         else
         {
-            ei.kingRing[Them.Value] = new Bitboard(0);
-            ei.kingAttackersCount[Us.Value] = 0;
+            ei.kingRing[Them.ValueMe] = new Bitboard(0);
+            ei.kingAttackersCount[Us.ValueMe] = 0;
         }
     }
 
@@ -274,7 +274,7 @@ internal static class Eval
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var pl = pos.squares(Pt, Us);
 
-        ei.attackedBy[Us.Value, Pt] = new Bitboard(0);
+        ei.attackedBy[Us.ValueMe, Pt] = new Bitboard(0);
         foreach (var s in pl.TakeWhile(s1 => s1 != Square.SQ_NONE))
         {
             // Find attacked squares, including x-ray attacks for bishops and rooks
@@ -287,36 +287,36 @@ internal static class Eval
                         pos.pieces() ^ pos.pieces(Us, PieceType.ROOK, PieceType.QUEEN))
                     : pos.attacks_from(Pt, s);
 
-            if (ei.pinnedPieces[Us.Value] & s)
+            if (ei.pinnedPieces[Us.ValueMe] & s)
             {
                 b &= Utils.LineBB[pos.square(PieceType.KING, Us), s];
             }
 
-            ei.attackedBy[Us.Value, PieceType.ALL_PIECES] |= ei.attackedBy[Us.Value, Pt] |= b;
+            ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES] |= ei.attackedBy[Us.ValueMe, Pt] |= b;
 
-            if (b & ei.kingRing[Them.Value])
+            if (b & ei.kingRing[Them.ValueMe])
             {
-                ei.kingAttackersCount[Us.Value]++;
-                ei.kingAttackersWeight[Us.Value] += KingAttackWeights[Pt];
-                var bb = b & ei.attackedBy[Them.Value, PieceType.KING];
+                ei.kingAttackersCount[Us.ValueMe]++;
+                ei.kingAttackersWeight[Us.ValueMe] += KingAttackWeights[Pt];
+                var bb = b & ei.attackedBy[Them.ValueMe, PieceType.KING];
                 if (bb)
                 {
-                    ei.kingAdjacentZoneAttacksCount[Us.Value] += Bitcount.popcount_Max15(bb);
+                    ei.kingAdjacentZoneAttacksCount[Us.ValueMe] += Bitcount.popcount_Max15(bb);
                 }
             }
 
             if (Pt == PieceType.QUEEN)
             {
                 b &=
-                    ~(ei.attackedBy[Them.Value, PieceType.KNIGHT] | ei.attackedBy[Them.Value, PieceType.BISHOP]
-                      | ei.attackedBy[Them.Value, PieceType.ROOK]);
+                    ~(ei.attackedBy[Them.ValueMe, PieceType.KNIGHT] | ei.attackedBy[Them.ValueMe, PieceType.BISHOP]
+                      | ei.attackedBy[Them.ValueMe, PieceType.ROOK]);
             }
 
             var mob = Pt == PieceType.QUEEN
-                ? Bitcount.popcount_Full(b & mobilityArea[Us.Value])
-                : Bitcount.popcount_Max15(b & mobilityArea[Us.Value]);
+                ? Bitcount.popcount_Full(b & mobilityArea[Us.ValueMe])
+                : Bitcount.popcount_Max15(b & mobilityArea[Us.ValueMe]);
 
-            mobility[Us.Value] += MobilityBonus[Pt][mob];
+            mobility[Us.ValueMe] += MobilityBonus[Pt][mob];
 
             if (Pt == PieceType.BISHOP || Pt == PieceType.KNIGHT)
             {
@@ -325,7 +325,7 @@ internal static class Eval
                     && !(pos.pieces(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
-                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][(ei.attackedBy[Us.Value, PieceType.PAWN] & s) != 0 ? 1 : 0];
+                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][(ei.attackedBy[Us.ValueMe, PieceType.PAWN] & s) != 0 ? 1 : 0];
                 }
 
                 // Bonus when behind a pawn
@@ -411,33 +411,33 @@ internal static class Eval
         var score = ei.pi.king_safety(Us, pos, ksq);
 
         // Main king safety evaluation
-        if (ei.kingAttackersCount[Them.Value] != 0)
+        if (ei.kingAttackersCount[Them.ValueMe] != 0)
         {
             // Find the attacked squares around the king which have no defenders
             // apart from the king itself
-            var undefended = ei.attackedBy[Them.Value, PieceType.ALL_PIECES] & ei.attackedBy[Us.Value, PieceType.KING]
-                                  & ~(ei.attackedBy[Us.Value, PieceType.PAWN] | ei.attackedBy[Us.Value, PieceType.KNIGHT]
-                                      | ei.attackedBy[Us.Value, PieceType.BISHOP] | ei.attackedBy[Us.Value, PieceType.ROOK]
-                                      | ei.attackedBy[Us.Value, PieceType.QUEEN]);
+            var undefended = ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES] & ei.attackedBy[Us.ValueMe, PieceType.KING]
+                                  & ~(ei.attackedBy[Us.ValueMe, PieceType.PAWN] | ei.attackedBy[Us.ValueMe, PieceType.KNIGHT]
+                                      | ei.attackedBy[Us.ValueMe, PieceType.BISHOP] | ei.attackedBy[Us.ValueMe, PieceType.ROOK]
+                                      | ei.attackedBy[Us.ValueMe, PieceType.QUEEN]);
 
             // Initialize the 'attackUnits' variable, which is used later on as an
             // index into the KingDanger[] array. The initial value is based on the
             // number and types of the enemy's attacking pieces, the number of
             // attacked and undefended squares around our king and the quality of
             // the pawn shelter (current 'score' value).
-            var attackUnits = Math.Min(72, ei.kingAttackersCount[Them.Value] *ei.kingAttackersWeight[Them.Value])
-                              + 9*ei.kingAdjacentZoneAttacksCount[Them.Value] + 27*Bitcount.popcount_Max15(undefended)
-                              + 11*(ei.pinnedPieces[Us.Value] != 0 ? 1 : 0)
+            var attackUnits = Math.Min(72, ei.kingAttackersCount[Them.ValueMe] *ei.kingAttackersWeight[Them.ValueMe])
+                              + 9*ei.kingAdjacentZoneAttacksCount[Them.ValueMe] + 27*Bitcount.popcount_Max15(undefended)
+                              + 11*(ei.pinnedPieces[Us.ValueMe] != 0 ? 1 : 0)
                               - 64*(pos.count(PieceType.QUEEN, Them) == 0 ? 1 : 0) - Score.mg_value(score)/8;
 
             // Analyse the enemy's safe queen contact checks. Firstly, find the
             // undefended squares around the king reachable by the enemy queen...
-            var b = undefended & ei.attackedBy[Them.Value, PieceType.QUEEN] & ~pos.pieces(Them);
+            var b = undefended & ei.attackedBy[Them.ValueMe, PieceType.QUEEN] & ~pos.pieces(Them);
             if (b)
             {
                 // ...and then remove squares not supported by another enemy piece
-                b &= ei.attackedBy[Them.Value, PieceType.PAWN] | ei.attackedBy[Them.Value, PieceType.KNIGHT]
-                     | ei.attackedBy[Them.Value, PieceType.BISHOP] | ei.attackedBy[Them.Value, PieceType.ROOK];
+                b &= ei.attackedBy[Them.ValueMe, PieceType.PAWN] | ei.attackedBy[Them.ValueMe, PieceType.KNIGHT]
+                     | ei.attackedBy[Them.ValueMe, PieceType.BISHOP] | ei.attackedBy[Them.ValueMe, PieceType.ROOK];
 
                 if (b)
                 {
@@ -446,13 +446,13 @@ internal static class Eval
             }
 
             // Analyse the enemy's safe distance checks for sliders and knights
-            var safe = ~(ei.attackedBy[Us.Value, PieceType.ALL_PIECES] | pos.pieces(Them));
+            var safe = ~(ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES] | pos.pieces(Them));
 
             var b1 = pos.attacks_from(PieceType.ROOK, ksq) & safe;
             var b2 = pos.attacks_from(PieceType.BISHOP, ksq) & safe;
 
             // Enemy queen safe checks
-            b = (b1 | b2) & ei.attackedBy[Them.Value, PieceType.QUEEN];
+            b = (b1 | b2) & ei.attackedBy[Them.ValueMe, PieceType.QUEEN];
             if (b)
             {
                 attackUnits += QueenCheck*Bitcount.popcount_Max15(b);
@@ -460,7 +460,7 @@ internal static class Eval
             }
 
             // Enemy rooks safe checks
-            b = b1 & ei.attackedBy[Them.Value, PieceType.ROOK];
+            b = b1 & ei.attackedBy[Them.ValueMe, PieceType.ROOK];
             if (b)
             {
                 attackUnits += RookCheck*Bitcount.popcount_Max15(b);
@@ -468,7 +468,7 @@ internal static class Eval
             }
 
             // Enemy bishops safe checks
-            b = b2 & ei.attackedBy[Them.Value, PieceType.BISHOP];
+            b = b2 & ei.attackedBy[Them.ValueMe, PieceType.BISHOP];
             if (b)
             {
                 attackUnits += BishopCheck*Bitcount.popcount_Max15(b);
@@ -476,7 +476,7 @@ internal static class Eval
             }
 
             // Enemy knights safe checks
-            b = pos.attacks_from(PieceType.KNIGHT, ksq) & ei.attackedBy[Them.Value, PieceType.KNIGHT] & safe;
+            b = pos.attacks_from(PieceType.KNIGHT, ksq) & ei.attackedBy[Them.ValueMe, PieceType.KNIGHT] & safe;
             if (b)
             {
                 attackUnits += KnightCheck*Bitcount.popcount_Max15(b);
@@ -517,12 +517,12 @@ internal static class Eval
         var score = Score.SCORE_ZERO;
 
         // Non-pawn enemies attacked by a pawn
-        var weak = (pos.pieces(Them) ^ pos.pieces(Them, PieceType.PAWN)) & ei.attackedBy[Us.Value, PieceType.PAWN];
+        var weak = (pos.pieces(Them) ^ pos.pieces(Them, PieceType.PAWN)) & ei.attackedBy[Us.ValueMe, PieceType.PAWN];
 
         if (weak)
         {
             b = pos.pieces(Us, PieceType.PAWN)
-                & (~ei.attackedBy[Them.Value, PieceType.ALL_PIECES] | ei.attackedBy[Us.Value, PieceType.ALL_PIECES]);
+                & (~ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES] | ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES]);
 
             var safeThreats = (Bitboard.shift_bb(Right, b) | Bitboard.shift_bb(Left, b)) & weak;
 
@@ -538,18 +538,18 @@ internal static class Eval
         }
 
         // Non-pawn enemies defended by a pawn
-        var defended = (pos.pieces(Them) ^ pos.pieces(Them, PieceType.PAWN)) & ei.attackedBy[Them.Value, PieceType.PAWN];
+        var defended = (pos.pieces(Them) ^ pos.pieces(Them, PieceType.PAWN)) & ei.attackedBy[Them.ValueMe, PieceType.PAWN];
 
         // Add a bonus according to the kind of attacking pieces
         if (defended)
         {
-            b = defended & (ei.attackedBy[Us.Value, PieceType.KNIGHT] | ei.attackedBy[Us.Value, PieceType.BISHOP]);
+            b = defended & (ei.attackedBy[Us.ValueMe, PieceType.KNIGHT] | ei.attackedBy[Us.ValueMe, PieceType.BISHOP]);
             while (b)
             {
                 score += Threat[Defended][Minor][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
-            b = defended & ei.attackedBy[Us.Value, PieceType.ROOK];
+            b = defended & ei.attackedBy[Us.ValueMe, PieceType.ROOK];
             while (b)
             {
                 score += Threat[Defended][Rook][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
@@ -557,30 +557,30 @@ internal static class Eval
         }
 
         // Enemies not defended by a pawn and under our attack
-        weak = pos.pieces(Them) & ~ei.attackedBy[Them.Value, PieceType.PAWN] & ei.attackedBy[Us.Value, PieceType.ALL_PIECES];
+        weak = pos.pieces(Them) & ~ei.attackedBy[Them.ValueMe, PieceType.PAWN] & ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES];
 
         // Add a bonus according to the kind of attacking pieces
         if (weak)
         {
-            b = weak & (ei.attackedBy[Us.Value, PieceType.KNIGHT] | ei.attackedBy[Us.Value, PieceType.BISHOP]);
+            b = weak & (ei.attackedBy[Us.ValueMe, PieceType.KNIGHT] | ei.attackedBy[Us.ValueMe, PieceType.BISHOP]);
             while (b)
             {
                 score += Threat[Weak][Minor][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
-            b = weak & ei.attackedBy[Us.Value, PieceType.ROOK];
+            b = weak & ei.attackedBy[Us.ValueMe, PieceType.ROOK];
             while (b)
             {
                 score += Threat[Weak][Rook][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
-            b = weak & ~ei.attackedBy[Them.Value, PieceType.ALL_PIECES];
+            b = weak & ~ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES];
             if (b)
             {
                 score += Hanging*Bitcount.popcount_Max15(b);
             }
 
-            b = weak & ei.attackedBy[Us.Value, PieceType.KING];
+            b = weak & ei.attackedBy[Us.ValueMe, PieceType.KING];
             if (b)
             {
                 score += Bitboard.more_than_one(b) ? KingOnMany : KingOnOne;
@@ -591,11 +591,11 @@ internal static class Eval
         b = pos.pieces(Us, PieceType.PAWN) & ~TRank7BB;
         b = Bitboard.shift_bb(Up, b | (Bitboard.shift_bb(Up, b & TRank2BB) & ~pos.pieces()));
 
-        b &= ~pos.pieces() & ~ei.attackedBy[Them.Value, PieceType.PAWN]
-             & (ei.attackedBy[Us.Value, PieceType.ALL_PIECES] | ~ei.attackedBy[Them.Value, PieceType.ALL_PIECES]);
+        b &= ~pos.pieces() & ~ei.attackedBy[Them.ValueMe, PieceType.PAWN]
+             & (ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES] | ~ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES]);
 
         b = (Bitboard.shift_bb(Left, b) | Bitboard.shift_bb(Right, b)) & pos.pieces(Them)
-            & ~ei.attackedBy[Us.Value, PieceType.PAWN];
+            & ~ei.attackedBy[Us.ValueMe, PieceType.PAWN];
 
         if (b)
         {
@@ -659,12 +659,12 @@ internal static class Eval
 
                     if (!(pos.pieces(Us) & bb))
                     {
-                        defendedSquares &= ei.attackedBy[Us.Value, PieceType.ALL_PIECES];
+                        defendedSquares &= ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES];
                     }
 
                     if (!(pos.pieces(Them) & bb))
                     {
-                        unsafeSquares &= ei.attackedBy[Them.Value, PieceType.ALL_PIECES] | pos.pieces(Them);
+                        unsafeSquares &= ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES] | pos.pieces(Them);
                     }
 
                     // If there aren't any enemy attacks, assign a big bonus. Otherwise
@@ -723,15 +723,15 @@ internal static class Eval
         // Find the safe squares for our pieces inside the area defined by
         // SpaceMask[]. A square is unsafe if it is attacked by an enemy
         // pawn, or if it is undefended and attacked by an enemy piece.
-        var safe = SpaceMask[Us.Value] & ~pos.pieces(Us, PieceType.PAWN) & ~ei.attackedBy[Them.Value, PieceType.PAWN]
-                   & (ei.attackedBy[Us.Value, PieceType.ALL_PIECES] | ~ei.attackedBy[Them.Value, PieceType.ALL_PIECES]);
+        var safe = SpaceMask[Us.ValueMe] & ~pos.pieces(Us, PieceType.PAWN) & ~ei.attackedBy[Them.ValueMe, PieceType.PAWN]
+                   & (ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES] | ~ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES]);
 
         // Find all squares which are at most three squares behind some friendly pawn
         var behind = pos.pieces(Us, PieceType.PAWN);
         behind |= (Us == Color.WHITE ? behind >> 8 : behind << 8);
         behind |= (Us == Color.WHITE ? behind >> 16 : behind << 16);
 
-        // Since SpaceMask[Us.Value] is fully on our half of the board...
+        // Since SpaceMask[Us.ValueMe] is fully on our half of the board...
         Debug.Assert((uint) (safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
 
         // ...count safe + (behind & safe) with a single popcount
@@ -922,8 +922,8 @@ internal static class Eval
 
     private static void add(int idx, Color c, Score s)
     {
-        scores[idx, c.Value, (int) Phase.MG] = to_cp(Score.mg_value(s));
-        scores[idx, c.Value, (int) Phase.EG] = to_cp(Score.eg_value(s));
+        scores[idx, c.ValueMe, (int) Phase.MG] = to_cp(Score.mg_value(s));
+        scores[idx, c.ValueMe, (int) Phase.EG] = to_cp(Score.eg_value(s));
     }
 
     private static void add(int idx, Score w, Score b)

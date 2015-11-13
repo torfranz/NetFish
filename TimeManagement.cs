@@ -76,18 +76,18 @@ internal static class TimeManagement
         {
             if (availableNodes == 0) // Only once at game start
             {
-                availableNodes = npmsec*limits.time[us.Value]; // Time is in msec
+                availableNodes = npmsec*limits.time[us.ValueMe]; // Time is in msec
             }
 
             // Convert from millisecs to nodes
-            limits.time[us.Value] = (int) availableNodes;
-            limits.inc[us.Value] *= npmsec;
+            limits.time[us.ValueMe] = (int) availableNodes;
+            limits.inc[us.ValueMe] *= npmsec;
             limits.npmsec = npmsec;
         }
 
         start = now;
         unstablePvFactor = 1;
-        optimumTime = maximumTime = Math.Max(limits.time[us.Value], minThinkingTime);
+        optimumTime = maximumTime = Math.Max(limits.time[us.ValueMe], minThinkingTime);
 
         var MaxMTG = limits.movestogo != 0 ? Math.Min(limits.movestogo, MoveHorizon) : MoveHorizon;
 
@@ -97,7 +97,7 @@ internal static class TimeManagement
         for (var hypMTG = 1; hypMTG <= MaxMTG; ++hypMTG)
         {
             // Calculate thinking time for hypothetical "moves to go"-value
-            var hypMyTime = limits.time[us.Value] + limits.inc[us.Value] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
+            var hypMyTime = limits.time[us.ValueMe] + limits.inc[us.ValueMe] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
 
             hypMyTime = Math.Max(hypMyTime, 0);
 

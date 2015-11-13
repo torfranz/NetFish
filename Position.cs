@@ -179,7 +179,7 @@ internal class Position
 #endif
     internal Bitboard pieces(Color c)
     {
-        return byColorBB[c.Value];
+        return byColorBB[c.ValueMe];
     }
 
 #if FORCEINLINE
@@ -187,7 +187,7 @@ internal class Position
 #endif
     internal Bitboard pieces(Color c, PieceType pt)
     {
-        return byColorBB[c.Value] & byTypeBB[pt];
+        return byColorBB[c.ValueMe] & byTypeBB[pt];
     }
 
 #if FORCEINLINE
@@ -195,7 +195,7 @@ internal class Position
 #endif
     internal Bitboard pieces(Color c, PieceType pt1, PieceType pt2)
     {
-        return byColorBB[c.Value] & (byTypeBB[pt1] | byTypeBB[pt2]);
+        return byColorBB[c.ValueMe] & (byTypeBB[pt1] | byTypeBB[pt2]);
     }
 
 #if FORCEINLINE
@@ -203,7 +203,7 @@ internal class Position
 #endif
     internal int count(PieceType Pt, Color c)
     {
-        return pieceCount[c.Value, Pt];
+        return pieceCount[c.ValueMe, Pt];
     }
 
 #if FORCEINLINE
@@ -214,7 +214,7 @@ internal class Position
         var result = new Square[16];
         for (var idx = 0; idx < result.Length; idx++)
         {
-            result[idx] = pieceList[c.Value, Pt, idx];
+            result[idx] = pieceList[c.ValueMe, Pt, idx];
         }
         return result;
     }
@@ -224,8 +224,8 @@ internal class Position
 #endif
     internal Square square(PieceType Pt, Color c)
     {
-        Debug.Assert(pieceCount[c.Value, Pt] == 1);
-        return pieceList[c.Value, Pt, 0];
+        Debug.Assert(pieceCount[c.ValueMe, Pt] == 1);
+        return pieceList[c.ValueMe, Pt, 0];
     }
 
 #if FORCEINLINE
@@ -249,7 +249,7 @@ internal class Position
 #endif
     internal int can_castle(Color c)
     {
-        return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c.Value)));
+        return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c.ValueMe)));
     }
 
 #if FORCEINLINE
@@ -383,7 +383,7 @@ internal class Position
 #endif
     internal Value non_pawn_material(Color c)
     {
-        return st.nonPawnMaterial[c.Value];
+        return st.nonPawnMaterial[c.ValueMe];
     }
 
 #if FORCEINLINE
@@ -482,10 +482,10 @@ internal class Position
         board[s] = Piece.make_piece(c, pt);
         byTypeBB[PieceType.ALL_PIECES] |= s;
         byTypeBB[pt] |= s;
-        byColorBB[c.Value] |= s;
-        index[s] = pieceCount[c.Value, pt]++;
-        pieceList[c.Value, pt, index[s]] = s;
-        pieceCount[c.Value, PieceType.ALL_PIECES]++;
+        byColorBB[c.ValueMe] |= s;
+        index[s] = pieceCount[c.ValueMe, pt]++;
+        pieceList[c.ValueMe, pt, index[s]] = s;
+        pieceCount[c.ValueMe, PieceType.ALL_PIECES]++;
     }
 
 #if FORCEINLINE
@@ -499,13 +499,13 @@ internal class Position
         // are not guaranteed to be invariant to a do_move() + undo_move() sequence.
         byTypeBB[PieceType.ALL_PIECES] ^= s;
         byTypeBB[pt] ^= s;
-        byColorBB[c.Value] ^= s;
+        byColorBB[c.ValueMe] ^= s;
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
-        var lastSquare = pieceList[c.Value, pt, --pieceCount[c.Value, pt]];
+        var lastSquare = pieceList[c.ValueMe, pt, --pieceCount[c.ValueMe, pt]];
         index[lastSquare] = index[s];
-        pieceList[c.Value, pt, index[lastSquare]] = lastSquare;
-        pieceList[c.Value, pt, pieceCount[c.Value, pt]] = Square.SQ_NONE;
-        pieceCount[c.Value, PieceType.ALL_PIECES]--;
+        pieceList[c.ValueMe, pt, index[lastSquare]] = lastSquare;
+        pieceList[c.ValueMe, pt, pieceCount[c.ValueMe, pt]] = Square.SQ_NONE;
+        pieceCount[c.ValueMe, PieceType.ALL_PIECES]--;
     }
 
 #if FORCEINLINE
@@ -518,11 +518,11 @@ internal class Position
         var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
         byTypeBB[PieceType.ALL_PIECES] ^= from_to_bb;
         byTypeBB[pt] ^= from_to_bb;
-        byColorBB[c.Value] ^= from_to_bb;
+        byColorBB[c.ValueMe] ^= from_to_bb;
         board[from] = Piece.NO_PIECE;
         board[to] = Piece.make_piece(c, pt);
         index[to] = index[from];
-        pieceList[c.Value, pt, index[to]] = to;
+        pieceList[c.ValueMe, pt, index[to]] = to;
     }
 
     /// Position::set_castling_right() is a helper function used to set castling
@@ -574,8 +574,8 @@ internal class Position
         {
             var s = Utils.pop_lsb(ref b);
             var pc = piece_on(s);
-            si.key ^= Zobrist.psq[Piece.color_of(pc).Value, Piece.type_of(pc), s];
-            si.psq += PSQT.psq[Piece.color_of(pc).Value, Piece.type_of(pc), s];
+            si.key ^= Zobrist.psq[Piece.color_of(pc).ValueMe, Piece.type_of(pc), s];
+            si.psq += PSQT.psq[Piece.color_of(pc).ValueMe, Piece.type_of(pc), s];
         }
 
         if (si.epSquare != Square.SQ_NONE)
@@ -593,7 +593,7 @@ internal class Position
         for (var b = pieces(PieceType.PAWN); b;)
         {
             var s = Utils.pop_lsb(ref b);
-            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).Value, PieceType.PAWN, s];
+            si.pawnKey ^= Zobrist.psq[Piece.color_of(piece_on(s)).ValueMe, PieceType.PAWN, s];
         }
 
         for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
@@ -912,8 +912,8 @@ internal class Position
             do_castling(true, us, from, ref to, out rfrom, out rto);
 
             captured = PieceType.NO_PIECE_TYPE;
-            st.psq += PSQT.psq[us.Value, PieceType.ROOK, rto] - PSQT.psq[us.Value, PieceType.ROOK, rfrom];
-            k ^= Zobrist.psq[us.Value, PieceType.ROOK, rfrom] ^ Zobrist.psq[us.Value, PieceType.ROOK, rto];
+            st.psq += PSQT.psq[us.ValueMe, PieceType.ROOK, rto] - PSQT.psq[us.ValueMe, PieceType.ROOK, rfrom];
+            k ^= Zobrist.psq[us.ValueMe, PieceType.ROOK, rfrom] ^ Zobrist.psq[us.ValueMe, PieceType.ROOK, rto];
         }
 
         if (captured)
@@ -937,29 +937,29 @@ internal class Position
                     board[capsq] = Piece.NO_PIECE; // Not done by remove_piece()
                 }
 
-                st.pawnKey ^= Zobrist.psq[them.Value, PieceType.PAWN, capsq];
+                st.pawnKey ^= Zobrist.psq[them.ValueMe, PieceType.PAWN, capsq];
             }
             else
             {
-                st.nonPawnMaterial[them.Value] -= Value.PieceValue[(int) Phase.MG][captured];
+                st.nonPawnMaterial[them.ValueMe] -= Value.PieceValue[(int) Phase.MG][captured];
             }
 
             // Update board and piece lists
             remove_piece(them, captured, capsq);
 
             // Update material hash key and prefetch access to materialTable
-            k ^= Zobrist.psq[them.Value, captured, capsq];
-            st.materialKey ^= Zobrist.psq[them.Value, captured, pieceCount[them.Value, captured]];
+            k ^= Zobrist.psq[them.ValueMe, captured, capsq];
+            st.materialKey ^= Zobrist.psq[them.ValueMe, captured, pieceCount[them.ValueMe, captured]];
 
             // Update incremental scores
-            st.psq -= PSQT.psq[them.Value, captured, capsq];
+            st.psq -= PSQT.psq[them.ValueMe, captured, capsq];
 
             // Reset rule 50 counter
             st.rule50 = 0;
         }
 
         // Update hash key
-        k ^= Zobrist.psq[us.Value, pt, from] ^ Zobrist.psq[us.Value, pt, to];
+        k ^= Zobrist.psq[us.ValueMe, pt, from] ^ Zobrist.psq[us.ValueMe, pt, to];
 
         // Reset en passant square
         if (st.epSquare != Square.SQ_NONE)
@@ -1004,27 +1004,27 @@ internal class Position
                 put_piece(us, promotion, to);
 
                 // Update hash keys
-                k ^= Zobrist.psq[us.Value, PieceType.PAWN, to] ^ Zobrist.psq[us.Value, promotion, to];
-                st.pawnKey ^= Zobrist.psq[us.Value, PieceType.PAWN, to];
-                st.materialKey ^= Zobrist.psq[us.Value, promotion, pieceCount[us.Value, promotion] - 1]
-                                  ^ Zobrist.psq[us.Value, PieceType.PAWN, pieceCount[us.Value, PieceType.PAWN]];
+                k ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, to] ^ Zobrist.psq[us.ValueMe, promotion, to];
+                st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, to];
+                st.materialKey ^= Zobrist.psq[us.ValueMe, promotion, pieceCount[us.ValueMe, promotion] - 1]
+                                  ^ Zobrist.psq[us.ValueMe, PieceType.PAWN, pieceCount[us.ValueMe, PieceType.PAWN]];
 
                 // Update incremental score
-                st.psq += PSQT.psq[us.Value, promotion, to] - PSQT.psq[us.Value, PieceType.PAWN, to];
+                st.psq += PSQT.psq[us.ValueMe, promotion, to] - PSQT.psq[us.ValueMe, PieceType.PAWN, to];
 
                 // Update material
-                st.nonPawnMaterial[us.Value] += Value.PieceValue[(int) Phase.MG][promotion];
+                st.nonPawnMaterial[us.ValueMe] += Value.PieceValue[(int) Phase.MG][promotion];
             }
 
             // Update pawn hash key and prefetch access to pawnsTable
-            st.pawnKey ^= Zobrist.psq[us.Value, PieceType.PAWN, from] ^ Zobrist.psq[us.Value, PieceType.PAWN, to];
+            st.pawnKey ^= Zobrist.psq[us.ValueMe, PieceType.PAWN, from] ^ Zobrist.psq[us.ValueMe, PieceType.PAWN, to];
 
             // Reset rule 50 draw counter
             st.rule50 = 0;
         }
 
         // Update incremental scores
-        st.psq += PSQT.psq[us.Value, pt, to] - PSQT.psq[us.Value, pt, from];
+        st.psq += PSQT.psq[us.ValueMe, pt, to] - PSQT.psq[us.ValueMe, pt, from];
 
         // Set capture piece
         st.capturedType = captured;
@@ -1209,10 +1209,10 @@ internal class Position
 
         if (captured)
         {
-            k ^= Zobrist.psq[(~us).Value, captured, to];
+            k ^= Zobrist.psq[us.ValueThem, captured, to];
         }
 
-        return k ^ Zobrist.psq[us.Value, pt, to] ^ Zobrist.psq[us.Value, pt, from];
+        return k ^ Zobrist.psq[us.ValueMe, pt, to] ^ Zobrist.psq[us.ValueMe, pt, from];
     }
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
@@ -1402,7 +1402,7 @@ internal class Position
                 {
                     for (var pt = PieceType.PAWN; pt <= PieceType.KING; ++pt)
                     {
-                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(new Color(c), pt)))
+                        if (pieceCount[c, pt] != Bitcount.popcount_Full(pieces(Color.Create(c), pt)))
                         {
                             return false;
                         }
@@ -1421,11 +1421,11 @@ internal class Position
 
             if (step == (int) CheckStep.Castling)
             {
-                for (var c = Color.WHITE; c.Value <= Color.BLACK_C; ++c)
+                for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
                 {
                     for (var s = CastlingSide.KING_SIDE; s <= CastlingSide.QUEEN_SIDE; s++)
                     {
-                        var castlingSideColor = c | s;
+                        var castlingSideColor = Color.Create(c) | s;
                         if (!can_castle(castlingSideColor))
                         {
                             continue;
@@ -1433,7 +1433,7 @@ internal class Position
 
                         if (piece_on(castlingRookSquare[(int) (castlingSideColor)]) != Piece.make_piece(c, PieceType.ROOK)
                             || castlingRightsMask[castlingRookSquare[(int) (castlingSideColor)]] != (int) (castlingSideColor)
-                            || (castlingRightsMask[square(PieceType.KING, c)] & (int) (castlingSideColor)) != (int) (castlingSideColor))
+                            || (castlingRightsMask[square(PieceType.KING, Color.Create(c))] & (int) (castlingSideColor)) != (int) (castlingSideColor))
                         {
                             return false;
                         }

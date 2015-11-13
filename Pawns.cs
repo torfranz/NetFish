@@ -220,12 +220,12 @@ internal static class Pawns
         var ourPawns = pos.pieces(Us, PieceType.PAWN);
         var theirPawns = pos.pieces(Them, PieceType.PAWN);
 
-        e.passedPawns[Us.Value] = new Bitboard(0);
-        e.kingSquares[Us.Value] = Square.SQ_NONE;
-        e.semiopenFiles[Us.Value] = 0xFF;
-        e.pawnAttacks[Us.Value] = Bitboard.shift_bb(Right, ourPawns) | Bitboard.shift_bb(Left, ourPawns);
-        e.pawnsOnSquares[Us.Value, Color.BLACK_C] = Bitcount.popcount_Max15(ourPawns & Bitboard.DarkSquares);
-        e.pawnsOnSquares[Us.Value, Color.WHITE_C] = pos.count(PieceType.PAWN, Us) - e.pawnsOnSquares[Us.Value, Color.BLACK_C];
+        e.passedPawns[Us.ValueMe] = new Bitboard(0);
+        e.kingSquares[Us.ValueMe] = Square.SQ_NONE;
+        e.semiopenFiles[Us.ValueMe] = 0xFF;
+        e.pawnAttacks[Us.ValueMe] = Bitboard.shift_bb(Right, ourPawns) | Bitboard.shift_bb(Left, ourPawns);
+        e.pawnsOnSquares[Us.ValueMe, Color.BLACK_C] = Bitcount.popcount_Max15(ourPawns & Bitboard.DarkSquares);
+        e.pawnsOnSquares[Us.ValueMe, Color.WHITE_C] = pos.count(PieceType.PAWN, Us) - e.pawnsOnSquares[Us.ValueMe, Color.BLACK_C];
 
         // Loop through all pawns of the current color and score each pawn
         foreach (var s in pl.TakeWhile(sq => sq != Square.SQ_NONE))
@@ -235,7 +235,7 @@ internal static class Pawns
             var f = Square.file_of(s);
 
             // This file cannot be semi-open
-            e.semiopenFiles[Us.Value] &= ~(1 << (int)f);
+            e.semiopenFiles[Us.ValueMe] &= ~(1 << (int)f);
 
             // Flag the pawn
             var neighbours = ourPawns & Utils.adjacent_files_bb(f);
@@ -279,7 +279,7 @@ internal static class Pawns
             // pawn on each file is considered a true passed pawn.
             if (passed && !doubled)
             {
-                e.passedPawns[Us.Value] |= s;
+                e.passedPawns[Us.ValueMe] |= s;
             }
 
             // Score this pawn
@@ -319,11 +319,11 @@ internal static class Pawns
             }
         }
 
-        b = new Bitboard((uint) (e.semiopenFiles[Us.Value] ^ 0xFF));
-        e.pawnSpan[Us.Value] = b ? (Utils.msb(b) - Utils.lsb(b)) : 0;
+        b = new Bitboard((uint) (e.semiopenFiles[Us.ValueMe] ^ 0xFF));
+        e.pawnSpan[Us.ValueMe] = b ? (Utils.msb(b) - Utils.lsb(b)) : 0;
 
         // Center binds: Two pawns controlling the same central square
-        b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us.Value];
+        b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us.ValueMe];
         score += Bitcount.popcount_Max15(b)*CenterBind;
 
         return score;
@@ -407,47 +407,47 @@ internal static class Pawns
 
         internal Bitboard pawn_attacks(Color c)
         {
-            return pawnAttacks[c.Value];
+            return pawnAttacks[c.ValueMe];
         }
 
         internal Bitboard passed_pawns(Color c)
         {
-            return passedPawns[c.Value];
+            return passedPawns[c.ValueMe];
         }
 
         internal int pawn_span(Color c)
         {
-            return pawnSpan[c.Value];
+            return pawnSpan[c.ValueMe];
         }
 
         internal int semiopen_file(Color c, File f)
         {
-            return semiopenFiles[c.Value] & (1 << (int)f);
+            return semiopenFiles[c.ValueMe] & (1 << (int)f);
         }
 
         internal int semiopen_side(Color c, File f, bool leftSide)
         {
-            return semiopenFiles[c.Value] & (leftSide ? (1 << (int)f) - 1 : ~((1 << ((int) f + 1)) - 1));
+            return semiopenFiles[c.ValueMe] & (leftSide ? (1 << (int)f) - 1 : ~((1 << ((int) f + 1)) - 1));
         }
 
         internal int pawns_on_same_color_squares(Color c, Square s)
         {
-            return pawnsOnSquares[c.Value, Bitboard.DarkSquares & s ? 1 : 0];
+            return pawnsOnSquares[c.ValueMe, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
         internal Score king_safety(Color Us, Position pos, Square ksq)
         {
-            return kingSquares[Us.Value] == ksq && castlingRights[Us.Value] == pos.can_castle(Us)
-                ? kingSafety[Us.Value]
-                : (kingSafety[Us.Value] = do_king_safety(Us, pos, ksq));
+            return kingSquares[Us.ValueMe] == ksq && castlingRights[Us.ValueMe] == pos.can_castle(Us)
+                ? kingSafety[Us.ValueMe]
+                : (kingSafety[Us.ValueMe] = do_king_safety(Us, pos, ksq));
         }
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
         private Score do_king_safety(Color Us, Position pos, Square ksq)
         {
-            kingSquares[Us.Value] = ksq;
-            castlingRights[Us.Value] = pos.can_castle(Us);
+            kingSquares[Us.ValueMe] = ksq;
+            castlingRights[Us.ValueMe] = pos.can_castle(Us);
             var minKingPawnDistance = 0;
 
             var pawns = pos.pieces(Us, PieceType.PAWN);
