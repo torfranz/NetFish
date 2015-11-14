@@ -31,20 +31,18 @@ internal static class TranspositionTable
     // The lowest order bits of the key are used to get the index of the cluster
     internal static Cluster first_entry(ulong key)
     {
-        return GetCluster((int) key & (clusterCount - 1));
-    }
-
-    private static Cluster GetCluster(int key)
-    {
-        var cluster = table[key];
+        var idx = (int) key & (clusterCount - 1);
+        var cluster = table[idx];
         if (cluster == null)
         {
             cluster = new Cluster();
-            table[key] = cluster;
+            table[idx] = cluster;
         }
 
         return cluster;
     }
+
+    
     /// Returns an approximation of the hashtable occupation during a search. The
     /// hash is x permill full, as per UCI protocol.
     internal static int hashfull()
@@ -52,7 +50,12 @@ internal static class TranspositionTable
         var cnt = 0;
         for (var i = 0; i < 1000/ClusterSize; i++)
         {
-            var cluster = GetCluster(i);
+            var cluster = table[i];
+            if (cluster == null)
+            {
+                continue;
+            }
+
             for (var j = 0; j < ClusterSize; j++)
             {
                 if ((cluster.entry[j].genBound8 & 0xFC) == generation8)
