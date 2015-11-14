@@ -55,7 +55,7 @@ internal class TTEntry
         }
 
         // Don't overwrite more valuable entries
-        if ((k >> 48) != key16 || d > depth8 - 2
+        if ((k >> 48) != key16 || (int)d > depth8 - 2
             /* || g != (genBound8 & 0xFC) // Matching non-zero keys are already refreshed by probe() */
             || b == Bound.BOUND_EXACT)
         {
@@ -63,7 +63,7 @@ internal class TTEntry
             value16 = (short) v;
             eval16 = (short) ev;
             genBound8 = (byte) (g | (int) b);
-            depth8 = d;
+            depth8 = (int)d;
         }
     }
 }

@@ -75,7 +75,7 @@ internal class MovePicker
         history = h;
         counterMovesHistory = cmh;
 
-        Debug.Assert(d <= Depth.DEPTH_ZERO);
+        Debug.Assert((int)d <= Depth.DEPTH_ZERO_C);
 
         if (pos.checkers())
         {
@@ -285,7 +285,7 @@ internal class MovePicker
             case Stages.BAD_QUIETS:
                 cur = new ExtMoveArrayWrapper(endMoves);
                 endMoves = endQuiets;
-                if (depth >= 3*Depth.ONE_PLY)
+                if ((int)depth >= 3*Depth.ONE_PLY_C)
                 {
                     ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
                 }

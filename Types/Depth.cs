@@ -2,21 +2,29 @@
 
 internal struct Depth
 {
-    internal static Depth ONE_PLY = new Depth(1);
+    internal const int ONE_PLY_C = 1;
+    internal const int DEPTH_ZERO_C = 0;
+    internal const int DEPTH_QS_CHECKS_C = 0;
+    internal const int DEPTH_QS_NO_CHECKS_C = -1;
+    internal const int DEPTH_QS_RECAPTURESS_C = -5;
+    internal const int DEPTH_NONE_C = -6;
 
-    internal static Depth DEPTH_ZERO = new Depth(0);
 
-    internal static Depth DEPTH_QS_CHECKS = new Depth(0);
+    internal static Depth ONE_PLY = new Depth(ONE_PLY_C);
 
-    internal static Depth DEPTH_QS_NO_CHECKS = new Depth(-1);
+    internal static Depth DEPTH_ZERO = new Depth(DEPTH_ZERO_C);
 
-    internal static Depth DEPTH_QS_RECAPTURES = new Depth(-5);
+    internal static Depth DEPTH_QS_CHECKS = new Depth(DEPTH_QS_CHECKS_C);
 
-    internal static Depth DEPTH_NONE = new Depth(-6);
+    internal static Depth DEPTH_QS_NO_CHECKS = new Depth(DEPTH_QS_NO_CHECKS_C);
+
+    internal static Depth DEPTH_QS_RECAPTURES = new Depth(DEPTH_QS_RECAPTURESS_C);
+
+    internal static Depth DEPTH_NONE = new Depth(DEPTH_NONE_C);
 
     internal static Depth DEPTH_MAX = new Depth(_.MAX_PLY);
 
-    private int Value { get; set; }
+    private int Value;
 
     #region constructors
 
@@ -83,7 +91,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static implicit operator int(Depth d)
+    public static explicit operator int(Depth d)
     {
         return d.Value;
     }
