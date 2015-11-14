@@ -70,7 +70,7 @@ internal static class Benchmark
         // Assign default values to missing arguments
         var ttSize = (stack.Count > 0) ? (stack.Pop()) : "16";
         var threads = (stack.Count > 0) ? (stack.Pop()) : "1";
-        var limit = (stack.Count > 0) ? (stack.Pop()) : "13";
+        var limit = (stack.Count > 0) ? (stack.Pop()) : "7";
         var fenFile = (stack.Count > 0) ? (stack.Pop()) : "default";
         var limitType = (stack.Count > 0) ? (stack.Pop()) : "depth";
 
