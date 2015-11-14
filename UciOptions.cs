@@ -92,7 +92,7 @@ internal static class UCIOptionChanges
 
     internal static void on_hash_size(UCIOption opt)
     {
-        TranspositionTable.resize(uint.Parse(opt.v));
+        TranspositionTable.resize(int.Parse(opt.v));
     }
 
     internal static void on_clear_hash(UCIOption opt)

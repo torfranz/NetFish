@@ -32,7 +32,7 @@ internal class Program
         Pawns.init();
         
         //Tablebases::init(Options["SyzygyPath"]);
-        TranspositionTable.resize(uint.Parse(OptionMap.Instance["Hash"].v));
+        TranspositionTable.resize(int.Parse(OptionMap.Instance["Hash"].v));
 
         ThreadPool.init();
 
@@ -41,7 +41,7 @@ internal class Program
         var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
         var stack = Position.CreateStack("go depth 7");
         UCI.go(pos, stack);
-        ThreadPool.wait_for_think_finished();
+        ThreadPool.main().join();
 #endif
         var sb = new StringBuilder();
         for (var i = 1; i < args.Length; i++)

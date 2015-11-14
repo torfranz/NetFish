@@ -131,6 +131,7 @@ internal static class UCI
             // Increment pointer to SetupStates circular buffer
             SetupStates++;
         }
+        
     }
 
     /// UCI::move() converts a Move to a string in coordinate notation (g1f3, a7a8q).
@@ -316,7 +317,7 @@ internal static class UCI
                 {
                     cmd = "quit";
                 }
-
+                
                 var stack = Position.CreateStack(cmd);
                 if (stack.Count == 0)
                 {

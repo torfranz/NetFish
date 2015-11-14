@@ -8,7 +8,7 @@ using System.Threading;
 internal sealed class SplitPoint
 {
     // Shared variable data
-    internal readonly object spinlock = new object();
+    internal readonly object spinLock = new object();
 
     internal volatile bool allSlavesSearching;
 
@@ -197,7 +197,7 @@ internal class Thread : ThreadBase
                 Array.Copy(sp.ss.table, ss.table, 5);
                 ss[ss.current].splitPoint = sp;
 
-                ThreadHelper.lock_grab(sp.spinlock);
+                ThreadHelper.lock_grab(sp.spinLock);
 
                 Debug.Assert(activePosition == null);
 
@@ -242,7 +242,7 @@ internal class Thread : ThreadBase
                 // After releasing the lock we can't access any SplitPoint related data
                 // in a safe way because it could have been released under our feet by
                 // the sp master.
-                ThreadHelper.lock_release(sp.spinlock);
+                ThreadHelper.lock_release(sp.spinLock);
 
                 // Try to late join to another split point if none of its slaves has
                 // already finished.
@@ -282,7 +282,7 @@ internal class Thread : ThreadBase
                     sp = bestSp;
 
                     // Recheck the conditions under lock protection
-                    ThreadHelper.lock_grab(sp.spinlock);
+                    ThreadHelper.lock_grab(sp.spinLock);
 
                     if (sp.allSlavesSearching && Bitcount.popcount_Full(sp.slavesMask) < _.MAX_SLAVES_PER_SPLITPOINT)
                     {
@@ -298,7 +298,7 @@ internal class Thread : ThreadBase
                         ThreadHelper.lock_release(spinlock);
                     }
 
-                    ThreadHelper.lock_release(sp.spinlock);
+                    ThreadHelper.lock_release(sp.spinLock);
                 }
 
                 // If search is finished then sleep, otherwise just yield
@@ -306,7 +306,13 @@ internal class Thread : ThreadBase
                 {
                     Debug.Assert(this_sp == null);
 
-                    ThreadHelper.cond_wait(sleepCondition, spinlock /*mutex*/);
+                    ThreadHelper.lock_grab(spinlock);
+
+                    while (!exit && !ThreadPool.main().thinking)
+                        ThreadHelper.cond_wait(sleepCondition, spinlock /*mutex*/);
+
+                    ThreadHelper.lock_release(spinlock);
+                    
                 }
                 else
                 {
@@ -388,7 +394,7 @@ internal class Thread : ThreadBase
         // Pick and init the next available split point
         var sp = splitPoints[splitPointsSize];
 
-        ThreadHelper.lock_grab(sp.spinlock); // No contention here until we don't increment splitPointsSize
+        ThreadHelper.lock_grab(sp.spinLock); // No contention here until we don't increment splitPointsSize
 
         sp.master = this;
         sp.parentSplitPoint = activeSplitPoint;
@@ -435,7 +441,7 @@ internal class Thread : ThreadBase
         // it will instantly launch a search, because its 'searching' flag is set.
         // The thread will return from the idle loop when all slaves have finished
         // their work at this split point.
-        ThreadHelper.lock_release(sp.spinlock);
+        ThreadHelper.lock_release(sp.spinLock);
 
         base_idle_loop(null); // Force a call to base class idle_loop()
 
@@ -532,13 +538,13 @@ internal sealed class MainThread : Thread
                 ThreadHelper.cond_signal(sleepCondition); // Wake up the UI thread if needed, 
                 ThreadHelper.cond_wait(sleepCondition, spinlock /*mutex*/);
             }
-
+            
             ThreadHelper.lock_release(spinlock /*mutex*/);
 
             if (!exit)
             {
                 searching = true;
-
+                
                 Search.think();
 
                 Debug.Assert(searching);
@@ -552,7 +558,7 @@ internal sealed class MainThread : Thread
     internal void join()
     {
         ThreadHelper.lock_grab(spinlock /*mutex*/);
-
+        ThreadHelper.cond_signal(sleepCondition); // In case is waiting for stop or ponderhit
         //sleepCondition.wait(lk, [&]{ return !thinking; });
         while (thinking)
         {
@@ -683,7 +689,6 @@ internal static class ThreadPool
     internal static void start_thinking(Position pos, LimitsType limits, StateInfoWrapper states)
     {
         main().join();
-
         Search.Signals.stopOnPonderhit = Search.Signals.firstRootMove = false;
         Search.Signals.stop = Search.Signals.failedLowAtRoot = false;
 
@@ -711,21 +716,7 @@ internal static class ThreadPool
         main().thinking = true;
         main().notify_one(); // Wake up main thread: 'thinking' must be already set
     }
-
-    // ThreadsManager::wait_for_think_finished() waits for main thread to go to
-    // sleep, this means search is finished. Then returns.
-    internal static void wait_for_think_finished()
-    {
-        var t = main();
-        ThreadHelper.lock_grab(t.spinlock);
-        ThreadHelper.cond_signal(t.sleepCondition); // In case is waiting for stop or ponderhit
-        while (t.thinking)
-        {
-            ThreadHelper.cond_wait(t.sleepCondition, t.spinlock);
-        }
-        ThreadHelper.lock_release(t.spinlock);
-    }
-}
+ }
 
 internal static class ThreadHelper
 {

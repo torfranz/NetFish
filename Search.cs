@@ -82,13 +82,13 @@ internal static class Search
                 {
                     var sp = th.splitPoints[i];
 
-                    ThreadHelper.lock_grab(sp.spinlock);
+                    ThreadHelper.lock_grab(sp.spinLock);
 
                     nodes += sp.nodes;
 
                     nodes = ThreadPool.threads.Where((t, idx) => (sp.slavesMask & (1u << idx)) != 0 && t.activePosition != null).Aggregate(nodes, (current, t) => current + t.activePosition.nodes_searched());
 
-                    ThreadHelper.lock_release(sp.spinlock);
+                    ThreadHelper.lock_release(sp.spinLock);
                 }
             }
 
@@ -182,7 +182,6 @@ internal static class Search
 
             ThreadPool.timer.run = true;
             ThreadPool.timer.notify_one(); // Start the recurring timer
-
             id_loop(RootPos); // Let's start searching !
 
             ThreadPool.timer.run = false;
@@ -546,8 +545,7 @@ internal static class Search
     private static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
         Depth depth, bool cutNode)
     {
-        Utils.WriteToLog(
-            $"search(NT={(int) NT}, SpNode={(SpNode ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth}, cutNode={(cutNode ? 1 : 0)})");
+        Utils.WriteToLog($"search(NT={(int) NT}, SpNode={(SpNode ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth}, cutNode={(cutNode ? 1 : 0)})");
         var RootNode = NT == NodeType.Root;
         var PvNode = RootNode || NT == NodeType.PV;
 
@@ -877,7 +875,7 @@ internal static class Search
                     continue;
 
                 stack.moveCount = moveCount = ++splitPoint.moveCount;
-                ThreadHelper.lock_release(splitPoint.spinlock);
+                ThreadHelper.lock_release(splitPoint.spinLock);
             }
             else
                 stack.moveCount = ++moveCount;
@@ -942,7 +940,7 @@ internal static class Search
                     && moveCount >= FutilityMoveCounts[improving ? 1 : 0, (int)depth])
                 {
                     if (SpNode)
-                        ThreadHelper.lock_grab(splitPoint.spinlock);
+                        ThreadHelper.lock_grab(splitPoint.spinLock);
 
                     continue;
                 }
@@ -960,7 +958,7 @@ internal static class Search
 
                         if (SpNode)
                         {
-                            ThreadHelper.lock_grab(splitPoint.spinlock);
+                            ThreadHelper.lock_grab(splitPoint.spinLock);
                             if (bestValue > splitPoint.bestValue)
                                 splitPoint.bestValue = bestValue;
                         }
@@ -972,7 +970,7 @@ internal static class Search
                 if (predictedDepth < 4*Depth.ONE_PLY && pos.see_sign(move) < Value.VALUE_ZERO)
                 {
                     if (SpNode)
-                        ThreadHelper.lock_grab(splitPoint.spinlock);
+                        ThreadHelper.lock_grab(splitPoint.spinLock);
 
                     continue;
                 }
@@ -1082,7 +1080,7 @@ internal static class Search
             // Step 18. Check for new best move
             if (SpNode)
             {
-                ThreadHelper.lock_grab(splitPoint.spinlock);
+                ThreadHelper.lock_grab(splitPoint.spinLock);
                 bestValue = new Value(splitPoint.bestValue);
                 alpha = new Value(splitPoint.alpha);
             }
@@ -1235,8 +1233,7 @@ internal static class Search
     private static Value qsearch(NodeType NT, bool InCheck, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
         Depth depth)
     {
-        Utils.WriteToLog(
-            $"qsearch(NT={(int) NT}, InCheck={(InCheck ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth})");
+        Utils.WriteToLog($"qsearch(NT={(int) NT}, InCheck={(InCheck ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth})");
         var PvNode = NT == NodeType.PV;
 
         Debug.Assert(NT == NodeType.PV || NT == NodeType.NonPV);
