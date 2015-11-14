@@ -22,7 +22,7 @@ internal static class Bitbases
         return
             (uint)
                 ((int)wksq | ((int)bksq << 6) | (us.ValueMe << 12) | ((int)Square.file_of(psq) << 13) |
-                 ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
+                 ((Rank.RANK_7_C - (int)Square.rank_of(psq)) << 15));
     }
 
     internal static bool probe(Square wksq, Square wpsq, Square bksq, Color us)

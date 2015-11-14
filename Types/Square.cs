@@ -361,7 +361,7 @@ internal struct Square
 #endif
     internal static Square make_square(File f, Rank r)
     {
-        return new Square((r << 3) | (int)f);
+        return new Square(((int)r << 3) | (int)f);
     }
 
 #if FORCEINLINE
@@ -377,7 +377,7 @@ internal struct Square
 #endif
     internal static Rank rank_of(Square s)
     {
-        return new Rank(s.Value >> 3);
+        return Rank.Create(s.Value >> 3);
     }
 
 #if FORCEINLINE

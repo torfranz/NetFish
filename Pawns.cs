@@ -37,7 +37,7 @@ internal static class Pawns
     private static readonly Score[] Backward = {Score.make_score(67, 42), Score.make_score(49, 24)};
 
     // Connected pawn bonus by opposed, phalanx, twice supported and rank
-    private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB];
+    private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB_C];
 
     // Levers bonus by rank
     private static readonly Score[] Lever =
@@ -259,7 +259,7 @@ internal static class Pawns
             // or if it is sufficiently advanced, it cannot be backward either.
             bool backward;
             if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s))
-                || (Rank.relative_rank(Us, s) >= Rank.RANK_5))
+                || ((int)Rank.relative_rank(Us, s) >= Rank.RANK_5_C))
             {
                 backward = false;
             }
@@ -310,7 +310,7 @@ internal static class Pawns
                         opposed ? 1 : 0,
                         phalanx ? 1 : 0,
                         Bitboard.more_than_one(supported) ? 1 : 0,
-                        Rank.relative_rank(Us, s)];
+                        (int)Rank.relative_rank(Us, s)];
             }
 
             if (doubled)
@@ -320,7 +320,7 @@ internal static class Pawns
 
             if (lever)
             {
-                score += Lever[Rank.relative_rank(Us, s)];
+                score += Lever[(int)Rank.relative_rank(Us, s)];
             }
         }
 
@@ -345,7 +345,7 @@ internal static class Pawns
             {
                 for (var apex = 0; apex <= 1; ++apex)
                 {
-                    for (var r = Rank.RANK_2; r < Rank.RANK_8; ++r)
+                    for (var r = Rank.RANK_2_C; r < Rank.RANK_8_C; ++r)
                     {
                         var v = (Seed[r] + (phalanx != 0 ? (Seed[r + 1] - Seed[r])/2 : 0)) >> opposed;
                         v += (apex != 0 ? v/2 : 0);
@@ -463,7 +463,7 @@ internal static class Pawns
                 }
             }
 
-            if (Rank.relative_rank(Us, ksq) > Rank.RANK_4)
+            if ((int)Rank.relative_rank(Us, ksq) > Rank.RANK_4_C)
             {
                 return Score.make_score(0, -16*minKingPawnDistance);
             }
@@ -510,14 +510,13 @@ internal static class Pawns
                 b = theirPawns & Utils.file_bb(File.Create(f));
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
-                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][rkUs]
+                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][(int)rkUs]
                           + StormDanger[
                               f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
-                                  : rkUs == Rank.RANK_1
+                                  : (int)rkUs == Rank.RANK_1_C
                                       ? NoFriendlyPawn
-                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][
-                                          rkThem];
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][(int)rkThem];
             }
 
             return safety;

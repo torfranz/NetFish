@@ -38,9 +38,9 @@ internal static class Utils
 
     internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB_C];
 
-    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
+    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB_C];
 
-    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
+    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB_C];
 
     internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
@@ -84,7 +84,7 @@ internal static class Utils
 #endif
     internal static Bitboard rank_bb(Rank r)
     {
-        return RankBB[r];
+        return RankBB[(int)r];
     }
 
 #if FORCEINLINE
@@ -92,7 +92,7 @@ internal static class Utils
 #endif
     internal static Bitboard rank_bb(Square s)
     {
-        return RankBB[Square.rank_of(s)];
+        return RankBB[(int)Square.rank_of(s)];
     }
 
 #if FORCEINLINE
@@ -141,7 +141,7 @@ internal static class Utils
 #endif
     internal static Bitboard in_front_bb(Color c, Rank r)
     {
-        return InFrontBB[c.ValueMe, r];
+        return InFrontBB[c.ValueMe, (int)r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -201,9 +201,18 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static int distance_Rank(Rank x, Rank y)
+    internal static int distance_Rank(int x, int y)
     {
+
         return x < y ? y - x : x - y;
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    internal static int distance_Rank(Square x, Square y)
+    {
+        return distance_Rank((int)Square.rank_of(x), (int)Square.rank_of(y));
     }
 
 #if FORCEINLINE
@@ -214,16 +223,6 @@ internal static class Utils
         int xFile = (int)Square.file_of(x);
         int yFile = (int)Square.file_of(y);
         return xFile > yFile ? xFile - yFile : yFile - xFile;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    internal static int distance_Rank(Square x, Square y)
-    {
-        int xRank = Square.rank_of(x);
-        int yRank = Square.rank_of(y);
-        return xRank > yRank ? xRank - yRank : yRank - xRank;
     }
 
     internal static uint magic_index_Rook(Square s, Bitboard occupied)

@@ -327,7 +327,7 @@ internal static class Eval
             if (Pt == PieceType.BISHOP_C || Pt == PieceType.KNIGHT_C)
             {
                 // Bonus for outpost square
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_4 && Rank.relative_rank(Us, s) <= Rank.RANK_6
+                if ((int)Rank.relative_rank(Us, s) >= Rank.RANK_4_C && (int)Rank.relative_rank(Us, s) <= Rank.RANK_6_C
                     && !(pos.pieces(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
@@ -335,7 +335,7 @@ internal static class Eval
                 }
 
                 // Bonus when behind a pawn
-                if (Rank.relative_rank(Us, s) < Rank.RANK_5 && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
+                if ((int)Rank.relative_rank(Us, s) < Rank.RANK_5_C && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
                 {
                     score += MinorBehindPawn;
                 }
@@ -367,7 +367,7 @@ internal static class Eval
             if (Pt == PieceType.ROOK_C)
             {
                 // Bonus for aligning with enemy pawns on the same rank/file
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_5)
+                if ((int)Rank.relative_rank(Us, s) >= Rank.RANK_5_C)
                 {
                     var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, (int)s];
                     if (alignedPawns)
@@ -631,7 +631,7 @@ internal static class Eval
 
             Debug.Assert(pos.pawn_passed(Us, s));
 
-            int r = Rank.relative_rank(Us, s) - Rank.RANK_2;
+            int r = (int)Rank.relative_rank(Us, s) - Rank.RANK_2_C;
             var rr = r*(r - 1);
 
             Value mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
@@ -825,12 +825,12 @@ internal static class Eval
             Bitboard b;
             if ((b = ei.pi.passed_pawns(Color.WHITE)) != 0)
             {
-                score += Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b))*Unstoppable;
+                score += (int)Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;
             }
 
             if ((b = ei.pi.passed_pawns(Color.BLACK)) != 0)
             {
-                score -= Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b))*Unstoppable;
+                score -= (int)Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)) * Unstoppable;
             }
         }
 

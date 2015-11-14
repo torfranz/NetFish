@@ -1,70 +1,76 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-internal struct Rank
+internal class Rank
 {
-    internal const int RANK_1C = 0;
+    internal const int RANK_1_C = 0;
 
-    internal const int RANK_2C = 1;
+    internal const int RANK_2_C = 1;
 
-    internal const int RANK_3C = 2;
+    internal const int RANK_3_C = 2;
 
-    internal const int RANK_4C = 3;
+    internal const int RANK_4_C = 3;
 
-    internal const int RANK_5C = 4;
+    internal const int RANK_5_C = 4;
 
-    internal const int RANK_6C = 5;
+    internal const int RANK_6_C = 5;
 
-    internal const int RANK_7C = 6;
+    internal const int RANK_7_C = 6;
 
-    internal const int RANK_8C = 7;
+    internal const int RANK_8_C = 7;
 
-    internal static Rank RANK_1 = new Rank(RANK_1C);
+    internal const int RANK_NB_C = 8;
 
-    internal static Rank RANK_2 = new Rank(RANK_2C);
+    internal static Rank RANK_1 = new Rank(RANK_1_C);
 
-    internal static Rank RANK_3 = new Rank(RANK_3C);
+    internal static Rank RANK_2 = new Rank(RANK_2_C);
 
-    internal static Rank RANK_4 = new Rank(RANK_4C);
+    internal static Rank RANK_3 = new Rank(RANK_3_C);
 
-    internal static Rank RANK_5 = new Rank(RANK_5C);
+    internal static Rank RANK_4 = new Rank(RANK_4_C);
 
-    internal static Rank RANK_6 = new Rank(RANK_6C);
+    internal static Rank RANK_5 = new Rank(RANK_5_C);
 
-    internal static Rank RANK_7 = new Rank(RANK_7C);
+    internal static Rank RANK_6 = new Rank(RANK_6_C);
 
-    internal static Rank RANK_8 = new Rank(RANK_8C);
+    internal static Rank RANK_7 = new Rank(RANK_7_C);
 
-    internal static Rank RANK_NB = new Rank(8);
+    internal static Rank RANK_8 = new Rank(RANK_8_C);
 
-    internal int Value
-    {
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        get;
-#if FORCEINLINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-       private set;
-    }
+    private static Rank RANK_NB = new Rank(RANK_NB_C);
+
+    private int Value;
 
     #region constructors
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Rank(uint value)
-        : this((int) value)
+    public static Rank Create(int value)
     {
+        switch (value)
+        {
+            case RANK_1_C: return RANK_1;
+            case RANK_2_C: return RANK_2;
+            case RANK_3_C: return RANK_3;
+            case RANK_4_C: return RANK_4;
+            case RANK_5_C: return RANK_5;
+            case RANK_6_C: return RANK_6;
+            case RANK_7_C: return RANK_7;
+            case RANK_8_C: return RANK_8;
+            case RANK_NB_C: return RANK_NB;
+            default: throw new ArgumentOutOfRangeException(nameof(value));
+        }
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Rank(int value)
+    private Rank(int value)
     {
         Value = value;
-        //Debug.Assert(this.ValueMe >= -8 && this.ValueMe <= 8);
+        Debug.Assert(this.Value >= RANK_1_C && this.Value <= RANK_NB_C);
     }
 
     #endregion
@@ -76,15 +82,7 @@ internal struct Rank
 #endif
     public static Rank operator +(Rank v1, int v2)
     {
-        return new Rank(v1.Value + v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Rank operator +(int v1, Rank v2)
-    {
-        return new Rank(v1 + v2.Value);
+        return Rank.Create(v1.Value + v2);
     }
 
 #if FORCEINLINE
@@ -92,66 +90,15 @@ internal struct Rank
 #endif
     public static Rank operator -(Rank v1, Rank v2)
     {
-        return new Rank(v1.Value - v2.Value);
+        return Rank.Create(v1.Value - v2.Value);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Rank operator -(Rank v1, int v2)
-    {
-        return new Rank(v1.Value - v2);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Rank operator *(int v1, Rank v2)
-    {
-        return new Rank(v1*v2.Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(Rank r)
+    public static explicit operator int(Rank r)
     {
         return r.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator ==(Rank v1, Rank v2)
-    {
-        return v1.Value == v2.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator !=(Rank v1, Rank v2)
-    {
-        return v1.Value != v2.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Rank operator ++(Rank v1)
-    {
-        v1.Value += 1;
-        return v1;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static Rank operator --(Rank v1)
-
-    {
-        v1.Value -= 1;
-        return v1;
     }
 
 #if FORCEINLINE
@@ -169,7 +116,7 @@ internal struct Rank
 #endif
     internal static Rank relative_rank(Color c, Rank r)
     {
-        return new Rank(r.Value ^ (c.ValueMe * 7));
+        return Rank.Create(r.Value ^ (c.ValueMe * 7));
     }
 
 #if FORCEINLINE

@@ -31,7 +31,7 @@ internal class File
     internal static File FILE_H = new File(FILE_H_C);
 
     internal static File[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
-    private int Value;
+    private readonly int Value;
 
     #region constructors
 

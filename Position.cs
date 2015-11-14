@@ -348,7 +348,7 @@ internal class Position
     internal bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(moved_piece(m)) == PieceType.PAWN
-               && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
+               && (int)Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4_C;
     }
 
 #if FORCEINLINE
@@ -1369,8 +1369,8 @@ internal class Position
                     return false;
                 }
 
-                var relRank = Rank.relative_rank(sideToMove, ep_square());
-                if (ep_square() != Square.SQ_NONE && relRank != Rank.RANK_6)
+                var epSquare = ep_square();
+                if (epSquare != Square.SQ_NONE && Rank.relative_rank(sideToMove, epSquare) != Rank.RANK_6)
                 {
                     return false;
                 }
@@ -1460,12 +1460,12 @@ internal class Position
     {
         var ss = new StringBuilder();
 
-        for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
+        for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
         {
             for (var f = File.FILE_A_C; f <= File.FILE_H_C; ++f)
             {
                 int emptyCnt;
-                for (emptyCnt = 0; f <= File.FILE_H_C && empty(Square.make_square(File.Create(f), r)); ++f)
+                for (emptyCnt = 0; f <= File.FILE_H_C && empty(Square.make_square(File.Create(f), Rank.Create(r))); ++f)
                 {
                     ++emptyCnt;
                 }
@@ -1477,11 +1477,11 @@ internal class Position
 
                 if (f <= File.FILE_H_C)
                 {
-                    ss.Append(PieceToChar[(int)piece_on(Square.make_square(File.Create(f), r))]);
+                    ss.Append(PieceToChar[(int)piece_on(Square.make_square(File.Create(f), Rank.Create(r)))]);
                 }
             }
 
-            if (r > Rank.RANK_1)
+            if (r > Rank.RANK_1_C)
             {
                 ss.Append('/');
             }
@@ -1676,7 +1676,7 @@ internal class Position
             }
             else if (token >= 'A' && token <= 'H')
             {
-                rsq = new Square((token - 'A') | Rank.relative_rank(c, Rank.RANK_1));
+                rsq = new Square((token - 'A') | (int)Rank.relative_rank(c, Rank.RANK_1));
             }
             else
             {
@@ -1696,7 +1696,7 @@ internal class Position
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
                 {
-                    st.epSquare = Square.make_square(File.Create(col - 'a'), new Rank(row - '1'));
+                    st.epSquare = Square.make_square(File.Create(col - 'a'), Rank.Create(row - '1'));
 
                     if ((attackers_to(st.epSquare) & pieces(sideToMove, PieceType.PAWN)) == 0)
                     {
@@ -1828,12 +1828,12 @@ internal class Position
     internal string displayString()
     {
         var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
-        for (var r = Rank.RANK_8; r >= Rank.RANK_1; --r)
+        for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
         {
             foreach (var f in File.AllFiles)
             {
                 sb.Append(" | ");
-                sb.Append(PieceToChar[(int)piece_on(Square.make_square(f, r))]);
+                sb.Append(PieceToChar[(int)piece_on(Square.make_square(f, Rank.Create(r)))]);
             }
 
             sb.Append(" |\n +---+---+---+---+---+---+---+---+\n");

@@ -20,9 +20,9 @@ internal static class Bitboards
             Utils.FileBB[(int)f] = (int)f > File.FILE_A_C ? Utils.FileBB[(int)f - 1] << 1 : Bitboard.FileABB;
         }
 
-        for (var r = Rank.RANK_1; r <= Rank.RANK_8; ++r)
+        for (var r = Rank.RANK_1_C; r <= Rank.RANK_8_C; ++r)
         {
-            Utils.RankBB[r] = r > Rank.RANK_1 ? Utils.RankBB[r - 1] << 8 : Bitboard.Rank1BB;
+            Utils.RankBB[r] = r > Rank.RANK_1_C ? Utils.RankBB[r - 1] << 8 : Bitboard.Rank1BB;
         }
 
         foreach (var f in File.AllFiles)
@@ -31,7 +31,7 @@ internal static class Bitboards
                                        | ((int)f < File.FILE_H_C ? Utils.FileBB[(int)f + 1] : new Bitboard(0));
         }
 
-        for (var r = Rank.RANK_1; r < Rank.RANK_8; ++r)
+        for (var r = Rank.RANK_1_C; r < Rank.RANK_8_C; ++r)
         {
             var value = (Utils.InFrontBB[Color.BLACK_C, r + 1] = Utils.InFrontBB[Color.BLACK_C, r] | Utils.RankBB[r]);
             Utils.InFrontBB[Color.WHITE_C, r] = ~value;
@@ -41,8 +41,8 @@ internal static class Bitboards
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                Utils.ForwardBB[c, (int)s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[(int)Square.file_of(s)];
-                Utils.PawnAttackSpan[c, (int)s] = Utils.InFrontBB[c, Square.rank_of(s)]
+                Utils.ForwardBB[c, (int)s] = Utils.InFrontBB[c, (int)Square.rank_of(s)] & Utils.FileBB[(int)Square.file_of(s)];
+                Utils.PawnAttackSpan[c, (int)s] = Utils.InFrontBB[c, (int)Square.rank_of(s)]
                                              & Utils.AdjacentFilesBB[(int)Square.file_of(s)];
                 Utils.PassedPawnMask[c, (int)s] = Utils.ForwardBB[c, (int)s] | Utils.PawnAttackSpan[c, (int)s];
             }
@@ -222,9 +222,9 @@ internal static class Bitboards
             //  continue;
 
 #if X64
-            var rng = new PRNG((ulong) seeds[1][Square.rank_of(s)]);
+            var rng = new PRNG((ulong) seeds[1][(int)Square.rank_of(s)]);
 #else
-            var rng = new PRNG((ulong)seeds[0][Square.rank_of(s)]);
+            var rng = new PRNG((ulong)seeds[0][(int)Square.rank_of(s)]);
 #endif
 
             // Find a magic for square 's' picking up an (almost) random number
