@@ -96,7 +96,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(Piece p)
+    public static implicit operator int(Piece p)
     {
         return p.Value;
     }
@@ -156,6 +156,6 @@ internal class Piece
 #endif
     internal static Piece make_piece(int c, PieceType pt)
     {
-        return Piece.Create((c << 3) | (int)pt);
+        return Piece.Create((c << 3) | pt);
     }
 }

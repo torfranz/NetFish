@@ -12,6 +12,7 @@ internal static class Bitcount
 #endif
     internal static int popcount_Full(ulong b)
     {
+        
 #if X64
         b -= (b >> 1) & 0x5555555555555555UL;
         b = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);

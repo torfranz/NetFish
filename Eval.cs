@@ -264,7 +264,7 @@ internal static class Eval
         Score[] mobility,
         Bitboard[] mobilityArea)
     {
-        int Pt = (int)pieceType;
+        int Pt = pieceType;
         if (Pt == PieceType.KING_C)
         {
             return Score.SCORE_ZERO;
@@ -295,7 +295,7 @@ internal static class Eval
 
             if (ei.pinnedPieces[Us.ValueMe] & s)
             {
-                b &= Utils.LineBB[(int)pos.square(PieceType.KING, Us), (int)s];
+                b &= Utils.LineBB[pos.square(PieceType.KING, Us), s];
             }
 
             ei.attackedBy[Us.ValueMe, PieceType.ALL_PIECES_C] |= ei.attackedBy[Us.ValueMe, Pt] |= b;
@@ -327,15 +327,15 @@ internal static class Eval
             if (Pt == PieceType.BISHOP_C || Pt == PieceType.KNIGHT_C)
             {
                 // Bonus for outpost square
-                if ((int)Rank.relative_rank(Us, s) >= Rank.RANK_4_C && (int)Rank.relative_rank(Us, s) <= Rank.RANK_6_C
+                if (Rank.relative_rank(Us, s) >= Rank.RANK_4_C && Rank.relative_rank(Us, s) <= Rank.RANK_6_C
                     && !(pos.pieces(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
-                        Outpost[Pt == PieceType.BISHOP_C ? 1 : 0][(ei.attackedBy[Us.ValueMe, PieceType.PAWN_C] & s) != 0 ? 1 : 0];
+                        Outpost[Pt == PieceType.BISHOP_C ? 1 : 0][(ei.attackedBy[Us.ValueMe, PieceType.PAWN_C] & s) ? 1 : 0];
                 }
 
                 // Bonus when behind a pawn
-                if ((int)Rank.relative_rank(Us, s) < Rank.RANK_5_C && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
+                if (Rank.relative_rank(Us, s) < Rank.RANK_5_C && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
                 {
                     score += MinorBehindPawn;
                 }
@@ -367,9 +367,9 @@ internal static class Eval
             if (Pt == PieceType.ROOK_C)
             {
                 // Bonus for aligning with enemy pawns on the same rank/file
-                if ((int)Rank.relative_rank(Us, s) >= Rank.RANK_5_C)
+                if (Rank.relative_rank(Us, s) >= Rank.RANK_5_C)
                 {
-                    var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, (int)s];
+                    var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, s];
                     if (alignedPawns)
                     {
                         score += Bitcount.popcount_Max15(alignedPawns)*RookOnPawn;
@@ -387,9 +387,9 @@ internal static class Eval
                 {
                     var ksq = pos.square(PieceType.KING, Us);
 
-                    if ((((int)Square.file_of(ksq) < File.FILE_E_C) == ((int)Square.file_of(s) < (int)Square.file_of(ksq)))
+                    if (((Square.file_of(ksq) < File.FILE_E_C) == (Square.file_of(s) < Square.file_of(ksq)))
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
-                        && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), (int)Square.file_of(s) < (int)Square.file_of(ksq)))
+                        && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {
                         score -= (TrappedRook - Score.make_score(mob*22, 0))*(1 + (pos.can_castle(Us) == 0 ? 1 : 0));
                     }
@@ -433,7 +433,7 @@ internal static class Eval
             // the pawn shelter (current 'score' value).
             var attackUnits = Math.Min(72, ei.kingAttackersCount[Them.ValueMe] *ei.kingAttackersWeight[Them.ValueMe])
                               + 9*ei.kingAdjacentZoneAttacksCount[Them.ValueMe] + 27*Bitcount.popcount_Max15(undefended)
-                              + 11*(ei.pinnedPieces[Us.ValueMe] != 0 ? 1 : 0)
+                              + 11*((ulong)ei.pinnedPieces[Us.ValueMe] != 0 ? 1 : 0)
                               - 64*(pos.count(PieceType.QUEEN, Them) == 0 ? 1 : 0) - Score.mg_value(score)/8;
 
             // Analyse the enemy's safe queen contact checks. Firstly, find the
@@ -539,7 +539,7 @@ internal static class Eval
 
             while (safeThreats)
             {
-                score += ThreatenedByPawn[(int)Piece.type_of(pos.piece_on(Utils.pop_lsb(ref safeThreats)))];
+                score += ThreatenedByPawn[Piece.type_of(pos.piece_on(Utils.pop_lsb(ref safeThreats)))];
             }
         }
 
@@ -552,13 +552,13 @@ internal static class Eval
             b = defended & (ei.attackedBy[Us.ValueMe, PieceType.KNIGHT_C] | ei.attackedBy[Us.ValueMe, PieceType.BISHOP_C]);
             while (b)
             {
-                score += Threat[Defended][Minor][(int)Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
+                score += Threat[Defended][Minor][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
             b = defended & ei.attackedBy[Us.ValueMe, PieceType.ROOK_C];
             while (b)
             {
-                score += Threat[Defended][Rook][(int)Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
+                score += Threat[Defended][Rook][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
         }
 
@@ -571,13 +571,13 @@ internal static class Eval
             b = weak & (ei.attackedBy[Us.ValueMe, PieceType.KNIGHT_C] | ei.attackedBy[Us.ValueMe, PieceType.BISHOP_C]);
             while (b)
             {
-                score += Threat[Weak][Minor][(int)Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
+                score += Threat[Weak][Minor][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
             b = weak & ei.attackedBy[Us.ValueMe, PieceType.ROOK_C];
             while (b)
             {
-                score += Threat[Weak][Rook][(int)Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
+                score += Threat[Weak][Rook][Piece.type_of(pos.piece_on(Utils.pop_lsb(ref b)))];
             }
 
             b = weak & ~ei.attackedBy[Them.ValueMe, PieceType.ALL_PIECES_C];
@@ -631,7 +631,7 @@ internal static class Eval
 
             Debug.Assert(pos.pawn_passed(Us, s));
 
-            int r = (int)Rank.relative_rank(Us, s) - Rank.RANK_2_C;
+            int r = Rank.relative_rank(Us, s) - Rank.RANK_2_C;
             var rr = r*(r - 1);
 
             Value mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
@@ -704,7 +704,7 @@ internal static class Eval
                 ebonus += ebonus/4;
             }
 
-            score += Score.make_score(mbonus, ebonus) + PassedFile[(int)Square.file_of(s)];
+            score += Score.make_score(mbonus, ebonus) + PassedFile[Square.file_of(s)];
         }
 
         if (DoTrace)
@@ -825,12 +825,12 @@ internal static class Eval
             Bitboard b;
             if ((b = ei.pi.passed_pawns(Color.WHITE)) != 0)
             {
-                score += (int)Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;
+                score += Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;
             }
 
             if ((b = ei.pi.passed_pawns(Color.BLACK)) != 0)
             {
-                score -= (int)Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)) * Unstoppable;
+                score -= Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)) * Unstoppable;
             }
         }
 

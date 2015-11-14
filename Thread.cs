@@ -388,7 +388,7 @@ internal class Thread : ThreadBase
         Debug.Assert(searching);
         Debug.Assert(
             -Value.VALUE_INFINITE < bestValue && bestValue <= alpha && alpha < beta && beta <= Value.VALUE_INFINITE);
-        Debug.Assert((int)depth >= (int)ThreadPool.minimumSplitDepth);
+        Debug.Assert(depth >= ThreadPool.minimumSplitDepth);
         Debug.Assert(splitPointsSize < _.MAX_SPLITPOINTS_PER_THREAD);
 
         // Pick and init the next available split point

@@ -96,7 +96,7 @@ internal class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(Rank r)
+    public static implicit operator int(Rank r)
     {
         return r.Value;
     }

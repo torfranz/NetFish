@@ -83,7 +83,7 @@ internal class PieceType
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(PieceType pt)
+    public static implicit operator int(PieceType pt)
     {
         return pt.Value;
     }
@@ -108,7 +108,7 @@ internal class PieceType
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator bool(PieceType pt)
+    public static implicit operator bool(PieceType pt)
     {
         return pt.Value != 0;
     }

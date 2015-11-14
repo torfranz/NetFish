@@ -91,7 +91,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(Depth d)
+    public static implicit operator int(Depth d)
     {
         return d.Value;
     }

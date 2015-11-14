@@ -30,7 +30,7 @@ internal class Stats<T>
 #endif
     internal T value(Piece p, Square to)
     {
-        return table[(int)p, (int)to];
+        return table[p, to];
     }
 };
 
@@ -38,7 +38,7 @@ internal class MovesStats : Stats<Move>
 {
     internal void update(Piece pc, Square to, Move m)
     {
-        table[(int)pc, (int)to] = m;
+        table[pc, to] = m;
     }
 }
 
@@ -50,8 +50,8 @@ internal class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[(int)pc, (int)to] -= table[(int)pc, (int)to]*Math.Abs(v)/324;
-        table[(int)pc, (int)to] += v*32;
+        table[pc, to] -= table[pc, to]*Math.Abs(v)/324;
+        table[pc, to] += v*32;
     }
 
     internal void updateCMH(Piece pc, Square to, Value v)
@@ -60,8 +60,8 @@ internal class HistoryStats : Stats<Value>
         {
             return;
         }
-        table[(int)pc, (int)to] -= table[(int)pc, (int)to]*Math.Abs(v)/512;
-        table[(int)pc, (int)to] += v*64;
+        table[pc, to] -= table[pc, to]*Math.Abs(v)/512;
+        table[pc, to] += v*64;
     }
 }
 

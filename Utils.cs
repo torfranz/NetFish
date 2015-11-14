@@ -84,7 +84,7 @@ internal static class Utils
 #endif
     internal static Bitboard rank_bb(Rank r)
     {
-        return RankBB[(int)r];
+        return RankBB[r];
     }
 
 #if FORCEINLINE
@@ -92,7 +92,7 @@ internal static class Utils
 #endif
     internal static Bitboard rank_bb(Square s)
     {
-        return RankBB[(int)Square.rank_of(s)];
+        return RankBB[Square.rank_of(s)];
     }
 
 #if FORCEINLINE
@@ -100,7 +100,7 @@ internal static class Utils
 #endif
     internal static Bitboard file_bb(File f)
     {
-        return FileBB[(int)f];
+        return FileBB[f];
     }
 
 #if FORCEINLINE
@@ -108,7 +108,7 @@ internal static class Utils
 #endif
     internal static Bitboard file_bb(Square s)
     {
-        return FileBB[(int)Square.file_of(s)];
+        return FileBB[Square.file_of(s)];
     }
 
     /// adjacent_files_bb() returns a bitboard representing all the squares on the
@@ -118,7 +118,7 @@ internal static class Utils
 #endif
     internal static Bitboard adjacent_files_bb(File f)
     {
-        return AdjacentFilesBB[(int)f];
+        return AdjacentFilesBB[f];
     }
 
     /// between_bb() returns a bitboard representing all the squares between the two
@@ -130,7 +130,7 @@ internal static class Utils
 #endif
     internal static Bitboard between_bb(Square s1, Square s2)
     {
-        return BetweenBB[(int)s1, (int)s2];
+        return BetweenBB[s1, s2];
     }
 
     /// in_front_bb() returns a bitboard representing all the squares on all the ranks
@@ -141,7 +141,7 @@ internal static class Utils
 #endif
     internal static Bitboard in_front_bb(Color c, Rank r)
     {
-        return InFrontBB[c.ValueMe, (int)r];
+        return InFrontBB[c.ValueMe, r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -152,7 +152,7 @@ internal static class Utils
 #endif
     internal static Bitboard forward_bb(Color c, Square s)
     {
-        return ForwardBB[c.ValueMe, (int)s];
+        return ForwardBB[c.ValueMe, s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -164,7 +164,7 @@ internal static class Utils
 #endif
     internal static Bitboard pawn_attack_span(Color c, Square s)
     {
-        return PawnAttackSpan[c.ValueMe, (int)s];
+        return PawnAttackSpan[c.ValueMe, s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -175,7 +175,7 @@ internal static class Utils
 #endif
     internal static Bitboard passed_pawn_mask(Color c, Square s)
     {
-        return PassedPawnMask[c.ValueMe, (int)s];
+        return PassedPawnMask[c.ValueMe, s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -185,7 +185,7 @@ internal static class Utils
 #endif
     internal static bool aligned(Square s1, Square s2, Square s3)
     {
-        return LineBB[(int)s1, (int)s2] & s3;
+        return LineBB[s1, s2] & s3;
     }
 
     /// distance() functions return the distance between x and y, defined as the
@@ -195,7 +195,7 @@ internal static class Utils
 #endif
     internal static int distance_Square(Square x, Square y)
     {
-        return SquareDistance[(int)x, (int)y];
+        return SquareDistance[x, y];
     }
 
 #if FORCEINLINE
@@ -212,7 +212,7 @@ internal static class Utils
 #endif
     internal static int distance_Rank(Square x, Square y)
     {
-        return distance_Rank((int)Square.rank_of(x), (int)Square.rank_of(y));
+        return distance_Rank(Square.rank_of(x), Square.rank_of(y));
     }
 
 #if FORCEINLINE
@@ -220,8 +220,8 @@ internal static class Utils
 #endif
     internal static int distance_File(Square x, Square y)
     {
-        int xFile = (int)Square.file_of(x);
-        int yFile = (int)Square.file_of(y);
+        int xFile = Square.file_of(x);
+        int yFile = Square.file_of(y);
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
@@ -248,17 +248,17 @@ internal static class Utils
         return (uint) ((((occupied & Masks[(int)s])*Magics[(int)s]) >> (int) Shifts[(int)s]));
 #else
 
-        var lo = (uint)((occupied & Masks[(int)s]));
-        var hi = (uint)((occupied >> 32) & (Masks[(int)s] >> 32));
-        return (lo * (uint)(Magics[(int)s]) ^ hi * (uint)(Magics[(int)s] >> 32)) >> (int)Shifts[(int)s];
+        var lo = (uint)((occupied & Masks[s]));
+        var hi = (uint)((occupied >> 32) & (Masks[s] >> 32));
+        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> (int)Shifts[s];
 #endif
     }
 
     internal static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
-            ? RookAttacks[(int)s][magic_index(Pt, s, occupied)]
-            : BishopAttacks[(int)s][magic_index(Pt, s, occupied)];
+            ? RookAttacks[s][magic_index(Pt, s, occupied)]
+            : BishopAttacks[s][magic_index(Pt, s, occupied)];
     }
 
 #if FORCEINLINE
@@ -275,7 +275,7 @@ internal static class Utils
             case PieceType.QUEEN_C:
                 return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
             default:
-                return StepAttacksBB[(int)pc, (int)s];
+                return StepAttacksBB[pc, s];
         }
     }
 
@@ -284,7 +284,7 @@ internal static class Utils
 
     internal static uint bsf_index(Bitboard b)
     {
-        ulong value = b;
+        var value = (ulong)b;
         value ^= value - 1;
 #if X64
         return (uint) ((value*DeBruijn64) >> 58);
@@ -300,7 +300,7 @@ internal static class Utils
 
     internal static Square msb(Bitboard b)
     {
-        ulong value = b;
+        var value = (ulong)b;
         var result = 0;
 
         if (value > 0xFFFFFFFF)
@@ -334,7 +334,7 @@ internal static class Utils
     {
         var s = lsb(b);
 
-        ulong value = b;
+        var value = (ulong)b;
         value &= value - 1;
         b = new Bitboard(value);
         return s;

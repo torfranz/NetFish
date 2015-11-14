@@ -70,7 +70,7 @@ internal class File
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(File f)
+    public static implicit operator int(File f)
     {
         return f.Value;
     }

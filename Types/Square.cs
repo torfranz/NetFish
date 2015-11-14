@@ -234,7 +234,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static explicit operator int(Square s)
+    public static implicit operator int(Square s)
     {
         return s.Value;
     }
@@ -361,7 +361,7 @@ internal struct Square
 #endif
     internal static Square make_square(File f, Rank r)
     {
-        return new Square(((int)r << 3) | (int)f);
+        return new Square((r << 3) | f);
     }
 
 #if FORCEINLINE

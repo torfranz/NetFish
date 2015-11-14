@@ -75,7 +75,7 @@ internal class MovePicker
         history = h;
         counterMovesHistory = cmh;
 
-        Debug.Assert((int)d <= Depth.DEPTH_ZERO_C);
+        Debug.Assert(d <= Depth.DEPTH_ZERO_C);
 
         if (pos.checkers())
         {
@@ -189,8 +189,8 @@ internal class MovePicker
             var m = moves[i];
             moves[i] = new ExtMove(
                 m,
-                Value.PieceValue[(int) Phase.MG][(int)pos.piece_on(Move.to_sq(m))]
-                - new Value(200 * (int)Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
+                Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
+                - new Value(200 * Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
         }
     }
 
@@ -228,8 +228,8 @@ internal class MovePicker
             {
                 moves[i] = new ExtMove(
                     m,
-                    Value.PieceValue[(int) Phase.MG][(int)pos.piece_on(Move.to_sq(m))]
-                    - new Value((int)Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
+                    Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
+                    - new Value(Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {
@@ -285,7 +285,7 @@ internal class MovePicker
             case Stages.BAD_QUIETS:
                 cur = new ExtMoveArrayWrapper(endMoves);
                 endMoves = endQuiets;
-                if ((int)depth >= 3*Depth.ONE_PLY_C)
+                if (depth >= 3*Depth.ONE_PLY_C)
                 {
                     ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
                 }

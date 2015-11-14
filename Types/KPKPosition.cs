@@ -20,7 +20,7 @@ internal class KPKPosition
         // Check if two pieces are on the same square or if a king can be captured
         if (Utils.distance_Square(ksq[Color.WHITE_C], ksq[Color.BLACK_C]) <= 1
             || ksq[Color.WHITE_C] == psq || ksq[Color.BLACK_C] == psq
-            || (us == Color.WHITE && (Utils.StepAttacksBB[PieceType.PAWN_C, (int)psq] & ksq[Color.BLACK_C])))
+            || (us == Color.WHITE && (Utils.StepAttacksBB[PieceType.PAWN_C, psq] & ksq[Color.BLACK_C])))
         {
             result = Result.INVALID;
         }
@@ -29,18 +29,18 @@ internal class KPKPosition
         else if (us == Color.WHITE && Square.rank_of(psq) == Rank.RANK_7
                  && ksq[us.ValueMe] != psq + Square.DELTA_N
                  && (Utils.distance_Square(ksq[us.ValueThem], psq + Square.DELTA_N) > 1
-                     || (Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[us.ValueMe]] & (psq + Square.DELTA_N))))
+                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]] & (psq + Square.DELTA_N))))
         {
             result = Result.WIN;
         }
 
         // Immediate draw if it is a stalemate or a king captures undefended pawn
         else if (us == Color.BLACK
-                 && (!(Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[us.ValueMe]]
-                       & ~(Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[us.ValueThem]]
-                           | Utils.StepAttacksBB[PieceType.PAWN_C, (int)psq]))
-                     || (Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[us.ValueMe]] & psq
-                         & ~Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[us.ValueThem]])))
+                 && (!(Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]]
+                       & ~(Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueThem]]
+                           | Utils.StepAttacksBB[PieceType.PAWN_C, psq]))
+                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]] & psq
+                         & ~Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueThem]])))
         {
             result = Result.DRAW;
         }
@@ -84,7 +84,7 @@ internal class KPKPosition
         var Bad = (Us == Color.WHITE ? Result.DRAW : Result.WIN);
 
         var r = Result.INVALID;
-        var b = Utils.StepAttacksBB[PieceType.KING_C, (int)ksq[Us.ValueMe]];
+        var b = Utils.StepAttacksBB[PieceType.KING_C, ksq[Us.ValueMe]];
 
         while (b)
         {
@@ -95,7 +95,7 @@ internal class KPKPosition
 
         if (Us == Color.WHITE)
         {
-            if ((int)Square.rank_of(psq) < Rank.RANK_7_C) // Single push
+            if (Square.rank_of(psq) < Rank.RANK_7_C) // Single push
             {
                 r |= db[Bitbases.index(Them, ksq[Them.ValueMe], ksq[Us.ValueMe], psq + Square.DELTA_N)];
             }

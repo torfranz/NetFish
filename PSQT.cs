@@ -298,15 +298,15 @@
         for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
         {
             var piece = Piece.make_piece(Color.BLACK, PieceType.Create(pt));
-            Value.PieceValue[(int) Phase.MG][(int)piece] = Value.PieceValue[(int) Phase.MG][pt];
-            Value.PieceValue[(int) Phase.EG][(int)piece] = Value.PieceValue[(int) Phase.EG][pt];
+            Value.PieceValue[(int) Phase.MG][piece] = Value.PieceValue[(int) Phase.MG][pt];
+            Value.PieceValue[(int) Phase.EG][piece] = Value.PieceValue[(int) Phase.EG][pt];
 
             var v = Score.make_score(Value.PieceValue[(int) Phase.MG][pt], Value.PieceValue[(int) Phase.EG][pt]);
 
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                int edgeDistance = (int)Square.file_of(s) < File.FILE_E_C ? (int)Square.file_of(s) : File.FILE_H_C - (int)Square.file_of(s);
-                psq[Color.BLACK_C, pt, (int)~s] = -(psq[Color.WHITE_C, pt, (int)s] = v + Bonus[pt][(int)Square.rank_of(s)][edgeDistance]);
+                int edgeDistance = (int)Square.file_of(s) < File.FILE_E_C ? Square.file_of(s) : File.FILE_H_C - Square.file_of(s);
+                psq[Color.BLACK_C, pt, ~s] = -(psq[Color.WHITE_C, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }

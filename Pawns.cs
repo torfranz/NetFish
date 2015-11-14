@@ -240,14 +240,14 @@ internal static class Pawns
             var f = Square.file_of(s);
 
             // This file cannot be semi-open
-            e.semiopenFiles[Us.ValueMe] &= ~(1 << (int)f);
+            e.semiopenFiles[Us.ValueMe] &= ~(1 << f);
 
             // Flag the pawn
             var neighbours = ourPawns & Utils.adjacent_files_bb(f);
             var doubled = ourPawns & Utils.forward_bb(Us, s);
             bool opposed = theirPawns & Utils.forward_bb(Us, s);
             var passed = !(theirPawns & Utils.passed_pawn_mask(Us, s));
-            bool lever = theirPawns & Utils.StepAttacksBB[(int)Piece.make_piece(Us, PieceType.PAWN), (int)s];
+            bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), s];
             var phalanx = neighbours & Utils.rank_bb(s);
             var supported = neighbours & Utils.rank_bb(s - Up);
             bool connected = supported | phalanx;
@@ -259,7 +259,7 @@ internal static class Pawns
             // or if it is sufficiently advanced, it cannot be backward either.
             bool backward;
             if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s))
-                || ((int)Rank.relative_rank(Us, s) >= Rank.RANK_5_C))
+                || (Rank.relative_rank(Us, s) >= Rank.RANK_5_C))
             {
                 backward = false;
             }
@@ -290,7 +290,7 @@ internal static class Pawns
             // Score this pawn
             if (isolated)
             {
-                score -= Isolated[opposed ? 1 : 0][(int)f];
+                score -= Isolated[opposed ? 1 : 0][f];
             }
 
             else if (backward)
@@ -310,22 +310,22 @@ internal static class Pawns
                         opposed ? 1 : 0,
                         phalanx ? 1 : 0,
                         Bitboard.more_than_one(supported) ? 1 : 0,
-                        (int)Rank.relative_rank(Us, s)];
+                        Rank.relative_rank(Us, s)];
             }
 
             if (doubled)
             {
-                score -= Doubled[(int)f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
+                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
             }
 
             if (lever)
             {
-                score += Lever[(int)Rank.relative_rank(Us, s)];
+                score += Lever[Rank.relative_rank(Us, s)];
             }
         }
 
         b = new Bitboard((uint) (e.semiopenFiles[Us.ValueMe] ^ 0xFF));
-        e.pawnSpan[Us.ValueMe] = b ? (int)(Utils.msb(b) - (int)Utils.lsb(b)) : 0;
+        e.pawnSpan[Us.ValueMe] = b ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
 
         // Center binds: Two pawns controlling the same central square
         b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us.ValueMe];
@@ -427,12 +427,12 @@ internal static class Pawns
 
         internal int semiopen_file(Color c, File f)
         {
-            return semiopenFiles[c.ValueMe] & (1 << (int)f);
+            return semiopenFiles[c.ValueMe] & (1 << f);
         }
 
         internal int semiopen_side(Color c, File f, bool leftSide)
         {
-            return semiopenFiles[c.ValueMe] & (leftSide ? (1 << (int)f) - 1 : ~((1 << ((int) f + 1)) - 1));
+            return semiopenFiles[c.ValueMe] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
         }
 
         internal int pawns_on_same_color_squares(Color c, Square s)
@@ -458,12 +458,12 @@ internal static class Pawns
             var pawns = pos.pieces(Us, PieceType.PAWN);
             if (pawns)
             {
-                while (!(Utils.DistanceRingBB[(int)ksq, minKingPawnDistance++] & pawns))
+                while (!(Utils.DistanceRingBB[ksq, minKingPawnDistance++] & pawns))
                 {
                 }
             }
 
-            if ((int)Rank.relative_rank(Us, ksq) > Rank.RANK_4_C)
+            if (Rank.relative_rank(Us, ksq) > Rank.RANK_4_C)
             {
                 return Score.make_score(0, -16*minKingPawnDistance);
             }
@@ -500,9 +500,9 @@ internal static class Pawns
             var ourPawns = b & pos.pieces(Us);
             var theirPawns = b & pos.pieces(Them);
             var safety = MaxSafetyBonus;
-            var center = File.Create(Math.Max(File.FILE_B_C, Math.Min(File.FILE_G_C, (int)Square.file_of(ksq))));
+            var center = File.Create(Math.Max(File.FILE_B_C, Math.Min(File.FILE_G_C, Square.file_of(ksq))));
 
-            for (var f = (int)center - 1; f <= (int)center + 1; ++f)
+            for (var f = center - 1; f <= (int)center + 1; ++f)
             {
                 b = ourPawns & Utils.file_bb(File.Create(f));
                 var rkUs = b ? Rank.relative_rank(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
@@ -510,13 +510,13 @@ internal static class Pawns
                 b = theirPawns & Utils.file_bb(File.Create(f));
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
-                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][(int)rkUs]
+                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][rkUs]
                           + StormDanger[
                               f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
                                   : (int)rkUs == Rank.RANK_1_C
                                       ? NoFriendlyPawn
-                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][(int)rkThem];
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][rkThem];
             }
 
             return safety;

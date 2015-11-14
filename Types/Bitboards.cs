@@ -17,7 +17,7 @@ internal static class Bitboards
 
         foreach (var f in File.AllFiles)
         {
-            Utils.FileBB[(int)f] = (int)f > File.FILE_A_C ? Utils.FileBB[(int)f - 1] << 1 : Bitboard.FileABB;
+            Utils.FileBB[f] = (int)f > File.FILE_A_C ? Utils.FileBB[f - 1] << 1 : Bitboard.FileABB;
         }
 
         for (var r = Rank.RANK_1_C; r <= Rank.RANK_8_C; ++r)
@@ -27,8 +27,8 @@ internal static class Bitboards
 
         foreach (var f in File.AllFiles)
         {
-            Utils.AdjacentFilesBB[(int)f] = ((int)f > File.FILE_A_C ? Utils.FileBB[(int)f - 1] : new Bitboard(0))
-                                       | ((int)f < File.FILE_H_C ? Utils.FileBB[(int)f + 1] : new Bitboard(0));
+            Utils.AdjacentFilesBB[f] = ((int)f > File.FILE_A_C ? Utils.FileBB[f - 1] : new Bitboard(0))
+                                       | ((int)f < File.FILE_H_C ? Utils.FileBB[f + 1] : new Bitboard(0));
         }
 
         for (var r = Rank.RANK_1_C; r < Rank.RANK_8_C; ++r)
@@ -41,10 +41,10 @@ internal static class Bitboards
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                Utils.ForwardBB[c, (int)s] = Utils.InFrontBB[c, (int)Square.rank_of(s)] & Utils.FileBB[(int)Square.file_of(s)];
-                Utils.PawnAttackSpan[c, (int)s] = Utils.InFrontBB[c, (int)Square.rank_of(s)]
-                                             & Utils.AdjacentFilesBB[(int)Square.file_of(s)];
-                Utils.PassedPawnMask[c, (int)s] = Utils.ForwardBB[c, (int)s] | Utils.PawnAttackSpan[c, (int)s];
+                Utils.ForwardBB[c, s] = Utils.InFrontBB[c, Square.rank_of(s)] & Utils.FileBB[Square.file_of(s)];
+                Utils.PawnAttackSpan[c, s] = Utils.InFrontBB[c, Square.rank_of(s)]
+                                             & Utils.AdjacentFilesBB[Square.file_of(s)];
+                Utils.PassedPawnMask[c, s] = Utils.ForwardBB[c, s] | Utils.PawnAttackSpan[c, s];
             }
         }
 
@@ -54,8 +54,8 @@ internal static class Bitboards
             {
                 if (s1 != s2)
                 {
-                    Utils.SquareDistance[(int)s1, (int)s2] = Math.Max(Utils.distance_File(s1, s2), Utils.distance_Rank(s1, s2));
-                    Utils.DistanceRingBB[(int)s1, Utils.SquareDistance[(int)s1, (int)s2] - 1] |= s2;
+                    Utils.SquareDistance[s1, s2] = Math.Max(Utils.distance_File(s1, s2), Utils.distance_Rank(s1, s2));
+                    Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] |= s2;
                 }
             }
         }
@@ -80,7 +80,7 @@ internal static class Bitboards
 
                         if (to.is_ok() && Utils.distance_Square(s, to) < 3)
                         {
-                            Utils.StepAttacksBB[(int)Piece.make_piece(c, PieceType.Create(pt)), (int)s] |= to;
+                            Utils.StepAttacksBB[Piece.make_piece(c, PieceType.Create(pt)), s] |= to;
                         }
                     }
                 }
@@ -190,12 +190,12 @@ internal static class Bitboards
             // all the attacks for each possible subset of the mask and so is 2 power
             // the number of 1s of the mask. Hence we deduce the size of the shift to
             // apply to the 64 or 32 bits word to get the index.
-            masks[(int)s] = sliding_attack(deltas, s, new Bitboard(0)) & ~edges;
+            masks[s] = sliding_attack(deltas, s, new Bitboard(0)) & ~edges;
 
 #if X64
             shifts[(int)s] = (uint) (64 - Bitcount.popcount_Max15(masks[(int)s]));
 #else
-            shifts[(int)s] = (uint)(32 - Bitcount.popcount_Max15(masks[(int)s]));
+            shifts[s] = (uint)(32 - Bitcount.popcount_Max15(masks[s]));
 #endif
 
             // Use Carry-Rippler trick to enumerate all subsets of masks[s] and
@@ -211,12 +211,12 @@ internal static class Bitboards
                 // attacks[s][pext(b, masks[s])] = reference[size];
 
                 size++;
-                b = (b - masks[(int)s]) & masks[(int)s];
+                b = (b - masks[s]) & masks[s];
             } while (b);
 
             // Set the offset for the table of the next square. We have individual
             // table sizes for each square with "Fancy Magic Bitboards".
-            attacks[(int)s] = new Bitboard[size];
+            attacks[s] = new Bitboard[size];
 
             // if (HasPext)
             //  continue;
@@ -224,7 +224,7 @@ internal static class Bitboards
 #if X64
             var rng = new PRNG((ulong) seeds[1][(int)Square.rank_of(s)]);
 #else
-            var rng = new PRNG((ulong)seeds[0][(int)Square.rank_of(s)]);
+            var rng = new PRNG((ulong)seeds[0][Square.rank_of(s)]);
 #endif
 
             // Find a magic for square 's' picking up an (almost) random number
@@ -234,11 +234,11 @@ internal static class Bitboards
             {
                 do
                 {
-                    magics[(int) s] = new Bitboard(rng.sparse_rand());
+                    magics[s] = new Bitboard(rng.sparse_rand());
                 }
-                while (Bitcount.popcount_Max15((magics[(int) s]*masks[(int) s]) >> 56) < 6);
+                while (Bitcount.popcount_Max15((magics[s]*masks[s]) >> 56) < 6);
             
-                Array.Clear(attacks[(int)s], 0, size);
+                Array.Clear(attacks[s], 0, size);
 
                 // A good magic must map every possible occupancy to an index that
                 // looks up the correct sliding attack in the attacks[s] database.
@@ -251,9 +251,9 @@ internal static class Bitboards
                     if (age[idx] < current)
                     {
                         age[idx] = current;
-                        attacks[(int)s][idx] = reference[i];
+                        attacks[s][idx] = reference[i];
                     }
-                    else if (attacks[(int)s][idx] != reference[i])
+                    else if (attacks[s][idx] != reference[i])
                     {
                         break;
                     }

@@ -268,7 +268,7 @@ internal static class Search
         multiPV = (uint) Math.Min(multiPV, RootMoves.Count);
 
         // Iterative deepening loop until requested to stop or target depth reached;
-        while ((int)(++depth) < _.MAX_PLY && !Signals.stop && (Limits.depth == 0 || (int)depth <= Limits.depth))
+        while (++depth < _.MAX_PLY && !Signals.stop && (Limits.depth == 0 || depth <= Limits.depth))
         {
             // Age out PV variability metric
             BestMoveChanges *= 0.5;
@@ -284,7 +284,7 @@ internal static class Search
             for (PVIdx = 0; PVIdx < multiPV && !Signals.stop; ++PVIdx)
             {
                 // Reset aspiration window starting size
-                if ((int)depth >= 5*Depth.ONE_PLY_C)
+                if (depth >= 5*Depth.ONE_PLY_C)
                 {
                     delta = new Value(16);
                     alpha = new Value(Math.Max(RootMoves[(int) PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
@@ -459,7 +459,7 @@ internal static class Search
         {
             var m = ml.moveList.table[index];
             long cnt;
-            if (Root && (int)depth <= Depth.ONE_PLY_C)
+            if (Root && depth <= Depth.ONE_PLY_C)
             {
                 cnt = 1;
                 nodes++;
@@ -493,7 +493,7 @@ internal static class Search
 
     private static Depth reduction(bool PvNode, bool i, Depth d, int mn)
     {
-        return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min((int)d, 63*Depth.ONE_PLY_C), Math.Min(mn, 63)];
+        return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min(d, 63*Depth.ONE_PLY_C), Math.Min(mn, 63)];
     }
 
     internal static void init()
@@ -511,7 +511,7 @@ internal static class Search
                             Reductions[pv, imp, d, mc] = new Depth((int) (r*Depth.ONE_PLY_C));
 
                         // Increase reduction when eval is not improving
-                        if (pv == 0 && imp == 0 && (int)Reductions[pv, imp, d, mc] >= 2*Depth.ONE_PLY_C)
+                        if (pv == 0 && imp == 0 && Reductions[pv, imp, d, mc] >= 2*Depth.ONE_PLY_C)
                             Reductions[pv, imp, d, mc] += Depth.ONE_PLY;
                     }
 
@@ -634,7 +634,7 @@ internal static class Search
         // At non-PV nodes we check for a fail high/low. We don't prune at PV nodes
         if (!PvNode
             && ttHit
-            && (int)tte.depth() >= (int)depth
+            && tte.depth() >= depth
             && ttValue != Value.VALUE_NONE // Only in case of TT access race
             && (ttValue >= beta
                 ? (tte.bound() & Bound.BOUND_LOWER) != 0
@@ -655,7 +655,7 @@ internal static class Search
             var piecesCnt = pos.count(PieceType.ALL_PIECES, Color.WHITE) + pos.count(PieceType.ALL_PIECES, Color.BLACK);
 
             if (piecesCnt <= Tablebases.Cardinality
-                && (piecesCnt < Tablebases.Cardinality || (int)depth >= Tablebases.ProbeDepth)
+                && (piecesCnt < Tablebases.Cardinality || depth >= Tablebases.ProbeDepth)
                 && pos.rule50_count() == 0)
             {
                 var found = 0;
@@ -720,7 +720,7 @@ internal static class Search
             && eval + razor_margin(depth) <= alpha
             && ttMove == Move.MOVE_NONE)
         {
-            if ((int)depth <= Depth.ONE_PLY_C
+            if (depth <= Depth.ONE_PLY_C
                 && eval + razor_margin(3*Depth.ONE_PLY) <= alpha)
                 return qsearch(NodeType.NonPV, false, pos, ss, alpha, beta, Depth.DEPTH_ZERO);
 
@@ -740,7 +740,7 @@ internal static class Search
 
         // Step 8. Null move search with verification search (is omitted in PV nodes)
         if (!PvNode
-            && (int)depth >= 2*Depth.ONE_PLY_C
+            && depth >= 2*Depth.ONE_PLY_C
             && eval >= beta
             && pos.non_pawn_material(pos.side_to_move()))
         {
@@ -787,18 +787,18 @@ internal static class Search
         // and a reduced search returns a value much above beta, we can (almost) safely
         // prune the previous move.
         if (!PvNode
-            && (int)depth >= 5*Depth.ONE_PLY_C
+            && depth >= 5*Depth.ONE_PLY_C
             && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
         {
             var rbeta = new Value(Math.Min(beta + 200, Value.VALUE_INFINITE));
             var rdepth = depth - 4*Depth.ONE_PLY;
 
-            Debug.Assert((int)rdepth >= Depth.ONE_PLY_C);
+            Debug.Assert(rdepth >= Depth.ONE_PLY_C);
             Debug.Assert(stackMinus1.currentMove != Move.MOVE_NONE);
             Debug.Assert(stackMinus1.currentMove != Move.MOVE_NULL);
 
             var mp2 = new MovePicker(pos, ttMove, History, CounterMovesHistory,
-                Value.PieceValue[(int) Phase.MG][(int)pos.captured_piece_type()]);
+                Value.PieceValue[(int) Phase.MG][pos.captured_piece_type()]);
             var ci2 = new CheckInfo(pos);
 
             while ((move = mp2.next_move(false)) != Move.MOVE_NONE)
@@ -816,7 +816,7 @@ internal static class Search
         }
 
         // Step 10. Internal iterative deepening (skipped when in check)
-        if ((int)depth >= (PvNode ? 5*Depth.ONE_PLY_C : 8*Depth.ONE_PLY_C)
+        if (depth >= (PvNode ? 5*Depth.ONE_PLY_C : 8*Depth.ONE_PLY_C)
             && !ttMove
             && (PvNode || stack.staticEval + 256 >= beta))
         {
@@ -832,7 +832,7 @@ internal static class Search
  moves_loop: // When in check and at SpNode search starts from here
 
         var prevMoveSq = Move.to_sq(stackMinus1.currentMove);
-        var countermove = Countermoves.table[(int)pos.piece_on(prevMoveSq), (int)prevMoveSq];
+        var countermove = Countermoves.table[pos.piece_on(prevMoveSq), prevMoveSq];
 
         var mp = new MovePicker(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
         var ci = new CheckInfo(pos);
@@ -843,13 +843,13 @@ internal static class Search
 
         var singularExtensionNode = !RootNode
                                      && !SpNode
-                                     && (int)depth >= 8*Depth.ONE_PLY_C
+                                     && depth >= 8*Depth.ONE_PLY_C
                                      && ttMove != Move.MOVE_NONE
             /*  &&  ttValue != ValueMe.VALUE_NONE Already implicit in the next condition */
                                      && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
                                      && !excludedMove // Recursive singular search is not allowed
                                      && ((tte.bound() & Bound.BOUND_LOWER) != 0)
-                                     && (int)tte.depth() >= (int)depth - 3*Depth.ONE_PLY_C;
+                                     && tte.depth() >= depth - 3*Depth.ONE_PLY_C;
 
         var quietsSearched = new Move[64];
         // Step 11. Loop through moves
@@ -896,7 +896,7 @@ internal static class Search
             var captureOrPromotion = pos.capture_or_promotion(move);
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[(int)Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
             // Step 12. Extend checks
@@ -910,7 +910,7 @@ internal static class Search
             // ttValue minus a margin then we extend the ttMove.
             if (singularExtensionNode
                 && move == ttMove
-                && (int)extension == 0
+                && extension == 0
                 && pos.legal(move, ci.pinned))
             {
                 var rBeta = ttValue - 2*depth/Depth.ONE_PLY;
@@ -937,7 +937,7 @@ internal static class Search
             {
                 // Move count based pruning
                 if (depth < 16*Depth.ONE_PLY
-                    && moveCount >= FutilityMoveCounts[improving ? 1 : 0, (int)depth])
+                    && moveCount >= FutilityMoveCounts[improving ? 1 : 0, depth])
                 {
                     if (SpNode)
                         ThreadHelper.lock_grab(splitPoint.spinLock);
@@ -994,7 +994,7 @@ internal static class Search
             // Step 15. Reduced depth search (LMR). If the move fails high it will be
             // re-searched at full depth.
             bool doFullDepthSearch;
-            if ((int)depth >= 3*Depth.ONE_PLY_C
+            if (depth >= 3*Depth.ONE_PLY_C
                 && moveCount > 1
                 && !captureOrPromotion
                 && move != stack.killers0
@@ -1003,28 +1003,28 @@ internal static class Search
                 stack.reduction = reduction(PvNode, improving, depth, moveCount);
 
                 if ((!PvNode && cutNode)
-                    || (History.table[(int)pos.piece_on(Move.to_sq(move)), (int)Move.to_sq(move)] < Value.VALUE_ZERO
+                    || (History.table[pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] < Value.VALUE_ZERO
                         &&
-                        CounterMovesHistory.table[(int)pos.piece_on(prevMoveSq), (int)prevMoveSq].table[
-                            (int)pos.piece_on(Move.to_sq(move)), (int)Move.to_sq(move)] <= Value.VALUE_ZERO))
+                        CounterMovesHistory.table[pos.piece_on(prevMoveSq), prevMoveSq].table[
+                            pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] <= Value.VALUE_ZERO))
                     stack.reduction += Depth.ONE_PLY;
 
-                if (History.table[(int)pos.piece_on(Move.to_sq(move)), (int)Move.to_sq(move)] > Value.VALUE_ZERO
+                if (History.table[pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] > Value.VALUE_ZERO
                     &&
-                    CounterMovesHistory.table[(int)pos.piece_on(prevMoveSq), (int)prevMoveSq].table[
-                        (int)pos.piece_on(Move.to_sq(move)), (int)Move.to_sq(move)] > Value.VALUE_ZERO)
+                    CounterMovesHistory.table[pos.piece_on(prevMoveSq), prevMoveSq].table[
+                        pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] > Value.VALUE_ZERO)
                     stack.reduction =
-                        new Depth(Math.Max(Depth.DEPTH_ZERO_C, (int)stack.reduction - Depth.ONE_PLY_C));
+                        new Depth(Math.Max(Depth.DEPTH_ZERO_C, stack.reduction - Depth.ONE_PLY_C));
 
                 // Decrease reduction for moves that escape a capture
-                if ((int)stack.reduction > 0
+                if (stack.reduction > 0
                     && Move.type_of(move) == MoveType.NORMAL
                     && Piece.type_of(pos.piece_on(Move.to_sq(move))) != PieceType.PAWN
                     && pos.see(Move.make_move(Move.to_sq(move), Move.from_sq(move))) < Value.VALUE_ZERO)
                     stack.reduction =
-                        new Depth(Math.Max(Depth.DEPTH_ZERO_C, (int)stack.reduction - Depth.ONE_PLY_C));
+                        new Depth(Math.Max(Depth.DEPTH_ZERO_C, stack.reduction - Depth.ONE_PLY_C));
 
-                var d = new Depth(Math.Max((int)newDepth - (int)stack.reduction, Depth.ONE_PLY_C));
+                var d = new Depth(Math.Max(newDepth - (int)stack.reduction, Depth.ONE_PLY_C));
                 if (SpNode)
                     alpha = new Value(splitPoint.alpha);
 
@@ -1161,7 +1161,7 @@ internal static class Search
             // Step 19. Check for splitting the search
             if (!SpNode
                 && ThreadPool.threads.Count >= 2
-                && (int)depth >= (int)ThreadPool.minimumSplitDepth
+                && depth >= ThreadPool.minimumSplitDepth
                 && (thisThread.activeSplitPoint == null
                     || !thisThread.activeSplitPoint.allSlavesSearching
                     || (ThreadPool.threads.Count > _.MAX_SLAVES_PER_SPLITPOINT
@@ -1209,12 +1209,12 @@ internal static class Search
         else if (!bestMove)
         {
             if (Move.is_ok(stackMinus2.currentMove) && Move.is_ok(stackMinus1.currentMove) &&
-                !(bool)pos.captured_piece_type() && !inCheck && (int)depth >= 3*Depth.ONE_PLY_C)
+                !pos.captured_piece_type() && !inCheck && depth >= 3*Depth.ONE_PLY_C)
             {
                 var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
                 var prevSq = Move.to_sq(stackMinus1.currentMove);
                 var prevPrevSq = Move.to_sq(stackMinus2.currentMove);
-                var flMoveCmh = CounterMovesHistory.table[(int)pos.piece_on(prevPrevSq), (int)prevPrevSq];
+                var flMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
                 flMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, bonus);
             }
         }
@@ -1240,7 +1240,7 @@ internal static class Search
         Debug.Assert(InCheck == pos.checkers());
         Debug.Assert(alpha >= -Value.VALUE_INFINITE && alpha < beta && beta <= Value.VALUE_INFINITE);
         Debug.Assert(PvNode || (alpha == beta - 1));
-        Debug.Assert((int)depth <= Depth.DEPTH_ZERO_C);
+        Debug.Assert(depth <= Depth.DEPTH_ZERO_C);
 
         var currentStack = ss[ss.current];
         var nextStack = ss[ss.current+1];
@@ -1280,7 +1280,7 @@ internal static class Search
 
         if (!PvNode
             && ttHit
-            && (int)tte.depth() >= (int)ttDepth
+            && tte.depth() >= ttDepth
             && ttValue != Value.VALUE_NONE // Only in case of TT access race
             && ((ttValue >= beta ? (tte.bound() & Bound.BOUND_LOWER) : (tte.bound() & Bound.BOUND_UPPER))) != 0)
         {
@@ -1347,7 +1347,7 @@ internal static class Search
             Debug.Assert(Move.is_ok(move));
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[(int)Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
                 : pos.gives_check(move, ci);
 
             // Futility pruning
@@ -1358,7 +1358,7 @@ internal static class Search
             {
                 Debug.Assert(Move.type_of(move) != MoveType.ENPASSANT); // Due to !pos.advanced_pawn_push
 
-                var futilityValue = futilityBase + Value.PieceValue[(int) Phase.EG][(int)pos.piece_on(Move.to_sq(move))];
+                var futilityValue = futilityBase + Value.PieceValue[(int) Phase.EG][pos.piece_on(Move.to_sq(move))];
 
                 if (futilityValue <= alpha)
                 {
@@ -1458,7 +1458,7 @@ internal static class Search
         var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
 
         var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
-        var cmh = CounterMovesHistory.table[(int)pos.piece_on(prevSq), (int)prevSq];
+        var cmh = CounterMovesHistory.table[pos.piece_on(prevSq), prevSq];
 
         History.updateH(pos.moved_piece(move), Move.to_sq(move), bonus);
 
@@ -1479,10 +1479,10 @@ internal static class Search
 
         // Extra penalty for PV move in previous ply when it gets refuted
         if (Move.is_ok(ss[ss.current - 2].currentMove) && ss[ss.current - 1].moveCount == 1 &&
-            !(bool)pos.captured_piece_type())
+            !pos.captured_piece_type())
         {
             var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
-            var ttMoveCmh = CounterMovesHistory.table[(int)pos.piece_on(prevPrevSq), (int)prevPrevSq];
+            var ttMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
             ttMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, -bonus - 2*depth/Depth.ONE_PLY - 1);
         }
     }
