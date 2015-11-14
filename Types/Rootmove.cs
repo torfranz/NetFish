@@ -21,22 +21,6 @@ internal class RootMove
         pv.Add(m);
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator ==(RootMove m1, Move m)
-    {
-        return m1.pv[0] == m;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator !=(RootMove m1, Move m)
-    {
-        return m1.pv[0] != m;
-    }
-
     /// RootMove::insert_pv_in_tt() is called at the end of a search iteration, and
     /// inserts the PV back into the TT. This makes sure the old PV moves are searched
     /// first, even if the old TT entries have been overwritten.

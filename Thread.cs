@@ -702,7 +702,7 @@ internal static class ThreadPool
         for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
-            if (limits.searchmoves.Count == 0 || limits.searchmoves.FindAll(move => move == m.Move).Count == 0)
+            if (limits.searchmoves.Count == 0 || limits.searchmoves.FindAll(move => move == m.Move).Count > 0)
             {
                 Search.RootMoves.Add(new RootMove(m));
             }

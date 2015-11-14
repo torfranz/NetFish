@@ -438,7 +438,7 @@ internal static class Search
         // If skill level is enabled, swap best PV line with the sub-optimal one
         if (skill.enabled())
         {
-            var foundIdx = RootMoves.FindIndex(move => move == skill.best_move(multiPV));
+            var foundIdx = RootMoves.FindIndex(rootMove1 => rootMove1.pv[0] == skill.best_move(multiPV));
             Debug.Assert(foundIdx >= 0);
             var rootMove = RootMoves[0];
             RootMoves[0] = RootMoves[foundIdx];
@@ -867,9 +867,9 @@ internal static class Search
             // At root obey the "searchmoves" option and skip moves not listed in Root
             // Move List. As a consequence any illegal move is also skipped. In MultiPV
             // mode we also skip PV moves which have been already searched.
-            if (RootNode && RootMoves.All(rootMove => rootMove != move))
+            if (RootNode && RootMoves.All(rootMove => rootMove.pv[0] != move))
                 continue;
-
+            
             if (SpNode)
             {
                 // Shared counter cannot be decremented later if the move turns out to be illegal
@@ -1095,7 +1095,7 @@ internal static class Search
 
             if (RootNode)
             {
-                var rm = RootMoves.Find(rootmove => rootmove == move);
+                var rm = RootMoves.Find(rootmove => rootmove.pv[0] == move);
 
                 // PV move or new best move ?
                 if (moveCount == 1 || value > alpha)
