@@ -219,6 +219,14 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+    internal static int distance_Rank_StSt(SquareT x, SquareT y)
+    {
+        return distance_Rank(Square.rank_of(x), Square.rank_of(y));
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     internal static int distance_File(SquareT x, SquareT y)
     {
         int xFile = Square.file_of(x);

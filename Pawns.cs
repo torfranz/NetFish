@@ -323,7 +323,7 @@ internal static class Pawns
 
             if (doubled)
             {
-                score -= Score.Divide(Doubled[f], Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled)));
+                score -= Score.Divide(Doubled[f], Utils.distance_Rank_StSt(s, Utils.frontmost_sq(Us, doubled)));
             }
 
             if (lever)
