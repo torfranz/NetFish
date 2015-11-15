@@ -1,22 +1,22 @@
 ﻿using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
+using ColorT = System.Int32;
 #else
 
-internal class ColorType
+internal class ColorT
 {
     private readonly int Value;
 
 #region constructors
 
-    internal ColorType(int value)
+    internal ColorT(int value)
     {
         this.Value = value;
     }
 #endregion
 
-    public static implicit operator int (ColorType c)
+    public static implicit operator int (ColorT c)
     {
         return c.Value;
     }
@@ -33,29 +33,29 @@ internal static class Color
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static ColorType Create(int value)
+    public static ColorT Create(int value)
     {
         return value;
     }
 
 #else
-    internal static ColorType WHITE = new ColorType(0);
+    internal static ColorT WHITE = new ColorT(0);
 
-    internal static ColorType BLACK = new ColorType(1);
+    internal static ColorT BLACK = new ColorT(1);
     
-    public static ColorType Create(int value)
+    public static ColorT Create(int value)
     {
         return value != 0 ? Color.BLACK : Color.WHITE;
     }
 #endif
 
     internal const int COLOR_NB = 2;
-    internal static ColorType[] AllColors = { Color.WHITE, Color.BLACK};
+    internal static ColorT[] AllColors = { Color.WHITE, Color.BLACK};
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static ColorType opposite(ColorType c)
+    public static ColorT opposite(ColorT c)
     {
         return c == Color.WHITE ? Color.BLACK : Color.WHITE;
     }
@@ -63,7 +63,7 @@ internal static class Color
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static CastlingRight CalculateCastlingRight(ColorType c, CastlingSide s)
+    public static CastlingRight CalculateCastlingRight(ColorT c, CastlingSide s)
     {
         return (CastlingRight)((int)CastlingRight.WHITE_OO << ((s == CastlingSide.QUEEN_SIDE ? 1 : 0) + 2 * c));
     }

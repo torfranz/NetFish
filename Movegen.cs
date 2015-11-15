@@ -2,8 +2,8 @@
 using System.Linq;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
-using PieceTypeType = System.Int32;
+using ColorT = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 internal static class Movegen
 {
@@ -13,7 +13,7 @@ internal static class Movegen
         bool Chess960,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        ColorType us,
+        ColorT us,
         CheckInfo ci)
     {
         var KingSide = (Cr == CastlingRight.WHITE_OO || Cr == CastlingRight.BLACK_OO);
@@ -95,7 +95,7 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_pawn_moves(
-        ColorType Us,
+        ColorT Us,
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
@@ -246,11 +246,11 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_moves(
-        PieceTypeType pieceType,
+        PieceTypeT pieceType,
         bool Checks,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        ColorType us,
+        ColorT us,
         Bitboard target,
         CheckInfo ci)
     {
@@ -296,7 +296,7 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_all(
-        ColorType Us,
+        ColorT Us,
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
@@ -366,7 +366,7 @@ internal static class Movegen
         return moveList;
     }
 
-    internal static CastlingRight MakeCastling(ColorType C, CastlingSide S)
+    internal static CastlingRight MakeCastling(ColorT C, CastlingSide S)
     {
         return C == Color.WHITE
             ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO

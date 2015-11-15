@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using PieceTypeType = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 /// A move needs 16 bits to be stored
 /// 
@@ -100,7 +100,7 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static PieceTypeType promotion_type(Move m)
+    internal static PieceTypeT promotion_type(Move m)
     {
         return PieceType.Create(((m.Value >> 12) & 3) + PieceType.KNIGHT);
     }
@@ -124,7 +124,7 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Move make(MoveType moveType, Square from, Square to, PieceTypeType pt)
+    internal static Move make(MoveType moveType, Square from, Square to, PieceTypeT pt)
     {
         return new Move(to | (@from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
     }

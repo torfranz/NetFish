@@ -6,8 +6,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
-using PieceTypeType = System.Int32;
+using ColorT = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -43,7 +43,7 @@ internal class Position
 
     private Square[,,] pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
 
-    private ColorType sideToMove;
+    private ColorT sideToMove;
 
     internal StateInfo st;
 
@@ -144,7 +144,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal ColorType side_to_move()
+    internal ColorT side_to_move()
     {
         return sideToMove;
     }
@@ -176,7 +176,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_Pt(PieceTypeType pt)
+    internal Bitboard pieces_Pt(PieceTypeT pt)
     {
         return byTypeBB[pt];
     }
@@ -184,7 +184,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_PtPt(PieceTypeType pt1, PieceTypeType pt2)
+    internal Bitboard pieces_PtPt(PieceTypeT pt1, PieceTypeT pt2)
     {
         return byTypeBB[pt1] | byTypeBB[pt2];
     }
@@ -192,7 +192,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_Ct(ColorType c)
+    internal Bitboard pieces_Ct(ColorT c)
     {
         return byColorBB[c];
     }
@@ -200,7 +200,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_CtPt(ColorType c, PieceTypeType pt)
+    internal Bitboard pieces_CtPt(ColorT c, PieceTypeT pt)
     {
         return byColorBB[c] & byTypeBB[pt];
     }
@@ -208,7 +208,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_CtPtPt(ColorType c, PieceTypeType pt1, PieceTypeType pt2)
+    internal Bitboard pieces_CtPtPt(ColorT c, PieceTypeT pt1, PieceTypeT pt2)
     {
         return byColorBB[c] & (byTypeBB[pt1] | byTypeBB[pt2]);
     }
@@ -216,7 +216,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal int count(PieceTypeType Pt, ColorType c)
+    internal int count(PieceTypeT Pt, ColorT c)
     {
         return pieceCount[c, Pt];
     }
@@ -224,7 +224,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square square(PieceTypeType Pt, ColorType c, int idx)
+    internal Square square(PieceTypeT Pt, ColorT c, int idx)
     {
         return pieceList[c, Pt, idx];
     }
@@ -232,7 +232,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square square(PieceTypeType Pt, ColorType c)
+    internal Square square(PieceTypeT Pt, ColorT c)
     {
         Debug.Assert(pieceCount[c, Pt] == 1);
         return pieceList[c, Pt, 0];
@@ -257,7 +257,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal int can_castle(ColorType c)
+    internal int can_castle(ColorT c)
     {
         return (st.castlingRights & (((int) CastlingRight.WHITE_OO | (int) CastlingRight.WHITE_OOO) << (2*c)));
     }
@@ -281,7 +281,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceTypeType Pt, Square s)
+    internal Bitboard attacks_from(PieceTypeT Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
             ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
@@ -293,7 +293,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceTypeType Pt, Square s, ColorType c)
+    internal Bitboard attacks_from(PieceTypeT Pt, Square s, ColorT c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
@@ -334,7 +334,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pinned_pieces(ColorType c)
+    internal Bitboard pinned_pieces(ColorT c)
     {
         return check_blockers(c, c);
     }
@@ -342,7 +342,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool pawn_passed(ColorType c, Square s)
+    internal bool pawn_passed(ColorT c, Square s)
     {
         return !(pieces_CtPt(Color.opposite(c), PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
@@ -391,7 +391,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Value non_pawn_material(ColorType c)
+    internal Value non_pawn_material(ColorT c)
     {
         return st.nonPawnMaterial[c];
     }
@@ -471,7 +471,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal PieceTypeType captured_piece_type()
+    internal PieceTypeT captured_piece_type()
     {
         return st.capturedType;
     }
@@ -487,7 +487,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void put_piece(ColorType c, PieceTypeType pieceType, Square s)
+    private void put_piece(ColorT c, PieceTypeT pieceType, Square s)
     {
         var pt = (int) pieceType;
         board[s] = Piece.make_piece(c, pieceType);
@@ -502,7 +502,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void remove_piece(ColorType c, PieceTypeType pieceType, Square s)
+    private void remove_piece(ColorT c, PieceTypeT pieceType, Square s)
     {
         var pt = (int) pieceType;
         // WARNING: This is not a reversible operation. If we remove a piece in
@@ -523,7 +523,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void move_piece(ColorType c, PieceTypeType pieceType, Square from, Square to)
+    private void move_piece(ColorT c, PieceTypeT pieceType, Square from, Square to)
     {
         var pt = (int) pieceType;
         // index[from] is not updated and becomes stale. This works as long as index[]
@@ -540,7 +540,7 @@ internal class Position
 
     /// Position::set_castling_right() is a helper function used to set castling
     /// rights given the corresponding color and the rook starting square.
-    private void set_castling_right(ColorType c, Square rfrom)
+    private void set_castling_right(ColorT c, Square rfrom)
     {
         var kfrom = square(PieceType.KING, c);
         var cs = kfrom < rfrom ? CastlingSide.KING_SIDE : CastlingSide.QUEEN_SIDE;
@@ -649,7 +649,7 @@ internal class Position
     /// position where the king is in check. A check blocking piece can be either a
     /// pinned or a discovered check piece, according if its color 'c' is the same
     /// or the opposite of 'kingColor'.
-    private Bitboard check_blockers(ColorType c, ColorType kingColor)
+    private Bitboard check_blockers(ColorT c, ColorT kingColor)
     {
         Bitboard result = new Bitboard(0);
         var ksq = square(PieceType.KING, kingColor);
@@ -1121,7 +1121,7 @@ internal class Position
 
     /// Position::do_castling() is a helper used to do/undo a castling move. This
     /// is a bit tricky, especially in Chess960.
-    private void do_castling(bool Do, ColorType us, Square from, ref Square to, out Square rfrom, out Square rto)
+    private void do_castling(bool Do, ColorT us, Square from, ref Square to, out Square rfrom, out Square rto)
     {
         var kingSide = to > from;
         rfrom = to; // Castling is encoded as "king captures friendly rook"
@@ -1176,8 +1176,8 @@ internal class Position
     // min_attacker() is a helper function used by see() to locate the least
     // valuable attacker for the side to move, remove the attacker we just found
     // from the bitboards and scan for new X-ray attacks behind it.
-    private PieceTypeType min_attacker(
-        PieceTypeType Pt,
+    private PieceTypeT min_attacker(
+        PieceTypeT Pt,
         Bitboard[] bb,
         Square to,
         Bitboard stmAttackers,

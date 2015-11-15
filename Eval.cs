@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
-using PieceTypeType = System.Int32;
+using ColorT = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 internal static class Eval
 {
@@ -232,7 +232,7 @@ internal static class Eval
     // init_eval_info() initializes king bitboards for given color adding
     // pawn attacks. To be done at the beginning of the evaluation.
 
-    private static void init_eval_info(ColorType Us, Position pos, EvalInfo ei)
+    private static void init_eval_info(ColorT Us, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Down = (Us == Color.WHITE ? Square.DELTA_S : Square.DELTA_N);
@@ -260,8 +260,8 @@ internal static class Eval
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
 
     private static Score evaluate_pieces(
-        PieceTypeType pieceType,
-        ColorType Us,
+        PieceTypeT pieceType,
+        ColorT Us,
         bool DoTrace,
         Position pos,
         EvalInfo ei,
@@ -411,7 +411,7 @@ internal static class Eval
 
     // evaluate_king() assigns bonuses and penalties to a king of a given color
 
-    private static Score evaluate_king(ColorType Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static Score evaluate_king(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -509,7 +509,7 @@ internal static class Eval
     // evaluate_threats() assigns bonuses according to the type of attacking piece
     // and the type of attacked one.
 
-    private static Score evaluate_threats(ColorType Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static Score evaluate_threats(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -621,7 +621,7 @@ internal static class Eval
     }
 
     // evaluate_passed_pawns() evaluates the passed pawns of the given color
-    private static Score evaluate_passed_pawns(ColorType Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static Score evaluate_passed_pawns(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -726,7 +726,7 @@ internal static class Eval
     // squares one, two or three squares behind a friendly pawn are counted
     // twice. Finally, the space bonus is multiplied by a weight. The aim is to
     // improve play on game opening.
-    private static Score evaluate_space(ColorType Us, Position pos, EvalInfo ei)
+    private static Score evaluate_space(ColorT Us, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -930,7 +930,7 @@ internal static class Eval
         return (double) v/Value.PawnValueEg;
     }
 
-    private static void add(int idx, ColorType c, Score s)
+    private static void add(int idx, ColorT c, Score s)
     {
         scores[idx, c, (int) Phase.MG] = to_cp(Score.mg_value(s));
         scores[idx, c, (int) Phase.EG] = to_cp(Score.eg_value(s));

@@ -3,16 +3,16 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using RankType = System.Int32;
-using ColorType = System.Int32;
+using RankT = System.Int32;
+using ColorT = System.Int32;
 #else
-internal class RankType
+internal class RankT
 {
     private int Value;
 
 #region constructors
 
-    internal RankType(int value)
+    internal RankT(int value)
     {
         Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
@@ -21,17 +21,17 @@ internal class RankType
 #endregion
 
 #region base operators
-    public static RankType operator +(RankType v1, int v2)
+    public static RankT operator +(RankT v1, int v2)
     {
         return Rank.Create(v1.Value + v2);
     }
 
-    public static RankType operator -(RankType v1, RankType v2)
+    public static RankT operator -(RankT v1, RankT v2)
     {
         return Rank.Create(v1.Value - v2.Value);
     }
 
-    public static implicit operator int (RankType r)
+    public static implicit operator int (RankT r)
     {
         return r.Value;
     }
@@ -50,41 +50,41 @@ internal static class Rank
 {
 
 #if PRIMITIVE
-    internal const int RANK_1 = 0;
-    internal const int RANK_2 = 1;
-    internal const int RANK_3 = 2;
-    internal const int RANK_4 = 3;
-    internal const int RANK_5 = 4;
-    internal const int RANK_6 = 5;
-    internal const int RANK_7 = 6;
-    internal const int RANK_8 = 7;
+    internal const RankT RANK_1 = 0;
+    internal const RankT RANK_2 = 1;
+    internal const RankT RANK_3 = 2;
+    internal const RankT RANK_4 = 3;
+    internal const RankT RANK_5 = 4;
+    internal const RankT RANK_6 = 5;
+    internal const RankT RANK_7 = 6;
+    internal const RankT RANK_8 = 7;
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static RankType Create(int value)
+    public static RankT Create(int value)
     {
         return value;
     }
 
 #else
-    internal static RankType RANK_1 = new RankType(0);
+    internal static RankT RANK_1 = new RankT(0);
 
-    internal static RankType RANK_2 = new RankType(1);
+    internal static RankT RANK_2 = new RankT(1);
 
-    internal static RankType RANK_3 = new RankType(2);
+    internal static RankT RANK_3 = new RankT(2);
 
-    internal static RankType RANK_4 = new RankType(3);
+    internal static RankT RANK_4 = new RankT(3);
 
-    internal static RankType RANK_5 = new RankType(4);
+    internal static RankT RANK_5 = new RankT(4);
 
-    internal static RankType RANK_6 = new RankType(5);
+    internal static RankT RANK_6 = new RankT(5);
 
-    internal static RankType RANK_7 = new RankType(6);
+    internal static RankT RANK_7 = new RankT(6);
 
-    internal static RankType RANK_8 = new RankType(7);
+    internal static RankT RANK_8 = new RankT(7);
 
-    public static RankType Create(int value)
+    public static RankT Create(int value)
     {
         switch (value)
         {
@@ -111,12 +111,12 @@ internal static class Rank
 #endif
 
     internal const int RANK_NB = 8;
-    internal static RankType[] AllFiles = { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
+    internal static RankT[] AllFiles = { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankType relative_rank(ColorType c, RankType r)
+    internal static RankT relative_rank(ColorT c, RankT r)
     {
         return Rank.Create(r ^ (c * 7));
     }
@@ -124,7 +124,7 @@ internal static class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankType relative_rank(ColorType c, Square s)
+    internal static RankT relative_rank(ColorT c, Square s)
     {
         return relative_rank(c, Square.rank_of(s));
     }

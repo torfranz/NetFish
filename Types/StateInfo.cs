@@ -1,5 +1,5 @@
 ﻿#if PRIMITIVE
-using PieceTypeType = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 
 /// StateInfo struct stores information needed to restore a Position object to
@@ -7,7 +7,7 @@ using PieceTypeType = System.Int32;
 /// board (by calling Position::do_move), a StateInfo object must be passed.
 internal class StateInfo
 {
-    internal PieceTypeType capturedType;
+    internal PieceTypeT capturedType;
 
     internal int castlingRights;
 

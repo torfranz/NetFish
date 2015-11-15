@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
+using ColorT = System.Int32;
 #endif
 internal class Material
 {
@@ -61,18 +61,18 @@ internal class Material
     };
 
     // Helper used to detect a given material distribution
-    private static bool is_KXK(Position pos, ColorType us)
+    private static bool is_KXK(Position pos, ColorT us)
     {
         return !Bitboard.more_than_one(pos.pieces_Ct(Color.opposite(us))) && pos.non_pawn_material(us) >= Value.RookValueMg;
     }
 
-    private static bool is_KBPsKs(Position pos, ColorType us)
+    private static bool is_KBPsKs(Position pos, ColorT us)
     {
         return pos.non_pawn_material(us) == Value.BishopValueMg && pos.count(PieceType.BISHOP, us) == 1
                && pos.count(PieceType.PAWN, us) >= 1;
     }
 
-    private static bool is_KQKRPs(Position pos, ColorType us)
+    private static bool is_KQKRPs(Position pos, ColorT us)
     {
         return pos.count(PieceType.PAWN, us) == 0 && pos.non_pawn_material(us) == Value.QueenValueMg
                && pos.count(PieceType.QUEEN, us) == 1 && pos.count(PieceType.ROOK, Color.opposite(us)) == 1
@@ -81,7 +81,7 @@ internal class Material
 
     /// imbalance() calculates the imbalance by comparing the piece count of each
     /// piece type for both colors.
-    private static int imbalance(ColorType Us, int[][] pieceCount)
+    private static int imbalance(ColorT Us, int[][] pieceCount)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 

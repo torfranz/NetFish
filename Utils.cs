@@ -6,10 +6,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 #if PRIMITIVE
-using FileType = System.Int32;
-using RankType = System.Int32;
-using ColorType = System.Int32;
-using PieceTypeType = System.Int32;
+using FileT = System.Int32;
+using RankT = System.Int32;
+using ColorT = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 
 internal static class Utils
@@ -89,7 +89,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard rank_bb(RankType r)
+    internal static Bitboard rank_bb(RankT r)
     {
         return RankBB[r];
     }
@@ -105,7 +105,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard file_bb(FileType f)
+    internal static Bitboard file_bb(FileT f)
     {
         return FileBB[f];
     }
@@ -123,7 +123,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard adjacent_files_bb(FileType f)
+    internal static Bitboard adjacent_files_bb(FileT f)
     {
         return AdjacentFilesBB[f];
     }
@@ -146,7 +146,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard in_front_bb(ColorType c, RankType r)
+    internal static Bitboard in_front_bb(ColorT c, RankT r)
     {
         return InFrontBB[c, r];
     }
@@ -157,7 +157,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard forward_bb(ColorType c, Square s)
+    internal static Bitboard forward_bb(ColorT c, Square s)
     {
         return ForwardBB[c, s];
     }
@@ -169,7 +169,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard pawn_attack_span(ColorType c, Square s)
+    internal static Bitboard pawn_attack_span(ColorT c, Square s)
     {
         return PawnAttackSpan[c, s];
     }
@@ -180,7 +180,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard passed_pawn_mask(ColorType c, Square s)
+    internal static Bitboard passed_pawn_mask(ColorT c, Square s)
     {
         return PassedPawnMask[c, s];
     }
@@ -245,7 +245,7 @@ internal static class Utils
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
-    internal static uint magic_index(PieceTypeType Pt, Square s, Bitboard occupied)
+    internal static uint magic_index(PieceTypeT Pt, Square s, Bitboard occupied)
     {
         var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
         var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
@@ -261,7 +261,7 @@ internal static class Utils
 #endif
     }
 
-    internal static Bitboard attacks_bb(PieceTypeType Pt, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb(PieceTypeT Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
             ? RookAttacks[s][magic_index(Pt, s, occupied)]
@@ -352,7 +352,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square frontmost_sq(ColorType c, Bitboard b)
+    internal static Square frontmost_sq(ColorT c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
@@ -360,7 +360,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square backmost_sq(ColorType c, Bitboard b)
+    internal static Square backmost_sq(ColorT c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
     }

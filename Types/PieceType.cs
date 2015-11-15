@@ -3,15 +3,15 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using PieceTypeType = System.Int32;
+using PieceTypeT = System.Int32;
 #else
-internal class PieceTypeType
+internal class PieceTypeT
 {
     private int Value;
    
     #region constructors
     
-    internal PieceTypeType(int value)
+    internal PieceTypeT(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 8);
@@ -20,12 +20,12 @@ internal class PieceTypeType
 
     #region base operators
 
-    public static PieceTypeType operator +(PieceTypeType v1, int v2)
+    public static PieceTypeT operator +(PieceTypeT v1, int v2)
     {
         return PieceType.Create(v1.Value + v2);
     }
 
-    public static implicit operator int(PieceTypeType pt)
+    public static implicit operator int(PieceTypeT pt)
     {
         return pt.Value;
     }
@@ -43,48 +43,48 @@ internal static class PieceType
 {
 
 #if PRIMITIVE
-    internal const PieceTypeType PAWN = 1;
+    internal const PieceTypeT PAWN = 1;
 
-    internal const PieceTypeType KNIGHT = 2;
+    internal const PieceTypeT KNIGHT = 2;
 
-    internal const PieceTypeType BISHOP = 3;
+    internal const PieceTypeT BISHOP = 3;
 
-    internal const PieceTypeType ROOK = 4;
+    internal const PieceTypeT ROOK = 4;
 
-    internal const PieceTypeType QUEEN = 5;
+    internal const PieceTypeT QUEEN = 5;
 
-    internal const PieceTypeType KING = 6;
+    internal const PieceTypeT KING = 6;
 
-    internal const int NO_PIECE_TYPE = 0;
+    internal const PieceTypeT NO_PIECE_TYPE = 0;
 
-    internal const PieceTypeType ALL_PIECES = 0;
+    internal const PieceTypeT ALL_PIECES = 0;
 
     
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static PieceTypeType Create(int value)
+    public static PieceTypeT Create(int value)
     {
         return value;
     }
 
 #else
-    internal static PieceTypeType PAWN = new PieceTypeType(1);
+    internal static PieceTypeT PAWN = new PieceTypeT(1);
 
-    internal static PieceTypeType KNIGHT = new PieceTypeType(2);
+    internal static PieceTypeT KNIGHT = new PieceTypeT(2);
 
-    internal static PieceTypeType BISHOP = new PieceTypeType(3);
+    internal static PieceTypeT BISHOP = new PieceTypeT(3);
 
-    internal static PieceTypeType ROOK = new PieceTypeType(4);
+    internal static PieceTypeT ROOK = new PieceTypeT(4);
 
-    internal static PieceTypeType QUEEN = new PieceTypeType(5);
+    internal static PieceTypeT QUEEN = new PieceTypeT(5);
 
-    internal static PieceTypeType KING = new PieceTypeType(6);
+    internal static PieceTypeT KING = new PieceTypeT(6);
 
-    internal static PieceTypeType NO_PIECE_TYPE = new PieceTypeType(0);
-    internal static PieceTypeType ALL_PIECES = new PieceTypeType(0);
+    internal static PieceTypeT NO_PIECE_TYPE = new PieceTypeT(0);
+    internal static PieceTypeT ALL_PIECES = new PieceTypeT(0);
 
-    internal static PieceTypeType Create(int value)
+    internal static PieceTypeT Create(int value)
     {
         switch (value)
         {
@@ -108,7 +108,7 @@ internal static class PieceType
     }
 #endif
 
-    internal static PieceTypeType[] AllPieceTypes = { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+    internal static PieceTypeT[] AllPieceTypes = { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
     internal const int PIECE_TYPE_NB = 8;
     
 }

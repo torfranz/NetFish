@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
+using ColorT = System.Int32;
 #endif
 internal class KPKPosition
 {
@@ -9,7 +9,7 @@ internal class KPKPosition
 
     private readonly Square psq;
 
-    private readonly ColorType us;
+    private readonly ColorT us;
 
     private Result result;
 
@@ -70,7 +70,7 @@ internal class KPKPosition
         return us == Color.WHITE ? classify(Color.WHITE, db) : classify(Color.BLACK, db);
     }
 
-    internal Result classify(ColorType Us, KPKPosition[] db)
+    internal Result classify(ColorT Us, KPKPosition[] db)
     {
         // White to move: If one move leads to a position classified as WIN, the result
         // of the current position is WIN. If all moves lead to positions classified

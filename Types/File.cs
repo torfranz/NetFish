@@ -3,16 +3,16 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-    using FileType = System.Int32;
+    using FileT = System.Int32;
 #else
 
-internal class FileType
+internal class FileT
 {
     private int Value;
 
 #region constructors
 
-    internal FileType(int value)
+    internal FileT(int value)
     {
         Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
@@ -22,12 +22,12 @@ internal class FileType
 
 #region operators
 
-    public static implicit operator int(FileType f)
+    public static implicit operator int(FileT f)
     {
         return f.Value;
     }
 
-    public static FileType operator ++(FileType f)
+    public static FileT operator ++(FileT f)
     {
         f.Value++;
         return f;
@@ -47,41 +47,41 @@ internal static class File
 {
 
 #if PRIMITIVE
-    internal const int FILE_A = 0;
-    internal const int FILE_B = 1;
-    internal const int FILE_C = 2;
-    internal const int FILE_D = 3;
-    internal const int FILE_E = 4;
-    internal const int FILE_F = 5;
-    internal const int FILE_G = 6;
-    internal const int FILE_H = 7;
+    internal const FileT FILE_A = 0;
+    internal const FileT FILE_B = 1;
+    internal const FileT FILE_C = 2;
+    internal const FileT FILE_D = 3;
+    internal const FileT FILE_E = 4;
+    internal const FileT FILE_F = 5;
+    internal const FileT FILE_G = 6;
+    internal const FileT FILE_H = 7;
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static FileType Create(int value)
+    public static FileT Create(int value)
     {
         return value;
     }
 
 #else
-    internal static FileType FILE_A = new FileType(0);
+    internal static FileT FILE_A = new FileT(0);
 
-    internal static FileType FILE_B = new FileType(1);
+    internal static FileT FILE_B = new FileT(1);
 
-    internal static FileType FILE_C = new FileType(2);
+    internal static FileT FILE_C = new FileT(2);
 
-    internal static FileType FILE_D = new FileType(3);
+    internal static FileT FILE_D = new FileT(3);
 
-    internal static FileType FILE_E = new FileType(4);
+    internal static FileT FILE_E = new FileT(4);
 
-    internal static FileType FILE_F = new FileType(5);
+    internal static FileT FILE_F = new FileT(5);
 
-    internal static FileType FILE_G = new FileType(6);
+    internal static FileT FILE_G = new FileT(6);
 
-    internal static FileType FILE_H = new FileType(7);
+    internal static FileT FILE_H = new FileT(7);
 
-    public static FileType Create(int value)
+    public static FileT Create(int value)
     {
         switch (value)
         {
@@ -108,6 +108,6 @@ internal static class File
 #endif
 
     internal const int FILE_NB = 8;
-    internal static FileType[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
+    internal static FileT[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 
 }

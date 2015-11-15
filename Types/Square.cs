@@ -1,9 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using FileType = System.Int32;
-using RankType = System.Int32;
-using ColorType = System.Int32;
+using FileT = System.Int32;
+using RankT = System.Int32;
+using ColorT = System.Int32;
 #endif
 
 internal struct Square
@@ -357,7 +357,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square relative_square(ColorType c, Square s)
+    internal static Square relative_square(ColorT c, Square s)
     {
         return new Square(s.Value ^ (c * 56));
     }
@@ -365,7 +365,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square make_square(FileType f, RankType r)
+    internal static Square make_square(FileT f, RankT r)
     {
         return new Square((r << 3) | f);
     }
@@ -373,7 +373,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static FileType file_of(Square s)
+    internal static FileT file_of(Square s)
     {
         return File.Create(s.Value & 7);
     }
@@ -381,7 +381,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankType rank_of(Square s)
+    internal static RankT rank_of(Square s)
     {
         return Rank.Create(s.Value >> 3);
     }
@@ -389,7 +389,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square pawn_push(ColorType c)
+    internal static Square pawn_push(ColorT c)
     {
         return c == Color.WHITE ? new Square(DELTA_N) : new Square(DELTA_S);
     }

@@ -1,5 +1,5 @@
 ﻿#if PRIMITIVE
-using ColorType = System.Int32;
+using ColorT = System.Int32;
 #endif
 
 /// Material::Entry contains various information about a material configuration.
@@ -60,7 +60,7 @@ internal class MaterialEntry
     // because the scale factor may also be a function which should be applied to
     // the position. For instance, in KBP vs K endgames, the scaling function looks
     // for rook pawns and wrong-colored bishops.
-    internal ScaleFactor scale_factor(Position pos, ColorType c)
+    internal ScaleFactor scale_factor(Position pos, ColorT c)
     {
         if (scalingFunction[c] == null)
         {

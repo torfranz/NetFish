@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
-using ColorType = System.Int32;
-using PieceTypeType = System.Int32;
+using ColorT = System.Int32;
+using PieceTypeT = System.Int32;
 #endif
 internal class Piece
 {
@@ -114,7 +114,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static PieceTypeType type_of(Piece p)
+    internal static PieceTypeT type_of(Piece p)
     {
         return PieceType.Create(p.Value & 7);
     }
@@ -122,7 +122,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static ColorType color_of(Piece p)
+    internal static ColorT color_of(Piece p)
     {
         return Color.Create(p.Value >> 3);
     }
@@ -130,7 +130,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Piece make_piece(ColorType c, PieceTypeType pt)
+    internal static Piece make_piece(ColorT c, PieceTypeT pt)
     {
         return Piece.Create((c << 3) | pt);
     }

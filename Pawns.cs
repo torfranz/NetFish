@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Linq;
 
 #if PRIMITIVE
-    using FileType = System.Int32;
-    using ColorType = System.Int32;
+    using FileT = System.Int32;
+    using ColorT = System.Int32;
 #endif
 
 internal static class Pawns
@@ -210,7 +210,7 @@ internal static class Pawns
 
     private static readonly int[] Seed = {0, 6, 15, 10, 57, 75, 135, 258};
 
-    internal static Score evaluate(ColorType Us, Position pos, Entry e)
+    internal static Score evaluate(ColorT Us, Position pos, Entry e)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -415,37 +415,37 @@ internal static class Pawns
             return score;
         }
 
-        internal Bitboard pawn_attacks(ColorType c)
+        internal Bitboard pawn_attacks(ColorT c)
         {
             return pawnAttacks[c];
         }
 
-        internal Bitboard passed_pawns(ColorType c)
+        internal Bitboard passed_pawns(ColorT c)
         {
             return passedPawns[c];
         }
 
-        internal int pawn_span(ColorType c)
+        internal int pawn_span(ColorT c)
         {
             return pawnSpan[c];
         }
 
-        internal int semiopen_file(ColorType c, FileType f)
+        internal int semiopen_file(ColorT c, FileT f)
         {
             return semiopenFiles[c] & (1 << f);
         }
 
-        internal int semiopen_side(ColorType c, FileType f, bool leftSide)
+        internal int semiopen_side(ColorT c, FileT f, bool leftSide)
         {
             return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
         }
 
-        internal int pawns_on_same_color_squares(ColorType c, Square s)
+        internal int pawns_on_same_color_squares(ColorT c, Square s)
         {
             return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        internal Score king_safety(ColorType Us, Position pos, Square ksq)
+        internal Score king_safety(ColorT Us, Position pos, Square ksq)
         {
             return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
                 ? kingSafety[Us]
@@ -454,7 +454,7 @@ internal static class Pawns
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
-        private Score do_king_safety(ColorType Us, Position pos, Square ksq)
+        private Score do_king_safety(ColorT Us, Position pos, Square ksq)
         {
             kingSquares[Us] = ksq;
             castlingRights[Us] = pos.can_castle(Us);
@@ -493,7 +493,7 @@ internal static class Pawns
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
         /// the king is on, as well as the two adjacent files.
-        private Value shelter_storm(ColorType Us, Position pos, Square ksq)
+        private Value shelter_storm(ColorT Us, Position pos, Square ksq)
         {
             const int NoFriendlyPawn = 0;
             const int Unblocked = 1;
