@@ -155,7 +155,7 @@ internal static class UCI
 
         if (Move.type_of(m) == MoveType.CASTLING && !chess960)
         {
-            to = Square.make_square(to > from ? File.FILE_G : File.FILE_C, Square.rank_of(from));
+            to = Square.make_square(to > from ? FileConstants.FILE_G : FileConstants.FILE_C, Square.rank_of(from));
         }
 
         var move = square(from) + square(to);

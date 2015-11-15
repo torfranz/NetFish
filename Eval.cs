@@ -352,7 +352,7 @@ internal static class Eval
                 if (Pt == PieceType.BISHOP_C && pos.is_chess960()
                     && (s == Square.relative_square(Us, Square.SQ_A1) || s == Square.relative_square(Us, Square.SQ_H1)))
                 {
-                    var d = Square.pawn_push(Us) + (Square.file_of(s) == File.FILE_A ? Square.DELTA_E : Square.DELTA_W);
+                    var d = Square.pawn_push(Us) + (Square.file_of(s) == FileConstants.FILE_A ? Square.DELTA_E : Square.DELTA_W);
                     if (pos.piece_on(s + d) == Piece.make_piece(Us, PieceType.PAWN))
                     {
                         score -= !pos.empty(s + d + Square.pawn_push(Us))
@@ -387,7 +387,7 @@ internal static class Eval
                 {
                     var ksq = pos.square(PieceType.KING, Us);
 
-                    if (((Square.file_of(ksq) < File.FILE_E_C) == (Square.file_of(s) < Square.file_of(ksq)))
+                    if (((Square.file_of(ksq) < FileConstants.FILE_E) == (Square.file_of(s) < Square.file_of(ksq)))
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
                         && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {

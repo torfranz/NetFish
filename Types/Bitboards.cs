@@ -15,9 +15,9 @@ internal static class Bitboards
             Utils.MSBTable[b] = Utils.MSBTable[b - 1] + (!(Bitboard.more_than_one(new Bitboard(b))) ? 1 : 0);
         }
 
-        foreach (var f in File.AllFiles)
+        foreach (var f in FileConstants.AllFiles)
         {
-            Utils.FileBB[f] = (int)f > File.FILE_A_C ? Utils.FileBB[f - 1] << 1 : Bitboard.FileABB;
+            Utils.FileBB[f] = f > FileConstants.FILE_A ? Utils.FileBB[f - 1] << 1 : Bitboard.FileABB;
         }
 
         for (var r = Rank.RANK_1_C; r <= Rank.RANK_8_C; ++r)
@@ -25,10 +25,10 @@ internal static class Bitboards
             Utils.RankBB[r] = r > Rank.RANK_1_C ? Utils.RankBB[r - 1] << 8 : Bitboard.Rank1BB;
         }
 
-        foreach (var f in File.AllFiles)
+        foreach (var f in FileConstants.AllFiles)
         {
-            Utils.AdjacentFilesBB[f] = ((int)f > File.FILE_A_C ? Utils.FileBB[f - 1] : new Bitboard(0))
-                                       | ((int)f < File.FILE_H_C ? Utils.FileBB[f + 1] : new Bitboard(0));
+            Utils.AdjacentFilesBB[f] = (f > FileConstants.FILE_A ? Utils.FileBB[f - 1] : new Bitboard(0))
+                                       | (f < FileConstants.FILE_H ? Utils.FileBB[f + 1] : new Bitboard(0));
         }
 
         for (var r = Rank.RANK_1_C; r < Rank.RANK_8_C; ++r)

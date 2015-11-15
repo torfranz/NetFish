@@ -56,7 +56,7 @@ internal abstract class Endgame
     {
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) == 1);
 
-        if (Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= File.FILE_E_C)
+        if (Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= FileConstants.FILE_E)
         {
             sq = new Square(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
         }
@@ -414,7 +414,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
         var pawnsFile = Square.file_of(Utils.lsb(pawns));
 
         // All pawns are on a single rook file?
-        if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && !(pawns & ~Utils.file_bb(pawnsFile)))
+        if ((pawnsFile == FileConstants.FILE_A || pawnsFile == FileConstants.FILE_H) && !(pawns & ~Utils.file_bb(pawnsFile)))
         {
             var bishopSq = pos.square(PieceType.BISHOP, strongSide);
             var queeningSq = Square.relative_square(strongSide, Square.make_square(pawnsFile, Rank.RANK_8));
@@ -427,7 +427,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
         }
 
         // If all the pawns are on the same B or G file, then it's potentially a draw
-        if ((pawnsFile == File.FILE_B || pawnsFile == File.FILE_G)
+        if ((pawnsFile == FileConstants.FILE_B || pawnsFile == FileConstants.FILE_G)
             && !(pos.pieces(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
             && pos.count(PieceType.PAWN, weakSide) >= 1)
         {
@@ -552,8 +552,8 @@ internal class EndgameKRPKR : EndgameScaleFactor
         // White pawn on a7 and rook on a8 is a draw if black's king is on g7 or h7
         // and the black rook is behind the pawn.
         if (wpsq == Square.SQ_A7 && wrsq == Square.SQ_A8 && (bksq == Square.SQ_H7 || bksq == Square.SQ_G7)
-            && Square.file_of(brsq) == File.FILE_A
-            && (Square.rank_of(brsq) <= Rank.RANK_3_C || Square.file_of(wksq) >= File.FILE_D_C
+            && Square.file_of(brsq) == FileConstants.FILE_A
+            && (Square.rank_of(brsq) <= Rank.RANK_3_C || Square.file_of(wksq) >= FileConstants.FILE_D
                 || Square.rank_of(wksq) <= Rank.RANK_5_C))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -570,7 +570,7 @@ internal class EndgameKRPKR : EndgameScaleFactor
         // Pawn on the 7th rank supported by the rook from behind usually wins if the
         // attacking king is closer to the queening square than the defending king,
         // and the defending king cannot gain tempi by threatening the attacking rook.
-        if (r == Rank.RANK_7 && f != File.FILE_A && Square.file_of(wrsq) == f && wrsq != queeningSq
+        if (r == Rank.RANK_7 && f != FileConstants.FILE_A && Square.file_of(wrsq) == f && wrsq != queeningSq
             && (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, queeningSq) - 2 + tempo)
             && (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, wrsq) + tempo))
         {
@@ -578,7 +578,7 @@ internal class EndgameKRPKR : EndgameScaleFactor
         }
 
         // Similar to the above, but with the pawn further back
-        if (f != File.FILE_A && Square.file_of(wrsq) == f && wrsq < wpsq
+        if (f != FileConstants.FILE_A && Square.file_of(wrsq) == f && wrsq < wpsq
             && (Utils.distance_Square(wksq, queeningSq) < Utils.distance_Square(bksq, queeningSq) - 2 + tempo)
             && (Utils.distance_Square(wksq, wpsq + Square.DELTA_N)
                 < Utils.distance_Square(bksq, wpsq + Square.DELTA_N) - 2 + tempo)
@@ -993,7 +993,7 @@ internal class EndgameKPKP : EndgameScaleFactor
 
         // If the pawn has advanced to the fifth rank or further, and is not a
         // rook pawn, it's too dangerous to assume that it's at least a draw.
-        if (Square.rank_of(psq) >= Rank.RANK_5_C && Square.file_of(psq) != File.FILE_A)
+        if (Square.rank_of(psq) >= Rank.RANK_5_C && Square.file_of(psq) != FileConstants.FILE_A)
         {
             return ScaleFactor.SCALE_FACTOR_NONE;
         }

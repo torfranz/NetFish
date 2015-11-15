@@ -2,6 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 
+#if IMPLICIT
+    using File = System.Int32;
+#endif
 internal static class Pawns
 {
     internal const int Size = 16384;
@@ -500,23 +503,23 @@ internal static class Pawns
             var ourPawns = b & pos.pieces(Us);
             var theirPawns = b & pos.pieces(Them);
             var safety = MaxSafetyBonus;
-            var center = File.Create(Math.Max(File.FILE_B_C, Math.Min(File.FILE_G_C, Square.file_of(ksq))));
+            var center = FileConstants.Create(Math.Max(FileConstants.FILE_B, Math.Min(FileConstants.FILE_G, Square.file_of(ksq))));
 
             for (var f = center - 1; f <= (int)center + 1; ++f)
             {
-                b = ourPawns & Utils.file_bb(File.Create(f));
+                b = ourPawns & Utils.file_bb(FileConstants.Create(f));
                 var rkUs = b ? Rank.relative_rank(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
 
-                b = theirPawns & Utils.file_bb(File.Create(f));
+                b = theirPawns & Utils.file_bb(FileConstants.Create(f));
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
-                safety -= ShelterWeakness[Math.Min(f, File.FILE_H_C - f)][rkUs]
+                safety -= ShelterWeakness[Math.Min(f, FileConstants.FILE_H - f)][rkUs]
                           + StormDanger[
                               f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
                                   : (int)rkUs == Rank.RANK_1_C
                                       ? NoFriendlyPawn
-                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H_C - f)][rkThem];
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, FileConstants.FILE_H - f)][rkThem];
             }
 
             return safety;

@@ -108,7 +108,7 @@ internal class Position
             }
         }
 
-        foreach (var f in File.AllFiles)
+        foreach (var f in FileConstants.AllFiles)
         {
             Zobrist.enpassant[f] = rng.rand();
         }
@@ -1462,10 +1462,10 @@ internal class Position
 
         for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
         {
-            for (var f = File.FILE_A_C; f <= File.FILE_H_C; ++f)
+            for (var f = FileConstants.FILE_A; f <= FileConstants.FILE_H; ++f)
             {
                 int emptyCnt;
-                for (emptyCnt = 0; f <= File.FILE_H_C && empty(Square.make_square(File.Create(f), Rank.Create(r))); ++f)
+                for (emptyCnt = 0; f <= FileConstants.FILE_H && empty(Square.make_square(FileConstants.Create(f), Rank.Create(r))); ++f)
                 {
                     ++emptyCnt;
                 }
@@ -1475,9 +1475,9 @@ internal class Position
                     ss.Append(emptyCnt);
                 }
 
-                if (f <= File.FILE_H_C)
+                if (f <= FileConstants.FILE_H)
                 {
-                    ss.Append(PieceToChar[piece_on(Square.make_square(File.Create(f), Rank.Create(r)))]);
+                    ss.Append(PieceToChar[piece_on(Square.make_square(FileConstants.Create(f), Rank.Create(r)))]);
                 }
             }
 
@@ -1696,7 +1696,7 @@ internal class Position
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
                 {
-                    st.epSquare = Square.make_square(File.Create(col - 'a'), Rank.Create(row - '1'));
+                    st.epSquare = Square.make_square(FileConstants.Create(col - 'a'), Rank.Create(row - '1'));
 
                     if ((attackers_to(st.epSquare) & pieces(sideToMove, PieceType.PAWN)) == 0)
                     {
@@ -1830,7 +1830,7 @@ internal class Position
         var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
         for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
         {
-            foreach (var f in File.AllFiles)
+            foreach (var f in FileConstants.AllFiles)
             {
                 sb.Append(" | ");
                 sb.Append(PieceToChar[piece_on(Square.make_square(f, Rank.Create(r)))]);

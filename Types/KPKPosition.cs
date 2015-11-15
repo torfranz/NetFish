@@ -15,7 +15,7 @@ internal class KPKPosition
         ksq[Color.WHITE_C] = new Square((idx >> 0) & 0x3F);
         ksq[Color.BLACK_C] = new Square((idx >> 6) & 0x3F);
         us = Color.Create((idx >> 12) & 0x01);
-        psq = Square.make_square(File.Create(((int)idx >> 13) & 0x3), Rank.RANK_7 - Rank.Create(((int)idx >> 15) & 0x7));
+        psq = Square.make_square(FileConstants.Create(((int)idx >> 13) & 0x3), Rank.RANK_7 - Rank.Create(((int)idx >> 15) & 0x7));
 
         // Check if two pieces are on the same square or if a king can be captured
         if (Utils.distance_Square(ksq[Color.WHITE_C], ksq[Color.BLACK_C]) <= 1

@@ -1,5 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 
+#if IMPLICIT
+using File = System.Int32;
+#endif
+
 internal struct Square
 {
     internal const int SQ_A1_C = 0;
@@ -369,7 +373,7 @@ internal struct Square
 #endif
     internal static File file_of(Square s)
     {
-        return File.Create(s.Value & 7);
+        return FileConstants.Create(s.Value & 7);
     }
 
 #if FORCEINLINE

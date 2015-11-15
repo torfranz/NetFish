@@ -5,6 +5,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+#if IMPLICIT
+using File = System.Int32;
+#endif
+
 internal static class Utils
 {
     internal delegate uint Fn(Square s, Bitboard occ);
@@ -34,9 +38,9 @@ internal static class Utils
 
     internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB_C];
+    internal static Bitboard[] FileBB = new Bitboard[FileConstants.FILE_NB];
 
-    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB_C];
+    internal static Bitboard[] AdjacentFilesBB = new Bitboard[FileConstants.FILE_NB];
 
     internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB_C];
 

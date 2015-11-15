@@ -27,7 +27,7 @@ internal static class Bitbases
 
     internal static bool probe(Square wksq, Square wpsq, Square bksq, Color us)
     {
-        Debug.Assert(Square.file_of(wpsq) <= File.FILE_D_C);
+        Debug.Assert(Square.file_of(wpsq) <= FileConstants.FILE_D);
 
         var idx = index(us, bksq, wksq, wpsq);
         return (KPKBitbase[idx/32] & (1 << (int) (idx & 0x1F))) != 0;
