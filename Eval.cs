@@ -7,6 +7,7 @@ using System.Text;
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using ValueT = System.Int32;
+using ScoreT = System.Int32;
 #endif
 internal static class Eval
 {
@@ -32,9 +33,9 @@ internal static class Eval
     // MobilityBonus[PieceType][attacked] contains bonuses for middle and end
     // game, indexed by piece type and number of attacked squares not occupied by
     // friendly pieces.
-    internal static Score[][] MobilityBonus =
+    internal static ScoreT[][] MobilityBonus =
     {
-        new Score[] {}, new Score[] {},
+        new ScoreT[] {}, new ScoreT[] {},
         new[]
         {
             Score.make_score(-68, -49), Score.make_score(-46, -33),
@@ -85,7 +86,7 @@ internal static class Eval
 
     // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
     // bishops outposts, bigger if outpost piece is supported by a pawn.
-    internal static Score[][] Outpost =
+    internal static ScoreT[][] Outpost =
     {
         new[] {Score.make_score(42, 11), Score.make_score(63, 17)}, // Knights
         new[] {Score.make_score(18, 5), Score.make_score(27, 8)} // Bishops
@@ -93,7 +94,7 @@ internal static class Eval
 
     // Threat[defended/weak][minor/rook attacking][attacked PieceType] contains
     // bonuses according to which piece type attacks which one.
-    internal static Score[][][] Threat =
+    internal static ScoreT[][][] Threat =
     {
         new[]
         {
@@ -133,7 +134,7 @@ internal static class Eval
 
     // ThreatenedByPawn[PieceType] contains a penalty according to which piece
     // type is attacked by an enemy pawn.
-    internal static Score[] ThreatenedByPawn =
+    internal static ScoreT[] ThreatenedByPawn =
     {
         Score.make_score(0, 0), Score.make_score(0, 0),
         Score.make_score(107, 138), Score.make_score(84, 122),
@@ -157,44 +158,44 @@ internal static class Eval
     };
 
     // PassedFile[File] contains a bonus according to the file of a passed pawn.
-    internal static Score[] PassedFile =
+    internal static ScoreT[] PassedFile =
     {
         Score.make_score(14, 13), Score.make_score(2, 5), Score.make_score(-3, -4),
         Score.make_score(-19, -14), Score.make_score(-19, -14),
         Score.make_score(-3, -4), Score.make_score(2, 5), Score.make_score(14, 13)
     };
 
-    internal static Score ThreatenedByHangingPawn = Score.make_score(40, 60);
+    internal static ScoreT ThreatenedByHangingPawn = Score.make_score(40, 60);
 
     // Assorted bonuses and penalties used by evaluation
-    internal static Score KingOnOne = Score.make_score(2, 58);
+    internal static ScoreT KingOnOne = Score.make_score(2, 58);
 
-    internal static Score KingOnMany = Score.make_score(6, 125);
+    internal static ScoreT KingOnMany = Score.make_score(6, 125);
 
-    internal static Score RookOnPawn = Score.make_score(7, 27);
+    internal static ScoreT RookOnPawn = Score.make_score(7, 27);
 
-    internal static Score RookOnOpenFile = Score.make_score(43, 21);
+    internal static ScoreT RookOnOpenFile = Score.make_score(43, 21);
 
-    internal static Score RookOnSemiOpenFile = Score.make_score(19, 10);
+    internal static ScoreT RookOnSemiOpenFile = Score.make_score(19, 10);
 
-    internal static Score BishopPawns = Score.make_score(8, 12);
+    internal static ScoreT BishopPawns = Score.make_score(8, 12);
 
-    internal static Score MinorBehindPawn = Score.make_score(16, 0);
+    internal static ScoreT MinorBehindPawn = Score.make_score(16, 0);
 
-    internal static Score TrappedRook = Score.make_score(92, 0);
+    internal static ScoreT TrappedRook = Score.make_score(92, 0);
 
-    internal static Score Unstoppable = Score.make_score(0, 20);
+    internal static ScoreT Unstoppable = Score.make_score(0, 20);
 
-    internal static Score Hanging = Score.make_score(31, 26);
+    internal static ScoreT Hanging = Score.make_score(31, 26);
 
-    internal static Score PawnAttackThreat = Score.make_score(20, 20);
+    internal static ScoreT PawnAttackThreat = Score.make_score(20, 20);
 
-    internal static Score Checked = Score.make_score(20, 20);
+    internal static ScoreT Checked = Score.make_score(20, 20);
 
     // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
     // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
     // happen in Chess960 games.
-    internal static Score TrappedBishopA1H1 = Score.make_score(50, 50);
+    internal static ScoreT TrappedBishopA1H1 = Score.make_score(50, 50);
 
     // SpaceMask[Color] contains the area of the board which is considered
     // by the space evaluation. In the middlegame, each side is given a bonus
@@ -212,7 +213,7 @@ internal static class Eval
     // in KingDanger[]. Various little "meta-bonuses" measuring the strength
     // of the enemy attack are added up into an integer, which is used as an
     // index to KingDanger[].
-    internal static Score[] KingDanger = new Score[512];
+    internal static ScoreT[] KingDanger = new ScoreT[512];
 
     // KingAttackWeights[PieceType] contains king attack weights by piece type
     internal static int[] KingAttackWeights = {0, 0, 7, 5, 4, 1};
@@ -260,13 +261,13 @@ internal static class Eval
 
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
 
-    private static Score evaluate_pieces(
+    private static ScoreT evaluate_pieces(
         PieceTypeT pieceType,
         ColorT Us,
         bool DoTrace,
         Position pos,
         EvalInfo ei,
-        Score[] mobility,
+        ScoreT[] mobility,
         Bitboard[] mobilityArea)
     {
         int Pt = pieceType;
@@ -404,7 +405,7 @@ internal static class Eval
 
         if (DoTrace)
         {
-            add(Pt, Us, score);
+            add_IdxCtSt(Pt, Us, score);
         }
         // Recursively call evaluate_pieces() of next piece type until KING excluded
         return score - evaluate_pieces(NextPt, Them, DoTrace, pos, ei, mobility, mobilityArea);
@@ -412,7 +413,7 @@ internal static class Eval
 
     // evaluate_king() assigns bonuses and penalties to a king of a given color
 
-    private static Score evaluate_king(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static ScoreT evaluate_king(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -501,7 +502,7 @@ internal static class Eval
 
         if (DoTrace)
         {
-            add(PieceType.KING, Us, score);
+            add_IdxCtSt(PieceType.KING, Us, score);
         }
 
         return score;
@@ -510,7 +511,7 @@ internal static class Eval
     // evaluate_threats() assigns bonuses according to the type of attacking piece
     // and the type of attacked one.
 
-    private static Score evaluate_threats(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static ScoreT evaluate_threats(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -615,14 +616,14 @@ internal static class Eval
 
         if (DoTrace)
         {
-            add((int) Term.THREAT, Us, score);
+            add_IdxCtSt((int) Term.THREAT, Us, score);
         }
 
         return score;
     }
 
     // evaluate_passed_pawns() evaluates the passed pawns of the given color
-    private static Score evaluate_passed_pawns(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
+    private static ScoreT evaluate_passed_pawns(ColorT Us, bool DoTrace, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -714,11 +715,11 @@ internal static class Eval
 
         if (DoTrace)
         {
-            add((int) Term.PASSED, Us, score*Weights[PassedPawns]);
+            add_IdxCtSt((int) Term.PASSED, Us, Score.Multiply(score, Weights[PassedPawns]));
         }
 
         // Add the scores to the middlegame and endgame eval
-        return score*Weights[PassedPawns];
+        return Score.Multiply(score, Weights[PassedPawns]);
     }
 
     // evaluate_space() computes the space evaluation for a given side. The
@@ -727,7 +728,7 @@ internal static class Eval
     // squares one, two or three squares behind a friendly pawn are counted
     // twice. Finally, the space bonus is multiplied by a weight. The aim is to
     // improve play on game opening.
-    private static Score evaluate_space(ColorT Us, Position pos, EvalInfo ei)
+    private static ScoreT evaluate_space(ColorT Us, Position pos, EvalInfo ei)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -760,7 +761,7 @@ internal static class Eval
         Debug.Assert(!pos.checkers());
 
         var ei = new EvalInfo();
-        Score[] mobility = {Score.SCORE_ZERO, Score.SCORE_ZERO};
+        ScoreT[] mobility = {Score.SCORE_ZERO, Score.SCORE_ZERO};
 
         // Initialize score by reading the incrementally updated scores included
         // in the position object (material + piece square tables).
@@ -780,7 +781,7 @@ internal static class Eval
 
         // Probe the pawn hash table
         ei.pi = Pawns.probe(pos);
-        score += ei.pi.pawns_score()*Weights[PawnStructure];
+        score += Score.Multiply(ei.pi.pawns_score(), Weights[PawnStructure]);
 
         // Initialize attack and king safety bitboards
         ei.attackedBy[Color.WHITE, PieceType.ALL_PIECES] =
@@ -811,7 +812,7 @@ internal static class Eval
 
         // Evaluate pieces and mobility
         score += evaluate_pieces(PieceType.KNIGHT, Color.WHITE, DoTrace, pos, ei, mobility, mobilityArea);
-        score += (mobility[Color.WHITE] - mobility[Color.BLACK])*Weights[Mobility];
+        score += Score.Multiply(mobility[Color.WHITE] - mobility[Color.BLACK], Weights[Mobility]);
 
         // Evaluate kings after all other pieces because we need complete attack
         // information when computing the king safety evaluation.
@@ -842,7 +843,7 @@ internal static class Eval
         // Evaluate space for both sides, only during opening
         if (pos.non_pawn_material(Color.WHITE) + pos.non_pawn_material(Color.BLACK) >= 12222)
         {
-            score += (evaluate_space(Color.WHITE, pos, ei) - evaluate_space(Color.BLACK, pos, ei))*Weights[Space];
+            score += Score.Multiply(evaluate_space(Color.WHITE, pos, ei) - evaluate_space(Color.BLACK, pos, ei), Weights[Space]);
         }
 
         // Scale winning side if position is more drawish than it appears
@@ -895,18 +896,18 @@ internal static class Eval
         // In case of tracing add all single evaluation terms
         if (DoTrace)
         {
-            add((int) Term.MATERIAL, pos.psq_score());
-            add((int) Term.IMBALANCE, me.imbalance());
-            add(PieceType.PAWN, ei.pi.pawns_score());
-            add(
+            add_IdxSt((int) Term.MATERIAL, pos.psq_score());
+            add_IdxSt((int) Term.IMBALANCE, me.imbalance());
+            add_IdxSt(PieceType.PAWN, ei.pi.pawns_score());
+            add_IdxStSt(
                 (int) Term.MOBILITY,
-                mobility[Color.WHITE] *Weights[Mobility],
-                mobility[Color.BLACK] *Weights[Mobility]);
-            add(
+                Score.Multiply(mobility[Color.WHITE], Weights[Mobility]),
+                Score.Multiply(mobility[Color.BLACK], Weights[Mobility]));
+            add_IdxStSt(
                 (int) Term.SPACE,
-                evaluate_space(Color.WHITE, pos, ei)*Weights[Space],
-                evaluate_space(Color.BLACK, pos, ei)*Weights[Space]);
-            add((int) Term.TOTAL, score);
+                Score.Multiply(evaluate_space(Color.WHITE, pos, ei), Weights[Space]),
+                Score.Multiply(evaluate_space(Color.BLACK, pos, ei), Weights[Space]));
+            add_IdxSt((int) Term.TOTAL, score);
         }
 
         return (pos.side_to_move() == Color.WHITE ? v : -v) + Tempo; // Side to move point of view
@@ -922,7 +923,7 @@ internal static class Eval
         for (var i = 0; i < 400; ++i)
         {
             t = Math.Min(Peak, Math.Min(i*i*27, t + MaxSlope));
-            KingDanger[i] = Score.make_score(t/1000, 0)*Weights[KingSafety];
+            KingDanger[i] = Score.Multiply(Score.make_score(t/1000, 0), Weights[KingSafety]);
         }
     }
 
@@ -931,22 +932,22 @@ internal static class Eval
         return (double) v/Value.PawnValueEg;
     }
 
-    private static void add(int idx, ColorT c, Score s)
+    private static void add_IdxCtSt(int idx, ColorT c, ScoreT s)
     {
         scores[idx, c, (int) Phase.MG] = to_cp(Score.mg_value(s));
         scores[idx, c, (int) Phase.EG] = to_cp(Score.eg_value(s));
     }
 
-    private static void add(int idx, Score w, Score b)
+    private static void add_IdxStSt(int idx, ScoreT w, ScoreT b)
     {
-        add(idx, Color.WHITE, w);
-        add(idx, Color.BLACK, b);
+        add_IdxCtSt(idx, Color.WHITE, w);
+        add_IdxCtSt(idx, Color.BLACK, b);
     }
 
-    private static void add(int idx, Score w)
+    private static void add_IdxSt(int idx, ScoreT w)
     {
-        add(idx, Color.WHITE, w);
-        add(idx, Color.BLACK, Score.SCORE_ZERO);
+        add_IdxCtSt(idx, Color.WHITE, w);
+        add_IdxCtSt(idx, Color.BLACK, Score.SCORE_ZERO);
     }
 
     private static string termString(Term t)

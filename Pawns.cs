@@ -6,13 +6,14 @@ using System.Linq;
 using FileT = System.Int32;
 using ColorT = System.Int32;
 using ValueT = System.Int32;
+using ScoreT = System.Int32;
 #endif
 
 internal static class Pawns
 {
     internal const int Size = 16384;
     // Doubled pawn penalty by file
-    private static readonly Score[] Doubled =
+    private static readonly ScoreT[] Doubled =
     {
         Score.make_score(13, 43), Score.make_score(20, 48),
         Score.make_score(23, 48), Score.make_score(23, 48),
@@ -21,7 +22,7 @@ internal static class Pawns
     };
 
     // Isolated pawn penalty by opposed flag and file
-    private static readonly Score[][] Isolated =
+    private static readonly ScoreT[][] Isolated =
     {
         new[]
         {
@@ -40,13 +41,13 @@ internal static class Pawns
     };
 
     // Backward pawn penalty by opposed flag
-    private static readonly Score[] Backward = {Score.make_score(67, 42), Score.make_score(49, 24)};
+    private static readonly ScoreT[] Backward = {Score.make_score(67, 42), Score.make_score(49, 24)};
 
     // Connected pawn bonus by opposed, phalanx, twice supported and rank
-    private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB];
+    private static readonly ScoreT[,,,] Connected = new ScoreT[2, 2, 2, Rank.RANK_NB];
 
     // Levers bonus by rank
-    private static readonly Score[] Lever =
+    private static readonly ScoreT[] Lever =
     {
         Score.make_score(0, 0), Score.make_score(0, 0), Score.make_score(0, 0),
         Score.make_score(0, 0), Score.make_score(20, 20), Score.make_score(40, 40),
@@ -54,7 +55,7 @@ internal static class Pawns
     };
 
     // Unsupported pawn penalty
-    private static readonly Score UnsupportedPawnPenalty = Score.make_score(20, 10);
+    private static readonly ScoreT UnsupportedPawnPenalty = Score.make_score(20, 10);
 
     // Center bind bonus: Two pawns controlling the same central square
     private static readonly Bitboard[] CenterBindMask =
@@ -65,7 +66,7 @@ internal static class Pawns
         & (Bitboard.Rank4BB | Bitboard.Rank3BB | Bitboard.Rank2BB)
     };
 
-    private static readonly Score CenterBind = Score.make_score(16, 0);
+    private static readonly ScoreT CenterBind = Score.make_score(16, 0);
 
     // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
     private static readonly ValueT[][] ShelterWeakness =
@@ -211,7 +212,7 @@ internal static class Pawns
 
     private static readonly int[] Seed = {0, 6, 15, 10, 57, 75, 135, 258};
 
-    internal static Score evaluate(ColorT Us, Position pos, Entry e)
+    internal static ScoreT evaluate(ColorT Us, Position pos, Entry e)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -321,7 +322,7 @@ internal static class Pawns
 
             if (doubled)
             {
-                score -= Doubled[f]/Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled));
+                score -= Score.Divide(Doubled[f], Utils.distance_Rank(s, Utils.frontmost_sq(Us, doubled)));
             }
 
             if (lever)
@@ -395,7 +396,7 @@ internal static class Pawns
 
         internal ulong key;
 
-        internal Score[] kingSafety = new Score[Color.COLOR_NB];
+        internal ScoreT[] kingSafety = new ScoreT[Color.COLOR_NB];
 
         internal Square[] kingSquares = new Square[Color.COLOR_NB];
 
@@ -407,11 +408,11 @@ internal static class Pawns
 
         internal int[] pawnSpan = new int[Color.COLOR_NB];
 
-        internal Score score;
+        internal ScoreT score;
 
         internal int[] semiopenFiles = new int[Color.COLOR_NB];
 
-        internal Score pawns_score()
+        internal ScoreT pawns_score()
         {
             return score;
         }
@@ -446,7 +447,7 @@ internal static class Pawns
             return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        internal Score king_safety(ColorT Us, Position pos, Square ksq)
+        internal ScoreT king_safety(ColorT Us, Position pos, Square ksq)
         {
             return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
                 ? kingSafety[Us]
@@ -455,7 +456,7 @@ internal static class Pawns
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
-        private Score do_king_safety(ColorT Us, Position pos, Square ksq)
+        private ScoreT do_king_safety(ColorT Us, Position pos, Square ksq)
         {
             kingSquares[Us] = ksq;
             castlingRights[Us] = pos.can_castle(Us);

@@ -18,12 +18,12 @@ namespace Tests
             PSQT.init();
                         
             // check some BSFTable fields
-            Assert.AreEqual(new Score(165218744), PSQT.psq[0, 5, 7]);
-            Assert.AreEqual(new Score(164956612), PSQT.psq[0, 5, 8]);
-            Assert.AreEqual(new Score(165612000), PSQT.psq[0, 5, 9]);
-            Assert.AreEqual(new Score(-165153203), PSQT.psq[1, 5, 7]);
-            Assert.AreEqual(new Score(-165087688), PSQT.psq[1, 5, 8]);
-            Assert.AreEqual(new Score(-165677536), PSQT.psq[1, 5, 9]);
+            Assert.AreEqual(Score.Create(165218744), PSQT.psq[0, 5, 7]);
+            Assert.AreEqual(Score.Create(164956612), PSQT.psq[0, 5, 8]);
+            Assert.AreEqual(Score.Create(165612000), PSQT.psq[0, 5, 9]);
+            Assert.AreEqual(Score.Create(-165153203), PSQT.psq[1, 5, 7]);
+            Assert.AreEqual(Score.Create(-165087688), PSQT.psq[1, 5, 8]);
+            Assert.AreEqual(Score.Create(-165677536), PSQT.psq[1, 5, 9]);
         }
     }
 }

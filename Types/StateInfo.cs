@@ -1,6 +1,7 @@
 ﻿#if PRIMITIVE
 using PieceTypeT = System.Int32;
 using ValueT = System.Int32;
+using ScoreT = System.Int32;
 #endif
 
 /// StateInfo struct stores information needed to restore a Position object to
@@ -30,7 +31,7 @@ internal class StateInfo
 
     internal StateInfo previous;
 
-    internal Score psq;
+    internal ScoreT psq;
 
     internal int rule50;
 

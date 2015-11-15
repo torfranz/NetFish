@@ -10,6 +10,7 @@ using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using PieceT = System.Int32;
 using ValueT = System.Int32;
+using ScoreT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -385,7 +386,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Score psq_score()
+    internal ScoreT psq_score()
     {
         return st.psq;
     }

@@ -27,11 +27,11 @@ namespace Tests
             Assert.AreEqual(-12, mg);
             Assert.AreEqual(-56, eg);
 
-            var v2 = new Score(2097248);
+            var v2 = Score.Create(2097248);
             var mg2 = Score.mg_value(v2);
             Assert.AreEqual(32, mg2);
 
-            var v3 = new Score(-2097248);
+            var v3 = Score.Create(-2097248);
             var mg3 = Score.mg_value(v3);
             Assert.AreEqual(-32, mg3);
         }

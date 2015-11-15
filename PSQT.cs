@@ -1,12 +1,16 @@
-﻿internal static class PSQT
+﻿#if PRIMITIVE
+using ScoreT = System.Int32;
+#endif
+
+internal static class PSQT
 {
     // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
     // type on a given square a (middlegame, endgame) score pair is assigned. Table
     // is defined for files A..D and white side: it is symmetric for black side and
     // second half of the files.
-    internal static Score[][][] Bonus =
+    internal static ScoreT[][][] Bonus =
     {
-        new[] {new Score[] {}}, new[]
+        new[] {new ScoreT[] {}}, new[]
         {
             // Pawn
             new[]
@@ -288,7 +292,7 @@
         }
     };
 
-    internal static Score[,,] psq = new Score[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB_C];
+    internal static ScoreT[,,] psq = new ScoreT[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB_C];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the

@@ -1,6 +1,7 @@
 ﻿#if PRIMITIVE
 using ColorT = System.Int32;
 using ValueT = System.Int32;
+using ScoreT = System.Int32;
 #endif
 
 /// Material::Entry contains various information about a material configuration.
@@ -36,7 +37,7 @@ internal class MaterialEntry
         value = 0;
     }
 
-    internal Score imbalance()
+    internal ScoreT imbalance()
     {
         return Score.make_score(value, value);
     }
