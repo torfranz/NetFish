@@ -1,9 +1,13 @@
-﻿/// StateInfo struct stores information needed to restore a Position object to
+﻿#if PRIMITIVE
+using PieceTypeType = System.Int32;
+#endif
+
+/// StateInfo struct stores information needed to restore a Position object to
 /// its previous state when we retract a move. Whenever a move is made on the
 /// board (by calling Position::do_move), a StateInfo object must be passed.
 internal class StateInfo
 {
-    internal PieceType capturedType;
+    internal PieceTypeType capturedType;
 
     internal int castlingRights;
 

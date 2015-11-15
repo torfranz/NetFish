@@ -5,7 +5,7 @@ internal class EvalInfo
 {
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type (can be also ALL_PIECES).
-    internal Bitboard[,] attackedBy = new Bitboard[Color.COLOR_NB, PieceType.PIECE_TYPE_NB_C];
+    internal Bitboard[,] attackedBy = new Bitboard[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
     // kingAdjacentZoneAttacksCount[color] is the number of attacks by the given
     // color to squares directly adjacent to the enemy king. Pieces which attack

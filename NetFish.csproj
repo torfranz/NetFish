@@ -130,7 +130,7 @@
     <Compile Include="Types\Rank.cs" />
     <Compile Include="Types\File.cs" />
     <Compile Include="Types\Square.cs" />
-    <Compile Include="Types\ColorType.cs" />
+    <Compile Include="Types\Color.cs" />
     <Compile Include="Types\Piece.cs" />
     <Compile Include="Types\PieceType.cs" />
     <Compile Include="Types\Score.cs" />

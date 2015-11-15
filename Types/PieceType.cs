@@ -2,68 +2,16 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-internal class PieceType
+#if PRIMITIVE
+using PieceTypeType = System.Int32;
+#else
+internal class PieceTypeType
 {
-    internal const int NO_PIECE_TYPE_C = 0;
-    internal const int ALL_PIECES_C = 0;
-    internal const int PIECE_TYPE_NB_C = 8;
-    internal const int PAWN_C = 1;
-    internal const int KNIGHT_C = 2;
-    internal const int BISHOP_C = 3;
-
-    internal const int ROOK_C = 4;
-
-    internal const int QUEEN_C = 5;
-
-    internal const int KING_C = 6;
-
-    internal static PieceType PAWN = new PieceType(PAWN_C);
-
-    internal static PieceType KNIGHT = new PieceType(KNIGHT_C);
-
-    internal static PieceType BISHOP = new PieceType(BISHOP_C);
-
-    internal static PieceType ROOK = new PieceType(ROOK_C);
-
-    internal static PieceType QUEEN = new PieceType(QUEEN_C);
-
-    internal static PieceType KING = new PieceType(KING_C);
-
-    internal static PieceType ALL_PIECES = new PieceType(ALL_PIECES_C);
-
     private int Value;
    
     #region constructors
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    internal static PieceType Create(int value)
-    {
-        switch (value)
-        {
-            case ALL_PIECES_C:
-                return ALL_PIECES;
-            case BISHOP_C:
-                return BISHOP;
-            case KING_C:
-                return KING;
-            case KNIGHT_C:
-                return KNIGHT;
-            case PAWN_C:
-                return PAWN;
-            case ROOK_C:
-                return ROOK;
-            case QUEEN_C:
-                return QUEEN;
-            default: throw new ArgumentOutOfRangeException(nameof(value));
-        }
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    private PieceType(int value)
+    
+    internal PieceTypeType(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 8);
@@ -72,100 +20,95 @@ internal class PieceType
 
     #region base operators
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static PieceType operator +(PieceType v1, int v2)
+    public static PieceTypeType operator +(PieceTypeType v1, int v2)
     {
         return PieceType.Create(v1.Value + v2);
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(PieceType pt)
+    public static implicit operator int(PieceTypeType pt)
     {
         return pt.Value;
     }
-    /*
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator ==(PieceType v1, PieceType v2)
-    {
-        return v1.Value == v2.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator !=(PieceType v1, PieceType v2)
-    {
-        return v1.Value != v2.Value;
-    }
-    */
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator bool(PieceType pt)
-    {
-        return pt.Value != 0;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
+    
     public override string ToString()
     {
         return Value.ToString();
     }
 
-    /*
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static PieceType operator -(PieceType v1)
-    {
-        return new PieceType(-v1.value);
-    }
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static PieceType operator *(int v1, PieceType v2)
-    {
-        return new PieceType(v1 * v2.value);
-    }
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static PieceType operator *(PieceType v1, int v2)
-    {
-        return new PieceType(v1.value * v2);
-    }
-
     #endregion
-
-    #region extended operators
-
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
+}
 #endif
-    internal static int operator /(PieceType v1, PieceType v2)
+
+internal static class PieceType
+{
+
+#if PRIMITIVE
+    internal const PieceTypeType PAWN = 1;
+
+    internal const PieceTypeType KNIGHT = 2;
+
+    internal const PieceTypeType BISHOP = 3;
+
+    internal const PieceTypeType ROOK = 4;
+
+    internal const PieceTypeType QUEEN = 5;
+
+    internal const PieceTypeType KING = 6;
+
+    internal const int NO_PIECE_TYPE = 0;
+
+    internal const PieceTypeType ALL_PIECES = 0;
+
+    
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static PieceTypeType Create(int value)
     {
-        return v1.value / v2.value;
+        return value;
     }
 
-    #if FORCEINLINE  
-	[MethodImpl(MethodImplOptions.AggressiveInlining)] 
-#endif
-    internal static PieceType operator /(PieceType v1, int v2)
-    {
-        return new PieceType(v1.value / v2);
-    }
-    */
+#else
+    internal static PieceTypeType PAWN = new PieceTypeType(1);
 
-    #endregion
+    internal static PieceTypeType KNIGHT = new PieceTypeType(2);
+
+    internal static PieceTypeType BISHOP = new PieceTypeType(3);
+
+    internal static PieceTypeType ROOK = new PieceTypeType(4);
+
+    internal static PieceTypeType QUEEN = new PieceTypeType(5);
+
+    internal static PieceTypeType KING = new PieceTypeType(6);
+
+    internal static PieceTypeType NO_PIECE_TYPE = new PieceTypeType(0);
+    internal static PieceTypeType ALL_PIECES = new PieceTypeType(0);
+
+    internal static PieceTypeType Create(int value)
+    {
+        switch (value)
+        {
+            case 0:
+                return ALL_PIECES;
+            case 3:
+                return BISHOP;
+            case 6:
+                return KING;
+            case 2:
+                return KNIGHT;
+            case 1:
+                return PAWN;
+            case 4:
+                return ROOK;
+            case 5:
+                return QUEEN;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
+#endif
+
+    internal static PieceTypeType[] AllPieceTypes = { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+    internal const int PIECE_TYPE_NB = 8;
+    
 }

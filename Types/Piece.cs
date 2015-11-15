@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using ColorType = System.Int32;
+using PieceTypeType = System.Int32;
 #endif
 internal class Piece
 {
@@ -89,7 +90,6 @@ internal class Piece
         Debug.Assert(Value >= 0 && Value <= 16);
         Debug.Assert(Value != 7);
         Debug.Assert(Value != 8);
-        Debug.Assert(Value != 15);
     }
 
     #endregion
@@ -103,26 +103,7 @@ internal class Piece
     {
         return p.Value;
     }
-    /*
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator ==(Piece v1, Piece v2)
-    {
-        return v1.Value == v2.Value;
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static bool operator !=(Piece v1, Piece v2)
-    {
-        return v1.Value != v2.Value;
-    }
-    */
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
+    
     public override string ToString()
     {
         return Value.ToString();
@@ -133,7 +114,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static PieceType type_of(Piece p)
+    internal static PieceTypeType type_of(Piece p)
     {
         return PieceType.Create(p.Value & 7);
     }
@@ -149,7 +130,7 @@ internal class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Piece make_piece(ColorType c, PieceType pt)
+    internal static Piece make_piece(ColorType c, PieceTypeType pt)
     {
         return Piece.Create((c << 3) | pt);
     }

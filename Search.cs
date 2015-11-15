@@ -1209,7 +1209,7 @@ internal static class Search
         else if (!bestMove)
         {
             if (Move.is_ok(stackMinus2.currentMove) && Move.is_ok(stackMinus1.currentMove) &&
-                !pos.captured_piece_type() && !inCheck && depth >= 3*Depth.ONE_PLY_C)
+                pos.captured_piece_type()==0 && !inCheck && depth >= 3*Depth.ONE_PLY_C)
             {
                 var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
                 var prevSq = Move.to_sq(stackMinus1.currentMove);
@@ -1479,7 +1479,7 @@ internal static class Search
 
         // Extra penalty for PV move in previous ply when it gets refuted
         if (Move.is_ok(ss[ss.current - 2].currentMove) && ss[ss.current - 1].moveCount == 1 &&
-            !pos.captured_piece_type())
+            pos.captured_piece_type()==0)
         {
             var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
             var ttMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];

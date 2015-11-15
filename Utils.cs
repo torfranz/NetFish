@@ -9,6 +9,7 @@ using System.Text;
 using FileType = System.Int32;
 using RankType = System.Int32;
 using ColorType = System.Int32;
+using PieceTypeType = System.Int32;
 #endif
 
 internal static class Utils
@@ -244,7 +245,7 @@ internal static class Utils
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
-    internal static uint magic_index(PieceType Pt, Square s, Bitboard occupied)
+    internal static uint magic_index(PieceTypeType Pt, Square s, Bitboard occupied)
     {
         var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
         var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
@@ -260,7 +261,7 @@ internal static class Utils
 #endif
     }
 
-    internal static Bitboard attacks_bb(PieceType Pt, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb(PieceTypeType Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
             ? RookAttacks[s][magic_index(Pt, s, occupied)]
@@ -274,11 +275,11 @@ internal static class Utils
     {
         switch ((int)Piece.type_of(pc))
         {
-            case PieceType.BISHOP_C:
+            case 3 /*PieceType.BISHOP*/:
                 return attacks_bb(PieceType.BISHOP, s, occupied);
-            case PieceType.ROOK_C:
+            case 4 /*PieceType.ROOK*/:
                 return attacks_bb(PieceType.ROOK, s, occupied);
-            case PieceType.QUEEN_C:
+            case 5 /*PieceType.QUEEN*/:
                 return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
             default:
                 return StepAttacksBB[pc, s];

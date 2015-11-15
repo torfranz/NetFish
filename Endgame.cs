@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 #if PRIMITIVE
 using ColorType = System.Int32;
+using PieceTypeType = System.Int32;
 #endif
 
 internal abstract class Endgame
@@ -414,7 +415,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
         // No assertions about the material of weakSide, because we want draws to
         // be detected even when the weaker side has some pawns.
 
-        var pawns = pos.pieces(strongSide, PieceType.PAWN);
+        var pawns = pos.pieces_CtPt(strongSide, PieceType.PAWN);
         var pawnsFile = Square.file_of(Utils.lsb(pawns));
 
         // All pawns are on a single rook file?
@@ -432,11 +433,11 @@ internal class EndgameKBPsK : EndgameScaleFactor
 
         // If all the pawns are on the same B or G file, then it's potentially a draw
         if ((pawnsFile == File.FILE_B || pawnsFile == File.FILE_G)
-            && !(pos.pieces(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
+            && !(pos.pieces_Pt(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
             && pos.count(PieceType.PAWN, weakSide) >= 1)
         {
             // Get weakSide pawn that is closest to the home rank
-            var weakPawnSq = Utils.backmost_sq(weakSide, pos.pieces(weakSide, PieceType.PAWN));
+            var weakPawnSq = Utils.backmost_sq(weakSide, pos.pieces_CtPt(weakSide, PieceType.PAWN));
 
             var strongKingSq = pos.square(PieceType.KING, strongSide);
             var weakKingSq = pos.square(PieceType.KING, weakSide);
@@ -445,7 +446,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
             // There's potential for a draw if our pawn is blocked on the 7th rank,
             // the bishop cannot attack it or they only have one pawn left
             if (Rank.relative_rank(strongSide, weakPawnSq) == Rank.RANK_7
-                && (pos.pieces(strongSide, PieceType.PAWN) & (weakPawnSq + Square.pawn_push(weakSide)))
+                && (pos.pieces_CtPt(strongSide, PieceType.PAWN) & (weakPawnSq + Square.pawn_push(weakSide)))
                 && (Square.opposite_colors(bishopSq, weakPawnSq) || pos.count(PieceType.PAWN, strongSide) == 1))
             {
                 var strongKingDist = Utils.distance_Square(weakPawnSq, strongKingSq);
@@ -490,7 +491,7 @@ internal class EndgameKQKRPs : EndgameScaleFactor
         if (Rank.relative_rank(weakSide, kingSq) <= Rank.RANK_2
             && Rank.relative_rank(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
             && Rank.relative_rank(weakSide, rsq) == Rank.RANK_3
-            && (pos.pieces(weakSide, PieceType.PAWN) & pos.attacks_from(PieceType.KING, kingSq)
+            && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from(PieceType.KING, kingSq)
                 & pos.attacks_from(PieceType.PAWN, rsq, strongSide)))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -624,7 +625,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
         // Test for a rook pawn
-        if (pos.pieces(PieceType.PAWN) & (Bitboard.FileABB | Bitboard.FileHBB))
+        if (pos.pieces_Pt(PieceType.PAWN) & (Bitboard.FileABB | Bitboard.FileHBB))
         {
             var ksq = pos.square(PieceType.KING, weakSide);
             var bsq = pos.square(PieceType.BISHOP, weakSide);
@@ -653,7 +654,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
             // pawn from a reasonable distance and the defending king is near
             // the corner
             if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2*push, ksq) <= 1
-                && (Utils.PseudoAttacks[PieceType.BISHOP_C, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
+                && (Utils.PseudoAttacks[PieceType.BISHOP, bsq] & (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
             {
                 return (ScaleFactor) (8);
             }
@@ -729,7 +730,7 @@ internal class EndgameKPsK : EndgameScaleFactor
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
 
         var ksq = pos.square(PieceType.KING, weakSide);
-        var pawns = pos.pieces(strongSide, PieceType.PAWN);
+        var pawns = pos.pieces_CtPt(strongSide, PieceType.PAWN);
 
         // If all pawns are ahead of the king, on a single rook file and
         // the king is within one file of the pawns, it's a draw.
@@ -793,7 +794,7 @@ internal class EndgameKBPKB : EndgameScaleFactor
             }
             var path = Utils.forward_bb(strongSide, pawnSq);
 
-            if (path & pos.pieces(weakSide, PieceType.KING))
+            if (path & pos.pieces_CtPt(weakSide, PieceType.KING))
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
@@ -866,7 +867,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
                 // behind this square on the file of the other pawn.
                 if (ksq == blockSq1 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq2
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq2) & pos.pieces(weakSide, PieceType.BISHOP))
+                        || (pos.attacks_from(PieceType.BISHOP, blockSq2) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))
                         || Utils.distance_Rank(r1, r2) >= 2))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -874,7 +875,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
 
                 if (ksq == blockSq2 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq1
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq1) & pos.pieces(weakSide, PieceType.BISHOP))))
+                        || (pos.attacks_from(PieceType.BISHOP, blockSq1) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
                 }

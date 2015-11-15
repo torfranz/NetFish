@@ -63,7 +63,7 @@ internal class Material
     // Helper used to detect a given material distribution
     private static bool is_KXK(Position pos, ColorType us)
     {
-        return !Bitboard.more_than_one(pos.pieces(Color.opposite(us))) && pos.non_pawn_material(us) >= Value.RookValueMg;
+        return !Bitboard.more_than_one(pos.pieces_Ct(Color.opposite(us))) && pos.non_pawn_material(us) >= Value.RookValueMg;
     }
 
     private static bool is_KBPsKs(Position pos, ColorType us)
@@ -88,7 +88,7 @@ internal class Material
         var bonus = 0;
 
         // Second-degree polynomial material imbalance by Tord Romstad
-        for (int pt1 = PieceType.NO_PIECE_TYPE_C; pt1 <= PieceType.QUEEN_C; ++pt1)
+        for (int pt1 = PieceType.NO_PIECE_TYPE; pt1 <= PieceType.QUEEN; ++pt1)
         {
             if (pieceCount[Us][pt1] == 0)
             {
@@ -97,7 +97,7 @@ internal class Material
 
             var v = Linear[pt1];
 
-            for (int pt2 = PieceType.NO_PIECE_TYPE_C; pt2 <= pt1; ++pt2)
+            for (int pt2 = PieceType.NO_PIECE_TYPE; pt2 <= pt1; ++pt2)
             {
                 v += QuadraticOurs[pt1][pt2]*pieceCount[Us][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them][pt2];
             }
@@ -177,7 +177,7 @@ internal class Material
         var npm_w = pos.non_pawn_material(Color.WHITE);
         var npm_b = pos.non_pawn_material(Color.BLACK);
 
-        if (npm_w + npm_b == Value.VALUE_ZERO && pos.pieces(PieceType.PAWN)) // Only pawns on the board
+        if (npm_w + npm_b == Value.VALUE_ZERO && pos.pieces_Pt(PieceType.PAWN)) // Only pawns on the board
         {
             if (pos.count(PieceType.PAWN, Color.BLACK) == 0)
             {

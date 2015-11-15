@@ -221,8 +221,8 @@ internal static class Pawns
 
         var score = Score.SCORE_ZERO;
         
-        var ourPawns = pos.pieces(Us, PieceType.PAWN);
-        var theirPawns = pos.pieces(Them, PieceType.PAWN);
+        var ourPawns = pos.pieces_CtPt(Us, PieceType.PAWN);
+        var theirPawns = pos.pieces_CtPt(Them, PieceType.PAWN);
 
         e.passedPawns[Us] = new Bitboard(0);
         e.kingSquares[Us] = Square.SQ_NONE;
@@ -460,7 +460,7 @@ internal static class Pawns
             castlingRights[Us] = pos.can_castle(Us);
             var minKingPawnDistance = 0;
 
-            var pawns = pos.pieces(Us, PieceType.PAWN);
+            var pawns = pos.pieces_CtPt(Us, PieceType.PAWN);
             if (pawns)
             {
                 while (!(Utils.DistanceRingBB[ksq, minKingPawnDistance++] & pawns))
@@ -501,9 +501,9 @@ internal static class Pawns
             const int BlockedByKing = 3;
             var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
-            var b = pos.pieces(PieceType.PAWN) & (Utils.in_front_bb(Us, Square.rank_of(ksq)) | Utils.rank_bb(ksq));
-            var ourPawns = b & pos.pieces(Us);
-            var theirPawns = b & pos.pieces(Them);
+            var b = pos.pieces_Pt(PieceType.PAWN) & (Utils.in_front_bb(Us, Square.rank_of(ksq)) | Utils.rank_bb(ksq));
+            var ourPawns = b & pos.pieces_Ct(Us);
+            var theirPawns = b & pos.pieces_Ct(Them);
             var safety = MaxSafetyBonus;
             var center = File.Create(Math.Max(File.FILE_B, Math.Min(File.FILE_G, Square.file_of(ksq))));
 
