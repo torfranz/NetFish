@@ -5,86 +5,15 @@ using System.Runtime.CompilerServices;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
-#endif
-internal class Piece
+using PieceT = System.Int32;
+#else
+internal class PieceT
 {
-    internal const int NO_PIECE_C = 0;
-    internal const int W_PAWN_C = 1;
-    internal const int W_KNIGHT_C = 2;
-    internal const int W_BISHOP_C = 3;
-    internal const int W_ROOK_C = 4;
-    internal const int W_QUEEN_C = 5;
-    internal const int W_KING_C = 6;
-    
-    internal const int B_PAWN_C = 9;
-    internal const int B_KNIGHT_C = 10;
-    internal const int B_BISHOP_C = 11;
-    internal const int B_ROOK_C = 12;
-    internal const int B_QUEEN_C = 13;
-    internal const int B_KING_C = 14;
-    internal const int PIECE_NB_C = 16;
-
-
-    internal static Piece NO_PIECE = new Piece(NO_PIECE_C);
-
-    internal static Piece W_PAWN = new Piece(W_PAWN_C);
-
-    internal static Piece W_KNIGHT = new Piece(W_KNIGHT_C);
-
-    internal static Piece W_BISHOP = new Piece(W_BISHOP_C);
-
-    internal static Piece W_ROOK = new Piece(W_ROOK_C);
-
-    internal static Piece W_QUEEN = new Piece(W_QUEEN_C);
-
-    internal static Piece W_KING = new Piece(W_KING_C);
-
-    internal static Piece B_PAWN = new Piece(B_PAWN_C);
-
-    internal static Piece B_KNIGHT = new Piece(B_KNIGHT_C);
-
-    internal static Piece B_BISHOP = new Piece(B_BISHOP_C);
-
-    internal static Piece B_ROOK = new Piece(B_ROOK_C);
-
-    internal static Piece B_QUEEN = new Piece(B_QUEEN_C);
-
-    internal static Piece B_KING = new Piece(B_KING_C);
-
     private readonly int Value;
 
-    #region constructors
+#region constructors
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    internal static Piece Create(int value)
-    {
-        switch (value)
-        {
-            case NO_PIECE_C: return NO_PIECE;
-            case W_PAWN_C: return W_PAWN;
-            case W_KNIGHT_C: return W_KNIGHT;
-            case W_BISHOP_C: return W_BISHOP;
-            case W_ROOK_C: return W_ROOK;
-            case W_QUEEN_C: return W_QUEEN;
-            case W_KING_C: return W_KING;
-
-            case B_PAWN_C: return B_PAWN;
-            case B_KNIGHT_C: return B_KNIGHT;
-            case B_BISHOP_C: return B_BISHOP;
-            case B_ROOK_C: return B_ROOK;
-            case B_QUEEN_C: return B_QUEEN;
-            case B_KING_C: return B_KING;
-            
-            default:
-                throw new ArgumentOutOfRangeException(nameof(value));
-        }
-    }
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    private Piece(int value)
+    internal PieceT(int value)
     {
         Value = value;
         Debug.Assert(Value >= 0 && Value <= 16);
@@ -92,14 +21,11 @@ internal class Piece
         Debug.Assert(Value != 8);
     }
 
-    #endregion
+#endregion
 
-    #region base operators
+#region base operators
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static implicit operator int(Piece p)
+    public static implicit operator int(PieceT p)
     {
         return p.Value;
     }
@@ -109,29 +35,125 @@ internal class Piece
         return Value.ToString();
     }
 
-    #endregion
+#endregion
+
+
+}
+#endif
+
+internal static class Piece
+{
+#if PRIMITIVE
+    internal static PieceT NO_PIECE = 0;
+
+    internal static PieceT W_PAWN = 1;
+
+    internal static PieceT W_KNIGHT = 2;
+
+    internal static PieceT W_BISHOP = 3;
+
+    internal static PieceT W_ROOK = 4;
+
+    internal static PieceT W_QUEEN = 5;
+
+    internal static PieceT W_KING = 6;
+
+    internal static PieceT B_PAWN = 9;
+
+    internal static PieceT B_KNIGHT = 10;
+
+    internal static PieceT B_BISHOP = 11;
+
+    internal static PieceT B_ROOK = 12;
+
+    internal static PieceT B_QUEEN = 13;
+
+    internal static PieceT B_KING = 14;
+
+    
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static PieceT Create(int value)
+    {
+        return value;
+    }
+
+#else
+    internal static PieceT NO_PIECE = new PieceT(0);
+
+    internal static PieceT W_PAWN = new PieceT(1);
+
+    internal static PieceT W_KNIGHT = new PieceT(2);
+
+    internal static PieceT W_BISHOP = new PieceT(3);
+
+    internal static PieceT W_ROOK = new PieceT(4);
+
+    internal static PieceT W_QUEEN = new PieceT(5);
+
+    internal static PieceT W_KING = new PieceT(6);
+
+    internal static PieceT B_PAWN = new PieceT(9);
+
+    internal static PieceT B_KNIGHT = new PieceT(10);
+
+    internal static PieceT B_BISHOP = new PieceT(11);
+
+    internal static PieceT B_ROOK = new PieceT(12);
+
+    internal static PieceT B_QUEEN = new PieceT(13);
+
+    internal static PieceT B_KING = new PieceT(14);
+
+    internal static PieceT Create(int value)
+    {
+        switch (value)
+        {
+            case 0: return NO_PIECE;
+            case 1: return W_PAWN;
+            case 2: return W_KNIGHT;
+            case 3: return W_BISHOP;
+            case 4: return W_ROOK;
+            case 5: return W_QUEEN;
+            case 6: return W_KING;
+
+            case 9: return B_PAWN;
+            case 10: return B_KNIGHT;
+            case 11: return B_BISHOP;
+            case 12: return B_ROOK;
+            case 13: return B_QUEEN;
+            case 14: return B_KING;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
+#endif
+
+    internal const int PIECE_NB = 16;
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static PieceTypeT type_of(Piece p)
+    internal static PieceTypeT type_of(PieceT p)
     {
-        return PieceType.Create(p.Value & 7);
+        return PieceType.Create(p & 7);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static ColorT color_of(Piece p)
+    internal static ColorT color_of(PieceT p)
     {
-        return Color.Create(p.Value >> 3);
+        return Color.Create(p >> 3);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Piece make_piece(ColorT c, PieceTypeT pt)
+    internal static PieceT make_piece(ColorT c, PieceTypeT pt)
     {
-        return Piece.Create((c << 3) | pt);
+        return Create((c << 3) | pt);
     }
 }

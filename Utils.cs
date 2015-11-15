@@ -10,6 +10,7 @@ using FileT = System.Int32;
 using RankT = System.Int32;
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
+using PieceT = System.Int32;
 #endif
 
 internal static class Utils
@@ -49,7 +50,7 @@ internal static class Utils
 
     internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB, Rank.RANK_NB];
 
-    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
+    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
 
     internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB_C, Square.SQUARE_NB_C];
 
@@ -63,7 +64,7 @@ internal static class Utils
 
     internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
+    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB_C];
 
     internal static int[] MSBTable = new int[256]; // To implement software msb()
 
@@ -261,7 +262,7 @@ internal static class Utils
 #endif
     }
 
-    internal static Bitboard attacks_bb(PieceTypeT Pt, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb_PtSBb(PieceTypeT Pt, Square s, Bitboard occupied)
     {
         return Pt == PieceType.ROOK
             ? RookAttacks[s][magic_index(Pt, s, occupied)]
@@ -271,16 +272,16 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard attacks_bb(Piece pc, Square s, Bitboard occupied)
+    internal static Bitboard attacks_bb_PSBb(PieceT pc, Square s, Bitboard occupied)
     {
         switch ((int)Piece.type_of(pc))
         {
             case 3 /*PieceType.BISHOP*/:
-                return attacks_bb(PieceType.BISHOP, s, occupied);
+                return attacks_bb_PtSBb(PieceType.BISHOP, s, occupied);
             case 4 /*PieceType.ROOK*/:
-                return attacks_bb(PieceType.ROOK, s, occupied);
+                return attacks_bb_PtSBb(PieceType.ROOK, s, occupied);
             case 5 /*PieceType.QUEEN*/:
-                return attacks_bb(PieceType.BISHOP, s, occupied) | attacks_bb(PieceType.ROOK, s, occupied);
+                return attacks_bb_PtSBb(PieceType.BISHOP, s, occupied) | attacks_bb_PtSBb(PieceType.ROOK, s, occupied);
             default:
                 return StepAttacksBB[pc, s];
         }

@@ -238,7 +238,7 @@ internal static class Eval
         var Down = (Us == Color.WHITE ? Square.DELTA_S : Square.DELTA_N);
 
         ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
-        var b = ei.attackedBy[Them, PieceType.KING] = pos.attacks_from(PieceType.KING, pos.square(PieceType.KING, Them));
+        var b = ei.attackedBy[Them, PieceType.KING] = pos.attacks_from_PtS(PieceType.KING, pos.square(PieceType.KING, Them));
         ei.attackedBy[Them, PieceType.ALL_PIECES] |= b;
         ei.attackedBy[Us, PieceType.ALL_PIECES] |= ei.attackedBy[Us, PieceType.PAWN] = ei.pi.pawn_attacks(Us);
 
@@ -289,13 +289,13 @@ internal static class Eval
             }
             // Find attacked squares, including x-ray attacks for bishops and rooks
             var b = Pt == PieceType.BISHOP
-                ? Utils.attacks_bb(PieceType.BISHOP, s, pos.pieces() ^ pos.pieces_CtPt(Us, PieceType.QUEEN))
+                ? Utils.attacks_bb_PtSBb(PieceType.BISHOP, s, pos.pieces() ^ pos.pieces_CtPt(Us, PieceType.QUEEN))
                 : Pt == PieceType.ROOK
-                    ? Utils.attacks_bb(
+                    ? Utils.attacks_bb_PtSBb(
                         PieceType.ROOK,
                         s,
                         pos.pieces() ^ pos.pieces_CtPtPt(Us, PieceType.ROOK, PieceType.QUEEN))
-                    : pos.attacks_from(pieceType, s);
+                    : pos.attacks_from_PtS(pieceType, s);
 
             if (ei.pinnedPieces[Us] & s)
             {
@@ -458,8 +458,8 @@ internal static class Eval
             // Analyse the enemy's safe distance checks for sliders and knights
             var safe = ~(ei.attackedBy[Us, PieceType.ALL_PIECES] | pos.pieces_Ct(Them));
 
-            var b1 = pos.attacks_from(PieceType.ROOK, ksq) & safe;
-            var b2 = pos.attacks_from(PieceType.BISHOP, ksq) & safe;
+            var b1 = pos.attacks_from_PtS(PieceType.ROOK, ksq) & safe;
+            var b2 = pos.attacks_from_PtS(PieceType.BISHOP, ksq) & safe;
 
             // Enemy queen safe checks
             b = (b1 | b2) & ei.attackedBy[Them, PieceType.QUEEN];
@@ -486,7 +486,7 @@ internal static class Eval
             }
 
             // Enemy knights safe checks
-            b = pos.attacks_from(PieceType.KNIGHT, ksq) & ei.attackedBy[Them, PieceType.KNIGHT] & safe;
+            b = pos.attacks_from_PtS(PieceType.KNIGHT, ksq) & ei.attackedBy[Them, PieceType.KNIGHT] & safe;
             if (b)
             {
                 attackUnits += KnightCheck*Bitcount.popcount_Max15(b);
@@ -665,7 +665,7 @@ internal static class Eval
                     var defendedSquares = unsafeSquares = squaresToQueen = Utils.forward_bb(Us, s);
 
                     var bb = Utils.forward_bb(Them, s) & pos.pieces_PtPt(PieceType.ROOK, PieceType.QUEEN)
-                             & pos.attacks_from(PieceType.ROOK, s);
+                             & pos.attacks_from_PtS(PieceType.ROOK, s);
 
                     if (!(pos.pieces_Ct(Us) & bb))
                     {

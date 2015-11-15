@@ -491,8 +491,8 @@ internal class EndgameKQKRPs : EndgameScaleFactor
         if (Rank.relative_rank(weakSide, kingSq) <= Rank.RANK_2
             && Rank.relative_rank(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
             && Rank.relative_rank(weakSide, rsq) == Rank.RANK_3
-            && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from(PieceType.KING, kingSq)
-                & pos.attacks_from(PieceType.PAWN, rsq, strongSide)))
+            && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from_PtS(PieceType.KING, kingSq)
+                & pos.attacks_from_PS(PieceType.PAWN, rsq, strongSide)))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -799,7 +799,7 @@ internal class EndgameKBPKB : EndgameScaleFactor
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
 
-            if ((pos.attacks_from(PieceType.BISHOP, weakBishopSq) & path)
+            if ((pos.attacks_from_PtS(PieceType.BISHOP, weakBishopSq) & path)
                 && Utils.distance_Square(weakBishopSq, pawnSq) >= 3)
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -867,7 +867,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
                 // behind this square on the file of the other pawn.
                 if (ksq == blockSq1 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq2
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq2) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))
+                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq2) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))
                         || Utils.distance_Rank(r1, r2) >= 2))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -875,7 +875,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
 
                 if (ksq == blockSq2 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq1
-                        || (pos.attacks_from(PieceType.BISHOP, blockSq1) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))))
+                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq1) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
                 }
@@ -963,7 +963,7 @@ internal class EndgameKNPKB : EndgameScaleFactor
 
         // King needs to get close to promoting pawn to prevent knight from blocking.
         // Rules for this are very tricky, so just approximate.
-        if (Utils.forward_bb(strongSide, pawnSq) & pos.attacks_from(PieceType.BISHOP, bishopSq))
+        if (Utils.forward_bb(strongSide, pawnSq) & pos.attacks_from_PtS(PieceType.BISHOP, bishopSq))
         {
             return (ScaleFactor) (Utils.distance_Square(weakKingSq, pawnSq));
         }

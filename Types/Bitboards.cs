@@ -110,11 +110,11 @@ internal static class Bitboards
             var s1Square = new Square(s1);
             
             Utils.PseudoAttacks[PieceType.QUEEN, s1] =
-                Utils.PseudoAttacks[PieceType.BISHOP, s1] = Utils.attacks_bb(PieceType.BISHOP, s1Square, new Bitboard(0));
-            var bb = Utils.PseudoAttacks[PieceType.ROOK, s1] = Utils.attacks_bb(PieceType.ROOK, s1Square, new Bitboard(0));
+                Utils.PseudoAttacks[PieceType.BISHOP, s1] = Utils.attacks_bb_PtSBb(PieceType.BISHOP, s1Square, new Bitboard(0));
+            var bb = Utils.PseudoAttacks[PieceType.ROOK, s1] = Utils.attacks_bb_PtSBb(PieceType.ROOK, s1Square, new Bitboard(0));
             Utils.PseudoAttacks[PieceType.QUEEN, s1] = Utils.PseudoAttacks[PieceType.QUEEN, s1] | bb;
 
-            for (var pc = Piece.W_BISHOP_C; pc <= Piece.W_ROOK_C; ++pc)
+            for (var pc = (int)Piece.W_BISHOP; pc <= Piece.W_ROOK; ++pc)
             {
                 for (var s2 = Square.SQ_A1_C; s2 <= Square.SQ_H8_C; ++s2)
                 {
@@ -125,10 +125,10 @@ internal static class Bitboards
                     }
 
                     var piece = Piece.Create(pc);
-                    Utils.LineBB[s1, s2] = (Utils.attacks_bb(piece, s1Square, new Bitboard(0))
-                                            & Utils.attacks_bb(piece, s2Square, new Bitboard(0))) | s1Square | s2Square;
-                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb(piece, s1Square, Utils.SquareBB[s2])
-                                              & Utils.attacks_bb(piece, s2Square, Utils.SquareBB[s1]);
+                    Utils.LineBB[s1, s2] = (Utils.attacks_bb_PSBb(piece, s1Square, new Bitboard(0))
+                                            & Utils.attacks_bb_PSBb(piece, s2Square, new Bitboard(0))) | s1Square | s2Square;
+                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb_PSBb(piece, s1Square, Utils.SquareBB[s2])
+                                              & Utils.attacks_bb_PSBb(piece, s2Square, Utils.SquareBB[s1]);
                 }
             }
         }

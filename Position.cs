@@ -8,6 +8,7 @@ using System.Text;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
+using PieceT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -19,7 +20,7 @@ internal class Position
     internal const string PieceToChar = " PNBRQK  pnbrqk";
 
     // Data members
-    private Piece[] board = new Piece[Square.SQUARE_NB_C];
+    private PieceT[] board = new PieceT[Square.SQUARE_NB_C];
 
     private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
 
@@ -160,7 +161,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Piece piece_on(Square s)
+    internal PieceT piece_on(Square s)
     {
         return board[s];
     }
@@ -168,7 +169,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Piece moved_piece(Move m)
+    internal PieceT moved_piece(Move m)
     {
         return board[Move.from_sq(m)];
     }
@@ -281,19 +282,19 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceTypeT Pt, Square s)
+    internal Bitboard attacks_from_PtS(PieceTypeT Pt, Square s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
-            ? Utils.attacks_bb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
+            ? Utils.attacks_bb_PtSBb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
             : Pt == PieceType.QUEEN
-                ? attacks_from(PieceType.ROOK, s) | attacks_from(PieceType.BISHOP, s)
+                ? attacks_from_PtS(PieceType.ROOK, s) | attacks_from_PtS(PieceType.BISHOP, s)
                 : Utils.StepAttacksBB[Pt, s];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceTypeT Pt, Square s, ColorT c)
+    internal Bitboard attacks_from_PS(PieceTypeT Pt, Square s, ColorT c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
@@ -302,9 +303,9 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(Piece pc, Square s)
+    internal Bitboard attacks_from(PieceT pc, Square s)
     {
-        return Utils.attacks_bb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
+        return Utils.attacks_bb_PSBb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
     }
 
 #if FORCEINLINE
@@ -675,12 +676,12 @@ internal class Position
     /// given square. Slider attacks use the occupied bitboard to indicate occupancy.
     private Bitboard attackers_to(Square s, Bitboard occupied)
     {
-        return (attacks_from(PieceType.PAWN, s, Color.BLACK) & pieces_CtPt(Color.WHITE, PieceType.PAWN))
-               | (attacks_from(PieceType.PAWN, s, Color.WHITE) & pieces_CtPt(Color.BLACK, PieceType.PAWN))
-               | (attacks_from(PieceType.KNIGHT, s) & pieces_Pt(PieceType.KNIGHT))
-               | (Utils.attacks_bb(PieceType.ROOK, s, occupied) & pieces_PtPt(PieceType.ROOK, PieceType.QUEEN))
-               | (Utils.attacks_bb(PieceType.BISHOP, s, occupied) & pieces_PtPt(PieceType.BISHOP, PieceType.QUEEN))
-               | (attacks_from(PieceType.KING, s) & pieces_Pt(PieceType.KING));
+        return (attacks_from_PS(PieceType.PAWN, s, Color.BLACK) & pieces_CtPt(Color.WHITE, PieceType.PAWN))
+               | (attacks_from_PS(PieceType.PAWN, s, Color.WHITE) & pieces_CtPt(Color.BLACK, PieceType.PAWN))
+               | (attacks_from_PtS(PieceType.KNIGHT, s) & pieces_Pt(PieceType.KNIGHT))
+               | (Utils.attacks_bb_PtSBb(PieceType.ROOK, s, occupied) & pieces_PtPt(PieceType.ROOK, PieceType.QUEEN))
+               | (Utils.attacks_bb_PtSBb(PieceType.BISHOP, s, occupied) & pieces_PtPt(PieceType.BISHOP, PieceType.QUEEN))
+               | (attacks_from_PtS(PieceType.KING, s) & pieces_Pt(PieceType.KING));
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
@@ -711,8 +712,8 @@ internal class Position
             Debug.Assert(piece_on(to) == Piece.NO_PIECE);
 
             return
-                !(Utils.attacks_bb(PieceType.ROOK, ksq, occupied) & pieces_CtPtPt(Color.opposite(us), PieceType.QUEEN, PieceType.ROOK))
-                && !(Utils.attacks_bb(PieceType.BISHOP, ksq, occupied)
+                !(Utils.attacks_bb_PtSBb(PieceType.ROOK, ksq, occupied) & pieces_CtPtPt(Color.opposite(us), PieceType.QUEEN, PieceType.ROOK))
+                && !(Utils.attacks_bb_PtSBb(PieceType.BISHOP, ksq, occupied)
                      & pieces_CtPtPt(Color.opposite(us), PieceType.QUEEN, PieceType.BISHOP));
         }
 
@@ -774,7 +775,7 @@ internal class Position
                 return false;
             }
 
-            if (!(attacks_from(PieceType.PAWN, from, us) & pieces_Ct(Color.opposite(us)) & to) // Not a capture
+            if (!(attacks_from_PS(PieceType.PAWN, from, us) & pieces_Ct(Color.opposite(us)) & to) // Not a capture
                 && !((from + Square.pawn_push(us) == to) && empty(to)) // Not a single push
                 && !((from + 2*Square.pawn_push(us) == to) // Not a double push
                      && (Square.rank_of(from) == Rank.relative_rank(us, Rank.RANK_2)) && empty(to)
@@ -848,7 +849,7 @@ internal class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb(Piece.Create(Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
+                return Utils.attacks_bb_PSBb(Piece.Create(Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -859,9 +860,9 @@ internal class Position
                 var capsq = Square.make_square(Square.file_of(to), Square.rank_of(from));
                 var b = (pieces() ^ from ^ capsq) | to;
 
-                return (Utils.attacks_bb(PieceType.ROOK, ci.ksq, b)
+                return (Utils.attacks_bb_PtSBb(PieceType.ROOK, ci.ksq, b)
                         & pieces_CtPtPt(sideToMove, PieceType.QUEEN, PieceType.ROOK))
-                       | (Utils.attacks_bb(PieceType.BISHOP, ci.ksq, b)
+                       | (Utils.attacks_bb_PtSBb(PieceType.BISHOP, ci.ksq, b)
                           & pieces_CtPtPt(sideToMove, PieceType.QUEEN, PieceType.BISHOP));
             }
             case MoveType.CASTLING:
@@ -872,7 +873,7 @@ internal class Position
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
                 return (bool) (Utils.PseudoAttacks[PieceType.ROOK, rto] & ci.ksq)
-                       && (Utils.attacks_bb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
+                       && (Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
                            & ci.ksq);
             }
             default:
@@ -1002,7 +1003,7 @@ internal class Position
         {
             // Set en-passant square if the moved pawn can be captured
             if ((to ^ @from) == 16
-                && (attacks_from(PieceType.PAWN, to - Square.pawn_push(us), us) & pieces_CtPt(them, PieceType.PAWN)))
+                && (attacks_from_PS(PieceType.PAWN, to - Square.pawn_push(us), us) & pieces_CtPt(them, PieceType.PAWN)))
             {
                 st.epSquare = (from + to)/2;
                 k ^= Zobrist.enpassant[Square.file_of(st.epSquare)];
@@ -1198,12 +1199,12 @@ internal class Position
 
         if (Pt == PieceType.PAWN || Pt == PieceType.BISHOP || Pt == PieceType.QUEEN)
         {
-            attackers |= Utils.attacks_bb(PieceType.BISHOP, to, occupied) & (bb[PieceType.BISHOP] | bb[PieceType.QUEEN]);
+            attackers |= Utils.attacks_bb_PtSBb(PieceType.BISHOP, to, occupied) & (bb[PieceType.BISHOP] | bb[PieceType.QUEEN]);
         }
 
         if (Pt == PieceType.ROOK || Pt == PieceType.QUEEN)
         {
-            attackers |= Utils.attacks_bb(PieceType.ROOK, to, occupied) & (bb[PieceType.ROOK] | bb[PieceType.QUEEN]);
+            attackers |= Utils.attacks_bb_PtSBb(PieceType.ROOK, to, occupied) & (bb[PieceType.ROOK] | bb[PieceType.QUEEN]);
         }
 
         attackers &= occupied; // After X-ray that may add already processed pieces

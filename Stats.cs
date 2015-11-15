@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+#if PRIMITIVE
+using PieceT = System.Int32;
+#endif
 /// The Stats struct stores moves statistics. According to the template parameter
 /// the class can store History and Countermoves. History records how often
 /// different moves have been successful or unsuccessful during the current search
@@ -12,7 +15,7 @@ internal class Stats<T>
     where T : new()
 {
     internal static Value Max = new Value(1 << 28);
-    internal readonly T[,] table = new T[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
+    internal readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB_C];
 
     internal Stats()
     {
@@ -28,7 +31,7 @@ internal class Stats<T>
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal T value(Piece p, Square to)
+    internal T value(PieceT p, Square to)
     {
         return table[p, to];
     }
@@ -36,7 +39,7 @@ internal class Stats<T>
 
 internal class MovesStats : Stats<Move>
 {
-    internal void update(Piece pc, Square to, Move m)
+    internal void update(PieceT pc, Square to, Move m)
     {
         table[pc, to] = m;
     }
@@ -44,7 +47,7 @@ internal class MovesStats : Stats<Move>
 
 internal class HistoryStats : Stats<Value>
 {
-    internal void updateH(Piece pc, Square to, Value v)
+    internal void updateH(PieceT pc, Square to, Value v)
     {
         if (Math.Abs(v) >= 324)
         {
@@ -54,7 +57,7 @@ internal class HistoryStats : Stats<Value>
         table[pc, to] += v*32;
     }
 
-    internal void updateCMH(Piece pc, Square to, Value v)
+    internal void updateCMH(PieceT pc, Square to, Value v)
     {
         if (Math.Abs(v) >= 324)
         {

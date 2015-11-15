@@ -46,7 +46,7 @@ internal static class Movegen
         // when moving the castling rook we do not discover some hidden checker.
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
-            && (Utils.attacks_bb(PieceType.ROOK, kto, pos.pieces() ^ rfrom)
+            && (Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, pos.pieces() ^ rfrom)
                 & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))
         {
             return moveList;
@@ -137,8 +137,8 @@ internal static class Movegen
 
             if (Type == GenType.QUIET_CHECKS)
             {
-                b1 &= pos.attacks_from(PieceType.PAWN, ci.ksq, Them);
-                b2 &= pos.attacks_from(PieceType.PAWN, ci.ksq, Them);
+                b1 &= pos.attacks_from_PS(PieceType.PAWN, ci.ksq, Them);
+                b2 &= pos.attacks_from_PS(PieceType.PAWN, ci.ksq, Them);
 
                 // Add pawn pushes which give discovered check. This is possible only
                 // if the pawn is not on the same file as the enemy king, because we
@@ -231,7 +231,7 @@ internal static class Movegen
                     return moveList;
                 }
 
-                b1 = pawnsNotOn7 & pos.attacks_from(PieceType.PAWN, pos.ep_square(), Them);
+                b1 = pawnsNotOn7 & pos.attacks_from_PS(PieceType.PAWN, pos.ep_square(), Them);
 
                 Debug.Assert(b1);
 
@@ -279,7 +279,7 @@ internal static class Movegen
                 }
             }
 
-            var b = pos.attacks_from(pieceType, square) & target;
+            var b = pos.attacks_from_PtS(pieceType, square) & target;
 
             if (Checks)
             {
@@ -314,7 +314,7 @@ internal static class Movegen
         if (Type != GenType.QUIET_CHECKS && Type != GenType.EVASIONS)
         {
             var ksq = pos.square(PieceType.KING, Us);
-            var b = pos.attacks_from(PieceType.KING, ksq) & target;
+            var b = pos.attacks_from_PtS(PieceType.KING, ksq) & target;
             while (b)
             {
                 (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
@@ -423,7 +423,7 @@ internal static class Movegen
                 continue; // Will be generated together with direct checks
             }
 
-            var b = pos.attacks_from(pt, from) & ~pos.pieces();
+            var b = pos.attacks_from_PtS(pt, from) & ~pos.pieces();
 
             if (pt == PieceType.KING)
             {
@@ -464,7 +464,7 @@ internal static class Movegen
         }
 
         // Generate evasions for king, capture and non capture moves
-        var b = pos.attacks_from(PieceType.KING, ksq) & ~pos.pieces_Ct(us) & ~sliderAttacks;
+        var b = pos.attacks_from_PtS(PieceType.KING, ksq) & ~pos.pieces_Ct(us) & ~sliderAttacks;
         while (b)
         {
             (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
