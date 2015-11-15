@@ -34,16 +34,16 @@ namespace Tests
             Assert.AreEqual(3, v7);
 
             
-            Assert.AreEqual(-3, -v7.ValueMe);
+            Assert.AreEqual(-3, -v7.Value);
 
             var v8 = v7 * 2;
-            Assert.AreEqual(6, v8.ValueMe);
+            Assert.AreEqual(6, v8.Value);
 
             var v9 = 2 * v8;
-            Assert.AreEqual(12, v9.ValueMe);
+            Assert.AreEqual(12, v9.Value);
 
             var v10 = v9 / 2;
-            Assert.AreEqual(6, v10.ValueMe);
+            Assert.AreEqual(6, v10.Value);
 
             var v11 = v10 / v2;
             Assert.AreEqual(3, v11);

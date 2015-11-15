@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
+
 internal class Endgames
 {
     internal Dictionary<ulong, EndgameScaleFactor> endgamesScaleFactor = new Dictionary<ulong, EndgameScaleFactor>();

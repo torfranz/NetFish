@@ -1,46 +1,49 @@
 ﻿using System.Runtime.CompilerServices;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
 internal class KPKPosition
 {
-    private readonly Square[] ksq = new Square[Color.COLOR_NB_C];
+    private readonly Square[] ksq = new Square[Color.COLOR_NB];
 
     private readonly Square psq;
 
-    private readonly Color us;
+    private readonly ColorType us;
 
     private Result result;
 
     internal KPKPosition(uint idx)
     {
-        ksq[Color.WHITE_C] = new Square((idx >> 0) & 0x3F);
-        ksq[Color.BLACK_C] = new Square((idx >> 6) & 0x3F);
-        us = Color.Create((idx >> 12) & 0x01);
+        ksq[Color.WHITE] = new Square((idx >> 0) & 0x3F);
+        ksq[Color.BLACK] = new Square((idx >> 6) & 0x3F);
+        us = Color.Create(((int)idx >> 12) & 0x01);
         psq = Square.make_square(File.Create(((int)idx >> 13) & 0x3), Rank.RANK_7 - Rank.Create(((int)idx >> 15) & 0x7));
 
         // Check if two pieces are on the same square or if a king can be captured
-        if (Utils.distance_Square(ksq[Color.WHITE_C], ksq[Color.BLACK_C]) <= 1
-            || ksq[Color.WHITE_C] == psq || ksq[Color.BLACK_C] == psq
-            || (us == Color.WHITE && (Utils.StepAttacksBB[PieceType.PAWN_C, psq] & ksq[Color.BLACK_C])))
+        if (Utils.distance_Square(ksq[Color.WHITE], ksq[Color.BLACK]) <= 1
+            || ksq[Color.WHITE] == psq || ksq[Color.BLACK] == psq
+            || (us == Color.WHITE && (Utils.StepAttacksBB[PieceType.PAWN_C, psq] & ksq[Color.BLACK])))
         {
             result = Result.INVALID;
         }
 
         // Immediate win if a pawn can be promoted without getting captured
         else if (us == Color.WHITE && Square.rank_of(psq) == Rank.RANK_7
-                 && ksq[us.ValueMe] != psq + Square.DELTA_N
-                 && (Utils.distance_Square(ksq[us.ValueThem], psq + Square.DELTA_N) > 1
-                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]] & (psq + Square.DELTA_N))))
+                 && ksq[us] != psq + Square.DELTA_N
+                 && (Utils.distance_Square(ksq[Color.opposite(us)], psq + Square.DELTA_N) > 1
+                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us]] & (psq + Square.DELTA_N))))
         {
             result = Result.WIN;
         }
 
         // Immediate draw if it is a stalemate or a king captures undefended pawn
         else if (us == Color.BLACK
-                 && (!(Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]]
-                       & ~(Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueThem]]
+                 && (!(Utils.StepAttacksBB[PieceType.KING_C, ksq[us]]
+                       & ~(Utils.StepAttacksBB[PieceType.KING_C, ksq[Color.opposite(us)]]
                            | Utils.StepAttacksBB[PieceType.PAWN_C, psq]))
-                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueMe]] & psq
-                         & ~Utils.StepAttacksBB[PieceType.KING_C, ksq[us.ValueThem]])))
+                     || (Utils.StepAttacksBB[PieceType.KING_C, ksq[us]] & psq
+                         & ~Utils.StepAttacksBB[PieceType.KING_C, ksq[Color.opposite(us)]])))
         {
             result = Result.DRAW;
         }
@@ -67,7 +70,7 @@ internal class KPKPosition
         return us == Color.WHITE ? classify(Color.WHITE, db) : classify(Color.BLACK, db);
     }
 
-    internal Result classify(Color Us, KPKPosition[] db)
+    internal Result classify(ColorType Us, KPKPosition[] db)
     {
         // White to move: If one move leads to a position classified as WIN, the result
         // of the current position is WIN. If all moves lead to positions classified
@@ -84,26 +87,26 @@ internal class KPKPosition
         var Bad = (Us == Color.WHITE ? Result.DRAW : Result.WIN);
 
         var r = Result.INVALID;
-        var b = Utils.StepAttacksBB[PieceType.KING_C, ksq[Us.ValueMe]];
+        var b = Utils.StepAttacksBB[PieceType.KING_C, ksq[Us]];
 
         while (b)
         {
             r |= Us == Color.WHITE
-                ? db[Bitbases.index(Them, ksq[Them.ValueMe], Utils.pop_lsb(ref b), psq)]
-                : db[Bitbases.index(Them, Utils.pop_lsb(ref b), ksq[Them.ValueMe], psq)];
+                ? db[Bitbases.index(Them, ksq[Them], Utils.pop_lsb(ref b), psq)]
+                : db[Bitbases.index(Them, Utils.pop_lsb(ref b), ksq[Them], psq)];
         }
 
         if (Us == Color.WHITE)
         {
             if (Square.rank_of(psq) < Rank.RANK_7) // Single push
             {
-                r |= db[Bitbases.index(Them, ksq[Them.ValueMe], ksq[Us.ValueMe], psq + Square.DELTA_N)];
+                r |= db[Bitbases.index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N)];
             }
 
             if (Square.rank_of(psq) == Rank.RANK_2 // Double push
-                && psq + Square.DELTA_N != ksq[Us.ValueMe] && psq + Square.DELTA_N != ksq[Them.ValueMe])
+                && psq + Square.DELTA_N != ksq[Us] && psq + Square.DELTA_N != ksq[Them])
             {
-                r |= db[Bitbases.index(Them, ksq[Them.ValueMe], ksq[Us.ValueMe], psq + Square.DELTA_N + Square.DELTA_N)];
+                r |= db[Bitbases.index(Them, ksq[Them], ksq[Us], psq + Square.DELTA_N + Square.DELTA_N)];
             }
         }
 

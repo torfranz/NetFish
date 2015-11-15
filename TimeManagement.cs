@@ -1,5 +1,8 @@
 ﻿using System;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
 /// The TimeManagement class computes the optimal time to think depending on
 /// the maximum available time, the game move number and other parameters.
 internal static class TimeManagement
@@ -61,7 +64,7 @@ internal static class TimeManagement
     /// inc == 0 && movestogo != 0 means: x moves in y minutes
     /// inc >  0 && movestogo == 0 means: x basetime + z increment
     /// inc >  0 && movestogo != 0 means: x moves in y minutes + z increment
-    internal static void init(LimitsType limits, Color us, int ply, DateTime now)
+    internal static void init(LimitsType limits, ColorType us, int ply, DateTime now)
     {
         var minThinkingTime = int.Parse(OptionMap.Instance["Minimum Thinking Time"].v);
         var moveOverhead = int.Parse(OptionMap.Instance["Move Overhead"].v);
@@ -76,18 +79,18 @@ internal static class TimeManagement
         {
             if (availableNodes == 0) // Only once at game start
             {
-                availableNodes = npmsec*limits.time[us.ValueMe]; // Time is in msec
+                availableNodes = npmsec*limits.time[us]; // Time is in msec
             }
 
             // Convert from millisecs to nodes
-            limits.time[us.ValueMe] = (int) availableNodes;
-            limits.inc[us.ValueMe] *= npmsec;
+            limits.time[us] = (int) availableNodes;
+            limits.inc[us] *= npmsec;
             limits.npmsec = npmsec;
         }
 
         start = now;
         unstablePvFactor = 1;
-        optimumTime = maximumTime = Math.Max(limits.time[us.ValueMe], minThinkingTime);
+        optimumTime = maximumTime = Math.Max(limits.time[us], minThinkingTime);
 
         var MaxMTG = limits.movestogo != 0 ? Math.Min(limits.movestogo, MoveHorizon) : MoveHorizon;
 
@@ -97,7 +100,7 @@ internal static class TimeManagement
         for (var hypMTG = 1; hypMTG <= MaxMTG; ++hypMTG)
         {
             // Calculate thinking time for hypothetical "moves to go"-value
-            var hypMyTime = limits.time[us.ValueMe] + limits.inc[us.ValueMe] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
+            var hypMyTime = limits.time[us] + limits.inc[us] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
 
             hypMyTime = Math.Max(hypMyTime, 0);
 

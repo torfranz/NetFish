@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
 internal static class Movegen
 {
     internal static ExtMoveArrayWrapper generate_castling(
@@ -9,7 +12,7 @@ internal static class Movegen
         bool Chess960,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        Color us,
+        ColorType us,
         CheckInfo ci)
     {
         var KingSide = (Cr == CastlingRight.WHITE_OO || Cr == CastlingRight.BLACK_OO);
@@ -24,7 +27,7 @@ internal static class Movegen
         var kfrom = pos.square(PieceType.KING, us);
         var rfrom = pos.castling_rook_square(Cr);
         var kto = Square.relative_square(us, KingSide ? Square.SQ_G1 : Square.SQ_C1);
-        var enemies = pos.pieces(~us);
+        var enemies = pos.pieces(Color.opposite(us));
 
         Debug.Assert(!pos.checkers());
 
@@ -43,7 +46,7 @@ internal static class Movegen
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
             && (Utils.attacks_bb(PieceType.ROOK, kto, pos.pieces() ^ rfrom)
-                & pos.pieces(~us, PieceType.ROOK, PieceType.QUEEN)))
+                & pos.pieces(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))
         {
             return moveList;
         }
@@ -91,7 +94,7 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_pawn_moves(
-        Color Us,
+        ColorType Us,
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
@@ -246,7 +249,7 @@ internal static class Movegen
         bool Checks,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        Color us,
+        ColorType us,
         Bitboard target,
         CheckInfo ci)
     {
@@ -292,7 +295,7 @@ internal static class Movegen
     }
 
     internal static ExtMoveArrayWrapper generate_all(
-        Color Us,
+        ColorType Us,
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
@@ -362,7 +365,7 @@ internal static class Movegen
         return moveList;
     }
 
-    internal static CastlingRight MakeCastling(Color C, CastlingSide S)
+    internal static CastlingRight MakeCastling(ColorType C, CastlingSide S)
     {
         return C == Color.WHITE
             ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
@@ -387,7 +390,7 @@ internal static class Movegen
         var us = pos.side_to_move();
 
         var target = Type == GenType.CAPTURES
-            ? pos.pieces(~us)
+            ? pos.pieces(Color.opposite(us))
             : Type == GenType.QUIETS
                 ? ~pos.pieces()
                 : Type == GenType.NON_EVASIONS ? ~pos.pieces(us) : new Bitboard(0);

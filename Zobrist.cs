@@ -1,6 +1,6 @@
 ﻿internal static class Zobrist
 {
-    internal static ulong[,,] psq = new ulong[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB_C];
+    internal static ulong[,,] psq = new ulong[Color.COLOR_NB, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB_C];
 
     internal static ulong[] enpassant = new ulong[File.FILE_NB];
 

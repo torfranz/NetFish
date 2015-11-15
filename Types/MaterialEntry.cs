@@ -1,4 +1,8 @@
-﻿/// Material::Entry contains various information about a material configuration.
+﻿#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
+
+/// Material::Entry contains various information about a material configuration.
 /// It contains a material imbalance evaluation, a function pointer to a special
 /// endgame evaluation function (which in most cases is NULL, meaning that the
 /// standard evaluation function will be used), and scale factors.
@@ -10,24 +14,24 @@ internal class MaterialEntry
 {
     internal EndgameValue evaluationFunction;
 
-    internal ushort[] factor = new ushort[Color.COLOR_NB_C];
+    internal ushort[] factor = new ushort[Color.COLOR_NB];
 
     // side (e.g. KPKP, KBPsKs)
     internal Phase gamePhase;
 
     internal ulong key;
 
-    internal EndgameScaleFactor[] scalingFunction = new EndgameScaleFactor[Color.COLOR_NB_C]; // Could be one for each
+    internal EndgameScaleFactor[] scalingFunction = new EndgameScaleFactor[Color.COLOR_NB]; // Could be one for each
 
     internal short value;
 
     internal void reset()
     {
         evaluationFunction = null;
-        factor = new ushort[Color.COLOR_NB_C];
+        factor = new ushort[Color.COLOR_NB];
         gamePhase = Phase.PHASE_ENDGAME;
         key = 0;
-        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB_C];
+        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
         value = 0;
     }
 
@@ -56,14 +60,14 @@ internal class MaterialEntry
     // because the scale factor may also be a function which should be applied to
     // the position. For instance, in KBP vs K endgames, the scaling function looks
     // for rook pawns and wrong-colored bishops.
-    internal ScaleFactor scale_factor(Position pos, Color c)
+    internal ScaleFactor scale_factor(Position pos, ColorType c)
     {
-        if (scalingFunction[c.ValueMe] == null)
+        if (scalingFunction[c] == null)
         {
-            return (ScaleFactor) (factor[c.ValueMe]);
+            return (ScaleFactor) (factor[c]);
         }
-        return scalingFunction[c.ValueMe].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
-            ? (ScaleFactor) (factor[c.ValueMe])
-            : scalingFunction[c.ValueMe].GetScaleFactor(pos);
+        return scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
+            ? (ScaleFactor) (factor[c])
+            : scalingFunction[c].GetScaleFactor(pos);
     }
 }

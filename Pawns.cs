@@ -4,7 +4,9 @@ using System.Linq;
 
 #if PRIMITIVE
     using FileType = System.Int32;
+    using ColorType = System.Int32;
 #endif
+
 internal static class Pawns
 {
     internal const int Size = 16384;
@@ -208,7 +210,7 @@ internal static class Pawns
 
     private static readonly int[] Seed = {0, 6, 15, 10, 57, 75, 135, 258};
 
-    internal static Score evaluate(Color Us, Position pos, Entry e)
+    internal static Score evaluate(ColorType Us, Position pos, Entry e)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         var Up = (Us == Color.WHITE ? Square.DELTA_N : Square.DELTA_S);
@@ -222,12 +224,12 @@ internal static class Pawns
         var ourPawns = pos.pieces(Us, PieceType.PAWN);
         var theirPawns = pos.pieces(Them, PieceType.PAWN);
 
-        e.passedPawns[Us.ValueMe] = new Bitboard(0);
-        e.kingSquares[Us.ValueMe] = Square.SQ_NONE;
-        e.semiopenFiles[Us.ValueMe] = 0xFF;
-        e.pawnAttacks[Us.ValueMe] = Bitboard.shift_bb(Right, ourPawns) | Bitboard.shift_bb(Left, ourPawns);
-        e.pawnsOnSquares[Us.ValueMe, Color.BLACK_C] = Bitcount.popcount_Max15(ourPawns & Bitboard.DarkSquares);
-        e.pawnsOnSquares[Us.ValueMe, Color.WHITE_C] = pos.count(PieceType.PAWN, Us) - e.pawnsOnSquares[Us.ValueMe, Color.BLACK_C];
+        e.passedPawns[Us] = new Bitboard(0);
+        e.kingSquares[Us] = Square.SQ_NONE;
+        e.semiopenFiles[Us] = 0xFF;
+        e.pawnAttacks[Us] = Bitboard.shift_bb(Right, ourPawns) | Bitboard.shift_bb(Left, ourPawns);
+        e.pawnsOnSquares[Us, Color.BLACK] = Bitcount.popcount_Max15(ourPawns & Bitboard.DarkSquares);
+        e.pawnsOnSquares[Us, Color.WHITE] = pos.count(PieceType.PAWN, Us) - e.pawnsOnSquares[Us, Color.BLACK];
 
         // Loop through all pawns of the current color and score each pawn
         for (var idx = 0; idx < 16; idx++)
@@ -243,7 +245,7 @@ internal static class Pawns
             var f = Square.file_of(s);
 
             // This file cannot be semi-open
-            e.semiopenFiles[Us.ValueMe] &= ~(1 << f);
+            e.semiopenFiles[Us] &= ~(1 << f);
 
             // Flag the pawn
             var neighbours = ourPawns & Utils.adjacent_files_bb(f);
@@ -287,7 +289,7 @@ internal static class Pawns
             // pawn on each file is considered a true passed pawn.
             if (passed && !doubled)
             {
-                e.passedPawns[Us.ValueMe] |= s;
+                e.passedPawns[Us] |= s;
             }
 
             // Score this pawn
@@ -327,11 +329,11 @@ internal static class Pawns
             }
         }
 
-        b = new Bitboard((uint) (e.semiopenFiles[Us.ValueMe] ^ 0xFF));
-        e.pawnSpan[Us.ValueMe] = b ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
+        b = new Bitboard((uint) (e.semiopenFiles[Us] ^ 0xFF));
+        e.pawnSpan[Us] = b ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
 
         // Center binds: Two pawns controlling the same central square
-        b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us.ValueMe];
+        b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us];
         score += Bitcount.popcount_Max15(b)*CenterBind;
 
         return score;
@@ -388,74 +390,74 @@ internal static class Pawns
     /// pointer to an Entry object.
     internal class Entry
     {
-        internal int[] castlingRights = new int[Color.COLOR_NB_C];
+        internal int[] castlingRights = new int[Color.COLOR_NB];
 
         internal ulong key;
 
-        internal Score[] kingSafety = new Score[Color.COLOR_NB_C];
+        internal Score[] kingSafety = new Score[Color.COLOR_NB];
 
-        internal Square[] kingSquares = new Square[Color.COLOR_NB_C];
+        internal Square[] kingSquares = new Square[Color.COLOR_NB];
 
-        internal Bitboard[] passedPawns = new Bitboard[Color.COLOR_NB_C];
+        internal Bitboard[] passedPawns = new Bitboard[Color.COLOR_NB];
 
-        internal Bitboard[] pawnAttacks = new Bitboard[Color.COLOR_NB_C];
+        internal Bitboard[] pawnAttacks = new Bitboard[Color.COLOR_NB];
 
-        internal int[,] pawnsOnSquares = new int[Color.COLOR_NB_C, Color.COLOR_NB_C]; // [color][light/dark squares]
+        internal int[,] pawnsOnSquares = new int[Color.COLOR_NB, Color.COLOR_NB]; // [color][light/dark squares]
 
-        internal int[] pawnSpan = new int[Color.COLOR_NB_C];
+        internal int[] pawnSpan = new int[Color.COLOR_NB];
 
         internal Score score;
 
-        internal int[] semiopenFiles = new int[Color.COLOR_NB_C];
+        internal int[] semiopenFiles = new int[Color.COLOR_NB];
 
         internal Score pawns_score()
         {
             return score;
         }
 
-        internal Bitboard pawn_attacks(Color c)
+        internal Bitboard pawn_attacks(ColorType c)
         {
-            return pawnAttacks[c.ValueMe];
+            return pawnAttacks[c];
         }
 
-        internal Bitboard passed_pawns(Color c)
+        internal Bitboard passed_pawns(ColorType c)
         {
-            return passedPawns[c.ValueMe];
+            return passedPawns[c];
         }
 
-        internal int pawn_span(Color c)
+        internal int pawn_span(ColorType c)
         {
-            return pawnSpan[c.ValueMe];
+            return pawnSpan[c];
         }
 
-        internal int semiopen_file(Color c, FileType f)
+        internal int semiopen_file(ColorType c, FileType f)
         {
-            return semiopenFiles[c.ValueMe] & (1 << f);
+            return semiopenFiles[c] & (1 << f);
         }
 
-        internal int semiopen_side(Color c, FileType f, bool leftSide)
+        internal int semiopen_side(ColorType c, FileType f, bool leftSide)
         {
-            return semiopenFiles[c.ValueMe] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
+            return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
         }
 
-        internal int pawns_on_same_color_squares(Color c, Square s)
+        internal int pawns_on_same_color_squares(ColorType c, Square s)
         {
-            return pawnsOnSquares[c.ValueMe, Bitboard.DarkSquares & s ? 1 : 0];
+            return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        internal Score king_safety(Color Us, Position pos, Square ksq)
+        internal Score king_safety(ColorType Us, Position pos, Square ksq)
         {
-            return kingSquares[Us.ValueMe] == ksq && castlingRights[Us.ValueMe] == pos.can_castle(Us)
-                ? kingSafety[Us.ValueMe]
-                : (kingSafety[Us.ValueMe] = do_king_safety(Us, pos, ksq));
+            return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
+                ? kingSafety[Us]
+                : (kingSafety[Us] = do_king_safety(Us, pos, ksq));
         }
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
-        private Score do_king_safety(Color Us, Position pos, Square ksq)
+        private Score do_king_safety(ColorType Us, Position pos, Square ksq)
         {
-            kingSquares[Us.ValueMe] = ksq;
-            castlingRights[Us.ValueMe] = pos.can_castle(Us);
+            kingSquares[Us] = ksq;
+            castlingRights[Us] = pos.can_castle(Us);
             var minKingPawnDistance = 0;
 
             var pawns = pos.pieces(Us, PieceType.PAWN);
@@ -491,7 +493,7 @@ internal static class Pawns
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
         /// the king is on, as well as the two adjacent files.
-        private Value shelter_storm(Color Us, Position pos, Square ksq)
+        private Value shelter_storm(ColorType Us, Position pos, Square ksq)
         {
             const int NoFriendlyPawn = 0;
             const int Unblocked = 1;

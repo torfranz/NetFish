@@ -128,9 +128,9 @@
     <Compile Include="Types\Types.cs" />
     <Compile Include="Types\Move.cs" />
     <Compile Include="Types\Rank.cs" />
-    <Compile Include="Types\FileType.cs" />
+    <Compile Include="Types\File.cs" />
     <Compile Include="Types\Square.cs" />
-    <Compile Include="Types\Color.cs" />
+    <Compile Include="Types\ColorType.cs" />
     <Compile Include="Types\Piece.cs" />
     <Compile Include="Types\PieceType.cs" />
     <Compile Include="Types\Score.cs" />

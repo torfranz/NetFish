@@ -66,7 +66,7 @@ internal static class UCI
         return ss.ToString();
     }
 
-    /// UCI::value() converts a ValueMe to a string suitable for use with the UCI
+    /// UCI::value() converts a Value to a string suitable for use with the UCI
     /// protocol specification:
     /// 
     /// cp
@@ -240,19 +240,19 @@ internal static class UCI
 
             if (token == "wtime")
             {
-                limits.time[Color.WHITE_C] = int.Parse(stack.Pop());
+                limits.time[Color.WHITE] = int.Parse(stack.Pop());
             }
             else if (token == "btime")
             {
-                limits.time[Color.BLACK_C] = int.Parse(stack.Pop());
+                limits.time[Color.BLACK] = int.Parse(stack.Pop());
             }
             else if (token == "winc")
             {
-                limits.inc[Color.WHITE_C] = int.Parse(stack.Pop());
+                limits.inc[Color.WHITE] = int.Parse(stack.Pop());
             }
             else if (token == "binc")
             {
-                limits.inc[Color.BLACK_C] = int.Parse(stack.Pop());
+                limits.inc[Color.BLACK] = int.Parse(stack.Pop());
             }
             else if (token == "movestogo")
             {

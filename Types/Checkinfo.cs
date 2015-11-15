@@ -10,7 +10,7 @@
 
     internal CheckInfo(Position pos)
     {
-        var them = ~pos.side_to_move();
+        var them = Color.opposite(pos.side_to_move());
         ksq = pos.square(PieceType.KING, them);
 
         pinned = pos.pinned_pieces(pos.side_to_move());

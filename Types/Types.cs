@@ -233,7 +233,7 @@ internal enum Bound
 };
 
 /*
-extern ValueMe PieceValue[PHASE_NB][PIECE_NB];
+extern Value PieceValue[PHASE_NB][PIECE_NB];
 
 template<Color C, CastlingSide S> struct MakeCastling
 {

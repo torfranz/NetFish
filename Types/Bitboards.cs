@@ -33,11 +33,11 @@ internal static class Bitboards
 
         for (var r = (int)Rank.RANK_1; r < Rank.RANK_8; ++r)
         {
-            var value = (Utils.InFrontBB[Color.BLACK_C, r + 1] = Utils.InFrontBB[Color.BLACK_C, r] | Utils.RankBB[r]);
-            Utils.InFrontBB[Color.WHITE_C, r] = ~value;
+            var value = (Utils.InFrontBB[Color.BLACK, r + 1] = Utils.InFrontBB[Color.BLACK, r] | Utils.RankBB[r]);
+            Utils.InFrontBB[Color.WHITE, r] = ~value;
         }
 
-        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
+        foreach (var c in Color.AllColors)
         {
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
@@ -68,7 +68,7 @@ internal static class Bitboards
             new[] {9, 7, -7, -9, 8, 1, -1, -8, 0}
         };
 
-        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
+        foreach (var c in Color.AllColors)
         {
             for (var pt = PieceType.PAWN_C; pt <= PieceType.KING_C; ++pt)
             {
@@ -76,7 +76,7 @@ internal static class Bitboards
                 {
                     for (var i = 0; steps[pt][i] != 0; ++i)
                     {
-                        var to = s + new Square(c == Color.WHITE_C ? steps[pt][i] : -steps[pt][i]);
+                        var to = s + new Square(c == Color.WHITE ? steps[pt][i] : -steps[pt][i]);
 
                         if (to.is_ok() && Utils.distance_Square(s, to) < 3)
                         {

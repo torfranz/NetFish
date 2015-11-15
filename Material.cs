@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
 internal class Material
 {
     // Polynomial material imbalance parameters
@@ -58,27 +61,27 @@ internal class Material
     };
 
     // Helper used to detect a given material distribution
-    private static bool is_KXK(Position pos, Color us)
+    private static bool is_KXK(Position pos, ColorType us)
     {
-        return !Bitboard.more_than_one(pos.pieces(~us)) && pos.non_pawn_material(us) >= Value.RookValueMg;
+        return !Bitboard.more_than_one(pos.pieces(Color.opposite(us))) && pos.non_pawn_material(us) >= Value.RookValueMg;
     }
 
-    private static bool is_KBPsKs(Position pos, Color us)
+    private static bool is_KBPsKs(Position pos, ColorType us)
     {
         return pos.non_pawn_material(us) == Value.BishopValueMg && pos.count(PieceType.BISHOP, us) == 1
                && pos.count(PieceType.PAWN, us) >= 1;
     }
 
-    private static bool is_KQKRPs(Position pos, Color us)
+    private static bool is_KQKRPs(Position pos, ColorType us)
     {
         return pos.count(PieceType.PAWN, us) == 0 && pos.non_pawn_material(us) == Value.QueenValueMg
-               && pos.count(PieceType.QUEEN, us) == 1 && pos.count(PieceType.ROOK, ~us) == 1
-               && pos.count(PieceType.PAWN, ~us) >= 1;
+               && pos.count(PieceType.QUEEN, us) == 1 && pos.count(PieceType.ROOK, Color.opposite(us)) == 1
+               && pos.count(PieceType.PAWN, Color.opposite(us)) >= 1;
     }
 
     /// imbalance() calculates the imbalance by comparing the piece count of each
     /// piece type for both colors.
-    private static int imbalance(Color Us, int[][] pieceCount)
+    private static int imbalance(ColorType Us, int[][] pieceCount)
     {
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
@@ -87,7 +90,7 @@ internal class Material
         // Second-degree polynomial material imbalance by Tord Romstad
         for (int pt1 = PieceType.NO_PIECE_TYPE_C; pt1 <= PieceType.QUEEN_C; ++pt1)
         {
-            if (pieceCount[Us.ValueMe][pt1] == 0)
+            if (pieceCount[Us][pt1] == 0)
             {
                 continue;
             }
@@ -96,10 +99,10 @@ internal class Material
 
             for (int pt2 = PieceType.NO_PIECE_TYPE_C; pt2 <= pt1; ++pt2)
             {
-                v += QuadraticOurs[pt1][pt2]*pieceCount[Us.ValueMe][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them.ValueMe][pt2];
+                v += QuadraticOurs[pt1][pt2]*pieceCount[Us][pt2] + QuadraticTheirs[pt1][pt2]*pieceCount[Them][pt2];
             }
 
-            bonus += pieceCount[Us.ValueMe][pt1]*v;
+            bonus += pieceCount[Us][pt1]*v;
         }
 
         return bonus;
@@ -126,7 +129,7 @@ internal class Material
         e.reset();
 
         e.key = key;
-        e.factor[Color.WHITE_C] = e.factor[Color.BLACK_C] = (ushort) ScaleFactor.SCALE_FACTOR_NORMAL;
+        e.factor[Color.WHITE] = e.factor[Color.BLACK] = (ushort) ScaleFactor.SCALE_FACTOR_NORMAL;
         e.gamePhase = pos.game_phase();
 
         // Let's look if we have a specialized evaluation function for this particular
@@ -137,9 +140,9 @@ internal class Material
             return e;
         }
 
-        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
+        foreach (var c in Color.AllColors)
         {
-            if (is_KXK(pos, Color.Create(c)))
+            if (is_KXK(pos, c))
             {
                 e.evaluationFunction = EvaluateKXK[c];
                 return e;
@@ -152,20 +155,20 @@ internal class Material
 
         if ((sf = pos.this_thread().endgames.probeEndgameScaleFactor(key)) != null)
         {
-            e.scalingFunction[sf.strong_side().ValueMe] = sf; // Only strong color assigned
+            e.scalingFunction[sf.strong_side()] = sf; // Only strong color assigned
             return e;
         }
 
         // We didn't find any specialized scaling function, so fall back on generic
         // ones that refer to more than one material distribution. Note that in this
         // case we don't return after setting the function.
-        for (var c = Color.WHITE_C; c <= Color.BLACK_C; ++c)
+        foreach (var c in Color.AllColors)
         {
-            if (is_KBPsKs(pos, Color.Create(c)))
+            if (is_KBPsKs(pos, c))
             {
                 e.scalingFunction[c] = ScaleKBPsK[c];
             }
-            else if (is_KQKRPs(pos, Color.Create(c)))
+            else if (is_KQKRPs(pos, c))
             {
                 e.scalingFunction[c] = ScaleKQKRPs[c];
             }
@@ -180,20 +183,20 @@ internal class Material
             {
                 Debug.Assert(pos.count(PieceType.PAWN, Color.WHITE) >= 2);
 
-                e.scalingFunction[Color.WHITE_C] = ScaleKPsK[Color.WHITE_C];
+                e.scalingFunction[Color.WHITE] = ScaleKPsK[Color.WHITE];
             }
             else if (pos.count(PieceType.PAWN, Color.WHITE) == 0)
             {
                 Debug.Assert(pos.count(PieceType.PAWN, Color.BLACK) >= 2);
 
-                e.scalingFunction[Color.BLACK_C] = ScaleKPsK[Color.BLACK_C];
+                e.scalingFunction[Color.BLACK] = ScaleKPsK[Color.BLACK];
             }
             else if (pos.count(PieceType.PAWN, Color.WHITE) == 1 && pos.count(PieceType.PAWN, Color.BLACK) == 1)
             {
                 // This is a special case because we set scaling functions
                 // for both colors instead of only one.
-                e.scalingFunction[Color.WHITE_C] = ScaleKPKP[Color.WHITE_C];
-                e.scalingFunction[Color.BLACK_C] = ScaleKPKP[Color.BLACK_C];
+                e.scalingFunction[Color.WHITE] = ScaleKPKP[Color.WHITE];
+                e.scalingFunction[Color.BLACK] = ScaleKPKP[Color.BLACK];
             }
         }
 
@@ -202,7 +205,7 @@ internal class Material
         // drawish scale factor for cases such as KRKBP and KmmKm (except for KBBKN).
         if (pos.count(PieceType.PAWN, Color.WHITE) == 0 && npm_w - npm_b <= Value.BishopValueMg)
         {
-            e.factor[Color.WHITE_C] =
+            e.factor[Color.WHITE] =
                 (ushort)
                     (npm_w < Value.RookValueMg
                         ? (ushort) ScaleFactor.SCALE_FACTOR_DRAW
@@ -211,7 +214,7 @@ internal class Material
 
         if (pos.count(PieceType.PAWN, Color.BLACK) == 0 && npm_b - npm_w <= Value.BishopValueMg)
         {
-            e.factor[Color.BLACK_C] =
+            e.factor[Color.BLACK] =
                 (ushort)
                     (npm_b < Value.RookValueMg
                         ? (ushort) ScaleFactor.SCALE_FACTOR_DRAW
@@ -220,12 +223,12 @@ internal class Material
 
         if (pos.count(PieceType.PAWN, Color.WHITE) == 1 && npm_w - npm_b <= Value.BishopValueMg)
         {
-            e.factor[Color.WHITE_C] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
+            e.factor[Color.WHITE] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
         }
 
         if (pos.count(PieceType.PAWN, Color.BLACK) == 1 && npm_b - npm_w <= Value.BishopValueMg)
         {
-            e.factor[Color.BLACK_C] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
+            e.factor[Color.BLACK] = (ushort) ScaleFactor.SCALE_FACTOR_ONEPAWN;
         }
 
         // Evaluate the material imbalance. We use PIECE_TYPE_NONE as a place holder

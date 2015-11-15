@@ -8,6 +8,7 @@ using System.Text;
 #if PRIMITIVE
 using FileType = System.Int32;
 using RankType = System.Int32;
+using ColorType = System.Int32;
 #endif
 
 internal static class Utils
@@ -45,7 +46,7 @@ internal static class Utils
 
     internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
 
-    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
+    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB, Rank.RANK_NB];
 
     internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
@@ -55,11 +56,11 @@ internal static class Utils
 
     internal static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB_C, 8];
 
-    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
+    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
+    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB_C];
 
-    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB_C, Square.SQUARE_NB_C];
+    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB_C];
 
     internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
@@ -144,9 +145,9 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard in_front_bb(Color c, RankType r)
+    internal static Bitboard in_front_bb(ColorType c, RankType r)
     {
-        return InFrontBB[c.ValueMe, r];
+        return InFrontBB[c, r];
     }
 
     /// forward_bb() returns a bitboard representing all the squares along the line
@@ -155,9 +156,9 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard forward_bb(Color c, Square s)
+    internal static Bitboard forward_bb(ColorType c, Square s)
     {
-        return ForwardBB[c.ValueMe, s];
+        return ForwardBB[c, s];
     }
 
     /// pawn_attack_span() returns a bitboard representing all the squares that can be
@@ -167,9 +168,9 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard pawn_attack_span(Color c, Square s)
+    internal static Bitboard pawn_attack_span(ColorType c, Square s)
     {
-        return PawnAttackSpan[c.ValueMe, s];
+        return PawnAttackSpan[c, s];
     }
 
     /// passed_pawn_mask() returns a bitboard mask which can be used to test if a
@@ -178,9 +179,9 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard passed_pawn_mask(Color c, Square s)
+    internal static Bitboard passed_pawn_mask(ColorType c, Square s)
     {
-        return PassedPawnMask[c.ValueMe, s];
+        return PassedPawnMask[c, s];
     }
 
     /// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
@@ -350,7 +351,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square frontmost_sq(Color c, Bitboard b)
+    internal static Square frontmost_sq(ColorType c, Bitboard b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
@@ -358,7 +359,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square backmost_sq(Color c, Bitboard b)
+    internal static Square backmost_sq(ColorType c, Bitboard b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
     }

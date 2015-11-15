@@ -16,9 +16,9 @@ namespace Tests
         public void FlipTests()
         {
             var v1 = Color.BLACK;
-            var v2 = ~v1;
+            var v2 = Color.opposite(v1);
             Assert.AreEqual(Color.WHITE, v2);
-            var v3 = ~v2;
+            var v3 = Color.opposite(v2);
             Assert.AreEqual(Color.BLACK, v3);
         }
     }

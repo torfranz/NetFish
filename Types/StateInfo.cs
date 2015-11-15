@@ -16,7 +16,7 @@ internal class StateInfo
 
     internal ulong materialKey;
 
-    internal Value[] nonPawnMaterial = new Value[Color.COLOR_NB_C];
+    internal Value[] nonPawnMaterial = new Value[Color.COLOR_NB];
 
     // Copied when making a move
     internal ulong pawnKey;

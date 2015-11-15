@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
+#if PRIMITIVE
+using ColorType = System.Int32;
+#endif
+
 internal abstract class Endgame
 {
     internal delegate int EndgameEvaluator(int c, Position pos);
@@ -30,29 +34,29 @@ internal abstract class Endgame
 
     internal static int[] PushAway = {0, 5, 20, 40, 60, 80, 90, 100};
 
-    protected readonly Color strongSide;
+    protected readonly ColorType strongSide;
 
-    protected Color weakSide;
+    protected ColorType weakSide;
 
-    protected Endgame(Color c)
+    protected Endgame(ColorType c)
     {
         strongSide = c;
-        weakSide = ~c;
+        weakSide = Color.opposite(c);
     }
 
-    internal Color strong_side()
+    internal ColorType strong_side()
     {
         return strongSide;
     }
 
-    protected static bool verify_material(Position pos, Color c, Value npm, int pawnsCnt)
+    protected static bool verify_material(Position pos, ColorType c, Value npm, int pawnsCnt)
     {
         return pos.non_pawn_material(c) == npm && pos.count(PieceType.PAWN, c) == pawnsCnt;
     }
 
     // Map the square as if strongSide is white and strongSide's only pawn
     // is on the left half of the board.
-    protected static Square normalize(Position pos, Color strongSide, Square sq)
+    protected static Square normalize(Position pos, ColorType strongSide, Square sq)
     {
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) == 1);
 
@@ -72,7 +76,7 @@ internal abstract class Endgame
     // Get the material key of Position out of the given endgame key code
     // like "KBPKN". The trick here is to first forge an ad-hoc FEN string
     // and then let a Position object do the work for us.
-    internal static ulong key(string code, Color c)
+    internal static ulong key(string code, ColorType c)
     {
         Debug.Assert(code.Length > 0 && code.Length < 8);
         Debug.Assert(code[0] == 'K');
@@ -82,7 +86,7 @@ internal abstract class Endgame
             code.Substring(code.IndexOf('K', 1)), // Weak
             code.Substring(0, code.IndexOf('K', 1))
         }; // Strong
-        sides[c.ValueMe] = sides[c.ValueMe].ToLower();
+        sides[c] = sides[c].ToLower();
 
         var fen = sides[0] + (char) (8 - sides[0].Length + '0') + "/8/8/8/8/8/8/" + sides[1]
                   + (char) (8 - sides[1].Length + '0') + " w - - 0 10";
@@ -93,7 +97,7 @@ internal abstract class Endgame
 
 internal abstract class EndgameValue : Endgame
 {
-    protected EndgameValue(Color c)
+    protected EndgameValue(ColorType c)
         : base(c)
     {
     }
@@ -103,7 +107,7 @@ internal abstract class EndgameValue : Endgame
 
 internal abstract class EndgameScaleFactor : Endgame
 {
-    protected EndgameScaleFactor(Color c)
+    protected EndgameScaleFactor(ColorType c)
         : base(c)
     {
     }
@@ -117,7 +121,7 @@ internal abstract class EndgameScaleFactor : Endgame
 /// of the board, and for keeping the distance between the two kings small.
 internal class EndgameKXK : EndgameValue
 {
-    internal EndgameKXK(Color c)
+    internal EndgameKXK(ColorType c)
         : base(c)
     {
     }
@@ -158,7 +162,7 @@ internal class EndgameKXK : EndgameValue
 /// defending king towards a corner square of the right color.
 internal class EndgameKBNK : EndgameValue
 {
-    internal EndgameKBNK(Color c)
+    internal EndgameKBNK(ColorType c)
         : base(c)
     {
     }
@@ -191,7 +195,7 @@ internal class EndgameKBNK : EndgameValue
 /// KP vs K. This endgame is evaluated with the help of a bitbase.
 internal class EndgameKPK : EndgameValue
 {
-    internal EndgameKPK(Color c)
+    internal EndgameKPK(ColorType c)
         : base(c)
     {
     }
@@ -225,7 +229,7 @@ internal class EndgameKPK : EndgameValue
 /// away.
 internal class EndgameKRKP : EndgameValue
 {
-    internal EndgameKRKP(Color c)
+    internal EndgameKRKP(ColorType c)
         : base(c)
     {
     }
@@ -283,7 +287,7 @@ internal class EndgameKRKP : EndgameValue
 /// score is slightly bigger when the defending king is close to the edge.
 internal class EndgameKRKB : EndgameValue
 {
-    internal EndgameKRKB(Color c)
+    internal EndgameKRKB(ColorType c)
         : base(c)
     {
     }
@@ -302,7 +306,7 @@ internal class EndgameKRKB : EndgameValue
 /// in KR vs KB, particularly if the king and the knight are far apart.
 internal class EndgameKRKN : EndgameValue
 {
-    internal EndgameKRKN(Color c)
+    internal EndgameKRKN(ColorType c)
         : base(c)
     {
     }
@@ -325,7 +329,7 @@ internal class EndgameKRKN : EndgameValue
 /// use the distance between the kings.
 internal class EndgameKQKP : EndgameValue
 {
-    internal EndgameKQKP(Color c)
+    internal EndgameKQKP(ColorType c)
         : base(c)
     {
     }
@@ -357,7 +361,7 @@ internal class EndgameKQKP : EndgameValue
 /// the defending side in the search, this is usually sufficient to win KQ vs KR.
 internal class EndgameKQKR : EndgameValue
 {
-    internal EndgameKQKR(Color c)
+    internal EndgameKQKR(ColorType c)
         : base(c)
     {
     }
@@ -380,7 +384,7 @@ internal class EndgameKQKR : EndgameValue
 /// Some cases of trivial draws
 internal class EndgameKNNK : EndgameValue
 {
-    internal EndgameKNNK(Color c)
+    internal EndgameKNNK(ColorType c)
         : base(c)
     {
     }
@@ -397,7 +401,7 @@ internal class EndgameKNNK : EndgameValue
 /// will be used.
 internal class EndgameKBPsK : EndgameScaleFactor
 {
-    internal EndgameKBPsK(Color c)
+    internal EndgameKBPsK(ColorType c)
         : base(c)
     {
     }
@@ -469,7 +473,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
 /// the third rank defended by a pawn.
 internal class EndgameKQKRPs : EndgameScaleFactor
 {
-    internal EndgameKQKRPs(Color c)
+    internal EndgameKQKRPs(ColorType c)
         : base(c)
     {
     }
@@ -504,7 +508,7 @@ internal class EndgameKQKRPs : EndgameScaleFactor
 /// which is mostly copied from Glaurung 1.x, and isn't very pretty.
 internal class EndgameKRPKR : EndgameScaleFactor
 {
-    internal EndgameKRPKR(Color c)
+    internal EndgameKRPKR(ColorType c)
         : base(c)
     {
     }
@@ -609,7 +613,7 @@ internal class EndgameKRPKR : EndgameScaleFactor
 
 internal class EndgameKRPKB : EndgameScaleFactor
 {
-    internal EndgameKRPKB(Color c)
+    internal EndgameKRPKB(ColorType c)
         : base(c)
     {
     }
@@ -663,7 +667,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
 /// pawns and the defending king is actively placed, the position is drawish.
 internal class EndgameKRPPKRP : EndgameScaleFactor
 {
-    internal EndgameKRPPKRP(Color c)
+    internal EndgameKRPPKRP(ColorType c)
         : base(c)
     {
     }
@@ -713,7 +717,7 @@ internal class EndgameKRPPKRP : EndgameScaleFactor
 /// are on the same rook file and are blocked by the defending king, it's a draw.
 internal class EndgameKPsK : EndgameScaleFactor
 {
-    internal EndgameKPsK(Color c)
+    internal EndgameKPsK(ColorType c)
         : base(c)
     {
     }
@@ -746,7 +750,7 @@ internal class EndgameKPsK : EndgameScaleFactor
 /// it's almost always a draw.
 internal class EndgameKBPKB : EndgameScaleFactor
 {
-    internal EndgameKBPKB(Color c)
+    internal EndgameKBPKB(ColorType c)
         : base(c)
     {
     }
@@ -807,7 +811,7 @@ internal class EndgameKBPKB : EndgameScaleFactor
 /// KBPP vs KB. It detects a few basic draws with opposite-colored bishops
 internal class EndgameKBPPKB : EndgameScaleFactor
 {
-    internal EndgameKBPPKB(Color c)
+    internal EndgameKBPPKB(ColorType c)
         : base(c)
     {
     }
@@ -888,7 +892,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
 /// the stronger side's bishop, it's a draw.
 internal class EndgameKBPKN : EndgameScaleFactor
 {
-    internal EndgameKBPKN(Color c)
+    internal EndgameKBPKN(ColorType c)
         : base(c)
     {
     }
@@ -918,7 +922,7 @@ internal class EndgameKBPKN : EndgameScaleFactor
 /// and the defending king prevents the pawn from advancing, the position is drawn.
 internal class EndgameKNPK : EndgameScaleFactor
 {
-    internal EndgameKNPK(Color c)
+    internal EndgameKNPK(ColorType c)
         : base(c)
     {
     }
@@ -945,7 +949,7 @@ internal class EndgameKNPK : EndgameScaleFactor
 /// Otherwise the position is drawn.
 internal class EndgameKNPKB : EndgameScaleFactor
 {
-    internal EndgameKNPKB(Color c)
+    internal EndgameKNPKB(ColorType c)
         : base(c)
     {
     }
@@ -974,7 +978,7 @@ internal class EndgameKNPKB : EndgameScaleFactor
 /// possible to win (e.g. 8/4k3/3p4/3P4/6K1/8/8/8 w - - 0 1).
 internal class EndgameKPKP : EndgameScaleFactor
 {
-    internal EndgameKPKP(Color c)
+    internal EndgameKPKP(ColorType c)
         : base(c)
     {
     }

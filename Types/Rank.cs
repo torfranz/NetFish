@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using RankType = System.Int32;
+using ColorType = System.Int32;
 #else
 internal class RankType
 {
@@ -115,15 +116,15 @@ internal static class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankType relative_rank(Color c, RankType r)
+    internal static RankType relative_rank(ColorType c, RankType r)
     {
-        return Rank.Create(r ^ (c.ValueMe * 7));
+        return Rank.Create(r ^ (c * 7));
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankType relative_rank(Color c, Square s)
+    internal static RankType relative_rank(ColorType c, Square s)
     {
         return relative_rank(c, Square.rank_of(s));
     }

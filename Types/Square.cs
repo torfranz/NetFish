@@ -3,6 +3,7 @@
 #if PRIMITIVE
 using FileType = System.Int32;
 using RankType = System.Int32;
+using ColorType = System.Int32;
 #endif
 
 internal struct Square
@@ -189,7 +190,7 @@ internal struct Square
     internal Square(int value)
     {
         Value = value;
-        // Debug.Assert(this.ValueMe >= -9 && this.ValueMe <= 64);
+        // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
     #endregion
@@ -356,9 +357,9 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square relative_square(Color c, Square s)
+    internal static Square relative_square(ColorType c, Square s)
     {
-        return new Square(s.Value ^ (c.ValueMe * 56));
+        return new Square(s.Value ^ (c * 56));
     }
 
 #if FORCEINLINE
@@ -388,7 +389,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square pawn_push(Color c)
+    internal static Square pawn_push(ColorType c)
     {
         return c == Color.WHITE ? new Square(DELTA_N) : new Square(DELTA_S);
     }

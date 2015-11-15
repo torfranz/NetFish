@@ -5,7 +5,7 @@
 /// if we have to ponder while it's our opponent's turn to move.
 internal class LimitsType
 {
-    internal int[] inc = new int[Color.COLOR_NB_C];
+    internal int[] inc = new int[Color.COLOR_NB];
 
     internal ulong nodes;
 
@@ -15,7 +15,7 @@ internal class LimitsType
 
     internal List<Move> searchmoves = new List<Move>();
 
-    internal int[] time = new int[Color.COLOR_NB_C];
+    internal int[] time = new int[Color.COLOR_NB];
 
     internal bool use_time_management()
     {

@@ -288,7 +288,7 @@
         }
     };
 
-    internal static Score[,,] psq = new Score[Color.COLOR_NB_C, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB_C];
+    internal static Score[,,] psq = new Score[Color.COLOR_NB, PieceType.PIECE_TYPE_NB_C, Square.SQUARE_NB_C];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the
@@ -306,7 +306,7 @@
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 int edgeDistance = (int)Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
-                psq[Color.BLACK_C, pt, ~s] = -(psq[Color.WHITE_C, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
+                psq[Color.BLACK, pt, ~s] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }
