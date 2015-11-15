@@ -3,8 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 
 #if PRIMITIVE
-    using FileT = System.Int32;
-    using ColorT = System.Int32;
+using FileT = System.Int32;
+using ColorT = System.Int32;
+using ValueT = System.Int32;
 #endif
 
 internal static class Pawns
@@ -67,146 +68,146 @@ internal static class Pawns
     private static readonly Score CenterBind = Score.make_score(16, 0);
 
     // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
-    private static readonly Value[][] ShelterWeakness =
+    private static readonly ValueT[][] ShelterWeakness =
     {
         new[]
         {
-            new Value(97), new Value(21), new Value(26),
-            new Value(51), new Value(87), new Value(89),
-            new Value(99)
+            Value.Create(97), Value.Create(21), Value.Create(26),
+            Value.Create(51), Value.Create(87), Value.Create(89),
+            Value.Create(99)
         },
         new[]
         {
-            new Value(120), new Value(0), new Value(28),
-            new Value(76), new Value(88), new Value(103),
-            new Value(104)
+            Value.Create(120), Value.Create(0), Value.Create(28),
+            Value.Create(76), Value.Create(88), Value.Create(103),
+            Value.Create(104)
         },
         new[]
         {
-            new Value(101), new Value(7), new Value(54),
-            new Value(78), new Value(77), new Value(92),
-            new Value(101)
+            Value.Create(101), Value.Create(7), Value.Create(54),
+            Value.Create(78), Value.Create(77), Value.Create(92),
+            Value.Create(101)
         },
         new[]
         {
-            new Value(80), new Value(11), new Value(44),
-            new Value(68), new Value(87), new Value(90),
-            new Value(119)
+            Value.Create(80), Value.Create(11), Value.Create(44),
+            Value.Create(68), Value.Create(87), Value.Create(90),
+            Value.Create(119)
         }
     };
 
     // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
-    private static readonly Value[][][] StormDanger =
+    private static readonly ValueT[][][] StormDanger =
     {
         new[]
         {
             new[]
             {
-                new Value(0), new Value(67), new Value(134),
-                new Value(38), new Value(32), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(67), Value.Create(134),
+                Value.Create(38), Value.Create(32), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(57), new Value(139),
-                new Value(37), new Value(22), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(57), Value.Create(139),
+                Value.Create(37), Value.Create(22), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(43), new Value(115),
-                new Value(43), new Value(27), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(43), Value.Create(115),
+                Value.Create(43), Value.Create(27), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(68), new Value(124),
-                new Value(57), new Value(32), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(68), Value.Create(124),
+                Value.Create(57), Value.Create(32), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             }
         },
         new[]
         {
             new[]
             {
-                new Value(20), new Value(43), new Value(100),
-                new Value(56), new Value(20), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(20), Value.Create(43), Value.Create(100),
+                Value.Create(56), Value.Create(20), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(23), new Value(20), new Value(98),
-                new Value(40), new Value(15), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(23), Value.Create(20), Value.Create(98),
+                Value.Create(40), Value.Create(15), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(23), new Value(39), new Value(103),
-                new Value(36), new Value(18), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(23), Value.Create(39), Value.Create(103),
+                Value.Create(36), Value.Create(18), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(28), new Value(19), new Value(108),
-                new Value(42), new Value(26), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(28), Value.Create(19), Value.Create(108),
+                Value.Create(42), Value.Create(26), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             }
         },
         new[]
         {
             new[]
             {
-                new Value(0), new Value(0), new Value(75),
-                new Value(14), new Value(2), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(0), Value.Create(75),
+                Value.Create(14), Value.Create(2), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(0), new Value(150),
-                new Value(30), new Value(4), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(0), Value.Create(150),
+                Value.Create(30), Value.Create(4), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(0), new Value(160),
-                new Value(22), new Value(5), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(0), Value.Create(160),
+                Value.Create(22), Value.Create(5), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             },
             new[]
             {
-                new Value(0), new Value(0), new Value(166),
-                new Value(24), new Value(13), new Value(0),
-                new Value(0), new Value(0)
+                Value.Create(0), Value.Create(0), Value.Create(166),
+                Value.Create(24), Value.Create(13), Value.Create(0),
+                Value.Create(0), Value.Create(0)
             }
         },
         new[]
         {
             new[]
             {
-                new Value(0), new Value(-283), new Value(-281),
-                new Value(57), new Value(31)
+                Value.Create(0), Value.Create(-283), Value.Create(-281),
+                Value.Create(57), Value.Create(31)
             },
             new[]
             {
-                new Value(0), new Value(58), new Value(141),
-                new Value(39), new Value(18)
+                Value.Create(0), Value.Create(58), Value.Create(141),
+                Value.Create(39), Value.Create(18)
             },
             new[]
             {
-                new Value(0), new Value(65), new Value(142),
-                new Value(48), new Value(32)
+                Value.Create(0), Value.Create(65), Value.Create(142),
+                Value.Create(48), Value.Create(32)
             },
             new[]
             {
-                new Value(0), new Value(60), new Value(126),
-                new Value(51), new Value(19)
+                Value.Create(0), Value.Create(60), Value.Create(126),
+                Value.Create(51), Value.Create(19)
             }
         }
     };
 
     // Max bonus for king safety. Corresponds to start position with all the pawns
     // in front of the king and no enemy pawn on the horizon.
-    private static readonly Value MaxSafetyBonus = new Value(258);
+    private static readonly ValueT MaxSafetyBonus = Value.Create(258);
 
     private static readonly int[] Seed = {0, 6, 15, 10, 57, 75, 135, 258};
 
@@ -478,13 +479,13 @@ internal static class Pawns
             // If we can castle use the bonus after the castling if it is bigger
             if (pos.can_castle(Movegen.MakeCastling(Us, CastlingSide.KING_SIDE)))
             {
-                bonus = new Value(
+                bonus = Value.Create(
                     Math.Max(bonus, shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_G1))));
             }
 
             if (pos.can_castle(Movegen.MakeCastling(Us, CastlingSide.QUEEN_SIDE)))
             {
-                bonus = new Value(
+                bonus = Value.Create(
                     Math.Max(bonus, shelter_storm(Us, pos, Square.relative_square(Us, Square.SQ_C1))));
             }
 
@@ -493,7 +494,7 @@ internal static class Pawns
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
         /// the king is on, as well as the two adjacent files.
-        private Value shelter_storm(ColorT Us, Position pos, Square ksq)
+        private ValueT shelter_storm(ColorT Us, Position pos, Square ksq)
         {
             const int NoFriendlyPawn = 0;
             const int Unblocked = 1;

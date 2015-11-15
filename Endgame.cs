@@ -4,6 +4,7 @@ using System.Diagnostics;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
+using ValueT = System.Int32;
 #endif
 
 internal abstract class Endgame
@@ -50,7 +51,7 @@ internal abstract class Endgame
         return strongSide;
     }
 
-    protected static bool verify_material(Position pos, ColorT c, Value npm, int pawnsCnt)
+    protected static bool verify_material(Position pos, ColorT c, ValueT npm, int pawnsCnt)
     {
         return pos.non_pawn_material(c) == npm && pos.count(PieceType.PAWN, c) == pawnsCnt;
     }
@@ -103,7 +104,7 @@ internal abstract class EndgameValue : Endgame
     {
     }
 
-    internal abstract Value GetValue(Position pos);
+    internal abstract ValueT GetValue(Position pos);
 }
 
 internal abstract class EndgameScaleFactor : Endgame
@@ -127,7 +128,7 @@ internal class EndgameKXK : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
         Debug.Assert(!pos.checkers()); // Eval is never called when in check
@@ -168,7 +169,7 @@ internal class EndgameKBNK : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.KnightValueMg + Value.BishopValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
@@ -201,7 +202,7 @@ internal class EndgameKPK : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.VALUE_ZERO, 1));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
@@ -218,7 +219,7 @@ internal class EndgameKPK : EndgameValue
             return Value.VALUE_DRAW;
         }
 
-        var result = Value.VALUE_KNOWN_WIN + Value.PawnValueEg + new Value(Square.rank_of(psq));
+        var result = Value.VALUE_KNOWN_WIN + Value.PawnValueEg + Value.Create(Square.rank_of(psq));
 
         return strongSide == pos.side_to_move() ? result : -result;
     }
@@ -235,7 +236,7 @@ internal class EndgameKRKP : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
@@ -246,7 +247,7 @@ internal class EndgameKRKP : EndgameValue
         var psq = Square.relative_square(strongSide, pos.square(PieceType.PAWN, weakSide));
 
         var queeningSq = Square.make_square(Square.file_of(psq), Rank.RANK_1);
-        Value result;
+        ValueT result;
 
         // If the stronger side's king is in front of the pawn, it's a win
         if (wksq < psq && Square.file_of(wksq) == Square.file_of(psq))
@@ -268,12 +269,12 @@ internal class EndgameKRKP : EndgameValue
                  && Square.rank_of(wksq) >= Rank.RANK_4
                  && Utils.distance_Square(wksq, psq) > 2 + (pos.side_to_move() == strongSide ? 1 : 0))
         {
-            result = new Value(80) - 8*Utils.distance_Square(wksq, psq);
+            result = Value.Create(80) - 8*Utils.distance_Square(wksq, psq);
         }
 
         else
         {
-            result = new Value(200)
+            result = Value.Create(200)
                      - 8
                      *(Utils.distance_Square(wksq, psq + Square.DELTA_S)
                        - Utils.distance_Square(bksq, psq + Square.DELTA_S)
@@ -293,12 +294,12 @@ internal class EndgameKRKB : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
-        var result = new Value(PushToEdges[pos.square(PieceType.KING, weakSide)]);
+        var result = Value.Create(PushToEdges[pos.square(PieceType.KING, weakSide)]);
         return strongSide == pos.side_to_move() ? result : -result;
     }
 }
@@ -312,14 +313,14 @@ internal class EndgameKRKN : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.RookValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.KnightValueMg, 0));
 
         var bksq = pos.square(PieceType.KING, weakSide);
         var bnsq = pos.square(PieceType.KNIGHT, weakSide);
-        var result = new Value(PushToEdges[bksq] + PushAway[Utils.distance_Square(bksq, bnsq)]);
+        var result = Value.Create(PushToEdges[bksq] + PushAway[Utils.distance_Square(bksq, bnsq)]);
         return strongSide == pos.side_to_move() ? result : -result;
     }
 }
@@ -335,7 +336,7 @@ internal class EndgameKQKP : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 1));
@@ -344,7 +345,7 @@ internal class EndgameKQKP : EndgameValue
         var loserKSq = pos.square(PieceType.KING, weakSide);
         var pawnSq = pos.square(PieceType.PAWN, weakSide);
 
-        var result = new Value(PushClose[Utils.distance_Square(winnerKSq, loserKSq)]);
+        var result = Value.Create(PushClose[Utils.distance_Square(winnerKSq, loserKSq)]);
 
         if (Rank.relative_rank(weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
             || !((Bitboard.FileABB | Bitboard.FileCBB | Bitboard.FileFBB | Bitboard.FileHBB) & pawnSq))
@@ -367,7 +368,7 @@ internal class EndgameKQKR : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, strongSide, Value.QueenValueMg, 0));
         Debug.Assert(verify_material(pos, weakSide, Value.RookValueMg, 0));
@@ -390,7 +391,7 @@ internal class EndgameKNNK : EndgameValue
     {
     }
 
-    internal override Value GetValue(Position pos)
+    internal override ValueT GetValue(Position pos)
     {
         return Value.VALUE_DRAW;
     }

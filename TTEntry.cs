@@ -1,4 +1,8 @@
-﻿/// TTEntry struct is the 10 bytes transposition table entry, defined as below:
+﻿#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
+
+/// TTEntry struct is the 10 bytes transposition table entry, defined as below:
 /// 
 /// key        16 bit
 /// move       16 bit
@@ -26,14 +30,14 @@ internal class TTEntry
         return new Move(move16);
     }
 
-    internal Value value()
+    internal ValueT value()
     {
-        return new Value(value16);
+        return Value.Create(value16);
     }
 
-    internal Value eval()
+    internal ValueT eval()
     {
-        return new Value(eval16);
+        return Value.Create(eval16);
     }
 
     internal Depth depth()
@@ -46,7 +50,7 @@ internal class TTEntry
         return (Bound) ((genBound8 & 0x3));
     }
 
-    internal void save(ulong k, Value v, Bound b, Depth d, Move m, Value ev, byte g)
+    internal void save(ulong k, ValueT v, Bound b, Depth d, Move m, ValueT ev, byte g)
     {
         // Preserve any existing move for the same position
         if ((m != 0) || (k >> 48) != key16)

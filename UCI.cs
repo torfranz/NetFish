@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
+
 internal static class UCI
 {
     // FEN string of the initial position, normal chess
@@ -21,7 +25,7 @@ internal static class UCI
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
     /// that all (if any) unsearched PV lines are sent using a previous search score.
-    internal static string pv(Position pos, Depth depth, Value alpha, Value beta)
+    internal static string pv(Position pos, Depth depth, ValueT alpha, ValueT beta)
     {
         var ss = new StringBuilder();
         var elapsed = TimeManagement.elapsed() + 1;
@@ -76,7 +80,7 @@ internal static class UCI
     ///     y
     ///         Mate in y moves, not plies. If the engine is getting mated
     ///         use negative values for y.
-    internal static string value(Value v)
+    internal static string value(ValueT v)
     {
         if (Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY)
         {

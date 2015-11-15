@@ -6,10 +6,11 @@ using System.Text;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
+using ValueT = System.Int32;
 #endif
 internal static class Eval
 {
-    internal static Value Tempo = new Value(17); // Must be visible to search
+    internal static ValueT Tempo = Value.Create(17); // Must be visible to search
 
     // Evaluation weights, indexed by the corresponding evaluation term
     private static readonly int Mobility = 0;
@@ -141,17 +142,17 @@ internal static class Eval
 
     // Passed[mg/eg][rank] contains midgame and endgame bonuses for passed pawns.
     // We don't use a Score because we process the two components independently.
-    internal static Value[][] Passed =
+    internal static ValueT[][] Passed =
     {
         new[]
         {
-            new Value(0), new Value(1), new Value(34), new Value(90), new Value(214),
-            new Value(328)
+            Value.Create(0), Value.Create(1), Value.Create(34), Value.Create(90), Value.Create(214),
+            Value.Create(328)
         },
         new[]
         {
-            new Value(7), new Value(14), new Value(37), new Value(63), new Value(134),
-            new Value(189)
+            Value.Create(7), Value.Create(14), Value.Create(37), Value.Create(63), Value.Create(134),
+            Value.Create(189)
         }
     };
 
@@ -638,7 +639,7 @@ internal static class Eval
             int r = Rank.relative_rank(Us, s) - Rank.RANK_2;
             var rr = r*(r - 1);
 
-            Value mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
+            ValueT mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
 
             if (rr != 0)
             {
@@ -754,7 +755,7 @@ internal static class Eval
 
     /// evaluate() is the main evaluation function. It returns a static evaluation
     /// of the position always from the point of view of the side to move.
-    internal static Value evaluate(bool DoTrace, Position pos)
+    internal static ValueT evaluate(bool DoTrace, Position pos)
     {
         Debug.Assert(!pos.checkers());
 
@@ -925,7 +926,7 @@ internal static class Eval
         }
     }
 
-    private static double to_cp(Value v)
+    private static double to_cp(ValueT v)
     {
         return (double) v/Value.PawnValueEg;
     }

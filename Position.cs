@@ -9,6 +9,7 @@ using System.Text;
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using PieceT = System.Int32;
+using ValueT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -392,7 +393,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Value non_pawn_material(ColorT c)
+    internal ValueT non_pawn_material(ColorT c)
     {
         return st.nonPawnMaterial[c];
     }
@@ -638,7 +639,7 @@ internal class Position
     {
         var npm = st.nonPawnMaterial[Color.WHITE] + st.nonPawnMaterial[Color.BLACK];
 
-        npm = new Value(Math.Max(Value.EndgameLimit, Math.Min(npm, Value.MidgameLimit)));
+        npm = Value.Create(Math.Max(Value.EndgameLimit, Math.Min(npm, Value.MidgameLimit)));
 
         return
             (Phase) (((npm - Value.EndgameLimit)*(int) Phase.PHASE_MIDGAME)/(Value.MidgameLimit - Value.EndgameLimit));
@@ -1233,7 +1234,7 @@ internal class Position
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
     /// material gain or loss resulting from a move.
-    internal Value see_sign(Move m)
+    internal ValueT see_sign(Move m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1249,9 +1250,9 @@ internal class Position
         return see(m);
     }
 
-    internal Value see(Move m)
+    internal ValueT see(Move m)
     {
-        var swapList = new Value[32];
+        var swapList = new ValueT[32];
         var slIndex = 1;
 
         Debug.Assert(Move.is_ok(m));
@@ -1315,7 +1316,7 @@ internal class Position
         // achievable score from the point of view of the side to move.
         while (--slIndex != 0)
         {
-            swapList[slIndex - 1] = new Value(Math.Min(-swapList[slIndex], swapList[slIndex - 1]));
+            swapList[slIndex - 1] = Value.Create(Math.Min(-swapList[slIndex], swapList[slIndex - 1]));
         }
 
         return swapList[0];

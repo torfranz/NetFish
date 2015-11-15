@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using Key = System.UInt64;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
 internal static class Search
 {
     internal static SignalsType Signals;
@@ -22,7 +25,7 @@ internal static class Search
 
     private static double BestMoveChanges;
 
-    private static readonly Value[] DrawValue = new Value[Color.COLOR_NB];
+    private static readonly ValueT[] DrawValue = new ValueT[Color.COLOR_NB];
 
     private static HistoryStats History = new HistoryStats();
 
@@ -238,7 +241,7 @@ internal static class Search
 
         var ss = new StackArrayWrapper(stack, 2); // To allow referencing (ss-2) and (ss+2)
 
-        Value alpha, delta;
+        ValueT alpha, delta;
 
         var easyMove = EasyMove.get(pos.key());
         EasyMove.clear();
@@ -286,9 +289,9 @@ internal static class Search
                 // Reset aspiration window starting size
                 if (depth >= 5*Depth.ONE_PLY_C)
                 {
-                    delta = new Value(16);
-                    alpha = new Value(Math.Max(RootMoves[(int) PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
-                    beta = new Value(Math.Min(RootMoves[(int) PVIdx].previousScore + delta, Value.VALUE_INFINITE));
+                    delta = Value.Create(16);
+                    alpha = Value.Create(Math.Max(RootMoves[(int) PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
+                    beta = Value.Create(Math.Min(RootMoves[(int) PVIdx].previousScore + delta, Value.VALUE_INFINITE));
                 }
 
                 // Start with a small aspiration window and, in the case of a fail
@@ -336,7 +339,7 @@ internal static class Search
                     if (bestValue <= alpha)
                     {
                         beta = (alpha + beta)/2;
-                        alpha = new Value(Math.Max(bestValue - delta, -Value.VALUE_INFINITE));
+                        alpha = Value.Create(Math.Max(bestValue - delta, -Value.VALUE_INFINITE));
 
                         Signals.failedLowAtRoot = true;
                         Signals.stopOnPonderhit = false;
@@ -344,7 +347,7 @@ internal static class Search
                     else if (bestValue >= beta)
                     {
                         alpha = (alpha + beta)/2;
-                        beta = new Value(Math.Min(bestValue + delta, Value.VALUE_INFINITE));
+                        beta = Value.Create(Math.Min(bestValue + delta, Value.VALUE_INFINITE));
                     }
                     else
                     {
@@ -481,14 +484,14 @@ internal static class Search
 
     /// Search::init() is called during startup to initialize various lookup tables
     // Razoring and futility margin based on depth
-    private static Value razor_margin(Depth d)
+    private static ValueT razor_margin(Depth d)
     {
-        return new Value(512 + 32* (int)d);
+        return Value.Create(512 + 32* (int)d);
     }
 
-    private static Value futility_margin(Depth d)
+    private static ValueT futility_margin(Depth d)
     {
-        return new Value(200* (int)d);
+        return Value.Create(200* (int)d);
     }
 
     private static Depth reduction(bool PvNode, bool i, Depth d, int mn)
@@ -526,7 +529,7 @@ internal static class Search
     // from the transposition table (which refers to the plies to mate/be mated
     // from current position) to "plies to mate/be mated from the root".
 
-    private static Value value_from_tt(Value v, int ply)
+    private static ValueT value_from_tt(ValueT v, int ply)
     {
         return v == Value.VALUE_NONE
             ? Value.VALUE_NONE
@@ -542,7 +545,7 @@ internal static class Search
     // repeat all this work again. We also don't need to store anything to the hash
     // table here: This is taken care of after we return from the split point.
 
-    private static Value search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
+    private static ValueT search(NodeType NT, bool SpNode, Position pos, StackArrayWrapper ss, ValueT alpha, ValueT beta,
         Depth depth, bool cutNode)
     {
         Utils.WriteToLog($"search(NT={(int) NT}, SpNode={(SpNode ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth}, cutNode={(cutNode ? 1 : 0)})");
@@ -558,7 +561,7 @@ internal static class Search
         SplitPoint splitPoint = null;
         ulong posKey = 0;
         Move ttMove, move, excludedMove, bestMove;
-        Value bestValue, value, ttValue, eval;
+        ValueT bestValue, value, ttValue, eval;
         bool ttHit;
         int moveCount = 0;
         int quietCount = 0;
@@ -577,7 +580,7 @@ internal static class Search
         {
             splitPoint = stack.splitPoint;
             bestMove = new Move(splitPoint.bestMove);
-            bestValue = new Value(splitPoint.bestValue);
+            bestValue = Value.Create(splitPoint.bestValue);
             tte = new TTEntry();
             ttMove = excludedMove = Move.MOVE_NONE;
             ttValue = Value.VALUE_NONE;
@@ -609,8 +612,8 @@ internal static class Search
             // because we will never beat the current alpha. Same logic but with reversed
             // signs applies also in the opposite condition of being mated instead of giving
             // mate. In this case return a fail-high score.
-            alpha = new Value(Math.Max(Value.mated_in(stack.ply), alpha));
-            beta = new Value(Math.Min(Value.mate_in(stack.ply + 1), beta));
+            alpha = Value.Create(Math.Max(Value.mated_in(stack.ply), alpha));
+            beta = Value.Create(Math.Min(Value.mate_in(stack.ply + 1), beta));
             if (alpha >= beta)
                 return alpha;
         }
@@ -735,14 +738,14 @@ internal static class Search
             && depth < 7*Depth.ONE_PLY
             && eval - futility_margin(depth) >= beta
             && eval < Value.VALUE_KNOWN_WIN // Do not return unproven wins
-            && pos.non_pawn_material(pos.side_to_move()))
+            && pos.non_pawn_material(pos.side_to_move())!=0)
             return eval - futility_margin(depth);
 
         // Step 8. Null move search with verification search (is omitted in PV nodes)
         if (!PvNode
             && depth >= 2*Depth.ONE_PLY_C
             && eval >= beta
-            && pos.non_pawn_material(pos.side_to_move()))
+            && pos.non_pawn_material(pos.side_to_move())!=0)
         {
             stack.currentMove = Move.MOVE_NULL;
 
@@ -790,7 +793,7 @@ internal static class Search
             && depth >= 5*Depth.ONE_PLY_C
             && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
         {
-            var rbeta = new Value(Math.Min(beta + 200, Value.VALUE_INFINITE));
+            var rbeta = Value.Create(Math.Min(beta + 200, Value.VALUE_INFINITE));
             var rdepth = depth - 4*Depth.ONE_PLY;
 
             Debug.Assert(rdepth >= Depth.ONE_PLY_C);
@@ -954,7 +957,7 @@ internal static class Search
 
                     if (futilityValue <= alpha)
                     {
-                        bestValue = new Value(Math.Max(bestValue, futilityValue));
+                        bestValue = Value.Create(Math.Max(bestValue, futilityValue));
 
                         if (SpNode)
                         {
@@ -1026,7 +1029,7 @@ internal static class Search
 
                 var d = new Depth(Math.Max(newDepth - (int)stack.reduction, Depth.ONE_PLY_C));
                 if (SpNode)
-                    alpha = new Value(splitPoint.alpha);
+                    alpha = Value.Create(splitPoint.alpha);
 
                 value =
                     -search(NodeType.NonPV, false, pos, new StackArrayWrapper(ss.table, ss.current + 1), -(alpha + 1),
@@ -1042,7 +1045,7 @@ internal static class Search
             if (doFullDepthSearch)
             {
                 if (SpNode)
-                    alpha = new Value(splitPoint.alpha);
+                    alpha = Value.Create(splitPoint.alpha);
 
                 value = newDepth < Depth.ONE_PLY
                     ? givesCheck
@@ -1081,8 +1084,8 @@ internal static class Search
             if (SpNode)
             {
                 ThreadHelper.lock_grab(splitPoint.spinLock);
-                bestValue = new Value(splitPoint.bestValue);
-                alpha = new Value(splitPoint.alpha);
+                bestValue = Value.Create(splitPoint.bestValue);
+                alpha = Value.Create(splitPoint.alpha);
             }
 
             // Finished searching the move. If a stop or a cutoff occurred, the return
@@ -1126,7 +1129,7 @@ internal static class Search
 
             if (value > bestValue)
             {
-                bestValue = new Value(SpNode ? splitPoint.bestValue = value : value);
+                bestValue = Value.Create(SpNode ? splitPoint.bestValue = value : value);
 
                 if (value > alpha)
                 {
@@ -1142,7 +1145,7 @@ internal static class Search
                         update_pv(SpNode ? splitPoint.ss[ss.current].pv : stack.pv, move, stackPlus1.pv);
 
                     if (PvNode && value < beta) // Update alpha! Always alpha < beta
-                        alpha = new Value(SpNode ? splitPoint.alpha = value : value);
+                        alpha = Value.Create(SpNode ? splitPoint.alpha = value : value);
                     else
                     {
                         Debug.Assert(value >= beta); // Fail high
@@ -1211,7 +1214,7 @@ internal static class Search
             if (Move.is_ok(stackMinus2.currentMove) && Move.is_ok(stackMinus1.currentMove) &&
                 pos.captured_piece_type()==0 && !inCheck && depth >= 3*Depth.ONE_PLY_C)
             {
-                var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
+                var bonus = Value.Create((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
                 var prevSq = Move.to_sq(stackMinus1.currentMove);
                 var prevPrevSq = Move.to_sq(stackMinus2.currentMove);
                 var flMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
@@ -1230,7 +1233,7 @@ internal static class Search
         return bestValue;
     }
 
-    private static Value qsearch(NodeType NT, bool InCheck, Position pos, StackArrayWrapper ss, Value alpha, Value beta,
+    private static ValueT qsearch(NodeType NT, bool InCheck, Position pos, StackArrayWrapper ss, ValueT alpha, ValueT beta,
         Depth depth)
     {
         Utils.WriteToLog($"qsearch(NT={(int) NT}, InCheck={(InCheck ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int) depth})");
@@ -1288,8 +1291,8 @@ internal static class Search
             return ttValue;
         }
 
-        Value bestValue;
-        Value futilityBase;
+        ValueT bestValue;
+        ValueT futilityBase;
         // Evaluate the position statically
         if (InCheck)
         {
@@ -1362,13 +1365,13 @@ internal static class Search
 
                 if (futilityValue <= alpha)
                 {
-                    bestValue = new Value(Math.Max(bestValue, futilityValue));
+                    bestValue = Value.Create(Math.Max(bestValue, futilityValue));
                     continue;
                 }
 
                 if (futilityBase <= alpha && pos.see(move) <= Value.VALUE_ZERO)
                 {
-                    bestValue = new Value(Math.Max(bestValue, futilityBase));
+                    bestValue = Value.Create(Math.Max(bestValue, futilityBase));
                     continue;
                 }
             }
@@ -1455,7 +1458,7 @@ internal static class Search
             ss[ss.current].killers0 = move;
         }
 
-        var bonus = new Value((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
+        var bonus = Value.Create((depth/Depth.ONE_PLY)*(depth/Depth.ONE_PLY));
 
         var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
         var cmh = CounterMovesHistory.table[pos.piece_on(prevSq), prevSq];
@@ -1491,7 +1494,7 @@ internal static class Search
     // "plies to mate from the current position". Non-mate scores are unchanged.
     // The function is called before storing a value in the transposition table.
 
-    private static Value value_to_tt(Value v, int ply)
+    private static ValueT value_to_tt(ValueT v, int ply)
     {
         Utils.WriteToLog($"value_to_tt(v={v}, ply={ply})");
         Debug.Assert(v != Value.VALUE_NONE);

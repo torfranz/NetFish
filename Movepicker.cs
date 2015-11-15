@@ -1,5 +1,9 @@
 ﻿using System.Diagnostics;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
+
 internal class MovePicker
 {
     private readonly Move countermove;
@@ -20,7 +24,7 @@ internal class MovePicker
 
     private readonly StackArrayWrapper ss;
 
-    private readonly Value threshold;
+    private readonly ValueT threshold;
 
     private readonly Move ttMove;
 
@@ -103,7 +107,7 @@ internal class MovePicker
         endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
-    internal MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, Value th)
+    internal MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, ValueT th)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -190,7 +194,7 @@ internal class MovePicker
             moves[i] = new ExtMove(
                 m,
                 Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                - new Value(200 * Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
+                - Value.Create(200 * Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
         }
     }
 
@@ -218,7 +222,7 @@ internal class MovePicker
         for (var i = 0; i < endMoves.current; i++)
         {
             var m = moves[i];
-            Value see;
+            ValueT see;
             if ((see = pos.see_sign(m)) < Value.VALUE_ZERO)
             {
                 moves[i] = new ExtMove(m, see - HistoryStats.Max); // At the bottom
@@ -229,7 +233,7 @@ internal class MovePicker
                 moves[i] = new ExtMove(
                     m,
                     Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                    - new Value(Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
+                    - Value.Create(Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {

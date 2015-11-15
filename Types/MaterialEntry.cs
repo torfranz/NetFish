@@ -1,5 +1,6 @@
 ﻿#if PRIMITIVE
 using ColorT = System.Int32;
+using ValueT = System.Int32;
 #endif
 
 /// Material::Entry contains various information about a material configuration.
@@ -50,7 +51,7 @@ internal class MaterialEntry
         return evaluationFunction != null;
     }
 
-    internal Value evaluate(Position pos)
+    internal ValueT evaluate(Position pos)
     {
         return evaluationFunction.GetValue(pos);
     }

@@ -1,5 +1,6 @@
 ﻿#if PRIMITIVE
 using PieceTypeT = System.Int32;
+using ValueT = System.Int32;
 #endif
 
 /// StateInfo struct stores information needed to restore a Position object to
@@ -20,7 +21,7 @@ internal class StateInfo
 
     internal ulong materialKey;
 
-    internal Value[] nonPawnMaterial = new Value[Color.COLOR_NB];
+    internal ValueT[] nonPawnMaterial = new ValueT[Color.COLOR_NB];
 
     // Copied when making a move
     internal ulong pawnKey;

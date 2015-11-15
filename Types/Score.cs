@@ -1,5 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
 /// Score enum stores a middlegame and an endgame value in a single integer
 /// (enum). The least significant 16 bits are used to store the endgame value
 /// and the upper 16 bits are used to store the middlegame value.
@@ -7,14 +10,14 @@ internal struct Score
 {
     internal static Score SCORE_ZERO = new Score(0);
 
-    private readonly int Value;
+    private readonly int value;
     
 #if FORCEINLINE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public override string ToString()
     {
-        return $"{Value}";
+        return $"{value}";
     }
 
     #region constructors
@@ -24,7 +27,7 @@ internal struct Score
 #endif
     internal Score(int value)
     {
-        Value = value;
+        this.value = value;
     }
 
     #endregion
@@ -36,7 +39,7 @@ internal struct Score
 #endif
     public static Score operator +(Score v1, Score v2)
     {
-        return new Score(v1.Value + v2.Value);
+        return new Score(v1.value + v2.value);
     }
 
 #if FORCEINLINE
@@ -44,7 +47,7 @@ internal struct Score
 #endif
     public static Score operator -(Score v1, Score v2)
     {
-        return new Score(v1.Value - v2.Value);
+        return new Score(v1.value - v2.value);
     }
 
 #if FORCEINLINE
@@ -52,7 +55,7 @@ internal struct Score
 #endif
     public static Score operator -(Score v1)
     {
-        return new Score(-v1.Value);
+        return new Score(-v1.value);
     }
 
 #if FORCEINLINE
@@ -60,7 +63,7 @@ internal struct Score
 #endif
     public static Score operator *(int v1, Score v2)
     {
-        return new Score(v1*v2.Value);
+        return new Score(v1*v2.value);
     }
 
 #if FORCEINLINE
@@ -68,7 +71,7 @@ internal struct Score
 #endif
     public static Score operator *(Score v1, int v2)
     {
-        return new Score(v1.Value*v2);
+        return new Score(v1.value*v2);
     }
 
     #endregion
@@ -92,11 +95,11 @@ internal struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Value mg_value(Score s)
+    internal static ValueT mg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // mg = { uint16_t(unsigned(s + 0x8000) >> 16) };
-        return new Value((short) (((uint) s.Value + 0x8000) >> 16));
+        return Value.Create((short) (((uint) s.value + 0x8000) >> 16));
     }
 
 #if FORCEINLINE
@@ -110,11 +113,11 @@ internal struct Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Value eg_value(Score s)
+    internal static ValueT eg_value(Score s)
     {
         // union { uint16_t u; int16_t s; }
         // eg = { uint16_t(unsigned(s)) };
-        return new Value((short) s.Value);
+        return Value.Create((short) s.value);
     }
 
 #if FORCEINLINE

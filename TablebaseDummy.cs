@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
+
 internal static class Tablebases
 {
     internal static int Hits;
@@ -15,14 +19,14 @@ internal static class Tablebases
 
     internal static bool RootInTB;
 
-    internal static Value Score;
+    internal static ValueT Score;
 
-    internal static bool root_probe(Position rootPos, List<RootMove> rootMoves, Value score)
+    internal static bool root_probe(Position rootPos, List<RootMove> rootMoves, ValueT score)
     {
         return false;
     }
 
-    internal static bool root_probe_wdl(Position rootPos, List<RootMove> rootMoves, Value score)
+    internal static bool root_probe_wdl(Position rootPos, List<RootMove> rootMoves, ValueT score)
     {
         return false;
     }

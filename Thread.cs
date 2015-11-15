@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+#if PRIMITIVE
+using ValueT = System.Int32;
+#endif
 internal sealed class SplitPoint
 {
     // Shared variable data
@@ -18,7 +21,7 @@ internal sealed class SplitPoint
 
     internal volatile int bestValue;
 
-    internal Value beta;
+    internal ValueT beta;
 
     internal bool cutNode;
 
@@ -375,9 +378,9 @@ internal class Thread : ThreadBase
     internal void split(
         Position pos,
         StackArrayWrapper ss,
-        Value alpha,
-        Value beta,
-        ref Value bestValue,
+        ValueT alpha,
+        ValueT beta,
+        ref ValueT bestValue,
         ref Move bestMove,
         Depth depth,
         int moveCount,
@@ -466,7 +469,7 @@ internal class Thread : ThreadBase
         // Split point data cannot be changed now, so no need to lock protect
         pos.set_nodes_searched(pos.nodes_searched() + sp.nodes);
         bestMove = new Move(sp.bestMove);
-        bestValue = new Value(sp.bestValue);
+        bestValue = Value.Create(sp.bestValue);
     }
 }
 
