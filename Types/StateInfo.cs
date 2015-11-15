@@ -2,6 +2,7 @@
 using PieceTypeT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 /// StateInfo struct stores information needed to restore a Position object to
@@ -15,7 +16,7 @@ internal class StateInfo
 
     internal Bitboard checkersBB;
 
-    internal Square epSquare = Square.SQ_NONE;
+    internal SquareT epSquare = Square.SQ_NONE;
 
     // Not copied when making a move
     internal ulong key;

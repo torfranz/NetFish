@@ -2,12 +2,14 @@
 
 #if PRIMITIVE
 using ColorT = System.Int32;
+using SquareT = System.Int32;
 #endif
+
 internal class KPKPosition
 {
-    private readonly Square[] ksq = new Square[Color.COLOR_NB];
+    private readonly SquareT[] ksq = new SquareT[Color.COLOR_NB];
 
-    private readonly Square psq;
+    private readonly SquareT psq;
 
     private readonly ColorT us;
 
@@ -15,8 +17,8 @@ internal class KPKPosition
 
     internal KPKPosition(uint idx)
     {
-        ksq[Color.WHITE] = new Square((idx >> 0) & 0x3F);
-        ksq[Color.BLACK] = new Square((idx >> 6) & 0x3F);
+        ksq[Color.WHITE] = Square.Create(((int)idx >> 0) & 0x3F);
+        ksq[Color.BLACK] = Square.Create(((int)idx >> 6) & 0x3F);
         us = Color.Create(((int)idx >> 12) & 0x01);
         psq = Square.make_square(File.Create(((int)idx >> 13) & 0x3), Rank.RANK_7 - Rank.Create(((int)idx >> 15) & 0x7));
 

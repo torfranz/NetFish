@@ -2,6 +2,7 @@
 
 #if PRIMITIVE
 using ColorT = System.Int32;
+using SquareT = System.Int32;
 #endif
 internal static class Bitbases
 {
@@ -20,7 +21,7 @@ internal static class Bitbases
     // bit    12: side to move (WHITE or BLACK)
     // bit 13-14: white pawn file (from FILE_A to FILE_D)
     // bit 15-17: white pawn RANK_7 - rank (from RANK_7 - RANK_7 to RANK_7 - RANK_2)
-    internal static uint index(ColorT us, Square bksq, Square wksq, Square psq)
+    internal static uint index(ColorT us, SquareT bksq, SquareT wksq, SquareT psq)
     {
         return
             (uint)
@@ -28,7 +29,7 @@ internal static class Bitbases
                  ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 
-    internal static bool probe(Square wksq, Square wpsq, Square bksq, ColorT us)
+    internal static bool probe(SquareT wksq, SquareT wpsq, SquareT bksq, ColorT us)
     {
         Debug.Assert(Square.file_of(wpsq) <= File.FILE_D);
 

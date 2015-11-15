@@ -292,7 +292,7 @@ internal static class PSQT
         }
     };
 
-    internal static ScoreT[,,] psq = new ScoreT[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB_C];
+    internal static ScoreT[,,] psq = new ScoreT[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, Square.SQUARE_NB];
 
     // init() initializes piece square tables: the white halves of the tables are
     // copied from Bonus[] adding the piece value, then the black halves of the
@@ -310,7 +310,7 @@ internal static class PSQT
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
                 int edgeDistance = (int)Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
-                psq[Color.BLACK, pt, ~s] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
+                psq[Color.BLACK, pt, Square.opposite(s)] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }
     }

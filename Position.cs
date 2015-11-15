@@ -11,6 +11,7 @@ using PieceTypeT = System.Int32;
 using PieceT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -22,7 +23,7 @@ internal class Position
     internal const string PieceToChar = " PNBRQK  pnbrqk";
 
     // Data members
-    private PieceT[] board = new PieceT[Square.SQUARE_NB_C];
+    private PieceT[] board = new PieceT[Square.SQUARE_NB];
 
     private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
 
@@ -30,21 +31,21 @@ internal class Position
 
     private Bitboard[] castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-    private int[] castlingRightsMask = new int[Square.SQUARE_NB_C];
+    private int[] castlingRightsMask = new int[Square.SQUARE_NB];
 
-    private Square[] castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
+    private SquareT[] castlingRookSquare = new SquareT[(int) CastlingRight.CASTLING_RIGHT_NB];
 
     private bool chess960;
 
     private int gamePly;
 
-    private int[] index = new int[Square.SQUARE_NB_C];
+    private int[] index = new int[Square.SQUARE_NB];
 
     private int nodes;
 
     private int[,] pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
-    private Square[,,] pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+    private SquareT[,,] pieceList = new SquareT[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
 
     private ColorT sideToMove;
 
@@ -155,7 +156,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool empty(Square s)
+    internal bool empty(SquareT s)
     {
         return board[s] == Piece.NO_PIECE;
     }
@@ -163,7 +164,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal PieceT piece_on(Square s)
+    internal PieceT piece_on(SquareT s)
     {
         return board[s];
     }
@@ -227,7 +228,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square square(PieceTypeT Pt, ColorT c, int idx)
+    internal SquareT square(PieceTypeT Pt, ColorT c, int idx)
     {
         return pieceList[c, Pt, idx];
     }
@@ -235,7 +236,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square square(PieceTypeT Pt, ColorT c)
+    internal SquareT square(PieceTypeT Pt, ColorT c)
     {
         Debug.Assert(pieceCount[c, Pt] == 1);
         return pieceList[c, Pt, 0];
@@ -244,7 +245,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square ep_square()
+    internal SquareT ep_square()
     {
         return st.epSquare;
     }
@@ -276,7 +277,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Square castling_rook_square(CastlingRight cr)
+    internal SquareT castling_rook_square(CastlingRight cr)
     {
         return castlingRookSquare[(int) cr];
     }
@@ -284,7 +285,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from_PtS(PieceTypeT Pt, Square s)
+    internal Bitboard attacks_from_PtS(PieceTypeT Pt, SquareT s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
             ? Utils.attacks_bb_PtSBb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
@@ -296,7 +297,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from_PS(PieceTypeT Pt, Square s, ColorT c)
+    internal Bitboard attacks_from_PS(PieceTypeT Pt, SquareT s, ColorT c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
@@ -305,7 +306,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceT pc, Square s)
+    internal Bitboard attacks_from(PieceT pc, SquareT s)
     {
         return Utils.attacks_bb_PSBb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -313,7 +314,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attackers_to(Square s)
+    internal Bitboard attackers_to(SquareT s)
     {
         return attackers_to(s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -345,7 +346,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool pawn_passed(ColorT c, Square s)
+    internal bool pawn_passed(ColorT c, SquareT s)
     {
         return !(pieces_CtPt(Color.opposite(c), PieceType.PAWN) & Utils.passed_pawn_mask(c, s));
     }
@@ -356,7 +357,7 @@ internal class Position
     internal bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(moved_piece(m)) == PieceType.PAWN
-               && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
+               && Rank.relative_rank_CtSt(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
     }
 
 #if FORCEINLINE
@@ -490,7 +491,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void put_piece(ColorT c, PieceTypeT pieceType, Square s)
+    private void put_piece(ColorT c, PieceTypeT pieceType, SquareT s)
     {
         var pt = (int) pieceType;
         board[s] = Piece.make_piece(c, pieceType);
@@ -505,7 +506,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void remove_piece(ColorT c, PieceTypeT pieceType, Square s)
+    private void remove_piece(ColorT c, PieceTypeT pieceType, SquareT s)
     {
         var pt = (int) pieceType;
         // WARNING: This is not a reversible operation. If we remove a piece in
@@ -526,7 +527,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void move_piece(ColorT c, PieceTypeT pieceType, Square from, Square to)
+    private void move_piece(ColorT c, PieceTypeT pieceType, SquareT from, SquareT to)
     {
         var pt = (int) pieceType;
         // index[from] is not updated and becomes stale. This works as long as index[]
@@ -543,7 +544,7 @@ internal class Position
 
     /// Position::set_castling_right() is a helper function used to set castling
     /// rights given the corresponding color and the rook starting square.
-    private void set_castling_right(ColorT c, Square rfrom)
+    private void set_castling_right(ColorT c, SquareT rfrom)
     {
         var kfrom = square(PieceType.KING, c);
         var cs = kfrom < rfrom ? CastlingSide.KING_SIDE : CastlingSide.QUEEN_SIDE;
@@ -676,7 +677,7 @@ internal class Position
 
     /// Position::attackers_to() computes a bitboard of all pieces which attack a
     /// given square. Slider attacks use the occupied bitboard to indicate occupancy.
-    private Bitboard attackers_to(Square s, Bitboard occupied)
+    private Bitboard attackers_to(SquareT s, Bitboard occupied)
     {
         return (attacks_from_PS(PieceType.PAWN, s, Color.BLACK) & pieces_CtPt(Color.WHITE, PieceType.PAWN))
                | (attacks_from_PS(PieceType.PAWN, s, Color.WHITE) & pieces_CtPt(Color.BLACK, PieceType.PAWN))
@@ -772,7 +773,7 @@ internal class Position
         {
             // We have already handled promotion moves, so destination
             // cannot be on the 8th/1st rank.
-            if (Square.rank_of(to) == Rank.relative_rank(us, Rank.RANK_8))
+            if (Square.rank_of(to) == Rank.relative_rank_CtRt(us, Rank.RANK_8))
             {
                 return false;
             }
@@ -780,7 +781,7 @@ internal class Position
             if (!(attacks_from_PS(PieceType.PAWN, from, us) & pieces_Ct(Color.opposite(us)) & to) // Not a capture
                 && !((from + Square.pawn_push(us) == to) && empty(to)) // Not a single push
                 && !((from + 2*Square.pawn_push(us) == to) // Not a double push
-                     && (Square.rank_of(from) == Rank.relative_rank(us, Rank.RANK_2)) && empty(to)
+                     && (Square.rank_of(from) == Rank.relative_rank_CtRt(us, Rank.RANK_2)) && empty(to)
                      && empty(to - Square.pawn_push(us))))
             {
                 return false;
@@ -926,7 +927,7 @@ internal class Position
         {
             Debug.Assert(pt == PieceType.KING);
 
-            Square rfrom, rto;
+            SquareT rfrom, rto;
             do_castling(true, us, from, ref to, out rfrom, out rto);
 
             captured = PieceType.NO_PIECE_TYPE;
@@ -948,7 +949,7 @@ internal class Position
 
                     Debug.Assert(pt == PieceType.PAWN);
                     Debug.Assert(to == st.epSquare);
-                    Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_6);
+                    Debug.Assert(Rank.relative_rank_CtSt(us, to) == Rank.RANK_6);
                     Debug.Assert(piece_on(to) == Piece.NO_PIECE);
                     Debug.Assert(piece_on(capsq) == Piece.make_piece(them, PieceType.PAWN));
 
@@ -1015,7 +1016,7 @@ internal class Position
             {
                 var promotion = (int)Move.promotion_type(m);
 
-                Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_8);
+                Debug.Assert(Rank.relative_rank_CtSt(us, to) == Rank.RANK_8);
                 Debug.Assert(promotion >= PieceType.KNIGHT && promotion <= PieceType.QUEEN);
 
                 remove_piece(us, PieceType.PAWN, to);
@@ -1078,7 +1079,7 @@ internal class Position
 
         if (Move.type_of(m) == MoveType.PROMOTION)
         {
-            Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_8);
+            Debug.Assert(Rank.relative_rank_CtSt(us, to) == Rank.RANK_8);
             Debug.Assert(pt == Move.promotion_type(m));
             Debug.Assert(pt >= PieceType.KNIGHT && pt <= PieceType.QUEEN);
 
@@ -1089,7 +1090,7 @@ internal class Position
 
         if (Move.type_of(m) == MoveType.CASTLING)
         {
-            Square rfrom, rto;
+            SquareT rfrom, rto;
             do_castling(false, us, from, ref to, out rfrom, out rto);
         }
         else
@@ -1106,7 +1107,7 @@ internal class Position
 
                     Debug.Assert(pt == PieceType.PAWN);
                     Debug.Assert(to == st.previous.epSquare);
-                    Debug.Assert(Rank.relative_rank(us, to) == Rank.RANK_6);
+                    Debug.Assert(Rank.relative_rank_CtSt(us, to) == Rank.RANK_6);
                     Debug.Assert(piece_on(capsq) == Piece.NO_PIECE);
                     Debug.Assert(st.capturedType == PieceType.PAWN);
                 }
@@ -1124,7 +1125,7 @@ internal class Position
 
     /// Position::do_castling() is a helper used to do/undo a castling move. This
     /// is a bit tricky, especially in Chess960.
-    private void do_castling(bool Do, ColorT us, Square from, ref Square to, out Square rfrom, out Square rto)
+    private void do_castling(bool Do, ColorT us, SquareT from, ref SquareT to, out SquareT rfrom, out SquareT rto)
     {
         var kingSide = to > from;
         rfrom = to; // Castling is encoded as "king captures friendly rook"
@@ -1182,7 +1183,7 @@ internal class Position
     private PieceTypeT min_attacker(
         PieceTypeT Pt,
         Bitboard[] bb,
-        Square to,
+        SquareT to,
         Bitboard stmAttackers,
         ref Bitboard occupied,
         ref Bitboard attackers)
@@ -1378,7 +1379,7 @@ internal class Position
                 }
 
                 var epSquare = ep_square();
-                if (epSquare != Square.SQ_NONE && Rank.relative_rank(sideToMove, epSquare) != Rank.RANK_6)
+                if (epSquare != Square.SQ_NONE && Rank.relative_rank_CtSt(sideToMove, epSquare) != Rank.RANK_6)
                 {
                     return false;
                 }
@@ -1661,7 +1662,7 @@ internal class Position
         // replaced by the file letter of the involved rook, as for the Shredder-FEN.
         while ((token = fen[fenPos++]) != ' ')
         {
-            Square rsq;
+            SquareT rsq;
             var c = islower(token) ? Color.BLACK : Color.WHITE;
             token = toupper(token);
 
@@ -1683,7 +1684,7 @@ internal class Position
             }
             else if (token >= 'A' && token <= 'H')
             {
-                rsq = new Square((token - 'A') | Rank.relative_rank(c, Rank.RANK_1));
+                rsq = Square.Create((token - 'A') | Rank.relative_rank_CtRt(c, Rank.RANK_1));
             }
             else
             {
@@ -1747,15 +1748,15 @@ internal class Position
 
         castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        castlingRightsMask = new int[Square.SQUARE_NB_C];
+        castlingRightsMask = new int[Square.SQUARE_NB];
 
-        castlingRookSquare = new Square[(int) CastlingRight.CASTLING_RIGHT_NB];
+        castlingRookSquare = new SquareT[(int) CastlingRight.CASTLING_RIGHT_NB];
 
-        index = new int[Square.SQUARE_NB_C];
+        index = new int[Square.SQUARE_NB];
 
         pieceCount = new int[Color.COLOR_NB, PieceType.PIECE_TYPE_NB];
 
-        pieceList = new Square[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
+        pieceList = new SquareT[Color.COLOR_NB, PieceType.PIECE_TYPE_NB, 16];
         for (var i = 0; i < PieceType.PIECE_TYPE_NB; ++i)
         {
             for (var j = 0; j < 16; ++j)

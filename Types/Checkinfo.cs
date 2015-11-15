@@ -1,8 +1,12 @@
-﻿internal class CheckInfo
+﻿#if PRIMITIVE
+using SquareT = System.Int32;
+#endif
+
+internal class CheckInfo
 {
     internal readonly Bitboard[] checkSquares = new Bitboard[PieceType.PIECE_TYPE_NB];
 
-    internal readonly Square ksq;
+    internal readonly SquareT ksq;
 
     internal Bitboard dcCandidates;
 

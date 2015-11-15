@@ -7,6 +7,7 @@ using FileT = System.Int32;
 using ColorT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 internal static class Pawns
@@ -255,8 +256,8 @@ internal static class Pawns
             bool opposed = theirPawns & Utils.forward_bb(Us, s);
             var passed = !(theirPawns & Utils.passed_pawn_mask(Us, s));
             bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), s];
-            var phalanx = neighbours & Utils.rank_bb(s);
-            var supported = neighbours & Utils.rank_bb(s - Up);
+            var phalanx = neighbours & Utils.rank_bb_St(s);
+            var supported = neighbours & Utils.rank_bb_St(s - Up);
             bool connected = supported | phalanx;
             var isolated = !neighbours;
 
@@ -266,7 +267,7 @@ internal static class Pawns
             // or if it is sufficiently advanced, it cannot be backward either.
             bool backward;
             if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s))
-                || (Rank.relative_rank(Us, s) >= Rank.RANK_5))
+                || (Rank.relative_rank_CtSt(Us, s) >= Rank.RANK_5))
             {
                 backward = false;
             }
@@ -277,7 +278,7 @@ internal static class Pawns
                 // backward by looking in the forward direction on the adjacent
                 // files, and picking the closest pawn there.
                 b = Utils.pawn_attack_span(Us, s) & (ourPawns | theirPawns);
-                b = Utils.pawn_attack_span(Us, s) & Utils.rank_bb(Utils.backmost_sq(Us, b));
+                b = Utils.pawn_attack_span(Us, s) & Utils.rank_bb_St(Utils.backmost_sq(Us, b));
 
                 // If we have an enemy pawn in the same or next rank, the pawn is
                 // backward because it cannot advance without being captured.
@@ -317,7 +318,7 @@ internal static class Pawns
                         opposed ? 1 : 0,
                         phalanx ? 1 : 0,
                         Bitboard.more_than_one(supported) ? 1 : 0,
-                        Rank.relative_rank(Us, s)];
+                        Rank.relative_rank_CtSt(Us, s)];
             }
 
             if (doubled)
@@ -327,7 +328,7 @@ internal static class Pawns
 
             if (lever)
             {
-                score += Lever[Rank.relative_rank(Us, s)];
+                score += Lever[Rank.relative_rank_CtSt(Us, s)];
             }
         }
 
@@ -398,7 +399,7 @@ internal static class Pawns
 
         internal ScoreT[] kingSafety = new ScoreT[Color.COLOR_NB];
 
-        internal Square[] kingSquares = new Square[Color.COLOR_NB];
+        internal SquareT[] kingSquares = new SquareT[Color.COLOR_NB];
 
         internal Bitboard[] passedPawns = new Bitboard[Color.COLOR_NB];
 
@@ -442,12 +443,12 @@ internal static class Pawns
             return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
         }
 
-        internal int pawns_on_same_color_squares(ColorT c, Square s)
+        internal int pawns_on_same_color_squares(ColorT c, SquareT s)
         {
             return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
         }
 
-        internal ScoreT king_safety(ColorT Us, Position pos, Square ksq)
+        internal ScoreT king_safety(ColorT Us, Position pos, SquareT ksq)
         {
             return kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
                 ? kingSafety[Us]
@@ -456,7 +457,7 @@ internal static class Pawns
 
         /// Entry::do_king_safety() calculates a bonus for king safety. It is called only
         /// when king square changes, which is about 20% of total king_safety() calls.
-        private ScoreT do_king_safety(ColorT Us, Position pos, Square ksq)
+        private ScoreT do_king_safety(ColorT Us, Position pos, SquareT ksq)
         {
             kingSquares[Us] = ksq;
             castlingRights[Us] = pos.can_castle(Us);
@@ -470,7 +471,7 @@ internal static class Pawns
                 }
             }
 
-            if (Rank.relative_rank(Us, ksq) > Rank.RANK_4)
+            if (Rank.relative_rank_CtSt(Us, ksq) > Rank.RANK_4)
             {
                 return Score.make_score(0, -16*minKingPawnDistance);
             }
@@ -495,7 +496,7 @@ internal static class Pawns
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
         /// the king is on, as well as the two adjacent files.
-        private ValueT shelter_storm(ColorT Us, Position pos, Square ksq)
+        private ValueT shelter_storm(ColorT Us, Position pos, SquareT ksq)
         {
             const int NoFriendlyPawn = 0;
             const int Unblocked = 1;
@@ -503,7 +504,7 @@ internal static class Pawns
             const int BlockedByKing = 3;
             var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
-            var b = pos.pieces_Pt(PieceType.PAWN) & (Utils.in_front_bb(Us, Square.rank_of(ksq)) | Utils.rank_bb(ksq));
+            var b = pos.pieces_Pt(PieceType.PAWN) & (Utils.in_front_bb(Us, Square.rank_of(ksq)) | Utils.rank_bb_St(ksq));
             var ourPawns = b & pos.pieces_Ct(Us);
             var theirPawns = b & pos.pieces_Ct(Them);
             var safety = MaxSafetyBonus;
@@ -511,15 +512,15 @@ internal static class Pawns
 
             for (var f = center - 1; f <= (int)center + 1; ++f)
             {
-                b = ourPawns & Utils.file_bb(File.Create(f));
-                var rkUs = b ? Rank.relative_rank(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
+                b = ourPawns & Utils.file_bb_Ft(File.Create(f));
+                var rkUs = b ? Rank.relative_rank_CtSt(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
 
-                b = theirPawns & Utils.file_bb(File.Create(f));
-                var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
+                b = theirPawns & Utils.file_bb_Ft(File.Create(f));
+                var rkThem = b ? Rank.relative_rank_CtSt(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
                 safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger[
-                              f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
+                              f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank_CtSt(Us, ksq) + 1
                                   ? BlockedByKing
                                   : (int)rkUs == Rank.RANK_1
                                       ? NoFriendlyPawn

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 #if PRIMITIVE
 using RankT = System.Int32;
 using ColorT = System.Int32;
+using SquareT = System.Int32;
 #else
 internal class RankT
 {
@@ -116,7 +117,7 @@ internal static class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankT relative_rank(ColorT c, RankT r)
+    internal static RankT relative_rank_CtRt(ColorT c, RankT r)
     {
         return Rank.Create(r ^ (c * 7));
     }
@@ -124,8 +125,8 @@ internal static class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static RankT relative_rank(ColorT c, Square s)
+    internal static RankT relative_rank_CtSt(ColorT c, SquareT s)
     {
-        return relative_rank(c, Square.rank_of(s));
+        return relative_rank_CtRt(c, Square.rank_of(s));
     }
 }

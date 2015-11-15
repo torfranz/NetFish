@@ -2,7 +2,9 @@
 
 #if PRIMITIVE
 using PieceTypeT = System.Int32;
+using SquareT = System.Int32;
 #endif
+
 /// A move needs 16 bits to be stored
 /// 
 /// bit  0- 5: destination square (from 0 to 63)
@@ -76,17 +78,17 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square from_sq(Move m)
+    internal static SquareT from_sq(Move m)
     {
-        return new Square((m.Value >> 6) & 0x3F);
+        return Square.Create((m.Value >> 6) & 0x3F);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square to_sq(Move m)
+    internal static SquareT to_sq(Move m)
     {
-        return new Square(m.Value & 0x3F);
+        return Square.Create(m.Value & 0x3F);
     }
 
 #if FORCEINLINE
@@ -108,7 +110,7 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Move make_move(Square from, Square to)
+    internal static Move make_move(SquareT from, SquareT to)
     {
         return new Move(to | (from << 6));
     }
@@ -116,7 +118,7 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Move make(MoveType moveType, Square from, Square to)
+    internal static Move make(MoveType moveType, SquareT from, SquareT to)
     {
         return make(moveType, from, to, PieceType.KNIGHT);
     }
@@ -124,7 +126,7 @@ internal struct Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Move make(MoveType moveType, Square from, Square to, PieceTypeT pt)
+    internal static Move make(MoveType moveType, SquareT from, SquareT to, PieceTypeT pt)
     {
         return new Move(to | (@from << 6) | (int) moveType | ((pt - PieceType.KNIGHT) << 12));
     }

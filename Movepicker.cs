@@ -2,6 +2,7 @@
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 internal class MovePicker
@@ -20,7 +21,7 @@ internal class MovePicker
 
     private readonly Position pos;
 
-    private readonly Square recaptureSquare;
+    private readonly SquareT recaptureSquare;
 
     private readonly StackArrayWrapper ss;
 
@@ -69,7 +70,7 @@ internal class MovePicker
         endMoves += ttMove != Move.MOVE_NONE ? 1 : 0;
     }
 
-    internal MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, Square s)
+    internal MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -194,7 +195,7 @@ internal class MovePicker
             moves[i] = new ExtMove(
                 m,
                 Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                - Value.Create(200 * Rank.relative_rank(pos.side_to_move(), Move.to_sq(m))));
+                - Value.Create(200 * Rank.relative_rank_CtSt(pos.side_to_move(), Move.to_sq(m))));
         }
     }
 

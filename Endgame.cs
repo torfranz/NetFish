@@ -5,6 +5,7 @@ using System.Diagnostics;
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using ValueT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 internal abstract class Endgame
@@ -58,18 +59,18 @@ internal abstract class Endgame
 
     // Map the square as if strongSide is white and strongSide's only pawn
     // is on the left half of the board.
-    protected static Square normalize(Position pos, ColorT strongSide, Square sq)
+    protected static SquareT normalize(Position pos, ColorT strongSide, SquareT sq)
     {
         Debug.Assert(pos.count(PieceType.PAWN, strongSide) == 1);
 
         if (Square.file_of(pos.square(PieceType.PAWN, strongSide)) >= File.FILE_E)
         {
-            sq = new Square(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
+            sq = Square.Create(sq ^ 7); // Mirror SQ_H1 -> SQ_A1
         }
 
         if (strongSide == Color.BLACK)
         {
-            sq = ~sq;
+            sq = Square.opposite(sq);
         }
 
         return sq;
@@ -183,8 +184,8 @@ internal class EndgameKBNK : EndgameValue
         // to drive the enemy toward corners A8 or H1.
         if (Square.opposite_colors(bishopSq, Square.SQ_A1))
         {
-            winnerKSq = ~winnerKSq;
-            loserKSq = ~loserKSq;
+            winnerKSq = Square.opposite(winnerKSq);
+            loserKSq = Square.opposite(loserKSq);
         }
 
         var result = Value.VALUE_KNOWN_WIN + PushClose[Utils.distance_Square(winnerKSq, loserKSq)]
@@ -347,7 +348,7 @@ internal class EndgameKQKP : EndgameValue
 
         var result = Value.Create(PushClose[Utils.distance_Square(winnerKSq, loserKSq)]);
 
-        if (Rank.relative_rank(weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
+        if (Rank.relative_rank_CtSt(weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
             || !((Bitboard.FileABB | Bitboard.FileCBB | Bitboard.FileFBB | Bitboard.FileHBB) & pawnSq))
         {
             result += Value.QueenValueEg - Value.PawnValueEg;
@@ -420,7 +421,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
         var pawnsFile = Square.file_of(Utils.lsb(pawns));
 
         // All pawns are on a single rook file?
-        if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && !(pawns & ~Utils.file_bb(pawnsFile)))
+        if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && !(pawns & ~Utils.file_bb_Ft(pawnsFile)))
         {
             var bishopSq = pos.square(PieceType.BISHOP, strongSide);
             var queeningSq = Square.relative_square(strongSide, Square.make_square(pawnsFile, Rank.RANK_8));
@@ -434,7 +435,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
 
         // If all the pawns are on the same B or G file, then it's potentially a draw
         if ((pawnsFile == File.FILE_B || pawnsFile == File.FILE_G)
-            && !(pos.pieces_Pt(PieceType.PAWN) & ~Utils.file_bb(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
+            && !(pos.pieces_Pt(PieceType.PAWN) & ~Utils.file_bb_Ft(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
             && pos.count(PieceType.PAWN, weakSide) >= 1)
         {
             // Get weakSide pawn that is closest to the home rank
@@ -446,7 +447,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
 
             // There's potential for a draw if our pawn is blocked on the 7th rank,
             // the bishop cannot attack it or they only have one pawn left
-            if (Rank.relative_rank(strongSide, weakPawnSq) == Rank.RANK_7
+            if (Rank.relative_rank_CtSt(strongSide, weakPawnSq) == Rank.RANK_7
                 && (pos.pieces_CtPt(strongSide, PieceType.PAWN) & (weakPawnSq + Square.pawn_push(weakSide)))
                 && (Square.opposite_colors(bishopSq, weakPawnSq) || pos.count(PieceType.PAWN, strongSide) == 1))
             {
@@ -459,7 +460,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
                 // unreachable positions such as 5k1K/6p1/6P1/8/8/3B4/8/8 w
                 // and positions where qsearch will immediately correct the
                 // problem such as 8/4k1p1/6P1/1K6/3B4/8/8/8 w)
-                if (Rank.relative_rank(strongSide, weakKingSq) >= Rank.RANK_7 && weakKingDist <= 2
+                if (Rank.relative_rank_CtSt(strongSide, weakKingSq) >= Rank.RANK_7 && weakKingDist <= 2
                     && weakKingDist <= strongKingDist)
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -489,9 +490,9 @@ internal class EndgameKQKRPs : EndgameScaleFactor
         var kingSq = pos.square(PieceType.KING, weakSide);
         var rsq = pos.square(PieceType.ROOK, weakSide);
 
-        if (Rank.relative_rank(weakSide, kingSq) <= Rank.RANK_2
-            && Rank.relative_rank(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
-            && Rank.relative_rank(weakSide, rsq) == Rank.RANK_3
+        if (Rank.relative_rank_CtSt(weakSide, kingSq) <= Rank.RANK_2
+            && Rank.relative_rank_CtSt(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
+            && Rank.relative_rank_CtSt(weakSide, rsq) == Rank.RANK_3
             && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from_PtS(PieceType.KING, kingSq)
                 & pos.attacks_from_PS(PieceType.PAWN, rsq, strongSide)))
         {
@@ -631,7 +632,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
             var ksq = pos.square(PieceType.KING, weakSide);
             var bsq = pos.square(PieceType.BISHOP, weakSide);
             var psq = pos.square(PieceType.PAWN, strongSide);
-            var rk = Rank.relative_rank(strongSide, psq);
+            var rk = Rank.relative_rank_CtSt(strongSide, psq);
             var push = Square.pawn_push(strongSide);
 
             // If the pawn is on the 5th rank and the pawn (currently) is on
@@ -689,10 +690,10 @@ internal class EndgameKRPPKRP : EndgameScaleFactor
             return ScaleFactor.SCALE_FACTOR_NONE;
         }
 
-        var r = Math.Max(Rank.relative_rank(strongSide, wpsq1), Rank.relative_rank(strongSide, wpsq2));
+        var r = Math.Max(Rank.relative_rank_CtSt(strongSide, wpsq1), Rank.relative_rank_CtSt(strongSide, wpsq2));
 
         if (Utils.distance_File(bksq, wpsq1) <= 1 && Utils.distance_File(bksq, wpsq2) <= 1
-            && Rank.relative_rank(strongSide, bksq) > r)
+            && Rank.relative_rank_CtSt(strongSide, bksq) > r)
         {
             switch (r)
             {
@@ -769,9 +770,9 @@ internal class EndgameKBPKB : EndgameScaleFactor
 
         // Case 1: Defending king blocks the pawn, and cannot be driven away
         if (Square.file_of(weakKingSq) == Square.file_of(pawnSq)
-            && Rank.relative_rank(strongSide, pawnSq) < Rank.relative_rank(strongSide, weakKingSq)
+            && Rank.relative_rank_CtSt(strongSide, pawnSq) < Rank.relative_rank_CtSt(strongSide, weakKingSq)
             && (Square.opposite_colors(weakKingSq, strongBishopSq)
-                || Rank.relative_rank(strongSide, weakKingSq) <= Rank.RANK_6))
+                || Rank.relative_rank_CtSt(strongSide, weakKingSq) <= Rank.RANK_6))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -789,7 +790,7 @@ internal class EndgameKBPKB : EndgameScaleFactor
             // These rules are probably not perfect, but in practice they work
             // reasonably well.
 
-            if (Rank.relative_rank(strongSide, pawnSq) <= Rank.RANK_5)
+            if (Rank.relative_rank_CtSt(strongSide, pawnSq) <= Rank.RANK_5)
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
@@ -836,9 +837,9 @@ internal class EndgameKBPPKB : EndgameScaleFactor
         var psq2 = pos.square(PieceType.PAWN, strongSide, 1);
         var r1 = Square.rank_of(psq1);
         var r2 = Square.rank_of(psq2);
-        Square blockSq1, blockSq2;
+        SquareT blockSq1, blockSq2;
 
-        if (Rank.relative_rank(strongSide, psq1) > Rank.relative_rank(strongSide, psq2))
+        if (Rank.relative_rank_CtSt(strongSide, psq1) > Rank.relative_rank_CtSt(strongSide, psq2))
         {
             blockSq1 = psq1 + Square.pawn_push(strongSide);
             blockSq2 = Square.make_square(Square.file_of(psq2), Square.rank_of(psq1));
@@ -855,7 +856,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
                 // Both pawns are on the same file. It's an easy draw if the defender firmly
                 // controls some square in the frontmost pawn's path.
                 if (Square.file_of(ksq) == Square.file_of(blockSq1)
-                    && Rank.relative_rank(strongSide, ksq) >= Rank.relative_rank(strongSide, blockSq1)
+                    && Rank.relative_rank_CtSt(strongSide, ksq) >= Rank.relative_rank_CtSt(strongSide, blockSq1)
                     && Square.opposite_colors(ksq, wbsq))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -909,9 +910,9 @@ internal class EndgameKBPKN : EndgameScaleFactor
         var weakKingSq = pos.square(PieceType.KING, weakSide);
 
         if (Square.file_of(weakKingSq) == Square.file_of(pawnSq)
-            && Rank.relative_rank(strongSide, pawnSq) < Rank.relative_rank(strongSide, weakKingSq)
+            && Rank.relative_rank_CtSt(strongSide, pawnSq) < Rank.relative_rank_CtSt(strongSide, weakKingSq)
             && (Square.opposite_colors(weakKingSq, strongBishopSq)
-                || Rank.relative_rank(strongSide, weakKingSq) <= Rank.RANK_6))
+                || Rank.relative_rank_CtSt(strongSide, weakKingSq) <= Rank.RANK_6))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }

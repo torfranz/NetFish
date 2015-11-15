@@ -1,5 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
+#if PRIMITIVE
+using SquareT = System.Int32;
+#endif
 internal struct Bitboard
 {
     internal static readonly Bitboard DarkSquares = new Bitboard(0xAA55AA55AA55AA55UL);
@@ -68,7 +71,7 @@ internal struct Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard operator &(Bitboard b, Square s)
+    public static Bitboard operator &(Bitboard b, SquareT s)
     {
         return new Bitboard(b.Value & Utils.SquareBB[s].Value);
     }
@@ -124,7 +127,7 @@ internal struct Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard operator |(Bitboard b, Square s)
+    public static Bitboard operator |(Bitboard b, SquareT s)
     {
         return new Bitboard(b.Value | Utils.SquareBB[s].Value);
     }
@@ -180,7 +183,7 @@ internal struct Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static Bitboard operator ^(Bitboard b, Square s)
+    public static Bitboard operator ^(Bitboard b, SquareT s)
     {
         return new Bitboard(b.Value ^ Utils.SquareBB[s].Value);
     }
@@ -197,7 +200,7 @@ internal struct Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard shift_bb(Square Delta, Bitboard b)
+    internal static Bitboard shift_bb(SquareT Delta, Bitboard b)
     {
         return Delta == Square.DELTA_N
             ? b << 8

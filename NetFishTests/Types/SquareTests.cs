@@ -17,26 +17,26 @@ namespace Tests
         public void FlipTests()
         {
             var v1 = Square.SQ_A1;
-            var v2 = ~v1;
+            var v2 = Square.opposite(v1);
             Assert.AreEqual(Square.SQ_A8, v2);
-            var v3 = ~v2;
+            var v3 = Square.opposite(v2);
             Assert.AreEqual(Square.SQ_A1, v3);
 
             var v5 = Square.SQ_H4;
-            var v6 = ~v5;
+            var v6 = Square.opposite(v5);
             Assert.AreEqual(Square.SQ_H5, v6);
-            var v7 = ~v6;
+            var v7 = Square.opposite(v6);
             Assert.AreEqual(Square.SQ_H4, v7);
         }
 
         [TestMethod()]
         public void IsOkTests()
         {
-            var v1 = new Square(-5);
-            Assert.IsFalse(v1.is_ok());
+            var v1 = Square.Create(-5);
+            Assert.IsFalse(Square.is_ok(v1));
 
             var v2 = Square.SQ_A7;
-            Assert.IsTrue(v2.is_ok());
+            Assert.IsTrue(Square.is_ok(v2));
         }
 
         [TestMethod()]

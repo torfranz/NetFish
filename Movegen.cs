@@ -4,6 +4,7 @@ using System.Linq;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
+using SquareT = System.Int32;
 #endif
 internal static class Movegen
 {
@@ -65,9 +66,9 @@ internal static class Movegen
 
     internal static ExtMoveArrayWrapper make_promotions(
         GenType Type,
-        Square Delta,
+        SquareT Delta,
         ExtMoveArrayWrapper moveList,
-        Square to,
+        SquareT to,
         CheckInfo ci)
     {
         if (Type == GenType.CAPTURES || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
@@ -147,7 +148,7 @@ internal static class Movegen
                 if (pawnsNotOn7 & ci.dcCandidates)
                 {
                     var dc1 = Bitboard.shift_bb(Up, pawnsNotOn7 & ci.dcCandidates) & emptySquares
-                              & ~Utils.file_bb(ci.ksq);
+                              & ~Utils.file_bb_St(ci.ksq);
                     var dc2 = Bitboard.shift_bb(Up, dc1 & TRank3BB) & emptySquares;
 
                     b1 |= dc1;
@@ -221,7 +222,7 @@ internal static class Movegen
 
             if (pos.ep_square() != Square.SQ_NONE)
             {
-                Debug.Assert(Square.rank_of(pos.ep_square()) == Rank.relative_rank(Us, Rank.RANK_6));
+                Debug.Assert(Square.rank_of(pos.ep_square()) == Rank.relative_rank_CtRt(Us, Rank.RANK_6));
 
                 // An en passant capture can be an evasion only if the checking piece
                 // is the double pushed pawn and so is in the target. Otherwise this

@@ -333,7 +333,7 @@ internal static class Eval
             if (Pt == PieceType.BISHOP || Pt == PieceType.KNIGHT)
             {
                 // Bonus for outpost square
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_4 && Rank.relative_rank(Us, s) <= Rank.RANK_6
+                if (Rank.relative_rank_CtSt(Us, s) >= Rank.RANK_4 && Rank.relative_rank_CtSt(Us, s) <= Rank.RANK_6
                     && !(pos.pieces_CtPt(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
@@ -341,7 +341,7 @@ internal static class Eval
                 }
 
                 // Bonus when behind a pawn
-                if (Rank.relative_rank(Us, s) < Rank.RANK_5 && (pos.pieces_Pt(PieceType.PAWN) & (s + Square.pawn_push(Us))))
+                if (Rank.relative_rank_CtSt(Us, s) < Rank.RANK_5 && (pos.pieces_Pt(PieceType.PAWN) & (s + Square.pawn_push(Us))))
                 {
                     score += MinorBehindPawn;
                 }
@@ -373,7 +373,7 @@ internal static class Eval
             if (Pt == PieceType.ROOK)
             {
                 // Bonus for aligning with enemy pawns on the same rank/file
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_5)
+                if (Rank.relative_rank_CtSt(Us, s) >= Rank.RANK_5)
                 {
                     var alignedPawns = pos.pieces_CtPt(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK, s];
                     if (alignedPawns)
@@ -394,7 +394,7 @@ internal static class Eval
                     var ksq = pos.square(PieceType.KING, Us);
 
                     if (((Square.file_of(ksq) < File.FILE_E) == (Square.file_of(s) < Square.file_of(ksq)))
-                        && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
+                        && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank_CtSt(Us, ksq) == Rank.RANK_1)
                         && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {
                         score -= (TrappedRook - Score.make_score(mob*22, 0))*(1 + (pos.can_castle(Us) == 0 ? 1 : 0));
@@ -637,7 +637,7 @@ internal static class Eval
 
             Debug.Assert(pos.pawn_passed(Us, s));
 
-            int r = Rank.relative_rank(Us, s) - Rank.RANK_2;
+            int r = Rank.relative_rank_CtSt(Us, s) - Rank.RANK_2;
             var rr = r*(r - 1);
 
             ValueT mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];
@@ -651,7 +651,7 @@ internal static class Eval
                           - Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq)*2*rr;
 
                 // If blockSq is not the queening square then consider also a second push
-                if (Rank.relative_rank(Us, blockSq) != Rank.RANK_8)
+                if (Rank.relative_rank_CtSt(Us, blockSq) != Rank.RANK_8)
                 {
                     ebonus -= Utils.distance_Square(pos.square(PieceType.KING, Us), blockSq + Square.pawn_push(Us))*rr;
                 }
@@ -831,12 +831,12 @@ internal static class Eval
             Bitboard b;
             if ((b = ei.pi.passed_pawns(Color.WHITE)) != 0)
             {
-                score += Rank.relative_rank(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;
+                score += Rank.relative_rank_CtSt(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;
             }
 
             if ((b = ei.pi.passed_pawns(Color.BLACK)) != 0)
             {
-                score -= Rank.relative_rank(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)) * Unstoppable;
+                score -= Rank.relative_rank_CtSt(Color.BLACK, Utils.frontmost_sq(Color.BLACK, b)) * Unstoppable;
             }
         }
 

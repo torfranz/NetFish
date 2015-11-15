@@ -5,6 +5,7 @@ using System.Text;
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using SquareT = System.Int32;
 #endif
 
 internal static class UCI
@@ -18,7 +19,7 @@ internal static class UCI
     internal static StateInfoWrapper SetupStates = new StateInfoWrapper();
 
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
-    internal static string square(Square s)
+    internal static string square(SquareT s)
     {
         return $"{ (char)('a' + (int)Square.file_of(s))}{ (char)('1' + (int)Square.rank_of(s))}";
     }

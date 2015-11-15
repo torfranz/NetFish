@@ -1,13 +1,17 @@
 ﻿using System;
 
+
+#if PRIMITIVE
+using SquareT = System.Int32;
+#endif
 internal static class Bitboards
 {
     internal static void init()
     {
-        for (var s = Square.SQ_A1_C; s <= Square.SQ_H8_C; ++s)
+        for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
         {
             Utils.SquareBB[s] = new Bitboard(1UL << s);
-            Utils.BSFTable[Utils.bsf_index(Utils.SquareBB[s])] = new Square(s);
+            Utils.BSFTable[Utils.bsf_index(Utils.SquareBB[s])] = s;
         }
 
         for (ulong b = 2; b < 256; ++b)
@@ -76,9 +80,9 @@ internal static class Bitboards
                 {
                     for (var i = 0; steps[pt][i] != 0; ++i)
                     {
-                        var to = s + new Square(c == Color.WHITE ? steps[pt][i] : -steps[pt][i]);
+                        var to = s + Square.Create(c == Color.WHITE ? steps[pt][i] : -steps[pt][i]);
 
-                        if (to.is_ok() && Utils.distance_Square(s, to) < 3)
+                        if (Square.is_ok(to) && Utils.distance_Square(s, to) < 3)
                         {
                             Utils.StepAttacksBB[Piece.make_piece(c, pt), s] |= to;
                         }
@@ -87,8 +91,8 @@ internal static class Bitboards
             }
         }
 
-        Square[] RookDeltas = {Square.DELTA_N, Square.DELTA_E, Square.DELTA_S, Square.DELTA_W};
-        Square[] BishopDeltas = {Square.DELTA_NE, Square.DELTA_SE, Square.DELTA_SW, Square.DELTA_NW};
+        SquareT[] RookDeltas = {Square.DELTA_N, Square.DELTA_E, Square.DELTA_S, Square.DELTA_W};
+        SquareT[] BishopDeltas = {Square.DELTA_NE, Square.DELTA_SE, Square.DELTA_SW, Square.DELTA_NW};
 
         init_magics(
             Utils.RookAttacks,
@@ -105,42 +109,39 @@ internal static class Bitboards
             BishopDeltas,
             Utils.magic_index_Bishop);
 
-        for (var s1 = Square.SQ_A1_C; s1 <= Square.SQ_H8_C; ++s1)
+        for (var s1 = Square.SQ_A1; s1 <= Square.SQ_H8; ++s1)
         {
-            var s1Square = new Square(s1);
-            
             Utils.PseudoAttacks[PieceType.QUEEN, s1] =
-                Utils.PseudoAttacks[PieceType.BISHOP, s1] = Utils.attacks_bb_PtSBb(PieceType.BISHOP, s1Square, new Bitboard(0));
-            var bb = Utils.PseudoAttacks[PieceType.ROOK, s1] = Utils.attacks_bb_PtSBb(PieceType.ROOK, s1Square, new Bitboard(0));
+                Utils.PseudoAttacks[PieceType.BISHOP, s1] = Utils.attacks_bb_PtSBb(PieceType.BISHOP, s1, new Bitboard(0));
+            var bb = Utils.PseudoAttacks[PieceType.ROOK, s1] = Utils.attacks_bb_PtSBb(PieceType.ROOK, s1, new Bitboard(0));
             Utils.PseudoAttacks[PieceType.QUEEN, s1] = Utils.PseudoAttacks[PieceType.QUEEN, s1] | bb;
 
             for (var pc = (int)Piece.W_BISHOP; pc <= Piece.W_ROOK; ++pc)
             {
-                for (var s2 = Square.SQ_A1_C; s2 <= Square.SQ_H8_C; ++s2)
+                for (var s2 = Square.SQ_A1; s2 <= Square.SQ_H8; ++s2)
                 {
-                    var s2Square = new Square(s2);
-                    if (!(Utils.PseudoAttacks[pc, s1] & s2Square))
+                    if (!(Utils.PseudoAttacks[pc, s1] & s2))
                     {
                         continue;
                     }
 
                     var piece = Piece.Create(pc);
-                    Utils.LineBB[s1, s2] = (Utils.attacks_bb_PSBb(piece, s1Square, new Bitboard(0))
-                                            & Utils.attacks_bb_PSBb(piece, s2Square, new Bitboard(0))) | s1Square | s2Square;
-                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb_PSBb(piece, s1Square, Utils.SquareBB[s2])
-                                              & Utils.attacks_bb_PSBb(piece, s2Square, Utils.SquareBB[s1]);
+                    Utils.LineBB[s1, s2] = (Utils.attacks_bb_PSBb(piece, s1, new Bitboard(0))
+                                            & Utils.attacks_bb_PSBb(piece, s2, new Bitboard(0))) | s1 | s2;
+                    Utils.BetweenBB[s1, s2] = Utils.attacks_bb_PSBb(piece, s1, Utils.SquareBB[s2])
+                                              & Utils.attacks_bb_PSBb(piece, s2, Utils.SquareBB[s1]);
                 }
             }
         }
     }
 
-    private static Bitboard sliding_attack(Square[] deltas, Square sq, Bitboard occupied)
+    private static Bitboard sliding_attack(SquareT[] deltas, SquareT sq, Bitboard occupied)
     {
         var attack = new Bitboard(0);
 
         for (var i = 0; i < 4; ++i)
         {
-            for (var s = sq + deltas[i]; s.is_ok() && Utils.distance_Square(s, s - deltas[i]) == 1; s += deltas[i])
+            for (var s = sq + deltas[i]; Square.is_ok(s) && Utils.distance_Square(s, s - deltas[i]) == 1; s += deltas[i])
             {
                 attack |= s;
 
@@ -164,7 +165,7 @@ internal static class Bitboards
         Bitboard[] magics,
         Bitboard[] masks,
         uint[] shifts,
-        Square[] deltas,
+        SquareT[] deltas,
         Utils.Fn index)
     {
         int[][] seeds =
@@ -182,8 +183,8 @@ internal static class Bitboards
         for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
         {
             // Board edges are not considered in the relevant occupancies
-            var edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb(s)
-                              | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb(s)));
+            var edges = ((Bitboard.Rank1BB | Bitboard.Rank8BB) & ~Utils.rank_bb_St(s)
+                              | ((Bitboard.FileABB | Bitboard.FileHBB) & ~Utils.file_bb_St(s)));
 
             // Given a square 's', the mask is the bitboard of sliding attacks from
             // 's' computed on an empty board. The index must be big enough to contain
