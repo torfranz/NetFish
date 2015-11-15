@@ -1,7 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
-#if IMPLICIT
-using File = System.Int32;
+#if PRIMITIVE
+using FileType = System.Int32;
+using RankType = System.Int32;
 #endif
 
 internal struct Square
@@ -363,7 +364,7 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Square make_square(File f, Rank r)
+    internal static Square make_square(FileType f, RankType r)
     {
         return new Square((r << 3) | f);
     }
@@ -371,15 +372,15 @@ internal struct Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static File file_of(Square s)
+    internal static FileType file_of(Square s)
     {
-        return FileConstants.Create(s.Value & 7);
+        return File.Create(s.Value & 7);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Rank rank_of(Square s)
+    internal static RankType rank_of(Square s)
     {
         return Rank.Create(s.Value >> 3);
     }

@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-#if IMPLICIT
-using File = System.Int32;
+#if PRIMITIVE
+using FileType = System.Int32;
+using RankType = System.Int32;
 #endif
 
 internal static class Utils
@@ -38,13 +39,13 @@ internal static class Utils
 
     internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB_C];
 
-    internal static Bitboard[] FileBB = new Bitboard[FileConstants.FILE_NB];
+    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
 
-    internal static Bitboard[] AdjacentFilesBB = new Bitboard[FileConstants.FILE_NB];
+    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB];
 
-    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB_C];
+    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
 
-    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB_C];
+    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB_C, Rank.RANK_NB];
 
     internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB_C, Square.SQUARE_NB_C];
 
@@ -86,7 +87,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard rank_bb(Rank r)
+    internal static Bitboard rank_bb(RankType r)
     {
         return RankBB[r];
     }
@@ -102,7 +103,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard file_bb(File f)
+    internal static Bitboard file_bb(FileType f)
     {
         return FileBB[f];
     }
@@ -120,7 +121,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard adjacent_files_bb(File f)
+    internal static Bitboard adjacent_files_bb(FileType f)
     {
         return AdjacentFilesBB[f];
     }
@@ -143,7 +144,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard in_front_bb(Color c, Rank r)
+    internal static Bitboard in_front_bb(Color c, RankType r)
     {
         return InFrontBB[c.ValueMe, r];
     }

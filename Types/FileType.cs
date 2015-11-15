@@ -2,17 +2,17 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-#if IMPLICIT
-    using File = System.Int32;
+#if PRIMITIVE
+    using FileType = System.Int32;
 #else
 
-internal class File
+internal class FileType
 {
     private int Value;
 
 #region constructors
 
-    internal File(int value)
+    internal FileType(int value)
     {
         Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
@@ -22,12 +22,12 @@ internal class File
 
 #region operators
 
-    public static implicit operator int(File f)
+    public static implicit operator int(FileType f)
     {
         return f.Value;
     }
 
-    public static File operator ++(File f)
+    public static FileType operator ++(FileType f)
     {
         f.Value++;
         return f;
@@ -43,10 +43,10 @@ internal class File
 }
 #endif
 
-internal static class FileConstants
+internal static class File
 {
 
-#if IMPLICIT
+#if PRIMITIVE
     internal const int FILE_A = 0;
     internal const int FILE_B = 1;
     internal const int FILE_C = 2;
@@ -59,29 +59,29 @@ internal static class FileConstants
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static File Create(int value)
+    public static FileType Create(int value)
     {
         return value;
     }
 
 #else
-    internal static File FILE_A = new File(0);
+    internal static FileType FILE_A = new FileType(0);
 
-    internal static File FILE_B = new File(1);
+    internal static FileType FILE_B = new FileType(1);
 
-    internal static File FILE_C = new File(2);
+    internal static FileType FILE_C = new FileType(2);
 
-    internal static File FILE_D = new File(3);
+    internal static FileType FILE_D = new FileType(3);
 
-    internal static File FILE_E = new File(4);
+    internal static FileType FILE_E = new FileType(4);
 
-    internal static File FILE_F = new File(5);
+    internal static FileType FILE_F = new FileType(5);
 
-    internal static File FILE_G = new File(6);
+    internal static FileType FILE_G = new FileType(6);
 
-    internal static File FILE_H = new File(7);
+    internal static FileType FILE_H = new FileType(7);
 
-    public static File Create(int value)
+    public static FileType Create(int value)
     {
         switch (value)
         {
@@ -108,6 +108,6 @@ internal static class FileConstants
 #endif
 
     internal const int FILE_NB = 8;
-    internal static File[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
+    internal static FileType[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 
 }

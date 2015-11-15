@@ -108,7 +108,7 @@ internal class Position
             }
         }
 
-        foreach (var f in FileConstants.AllFiles)
+        foreach (var f in File.AllFiles)
         {
             Zobrist.enpassant[f] = rng.rand();
         }
@@ -348,7 +348,7 @@ internal class Position
     internal bool advanced_pawn_push(Move m)
     {
         return Piece.type_of(moved_piece(m)) == PieceType.PAWN
-               && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4_C;
+               && Rank.relative_rank(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
     }
 
 #if FORCEINLINE
@@ -1460,12 +1460,12 @@ internal class Position
     {
         var ss = new StringBuilder();
 
-        for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
+        for (var r = (int)Rank.RANK_8; r >= Rank.RANK_1; --r)
         {
-            for (var f = FileConstants.FILE_A; f <= FileConstants.FILE_H; ++f)
+            for (var f = File.FILE_A; f <= File.FILE_H; ++f)
             {
                 int emptyCnt;
-                for (emptyCnt = 0; f <= FileConstants.FILE_H && empty(Square.make_square(FileConstants.Create(f), Rank.Create(r))); ++f)
+                for (emptyCnt = 0; f <= File.FILE_H && empty(Square.make_square(File.Create(f), Rank.Create(r))); ++f)
                 {
                     ++emptyCnt;
                 }
@@ -1475,13 +1475,13 @@ internal class Position
                     ss.Append(emptyCnt);
                 }
 
-                if (f <= FileConstants.FILE_H)
+                if (f <= File.FILE_H)
                 {
-                    ss.Append(PieceToChar[piece_on(Square.make_square(FileConstants.Create(f), Rank.Create(r)))]);
+                    ss.Append(PieceToChar[piece_on(Square.make_square(File.Create(f), Rank.Create(r)))]);
                 }
             }
 
-            if (r > Rank.RANK_1_C)
+            if (r > Rank.RANK_1)
             {
                 ss.Append('/');
             }
@@ -1696,7 +1696,7 @@ internal class Position
                 // 4. En passant square. Ignore if no pawn capture is possible
                 if (((col >= 'a' && col <= 'h')) && ((row == '3' || row == '6')))
                 {
-                    st.epSquare = Square.make_square(FileConstants.Create(col - 'a'), Rank.Create(row - '1'));
+                    st.epSquare = Square.make_square(File.Create(col - 'a'), Rank.Create(row - '1'));
 
                     if ((attackers_to(st.epSquare) & pieces(sideToMove, PieceType.PAWN)) == 0)
                     {
@@ -1828,9 +1828,9 @@ internal class Position
     internal string displayString()
     {
         var sb = new StringBuilder("\n +---+---+---+---+---+---+---+---+\n");
-        for (var r = Rank.RANK_8_C; r >= Rank.RANK_1_C; --r)
+        for (var r = (int)Rank.RANK_8; r >= Rank.RANK_1; --r)
         {
-            foreach (var f in FileConstants.AllFiles)
+            foreach (var f in File.AllFiles)
             {
                 sb.Append(" | ");
                 sb.Append(PieceToChar[piece_on(Square.make_square(f, Rank.Create(r)))]);

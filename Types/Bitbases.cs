@@ -22,12 +22,12 @@ internal static class Bitbases
         return
             (uint)
                 (wksq | (bksq << 6) | (us.ValueMe << 12) | (Square.file_of(psq) << 13) |
-                 ((Rank.RANK_7_C - Square.rank_of(psq)) << 15));
+                 ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 
     internal static bool probe(Square wksq, Square wpsq, Square bksq, Color us)
     {
-        Debug.Assert(Square.file_of(wpsq) <= FileConstants.FILE_D);
+        Debug.Assert(Square.file_of(wpsq) <= File.FILE_D);
 
         var idx = index(us, bksq, wksq, wpsq);
         return (KPKBitbase[idx/32] & (1 << (int) (idx & 0x1F))) != 0;

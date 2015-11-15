@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.Linq;
 
-#if IMPLICIT
-    using File = System.Int32;
+#if PRIMITIVE
+    using FileType = System.Int32;
 #endif
 internal static class Pawns
 {
@@ -40,7 +40,7 @@ internal static class Pawns
     private static readonly Score[] Backward = {Score.make_score(67, 42), Score.make_score(49, 24)};
 
     // Connected pawn bonus by opposed, phalanx, twice supported and rank
-    private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB_C];
+    private static readonly Score[,,,] Connected = new Score[2, 2, 2, Rank.RANK_NB];
 
     // Levers bonus by rank
     private static readonly Score[] Lever =
@@ -262,7 +262,7 @@ internal static class Pawns
             // or if it is sufficiently advanced, it cannot be backward either.
             bool backward;
             if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s))
-                || (Rank.relative_rank(Us, s) >= Rank.RANK_5_C))
+                || (Rank.relative_rank(Us, s) >= Rank.RANK_5))
             {
                 backward = false;
             }
@@ -348,7 +348,7 @@ internal static class Pawns
             {
                 for (var apex = 0; apex <= 1; ++apex)
                 {
-                    for (var r = Rank.RANK_2_C; r < Rank.RANK_8_C; ++r)
+                    for (var r = (int)Rank.RANK_2; r < Rank.RANK_8; ++r)
                     {
                         var v = (Seed[r] + (phalanx != 0 ? (Seed[r + 1] - Seed[r])/2 : 0)) >> opposed;
                         v += (apex != 0 ? v/2 : 0);
@@ -428,12 +428,12 @@ internal static class Pawns
             return pawnSpan[c.ValueMe];
         }
 
-        internal int semiopen_file(Color c, File f)
+        internal int semiopen_file(Color c, FileType f)
         {
             return semiopenFiles[c.ValueMe] & (1 << f);
         }
 
-        internal int semiopen_side(Color c, File f, bool leftSide)
+        internal int semiopen_side(Color c, FileType f, bool leftSide)
         {
             return semiopenFiles[c.ValueMe] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
         }
@@ -466,7 +466,7 @@ internal static class Pawns
                 }
             }
 
-            if (Rank.relative_rank(Us, ksq) > Rank.RANK_4_C)
+            if (Rank.relative_rank(Us, ksq) > Rank.RANK_4)
             {
                 return Score.make_score(0, -16*minKingPawnDistance);
             }
@@ -503,23 +503,23 @@ internal static class Pawns
             var ourPawns = b & pos.pieces(Us);
             var theirPawns = b & pos.pieces(Them);
             var safety = MaxSafetyBonus;
-            var center = FileConstants.Create(Math.Max(FileConstants.FILE_B, Math.Min(FileConstants.FILE_G, Square.file_of(ksq))));
+            var center = File.Create(Math.Max(File.FILE_B, Math.Min(File.FILE_G, Square.file_of(ksq))));
 
             for (var f = center - 1; f <= (int)center + 1; ++f)
             {
-                b = ourPawns & Utils.file_bb(FileConstants.Create(f));
+                b = ourPawns & Utils.file_bb(File.Create(f));
                 var rkUs = b ? Rank.relative_rank(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
 
-                b = theirPawns & Utils.file_bb(FileConstants.Create(f));
+                b = theirPawns & Utils.file_bb(File.Create(f));
                 var rkThem = b ? Rank.relative_rank(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
-                safety -= ShelterWeakness[Math.Min(f, FileConstants.FILE_H - f)][rkUs]
+                safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger[
                               f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank(Us, ksq) + 1
                                   ? BlockedByKing
-                                  : (int)rkUs == Rank.RANK_1_C
+                                  : (int)rkUs == Rank.RANK_1
                                       ? NoFriendlyPawn
-                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, FileConstants.FILE_H - f)][rkThem];
+                                      : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H - f)][rkThem];
             }
 
             return safety;

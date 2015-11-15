@@ -327,7 +327,7 @@ internal static class Eval
             if (Pt == PieceType.BISHOP_C || Pt == PieceType.KNIGHT_C)
             {
                 // Bonus for outpost square
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_4_C && Rank.relative_rank(Us, s) <= Rank.RANK_6_C
+                if (Rank.relative_rank(Us, s) >= Rank.RANK_4 && Rank.relative_rank(Us, s) <= Rank.RANK_6
                     && !(pos.pieces(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
@@ -335,7 +335,7 @@ internal static class Eval
                 }
 
                 // Bonus when behind a pawn
-                if (Rank.relative_rank(Us, s) < Rank.RANK_5_C && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
+                if (Rank.relative_rank(Us, s) < Rank.RANK_5 && (pos.pieces(PieceType.PAWN) & (s + Square.pawn_push(Us))))
                 {
                     score += MinorBehindPawn;
                 }
@@ -352,7 +352,7 @@ internal static class Eval
                 if (Pt == PieceType.BISHOP_C && pos.is_chess960()
                     && (s == Square.relative_square(Us, Square.SQ_A1) || s == Square.relative_square(Us, Square.SQ_H1)))
                 {
-                    var d = Square.pawn_push(Us) + (Square.file_of(s) == FileConstants.FILE_A ? Square.DELTA_E : Square.DELTA_W);
+                    var d = Square.pawn_push(Us) + (Square.file_of(s) == File.FILE_A ? Square.DELTA_E : Square.DELTA_W);
                     if (pos.piece_on(s + d) == Piece.make_piece(Us, PieceType.PAWN))
                     {
                         score -= !pos.empty(s + d + Square.pawn_push(Us))
@@ -367,7 +367,7 @@ internal static class Eval
             if (Pt == PieceType.ROOK_C)
             {
                 // Bonus for aligning with enemy pawns on the same rank/file
-                if (Rank.relative_rank(Us, s) >= Rank.RANK_5_C)
+                if (Rank.relative_rank(Us, s) >= Rank.RANK_5)
                 {
                     var alignedPawns = pos.pieces(Them, PieceType.PAWN) & Utils.PseudoAttacks[PieceType.ROOK_C, s];
                     if (alignedPawns)
@@ -387,7 +387,7 @@ internal static class Eval
                 {
                     var ksq = pos.square(PieceType.KING, Us);
 
-                    if (((Square.file_of(ksq) < FileConstants.FILE_E) == (Square.file_of(s) < Square.file_of(ksq)))
+                    if (((Square.file_of(ksq) < File.FILE_E) == (Square.file_of(s) < Square.file_of(ksq)))
                         && (Square.rank_of(ksq) == Square.rank_of(s) || Rank.relative_rank(Us, ksq) == Rank.RANK_1)
                         && 0 == ei.pi.semiopen_side(Us, Square.file_of(ksq), Square.file_of(s) < Square.file_of(ksq)))
                     {
@@ -631,7 +631,7 @@ internal static class Eval
 
             Debug.Assert(pos.pawn_passed(Us, s));
 
-            int r = Rank.relative_rank(Us, s) - Rank.RANK_2_C;
+            int r = Rank.relative_rank(Us, s) - Rank.RANK_2;
             var rr = r*(r - 1);
 
             Value mbonus = Passed[(int) Phase.MG][r], ebonus = Passed[(int) Phase.EG][r];

@@ -60,15 +60,15 @@ namespace Tests
         [TestMethod()]
         public void MakeSquareTests()
         {
-            var v1 = Square.make_square(FileConstants.FILE_C, Rank.RANK_3);
+            var v1 = Square.make_square(File.FILE_C, Rank.RANK_3);
             Assert.AreEqual(Square.SQ_C3, v1);
         }
 
         [TestMethod()]
         public void FileAndRankOfTests()
         {
-            var v1 = Square.make_square(FileConstants.FILE_C, Rank.RANK_3);
-            Assert.AreEqual(FileConstants.FILE_C, Square.file_of(v1));
+            var v1 = Square.make_square(File.FILE_C, Rank.RANK_3);
+            Assert.AreEqual(File.FILE_C, Square.file_of(v1));
             Assert.AreEqual(Rank.RANK_3, Square.rank_of(v1));
         }
     }
