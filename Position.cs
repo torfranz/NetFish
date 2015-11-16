@@ -12,6 +12,7 @@ using PieceT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
 using SquareT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 /// Position class stores information regarding the board representation as
@@ -172,7 +173,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal PieceT moved_piece(Move m)
+    internal PieceT moved_piece(MoveT m)
     {
         return board[Move.from_sq(m)];
     }
@@ -354,7 +355,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool advanced_pawn_push(Move m)
+    internal bool advanced_pawn_push(MoveT m)
     {
         return Piece.type_of(moved_piece(m)) == PieceType.PAWN
                && Rank.relative_rank_CtSt(sideToMove, Move.from_sq(m)) > Rank.RANK_4;
@@ -455,7 +456,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool capture_or_promotion(Move m)
+    internal bool capture_or_promotion(MoveT m)
     {
         Debug.Assert(Move.is_ok(m));
         return Move.type_of(m) != MoveType.NORMAL ? Move.type_of(m) != MoveType.CASTLING : !empty(Move.to_sq(m));
@@ -464,7 +465,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal bool capture(Move m)
+    internal bool capture(MoveT m)
     {
         // Castling is encoded as "king captures the rook"
         Debug.Assert(Move.is_ok(m));
@@ -688,7 +689,7 @@ internal class Position
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
-    internal bool legal(Move m, Bitboard pinned)
+    internal bool legal(MoveT m, Bitboard pinned)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(pinned == pinned_pieces(sideToMove));
@@ -736,7 +737,7 @@ internal class Position
     /// Position::pseudo_legal() takes a random move and tests whether the move is
     /// pseudo legal. It is used to validate moves from TT that can be corrupted
     /// due to SMP concurrent access or hash position key aliasing.
-    internal bool pseudo_legal(Move m)
+    internal bool pseudo_legal(MoveT m)
     {
         var us = sideToMove;
         var from = Move.from_sq(m);
@@ -825,7 +826,7 @@ internal class Position
     }
 
     /// Position::gives_check() tests whether a pseudo-legal move gives a check
-    internal bool gives_check(Move m, CheckInfo ci)
+    internal bool gives_check(MoveT m, CheckInfo ci)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(ci.dcCandidates == discovered_check_candidates());
@@ -888,7 +889,7 @@ internal class Position
     /// Position::do_move() makes a move, and saves all information necessary
     /// to a StateInfo object. The move is assumed to be legal. Pseudo-legal
     /// moves should be filtered out before this function is called.
-    internal void do_move(Move m, StateInfo newSt, bool givesCheck)
+    internal void do_move(MoveT m, StateInfo newSt, bool givesCheck)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(newSt != st);
@@ -1063,7 +1064,7 @@ internal class Position
 
     /// Position::undo_move() unmakes a move. When it returns, the position should
     /// be restored to exactly the same state as before the move was made.
-    internal void undo_move(Move m)
+    internal void undo_move(MoveT m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1217,7 +1218,7 @@ internal class Position
     /// Position::key_after() computes the new hash key after the given move. Needed
     /// for speculative prefetch. It doesn't recognize special moves like castling,
     /// en-passant and promotions.
-    private ulong key_after(Move m)
+    private ulong key_after(MoveT m)
     {
         var us = sideToMove;
         var from = Move.from_sq(m);
@@ -1236,7 +1237,7 @@ internal class Position
 
     /// Position::see() is a static exchange evaluator: It tries to estimate the
     /// material gain or loss resulting from a move.
-    internal ValueT see_sign(Move m)
+    internal ValueT see_sign(MoveT m)
     {
         Debug.Assert(Move.is_ok(m));
 
@@ -1252,7 +1253,7 @@ internal class Position
         return see(m);
     }
 
-    internal ValueT see(Move m)
+    internal ValueT see(MoveT m)
     {
         var swapList = new ValueT[32];
         var slIndex = 1;

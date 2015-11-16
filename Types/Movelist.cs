@@ -1,5 +1,9 @@
 ﻿/// The MoveList struct is a simple wrapper around generate(). It sometimes comes
 /// in handy to use this class instead of the low level generate() function.
+
+#if PRIMITIVE
+using MoveT = System.Int32;
+#endif
 internal class MoveList
 {
     internal readonly ExtMoveArrayWrapper moveList = new ExtMoveArrayWrapper(new ExtMove[_.MAX_MOVES]);
@@ -24,7 +28,7 @@ internal class MoveList
         return moveList.current;
     }
 
-    internal bool contains(Move move)
+    internal bool contains(MoveT move)
     {
         for (var idx = 0; idx < moveList.current; idx++)
         {

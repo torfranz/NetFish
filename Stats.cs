@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using PieceT = System.Int32;
 using ValueT = System.Int32;
 using SquareT = System.Int32;
+using MoveT = System.Int32;
 #endif
 /// The Stats struct stores moves statistics. According to the template parameter
 /// the class can store History and Countermoves. History records how often
@@ -39,9 +40,9 @@ internal class Stats<T>
     }
 };
 
-internal class MovesStats : Stats<Move>
+internal class MovesStats : Stats<MoveT>
 {
-    internal void update(PieceT pc, SquareT to, Move m)
+    internal void update(PieceT pc, SquareT to, MoveT m)
     {
         table[pc, to] = m;
     }

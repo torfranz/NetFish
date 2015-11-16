@@ -4,9 +4,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
+#if PRIMITIVE
+using MoveT = System.Int32;
+#endif
+
 internal class EasyMoveManager
 {
-    private readonly Move[] pv = new Move[3];
+    private readonly MoveT[] pv = new MoveT[3];
 
     private ulong expectedPosKey;
 
@@ -19,12 +23,12 @@ internal class EasyMoveManager
         pv[0] = pv[1] = pv[2] = Move.MOVE_NONE;
     }
 
-    internal Move get(ulong key)
+    internal MoveT get(ulong key)
     {
         return expectedPosKey == key ? pv[2] : Move.MOVE_NONE;
     }
 
-    internal void update(Position pos, List<Move> newPv)
+    internal void update(Position pos, List<MoveT> newPv)
     {
         Debug.Assert(newPv.Count >= 3);
 

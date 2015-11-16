@@ -2,6 +2,10 @@
 
 using System;
 
+#if PRIMITIVE
+using MoveT = System.Int32;
+#endif
+
 internal struct Skill
 {
     internal Skill(int l)
@@ -23,15 +27,15 @@ internal struct Skill
         return depth/Depth.ONE_PLY == 1 + level;
     }
 
-    internal Move best_move(uint multiPV)
+    internal MoveT best_move(uint multiPV)
     {
-        return best ? best : pick_best(multiPV);
+        return best != 0 ? best : pick_best(multiPV);
     }
 
     // When playing with strength handicap, choose best move among a set of RootMoves
     // using a statistical rule dependent on 'level'. Idea by Heinz van Saanen.
 
-    internal Move pick_best(uint multiPV)
+    internal MoveT pick_best(uint multiPV)
     {
         // RootMoves are already sorted by score in descending order
         var variance = Math.Min(Search.RootMoves[0].score - Search.RootMoves[(int) multiPV - 1].score, Value.PawnValueMg);
@@ -58,5 +62,5 @@ internal struct Skill
 
     private readonly int level;
 
-    private Move best;
+    private MoveT best;
 };

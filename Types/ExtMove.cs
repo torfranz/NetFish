@@ -2,18 +2,19 @@
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 internal struct ExtMove
 {
-    internal Move Move { get; }
+    internal MoveT Move { get; }
 
     internal ValueT Value { get; }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal ExtMove(Move move, ValueT value)
+    internal ExtMove(MoveT move, ValueT value)
     {
         Move = move;
         Value = value;
@@ -22,7 +23,7 @@ internal struct ExtMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static implicit operator Move(ExtMove move)
+    public static implicit operator MoveT(ExtMove move)
     {
         return move.Move;
     }

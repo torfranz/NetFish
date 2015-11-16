@@ -7,6 +7,7 @@ using System.Threading;
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 internal sealed class SplitPoint
 {
@@ -381,7 +382,7 @@ internal class Thread : ThreadBase
         ValueT alpha,
         ValueT beta,
         ref ValueT bestValue,
-        ref Move bestMove,
+        ref MoveT bestMove,
         Depth depth,
         int moveCount,
         MovePicker movePicker,
@@ -468,7 +469,7 @@ internal class Thread : ThreadBase
 
         // Split point data cannot be changed now, so no need to lock protect
         pos.set_nodes_searched(pos.nodes_searched() + sp.nodes);
-        bestMove = new Move(sp.bestMove);
+        bestMove = Move.Create(sp.bestMove);
         bestValue = Value.Create(sp.bestValue);
     }
 }

@@ -4,13 +4,14 @@ using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 /// RootMove struct is used for moves at the root of the tree. For each root move
 /// we store a score and a PV (really a refutation in the case of moves which
 /// fail low). Score is normally set at -VALUE_INFINITE for all non-pv moves.
 internal class RootMove
 {
-    internal readonly List<Move> pv = new List<Move>();
+    internal readonly List<MoveT> pv = new List<MoveT>();
 
     internal ValueT previousScore = -Value.VALUE_INFINITE;
 
@@ -19,7 +20,7 @@ internal class RootMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal RootMove(Move m)
+    internal RootMove(MoveT m)
     {
         pv.Add(m);
     }

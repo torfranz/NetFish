@@ -6,6 +6,7 @@ using System.Text;
 #if PRIMITIVE
 using ValueT = System.Int32;
 using SquareT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 internal static class UCI
@@ -96,7 +97,7 @@ internal static class UCI
     // following move list ("moves").
     internal static void position(Position pos, Stack<string> stack)
     {
-        Move m;
+        MoveT m;
         string fen = string.Empty;
 
         if (stack.Count == 0)
@@ -143,7 +144,7 @@ internal static class UCI
     /// The only special case is castling, where we print in the e1g1 notation in
     /// normal chess mode, and in e1h1 notation in chess960 mode. Internally all
     /// castling moves are always encoded as 'king captures rook'.
-    internal static string move(Move m, bool chess960)
+    internal static string move(MoveT m, bool chess960)
     {
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
@@ -175,7 +176,7 @@ internal static class UCI
 
     /// UCI::to_move() converts a string representing a move in coordinate notation
     /// (g1f3, a7a8q) to the corresponding legal Move, if any.
-    private static Move to_move(Position pos, string str)
+    private static MoveT to_move(Position pos, string str)
     {
         if (str.Length == 5) // Junior could send promotion piece in uppercase
         {

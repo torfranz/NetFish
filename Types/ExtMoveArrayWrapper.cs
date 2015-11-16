@@ -1,6 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
+#if PRIMITIVE
+using MoveT = System.Int32;
+#endif
+
 internal class ExtMoveArrayWrapper
 {
     internal int current;
@@ -84,7 +88,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal void Add(Move m)
+    internal void Add(MoveT m)
     {
         table[current] = new ExtMove(m, table[current].Value);
         current++;
@@ -93,7 +97,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal void setCurrentMove(Move m)
+    internal void setCurrentMove(MoveT m)
     {
         table[current] = new ExtMove(m, table[current].Value);
     }
@@ -101,7 +105,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Move getCurrentMove()
+    internal MoveT getCurrentMove()
     {
         return table[current].Move;
     }

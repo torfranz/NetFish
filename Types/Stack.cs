@@ -2,6 +2,7 @@
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 /// Stack struct keeps track of the information we need to remember from nodes
@@ -9,19 +10,19 @@ using ValueT = System.Int32;
 /// its own array of Stack objects, indexed by the current ply.
 internal class Stack
 {
-    internal Move currentMove;
+    internal MoveT currentMove;
 
-    internal Move excludedMove;
+    internal MoveT excludedMove;
 
-    internal Move killers0;
+    internal MoveT killers0;
 
-    internal Move killers1;
+    internal MoveT killers1;
 
     internal int moveCount;
 
     internal int ply;
 
-    internal List<Move> pv = new List<Move>();
+    internal List<MoveT> pv = new List<MoveT>();
 
     internal Depth reduction;
 
@@ -31,5 +32,5 @@ internal class Stack
 
     internal ValueT staticEval;
 
-    internal Move ttMove;
+    internal MoveT ttMove;
 };

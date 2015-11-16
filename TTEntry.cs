@@ -1,5 +1,6 @@
 ﻿#if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 /// TTEntry struct is the 10 bytes transposition table entry, defined as below:
@@ -25,9 +26,9 @@ internal class TTEntry
 
     private short value16;
 
-    internal Move move()
+    internal MoveT move()
     {
-        return new Move(move16);
+        return Move.Create(move16);
     }
 
     internal ValueT value()
@@ -50,7 +51,7 @@ internal class TTEntry
         return (Bound) ((genBound8 & 0x3));
     }
 
-    internal void save(ulong k, ValueT v, Bound b, Depth d, Move m, ValueT ev, byte g)
+    internal void save(ulong k, ValueT v, Bound b, Depth d, MoveT m, ValueT ev, byte g)
     {
         // Preserve any existing move for the same position
         if ((m != 0) || (k >> 48) != key16)

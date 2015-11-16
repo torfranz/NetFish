@@ -3,11 +3,12 @@
 #if PRIMITIVE
 using ValueT = System.Int32;
 using SquareT = System.Int32;
+using MoveT = System.Int32;
 #endif
 
 internal class MovePicker
 {
-    private readonly Move countermove;
+    private readonly MoveT countermove;
 
     private readonly CounterMovesHistoryStats counterMovesHistory;
 
@@ -27,7 +28,7 @@ internal class MovePicker
 
     private readonly ValueT threshold;
 
-    private readonly Move ttMove;
+    private readonly MoveT ttMove;
 
     private ExtMoveArrayWrapper cur;
 
@@ -46,11 +47,11 @@ internal class MovePicker
     /// ordering is at the current node.
     internal MovePicker(
         Position p,
-        Move ttm,
+        MoveT ttm,
         Depth d,
         HistoryStats h,
         CounterMovesHistoryStats cmh,
-        Move cm,
+        MoveT cm,
         StackArrayWrapper s)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
@@ -70,7 +71,7 @@ internal class MovePicker
         endMoves += ttMove != Move.MOVE_NONE ? 1 : 0;
     }
 
-    internal MovePicker(Position p, Move ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
+    internal MovePicker(Position p, MoveT ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -108,7 +109,7 @@ internal class MovePicker
         endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
-    internal MovePicker(Position p, Move ttm, HistoryStats h, CounterMovesHistoryStats cmh, ValueT th)
+    internal MovePicker(Position p, MoveT ttm, HistoryStats h, CounterMovesHistoryStats cmh, ValueT th)
     {
         endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
         cur = new ExtMoveArrayWrapper(moves);
@@ -135,7 +136,7 @@ internal class MovePicker
     // pick_best() finds the best move in the range (begin, end) and moves it to
     // the front. It's faster than sorting all the moves in advance when there
     // are few moves e.g. the possible captures.
-    private Move pick_best(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
+    private MoveT pick_best(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
     {
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
@@ -341,7 +342,7 @@ internal class MovePicker
     /// a new pseudo legal move every time it is called, until there are no more moves
     /// left. It picks the move with the biggest value from a list of generated moves
     /// taking care not to return the ttMove if it has already been searched.
-    internal Move next_move(bool useSplitpoint)
+    internal MoveT next_move(bool useSplitpoint)
     {
         // Version of next_move() to use at split point nodes where the move is grabbed
         // from the split point's shared MovePicker object. This function is not thread
@@ -358,7 +359,7 @@ internal class MovePicker
                 generate_next_stage();
             }
 
-            Move move;
+            MoveT move;
             switch (stage)
             {
                 case Stages.MAIN_SEARCH:

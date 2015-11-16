@@ -6,6 +6,7 @@ using Key = System.UInt64;
 
 #if PRIMITIVE
 using ValueT = System.Int32;
+using MoveT = System.Int32;
 #endif
 internal static class Search
 {
@@ -560,7 +561,7 @@ internal static class Search
         TTEntry tte;
         SplitPoint splitPoint = null;
         ulong posKey = 0;
-        Move ttMove, move, excludedMove, bestMove;
+        MoveT ttMove, move, excludedMove, bestMove;
         ValueT bestValue, value, ttValue, eval;
         bool ttHit;
         int moveCount = 0;
@@ -579,7 +580,7 @@ internal static class Search
         if (SpNode)
         {
             splitPoint = stack.splitPoint;
-            bestMove = new Move(splitPoint.bestMove);
+            bestMove = Move.Create(splitPoint.bestMove);
             bestValue = Value.Create(splitPoint.bestValue);
             tte = new TTEntry();
             ttMove = excludedMove = Move.MOVE_NONE;
@@ -629,7 +630,7 @@ internal static class Search
         // We don't want the score of a partial search to overwrite a previous full search
         // TT value, so we use a different position key in case of an excluded move.
         excludedMove = stack.excludedMove;
-        posKey = excludedMove ? pos.exclusion_key() : pos.key();
+        posKey = excludedMove != 0 ? pos.exclusion_key() : pos.key();
         tte = TranspositionTable.probe(posKey, out ttHit);
         stack.ttMove = ttMove = RootNode ? RootMoves[(int) PVIdx].pv[0] : ttHit ? tte.move() : Move.MOVE_NONE;
         ttValue = ttHit ? value_from_tt(tte.value(), stack.ply) : Value.VALUE_NONE;
@@ -646,7 +647,7 @@ internal static class Search
             stack.currentMove = ttMove; // Can be Move.MOVE_NONE
 
             // If ttMove is quiet, update killers, history, counter move on TT hit
-            if (ttValue >= beta && ttMove && !pos.capture_or_promotion(ttMove))
+            if (ttValue >= beta && ttMove != 0 && !pos.capture_or_promotion(ttMove))
                 update_stats(pos, ss, ttMove, depth, null, 0);
 
             return ttValue;
@@ -820,7 +821,7 @@ internal static class Search
 
         // Step 10. Internal iterative deepening (skipped when in check)
         if (depth >= (PvNode ? 5*Depth.ONE_PLY_C : 8*Depth.ONE_PLY_C)
-            && !ttMove
+            && ttMove == 0
             && (PvNode || stack.staticEval + 256 >= beta))
         {
             var d = depth - 2*Depth.ONE_PLY - (PvNode ? Depth.DEPTH_ZERO : depth/4);
@@ -850,11 +851,11 @@ internal static class Search
                                      && ttMove != Move.MOVE_NONE
             /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
                                      && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN
-                                     && !excludedMove // Recursive singular search is not allowed
+                                     && excludedMove == 0// Recursive singular search is not allowed
                                      && ((tte.bound() & Bound.BOUND_LOWER) != 0)
                                      && tte.depth() >= depth - 3*Depth.ONE_PLY_C;
 
-        var quietsSearched = new Move[64];
+        var quietsSearched = new MoveT[64];
         // Step 11. Loop through moves
         // Loop through all pseudo-legal moves until no moves remain or a beta cutoff occurs
         while ((move = mp.next_move(SpNode)) != Move.MOVE_NONE)
@@ -893,7 +894,7 @@ internal static class Search
             }
 
             if (PvNode)
-                stackPlus1.pv = new List<Move>();
+                stackPlus1.pv = new List<MoveT>();
 
             var extension = Depth.DEPTH_ZERO;
             var captureOrPromotion = pos.capture_or_promotion(move);
@@ -1062,7 +1063,7 @@ internal static class Search
             // parent node fail low with value <= alpha and to try another move.
             if (PvNode && (moveCount == 1 || (value > alpha && (RootNode || value < beta))))
             {
-                stackPlus1.pv = new List<Move>() { Move.MOVE_NONE };
+                stackPlus1.pv = new List<MoveT>() { Move.MOVE_NONE };
                 stackPlus1.pv[0] = Move.MOVE_NONE;
 
                 value = newDepth < Depth.ONE_PLY
@@ -1135,11 +1136,11 @@ internal static class Search
                 {
                     // If there is an easy move for this position, clear it if unstable
                     if (PvNode
-                        && EasyMove.get(pos.key())
+                        && EasyMove.get(pos.key()) != 0
                         && (move != EasyMove.get(pos.key()) || moveCount > 1))
                         EasyMove.clear();
 
-                    bestMove = new Move(SpNode ? splitPoint.bestMove = move : move);
+                    bestMove = Move.Create(SpNode ? splitPoint.bestMove = move : move);
 
                     if (PvNode && !RootNode) // Update pv even in fail-high case
                         update_pv(SpNode ? splitPoint.ss[ss.current].pv : stack.pv, move, stackPlus1.pv);
@@ -1200,16 +1201,16 @@ internal static class Search
         // must be mate or stalemate. If we are in a singular extension search then
         // return a fail low score.
         if (moveCount == 0)
-            bestValue = excludedMove
+            bestValue = excludedMove != 0
                 ? alpha
                 : inCheck ? Value.mated_in(stack.ply) : DrawValue[pos.side_to_move()];
 
         // Quiet best move: update killers, history and countermoves
-        else if (bestMove && !pos.capture_or_promotion(bestMove))
+        else if (bestMove != 0 && !pos.capture_or_promotion(bestMove))
             update_stats(pos, ss, bestMove, depth, quietsSearched, quietCount);
 
         // Bonus for prior countermove that caused the fail low
-        else if (!bestMove)
+        else if (bestMove==0)
         {
             if (Move.is_ok(stackMinus2.currentMove) && Move.is_ok(stackMinus1.currentMove) &&
                 pos.captured_piece_type()==0 && !inCheck && depth >= 3*Depth.ONE_PLY_C)
@@ -1225,7 +1226,7 @@ internal static class Search
         tte.save(posKey, value_to_tt(bestValue, stack.ply),
             bestValue >= beta
                 ? Bound.BOUND_LOWER
-                : PvNode && bestMove ? Bound.BOUND_EXACT : Bound.BOUND_UPPER,
+                : PvNode && bestMove!=0 ? Bound.BOUND_EXACT : Bound.BOUND_UPPER,
             depth, bestMove, stack.staticEval, TranspositionTable.generation());
 
         Debug.Assert(bestValue > -Value.VALUE_INFINITE && bestValue < Value.VALUE_INFINITE);
@@ -1252,7 +1253,7 @@ internal static class Search
         if (PvNode)
         {
             oldAlpha = alpha; // To flag BOUND_EXACT when eval above alpha and no available moves
-            nextStack.pv = new List<Move>() { Move.MOVE_NONE };
+            nextStack.pv = new List<MoveT>() { Move.MOVE_NONE };
             currentStack.pv[0] = Move.MOVE_NONE;
         }
 
@@ -1343,8 +1344,8 @@ internal static class Search
         var ci = new CheckInfo(pos);
 
         // Loop through the moves until no moves remain or a beta cutoff occurs
-        Move move;
-        Move bestMove = Move.MOVE_NONE;
+        MoveT move;
+        MoveT bestMove = Move.MOVE_NONE;
         while ((move = mp.next_move(false)) != Move.MOVE_NONE)
         {
             Debug.Assert(Move.is_ok(move));
@@ -1449,8 +1450,8 @@ internal static class Search
     // update_stats() updates killers, history, countermove history and
     // countermoves stats for a quiet best move.
 
-    private static void update_stats(Position pos, StackArrayWrapper ss, Move move,
-        Depth depth, Move[] quiets, int quietsCnt)
+    private static void update_stats(Position pos, StackArrayWrapper ss, MoveT move,
+        Depth depth, MoveT[] quiets, int quietsCnt)
     {
         if (ss[ss.current].killers0 != move)
         {
@@ -1505,7 +1506,7 @@ internal static class Search
     }
 
     // update_pv() adds current move and appends child pv[]
-    private static void update_pv(List<Move> pv, Move move, List<Move> childPv)
+    private static void update_pv(List<MoveT> pv, MoveT move, List<MoveT> childPv)
     {
         pv.Clear();
         pv.Add(move);
