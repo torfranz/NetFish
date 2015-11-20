@@ -514,9 +514,9 @@ internal class Position
         // do_move() and then replace it in undo_move() we will put it at the end of
         // the list and not in its original place, it means index[] and pieceList[]
         // are not guaranteed to be invariant to a do_move() + undo_move() sequence.
-        byTypeBB[PieceType.ALL_PIECES] ^= s;
-        byTypeBB[pt] ^= s;
-        byColorBB[c] ^= s;
+        byTypeBB[PieceType.ALL_PIECES] = Bitboard.XorWithSquare(byTypeBB[PieceType.ALL_PIECES], s);
+        byTypeBB[pt] = Bitboard.XorWithSquare(byTypeBB[pt], s);
+        byColorBB[c] = Bitboard.XorWithSquare(byColorBB[c], s);
         /* board[s] = NO_PIECE;  Not needed, overwritten by the capturing one */
         var lastSquare = pieceList[c, pt, --pieceCount[c, pt]];
         index[lastSquare] = index[s];
@@ -708,7 +708,7 @@ internal class Position
             var ksq = square(PieceType.KING, us);
             var to = Move.to_sq(m);
             var capsq = to - Square.pawn_push(us);
-            var occupied = (pieces() ^ from ^ capsq) | to;
+            var occupied = (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq)) | to;
 
             Debug.Assert(to == ep_square());
             Debug.Assert(moved_piece(m) == Piece.make_piece(us, PieceType.PAWN));
@@ -814,7 +814,7 @@ internal class Position
             }
             // In case of king moves under check we have to remove king so as to catch
             // invalid moves like b1a1 when opposite queen is on c1.
-            else if (attackers_to(to, pieces() ^ from) & pieces_Ct(Color.opposite(us)))
+            else if (attackers_to(to, Bitboard.XorWithSquare(pieces(), from)) & pieces_Ct(Color.opposite(us)))
             {
                 return false;
             }
@@ -851,7 +851,7 @@ internal class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Bitboard.AndWithSquare(Utils.attacks_bb_PSBb(Piece.Create(Move.promotion_type(m)), to, pieces() ^ from), ci.ksq) != 0;
+                return Bitboard.AndWithSquare(Utils.attacks_bb_PSBb(Piece.Create(Move.promotion_type(m)), to, Bitboard.XorWithSquare(pieces(), from)), ci.ksq) != 0;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -860,7 +860,7 @@ internal class Position
             case MoveType.ENPASSANT:
             {
                 var capsq = Square.make_square(Square.file_of(to), Square.rank_of(from));
-                var b = (pieces() ^ from ^ capsq) | to;
+                var b = (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq)) | to;
 
                 return (Utils.attacks_bb_PtSBb(PieceType.ROOK, ci.ksq, b)
                         & pieces_CtPtPt(sideToMove, PieceType.QUEEN, PieceType.ROOK))
@@ -875,7 +875,7 @@ internal class Position
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
                 return Bitboard.AndWithSquare(Utils.PseudoAttacks[PieceType.ROOK, rto], ci.ksq)!=0
-                       && Bitboard.AndWithSquare(Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto), ci.ksq)!=0;
+                       && Bitboard.AndWithSquare(Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), kfrom), rfrom)) | rto | kto), ci.ksq)!=0;
             }
             default:
                 Debug.Assert(false);
@@ -1261,7 +1261,7 @@ internal class Position
         var to = Move.to_sq(m);
         swapList[0] = Value.PieceValue[(int) Phase.MG][piece_on(to)];
         var stm = Piece.color_of(piece_on(@from));
-        var occupied = pieces() ^ @from;
+        var occupied = Bitboard.XorWithSquare(pieces(), from);
 
         // Castling moves are implemented as king capturing the rook so cannot
         // be handled correctly. Simply return VALUE_ZERO that is always correct
@@ -1273,7 +1273,7 @@ internal class Position
 
         if (Move.type_of(m) == MoveType.ENPASSANT)
         {
-            occupied ^= to - Square.pawn_push(stm); // Remove the captured pawn
+            occupied = Bitboard.XorWithSquare(occupied, to - Square.pawn_push(stm)); // Remove the captured pawn
             swapList[0] = Value.PieceValue[(int) Phase.MG][PieceType.PAWN];
         }
 

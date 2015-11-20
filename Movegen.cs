@@ -47,7 +47,7 @@ internal static class Movegen
         // when moving the castling rook we do not discover some hidden checker.
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
-            && (Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, pos.pieces() ^ rfrom)
+            && (Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.XorWithSquare(pos.pieces(), rfrom))
                 & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))
         {
             return moveList;
@@ -461,7 +461,7 @@ internal static class Movegen
         while (sliders)
         {
             var checksq1 = Utils.pop_lsb(ref sliders);
-            sliderAttacks |= Utils.LineBB[checksq1, ksq] ^ checksq1;
+            sliderAttacks |= Bitboard.XorWithSquare(Utils.LineBB[checksq1, ksq], checksq1);
         }
 
         // Generate evasions for king, capture and non capture moves

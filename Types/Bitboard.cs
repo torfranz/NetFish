@@ -85,14 +85,6 @@ internal struct BitboardT
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static BitboardT operator ^(BitboardT b, SquareT s)
-    {
-        return Bitboard.Create(b.Value ^ Utils.SquareBB[s].Value);
-    }
-
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     public static BitboardT operator |(BitboardT b, SquareT s)
     {
         return Bitboard.Create(b.Value | Utils.SquareBB[s].Value);
@@ -190,5 +182,13 @@ internal static class Bitboard
     public static BitboardT AndWithSquare(BitboardT b, SquareT s)
     {
         return Bitboard.Create(b & Utils.SquareBB[s]);
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static BitboardT XorWithSquare(BitboardT b, SquareT s)
+    {
+        return Bitboard.Create(b ^ Utils.SquareBB[s]);
     }
 }
