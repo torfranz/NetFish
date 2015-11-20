@@ -87,7 +87,7 @@ internal static class Movegen
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
-        if (Type == GenType.QUIET_CHECKS && (Utils.StepAttacksBB[Piece.W_KNIGHT, to] & ci.ksq))
+        if (Type == GenType.QUIET_CHECKS && Bitboard.AndWithSquare(Utils.StepAttacksBB[Piece.W_KNIGHT, to], ci.ksq)!=0)
         {
             (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
@@ -227,7 +227,7 @@ internal static class Movegen
                 // An en passant capture can be an evasion only if the checking piece
                 // is the double pushed pawn and so is in the target. Otherwise this
                 // is a discovery check and we are forced to do otherwise.
-                if (Type == GenType.EVASIONS && !(target & (pos.ep_square() - Up)))
+                if (Type == GenType.EVASIONS && Bitboard.AndWithSquare(target, (pos.ep_square() - Up))==0)
                 {
                     return moveList;
                 }
@@ -274,7 +274,7 @@ internal static class Movegen
                     continue;
                 }
 
-                if ((bool) ci.dcCandidates && (ci.dcCandidates & square))
+                if ((bool) ci.dcCandidates && Bitboard.AndWithSquare(ci.dcCandidates, square)!=0)
                 {
                     continue;
                 }

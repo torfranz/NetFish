@@ -731,7 +731,7 @@ internal class Position
 
         // A non-king move is legal if and only if it is not pinned or it
         // is moving along the ray towards or away from the king.
-        return !pinned || !(pinned & from) || Utils.aligned(from, Move.to_sq(m), square(PieceType.KING, us));
+        return !pinned || Bitboard.AndWithSquare(pinned, from) ==0 || Utils.aligned(from, Move.to_sq(m), square(PieceType.KING, us));
     }
 
     /// Position::pseudo_legal() takes a random move and tests whether the move is
@@ -764,7 +764,7 @@ internal class Position
         }
 
         // The destination square cannot be occupied by a friendly piece
-        if (pieces_Ct(us) & to)
+        if (Bitboard.AndWithSquare(pieces_Ct(us), to)!=0)
         {
             return false;
         }
@@ -779,7 +779,7 @@ internal class Position
                 return false;
             }
 
-            if (!(attacks_from_PS(PieceType.PAWN, from, us) & pieces_Ct(Color.opposite(us)) & to) // Not a capture
+            if (Bitboard.AndWithSquare(attacks_from_PS(PieceType.PAWN, from, us) & pieces_Ct(Color.opposite(us)), to)==0 // Not a capture
                 && !((from + Square.pawn_push(us) == to) && empty(to)) // Not a single push
                 && !((from + 2*Square.pawn_push(us) == to) // Not a double push
                      && (Square.rank_of(from) == Rank.relative_rank_CtRt(us, Rank.RANK_2)) && empty(to)
@@ -788,7 +788,7 @@ internal class Position
                 return false;
             }
         }
-        else if (!(attacks_from(pc, from) & to))
+        else if (Bitboard.AndWithSquare(attacks_from(pc, from), to)==0)
         {
             return false;
         }
@@ -807,9 +807,7 @@ internal class Position
                 }
 
                 // Our move must be a blocking evasion or a capture of the checking piece
-                if (
-                    !((Utils.between_bb(Utils.lsb(checkers()), square(PieceType.KING, us)) | checkers())
-                      & to))
+                if (Bitboard.AndWithSquare((Utils.between_bb(Utils.lsb(checkers()), square(PieceType.KING, us)) | checkers()), to)==0)
                 {
                     return false;
                 }
@@ -836,13 +834,13 @@ internal class Position
         var to = Move.to_sq(m);
 
         // Is there a direct check?
-        if (ci.checkSquares[Piece.type_of(piece_on(@from))] & to)
+        if (Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(piece_on(from))], to)!=0)
         {
             return true;
         }
 
         // Is there a discovered check?
-        if ((bool) ci.dcCandidates && (ci.dcCandidates & from) && !Utils.aligned(from, to, ci.ksq))
+        if ((bool) ci.dcCandidates && Bitboard.AndWithSquare(ci.dcCandidates, from)!=0 && !Utils.aligned(from, to, ci.ksq))
         {
             return true;
         }
@@ -853,7 +851,7 @@ internal class Position
                 return false;
 
             case MoveType.PROMOTION:
-                return Utils.attacks_bb_PSBb(Piece.Create(Move.promotion_type(m)), to, pieces() ^ from) & ci.ksq;
+                return Bitboard.AndWithSquare(Utils.attacks_bb_PSBb(Piece.Create(Move.promotion_type(m)), to, pieces() ^ from), ci.ksq) != 0;
 
             // En passant capture with check? We have already handled the case
             // of direct checks and ordinary discovered check, so the only case we
@@ -876,9 +874,8 @@ internal class Position
                 var kto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
-                return (bool) (Utils.PseudoAttacks[PieceType.ROOK, rto] & ci.ksq)
-                       && (Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto)
-                           & ci.ksq);
+                return Bitboard.AndWithSquare(Utils.PseudoAttacks[PieceType.ROOK, rto], ci.ksq)!=0
+                       && Bitboard.AndWithSquare(Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (pieces() ^ kfrom ^ rfrom) | rto | kto), ci.ksq)!=0;
             }
             default:
                 Debug.Assert(false);

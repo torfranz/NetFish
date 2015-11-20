@@ -900,7 +900,7 @@ internal static class Search
             var captureOrPromotion = pos.capture_or_promotion(move);
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
                 : pos.gives_check(move, ci);
 
             // Step 12. Extend checks
@@ -1351,7 +1351,7 @@ internal static class Search
             Debug.Assert(Move.is_ok(move));
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
-                ? ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))] & Move.to_sq(move)
+                ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
                 : pos.gives_check(move, ci);
 
             // Futility pruning

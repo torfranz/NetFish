@@ -90,16 +90,6 @@ internal struct BitboardT
         return Bitboard.Create(b.Value ^ Utils.SquareBB[s].Value);
     }
 
-    /// Overloads of bitwise operators between a Bitboard and a Square for testing
-    /// whether a given bit is set in a bitboard, and for setting and clearing bits.
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    public static BitboardT operator &(BitboardT b, SquareT s)
-    {
-        return Bitboard.Create(b.Value & Utils.SquareBB[s].Value);
-    }
-
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -192,4 +182,13 @@ internal static class Bitboard
                             : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : Bitboard.Create(0);
     }
 
+    /// Overloads of bitwise operators between a Bitboard and a Square for testing
+    /// whether a given bit is set in a bitboard, and for setting and clearing bits.
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static BitboardT AndWithSquare(BitboardT b, SquareT s)
+    {
+        return Bitboard.Create(b & Utils.SquareBB[s]);
+    }
 }

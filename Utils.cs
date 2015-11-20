@@ -194,7 +194,7 @@ internal static class Utils
 #endif
     internal static bool aligned(SquareT s1, SquareT s2, SquareT s3)
     {
-        return LineBB[s1, s2] & s3;
+        return Bitboard.AndWithSquare(LineBB[s1, s2], s3)!=0;
     }
 
     /// distance() functions return the distance between x and y, defined as the

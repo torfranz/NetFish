@@ -299,7 +299,7 @@ internal static class Eval
                         pos.pieces() ^ pos.pieces_CtPtPt(Us, PieceType.ROOK, PieceType.QUEEN))
                     : pos.attacks_from_PtS(pieceType, s);
 
-            if (ei.pinnedPieces[Us] & s)
+            if (Bitboard.AndWithSquare(ei.pinnedPieces[Us], s)!=0)
             {
                 b &= Utils.LineBB[pos.square(PieceType.KING, Us), s];
             }
@@ -337,11 +337,11 @@ internal static class Eval
                     && !(pos.pieces_CtPt(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s)))
                 {
                     score +=
-                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][(ei.attackedBy[Us, PieceType.PAWN] & s) ? 1 : 0];
+                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][Bitboard.AndWithSquare(ei.attackedBy[Us, PieceType.PAWN], s)!=0 ? 1 : 0];
                 }
 
                 // Bonus when behind a pawn
-                if (Rank.relative_rank_CtSt(Us, s) < Rank.RANK_5 && (pos.pieces_Pt(PieceType.PAWN) & (s + Square.pawn_push(Us))))
+                if (Rank.relative_rank_CtSt(Us, s) < Rank.RANK_5 && Bitboard.AndWithSquare(pos.pieces_Pt(PieceType.PAWN), (s + Square.pawn_push(Us)))!=0)
                 {
                     score += MinorBehindPawn;
                 }
@@ -681,7 +681,7 @@ internal static class Eval
 
                     // If there aren't any enemy attacks, assign a big bonus. Otherwise
                     // assign a smaller bonus if the block square isn't attacked.
-                    var k = !unsafeSquares ? 18 : !(unsafeSquares & blockSq) ? 8 : 0;
+                    var k = !unsafeSquares ? 18 : Bitboard.AndWithSquare(unsafeSquares, blockSq)==0 ? 8 : 0;
 
                     // If the path to queen is fully defended, assign a big bonus.
                     // Otherwise assign a smaller bonus if the block square is defended.
@@ -690,7 +690,7 @@ internal static class Eval
                         k += 6;
                     }
 
-                    else if (defendedSquares & blockSq)
+                    else if (Bitboard.AndWithSquare(defendedSquares, blockSq)!=0)
                     {
                         k += 4;
                     }
@@ -698,7 +698,7 @@ internal static class Eval
                     mbonus += k*rr;
                     ebonus += k*rr;
                 }
-                else if (pos.pieces_Ct(Us) & blockSq)
+                else if (Bitboard.AndWithSquare(pos.pieces_Ct(Us), blockSq)!=0)
                 {
                     mbonus += rr*3 + r*2 + 3;
                     ebonus += rr + r*2;

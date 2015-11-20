@@ -445,7 +445,7 @@ internal static class Pawns
 
         internal int pawns_on_same_color_squares(ColorT c, SquareT s)
         {
-            return pawnsOnSquares[c, Bitboard.DarkSquares & s ? 1 : 0];
+            return pawnsOnSquares[c, Bitboard.AndWithSquare(Bitboard.DarkSquares, s)!=0 ? 1 : 0];
         }
 
         internal ScoreT king_safety(ColorT Us, Position pos, SquareT ksq)

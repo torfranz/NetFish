@@ -120,7 +120,7 @@ internal static class Bitboards
             {
                 for (var s2 = Square.SQ_A1; s2 <= Square.SQ_H8; ++s2)
                 {
-                    if (!(Utils.PseudoAttacks[pc, s1] & s2))
+                    if (Bitboard.AndWithSquare(Utils.PseudoAttacks[pc, s1], s2)==0)
                     {
                         continue;
                     }
@@ -145,7 +145,7 @@ internal static class Bitboards
             {
                 attack |= s;
 
-                if (occupied & s)
+                if (Bitboard.AndWithSquare(occupied, s) != 0)
                 {
                     break;
                 }
