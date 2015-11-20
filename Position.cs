@@ -26,11 +26,11 @@ internal class Position
     // Data members
     private PieceT[] board = new PieceT[Square.SQUARE_NB];
 
-    private Bitboard[] byColorBB = new Bitboard[Color.COLOR_NB];
+    private BitboardT[] byColorBB = new BitboardT[Color.COLOR_NB];
 
-    private Bitboard[] byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+    private BitboardT[] byTypeBB = new BitboardT[PieceType.PIECE_TYPE_NB];
 
-    private Bitboard[] castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
+    private BitboardT[] castlingPath = new BitboardT[(int) CastlingRight.CASTLING_RIGHT_NB];
 
     private int[] castlingRightsMask = new int[Square.SQUARE_NB];
 
@@ -126,7 +126,7 @@ internal class Position
         for (var cr = (int) CastlingRight.NO_CASTLING; cr <= (int) CastlingRight.ANY_CASTLING; ++cr)
         {
             Zobrist.castling[cr] = 0;
-            var b = new Bitboard((ulong) cr);
+            var b = Bitboard.Create((ulong) cr);
             while (b)
             {
                 var k = Zobrist.castling[1 << Utils.pop_lsb(ref b)];
@@ -141,7 +141,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces()
+    internal BitboardT pieces()
     {
         return byTypeBB[PieceType.ALL_PIECES];
     }
@@ -181,7 +181,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_Pt(PieceTypeT pt)
+    internal BitboardT pieces_Pt(PieceTypeT pt)
     {
         return byTypeBB[pt];
     }
@@ -189,7 +189,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_PtPt(PieceTypeT pt1, PieceTypeT pt2)
+    internal BitboardT pieces_PtPt(PieceTypeT pt1, PieceTypeT pt2)
     {
         return byTypeBB[pt1] | byTypeBB[pt2];
     }
@@ -197,7 +197,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_Ct(ColorT c)
+    internal BitboardT pieces_Ct(ColorT c)
     {
         return byColorBB[c];
     }
@@ -205,7 +205,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_CtPt(ColorT c, PieceTypeT pt)
+    internal BitboardT pieces_CtPt(ColorT c, PieceTypeT pt)
     {
         return byColorBB[c] & byTypeBB[pt];
     }
@@ -213,7 +213,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pieces_CtPtPt(ColorT c, PieceTypeT pt1, PieceTypeT pt2)
+    internal BitboardT pieces_CtPtPt(ColorT c, PieceTypeT pt1, PieceTypeT pt2)
     {
         return byColorBB[c] & (byTypeBB[pt1] | byTypeBB[pt2]);
     }
@@ -286,7 +286,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from_PtS(PieceTypeT Pt, SquareT s)
+    internal BitboardT attacks_from_PtS(PieceTypeT Pt, SquareT s)
     {
         return Pt == PieceType.BISHOP || Pt == PieceType.ROOK
             ? Utils.attacks_bb_PtSBb(Pt, s, byTypeBB[PieceType.ALL_PIECES])
@@ -298,7 +298,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from_PS(PieceTypeT Pt, SquareT s, ColorT c)
+    internal BitboardT attacks_from_PS(PieceTypeT Pt, SquareT s, ColorT c)
     {
         Debug.Assert(Pt == PieceType.PAWN);
         return Utils.StepAttacksBB[Piece.make_piece(c, PieceType.PAWN), s];
@@ -307,7 +307,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attacks_from(PieceT pc, SquareT s)
+    internal BitboardT attacks_from(PieceT pc, SquareT s)
     {
         return Utils.attacks_bb_PSBb(pc, s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -315,7 +315,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard attackers_to(SquareT s)
+    internal BitboardT attackers_to(SquareT s)
     {
         return attackers_to(s, byTypeBB[PieceType.ALL_PIECES]);
     }
@@ -323,7 +323,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard checkers()
+    internal BitboardT checkers()
     {
         return st.checkersBB;
     }
@@ -331,7 +331,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard discovered_check_candidates()
+    internal BitboardT discovered_check_candidates()
     {
         return check_blockers(sideToMove, Color.opposite(sideToMove));
     }
@@ -339,7 +339,7 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal Bitboard pinned_pieces(ColorT c)
+    internal BitboardT pinned_pieces(ColorT c)
     {
         return check_blockers(c, c);
     }
@@ -654,9 +654,9 @@ internal class Position
     /// position where the king is in check. A check blocking piece can be either a
     /// pinned or a discovered check piece, according if its color 'c' is the same
     /// or the opposite of 'kingColor'.
-    private Bitboard check_blockers(ColorT c, ColorT kingColor)
+    private BitboardT check_blockers(ColorT c, ColorT kingColor)
     {
-        Bitboard result = new Bitboard(0);
+        BitboardT result = Bitboard.Create(0);
         var ksq = square(PieceType.KING, kingColor);
 
         // Pinners are sliders that give check when a pinned piece is removed
@@ -678,7 +678,7 @@ internal class Position
 
     /// Position::attackers_to() computes a bitboard of all pieces which attack a
     /// given square. Slider attacks use the occupied bitboard to indicate occupancy.
-    private Bitboard attackers_to(SquareT s, Bitboard occupied)
+    private BitboardT attackers_to(SquareT s, BitboardT occupied)
     {
         return (attacks_from_PS(PieceType.PAWN, s, Color.BLACK) & pieces_CtPt(Color.WHITE, PieceType.PAWN))
                | (attacks_from_PS(PieceType.PAWN, s, Color.WHITE) & pieces_CtPt(Color.BLACK, PieceType.PAWN))
@@ -689,7 +689,7 @@ internal class Position
     }
 
     /// Position::legal() tests whether a pseudo-legal move is legal
-    internal bool legal(MoveT m, Bitboard pinned)
+    internal bool legal(MoveT m, BitboardT pinned)
     {
         Debug.Assert(Move.is_ok(m));
         Debug.Assert(pinned == pinned_pieces(sideToMove));
@@ -1055,7 +1055,7 @@ internal class Position
         // Calculate checkers bitboard (if move gives check)
         st.checkersBB = givesCheck
             ? attackers_to(square(PieceType.KING, them)) & pieces_Ct(us)
-            : new Bitboard(0);
+            : Bitboard.Create(0);
 
         sideToMove = Color.opposite(sideToMove);
 
@@ -1183,11 +1183,11 @@ internal class Position
     // from the bitboards and scan for new X-ray attacks behind it.
     private PieceTypeT min_attacker(
         PieceTypeT Pt,
-        Bitboard[] bb,
+        BitboardT[] bb,
         SquareT to,
-        Bitboard stmAttackers,
-        ref Bitboard occupied,
-        ref Bitboard attackers)
+        BitboardT stmAttackers,
+        ref BitboardT occupied,
+        ref BitboardT attackers)
     {
         if (Pt == PieceType.KING)
         {
@@ -1199,7 +1199,7 @@ internal class Position
             return min_attacker(Pt + 1, bb, to, stmAttackers, ref occupied, ref attackers);
         }
 
-        occupied ^= b & ~(b - new Bitboard(1));
+        occupied ^= b & ~(b - Bitboard.Create(1));
 
         if (Pt == PieceType.PAWN || Pt == PieceType.BISHOP || Pt == PieceType.QUEEN)
         {
@@ -1743,11 +1743,11 @@ internal class Position
     {
         this.clearBoard();
 
-        byColorBB = new Bitboard[Color.COLOR_NB];
+        byColorBB = new BitboardT[Color.COLOR_NB];
 
-        byTypeBB = new Bitboard[PieceType.PIECE_TYPE_NB];
+        byTypeBB = new BitboardT[PieceType.PIECE_TYPE_NB];
 
-        castlingPath = new Bitboard[(int) CastlingRight.CASTLING_RIGHT_NB];
+        castlingPath = new BitboardT[(int) CastlingRight.CASTLING_RIGHT_NB];
 
         castlingRightsMask = new int[Square.SQUARE_NB];
 

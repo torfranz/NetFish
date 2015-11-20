@@ -100,7 +100,7 @@ internal static class Movegen
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        Bitboard target,
+        BitboardT target,
         CheckInfo ci)
     {
         // Compute our parametrized parameters at compile time, named according to
@@ -113,7 +113,7 @@ internal static class Movegen
         var Right = (Us == Color.WHITE ? Square.DELTA_NE : Square.DELTA_SW);
         var Left = (Us == Color.WHITE ? Square.DELTA_NW : Square.DELTA_SE);
 
-        var emptySquares = new Bitboard(0);
+        var emptySquares = Bitboard.Create(0);
 
         var pawnsOn7 = pos.pieces_CtPt(Us, PieceType.PAWN) & TRank7BB;
         var pawnsNotOn7 = pos.pieces_CtPt(Us, PieceType.PAWN) & ~TRank7BB;
@@ -252,7 +252,7 @@ internal static class Movegen
         Position pos,
         ExtMoveArrayWrapper moveList,
         ColorT us,
-        Bitboard target,
+        BitboardT target,
         CheckInfo ci)
     {
         var Pt = (int) pieceType;
@@ -301,7 +301,7 @@ internal static class Movegen
         GenType Type,
         Position pos,
         ExtMoveArrayWrapper moveList,
-        Bitboard target,
+        BitboardT target,
         CheckInfo ci = null)
     {
         var Checks = Type == GenType.QUIET_CHECKS;
@@ -395,7 +395,7 @@ internal static class Movegen
             ? pos.pieces_Ct(Color.opposite(us))
             : Type == GenType.QUIETS
                 ? ~pos.pieces()
-                : Type == GenType.NON_EVASIONS ? ~pos.pieces_Ct(us) : new Bitboard(0);
+                : Type == GenType.NON_EVASIONS ? ~pos.pieces_Ct(us) : Bitboard.Create(0);
 
         return us == Color.WHITE
             ? generate_all(Color.WHITE, Type, pos, moveList, target)
@@ -452,7 +452,7 @@ internal static class Movegen
 
         var us = pos.side_to_move();
         var ksq = pos.square(PieceType.KING, us);
-        var sliderAttacks = new Bitboard(0);
+        var sliderAttacks = Bitboard.Create(0);
         var sliders = pos.checkers() & ~pos.pieces_PtPt(PieceType.KNIGHT, PieceType.PAWN);
 
         // Find all the squares attacked by slider checkers. We will remove them from

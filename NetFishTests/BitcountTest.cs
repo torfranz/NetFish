@@ -15,10 +15,10 @@ namespace Tests
         [TestMethod()]
         public void popcount_Max15Test()
         {
-            var result = Bitcount.popcount_Max15(new Bitboard(282578800148862));
+            var result = Bitcount.popcount_Max15(Bitboard.Create(282578800148862));
             Assert.AreEqual(12, result);
 
-            result = Bitcount.popcount_Max15(new Bitboard(7));
+            result = Bitcount.popcount_Max15(Bitboard.Create(7));
             Assert.AreEqual(3, result);
         }
 

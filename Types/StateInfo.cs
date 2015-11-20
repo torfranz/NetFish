@@ -14,7 +14,7 @@ internal class StateInfo
 
     internal int castlingRights;
 
-    internal Bitboard checkersBB;
+    internal BitboardT checkersBB;
 
     internal SquareT epSquare = Square.SQ_NONE;
 

@@ -201,7 +201,7 @@ internal static class Eval
     // by the space evaluation. In the middlegame, each side is given a bonus
     // based on how many squares inside this area are safe and available for
     // friendly minor pieces.
-    internal static Bitboard[] SpaceMask =
+    internal static BitboardT[] SpaceMask =
     {
         (Bitboard.FileCBB | Bitboard.FileDBB | Bitboard.FileEBB | Bitboard.FileFBB)
         & (Bitboard.Rank2BB | Bitboard.Rank3BB | Bitboard.Rank4BB),
@@ -254,7 +254,7 @@ internal static class Eval
         }
         else
         {
-            ei.kingRing[Them] = new Bitboard(0);
+            ei.kingRing[Them] = Bitboard.Create(0);
             ei.kingAttackersCount[Us] = 0;
         }
     }
@@ -268,7 +268,7 @@ internal static class Eval
         Position pos,
         EvalInfo ei,
         ScoreT[] mobility,
-        Bitboard[] mobilityArea)
+        BitboardT[] mobilityArea)
     {
         int Pt = pieceType;
         if (Pt == PieceType.KING)
@@ -280,7 +280,7 @@ internal static class Eval
         var NextPt = (Us == Color.WHITE ? pieceType : pieceType + 1);
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
         
-        ei.attackedBy[Us, Pt] = new Bitboard(0);
+        ei.attackedBy[Us, Pt] = Bitboard.Create(0);
 
         for(var idx=0; idx<16;idx++)
         {
@@ -525,7 +525,7 @@ internal static class Eval
         const int Minor = 0;
         const int Rook = 1;
 
-        Bitboard b;
+        BitboardT b;
         var score = Score.SCORE_ZERO;
 
         // Non-pawn enemies attacked by a pawn
@@ -662,8 +662,8 @@ internal static class Eval
                     // If there is a rook or queen attacking/defending the pawn from behind,
                     // consider all the squaresToQueen. Otherwise consider only the squares
                     // in the pawn's path attacked or occupied by the enemy.
-                    Bitboard squaresToQueen;
-                    Bitboard unsafeSquares;
+                    BitboardT squaresToQueen;
+                    BitboardT unsafeSquares;
                     var defendedSquares = unsafeSquares = squaresToQueen = Utils.forward_bb(Us, s);
 
                     var bb = Utils.forward_bb(Them, s) & pos.pieces_PtPt(PieceType.ROOK, PieceType.QUEEN)
@@ -785,12 +785,12 @@ internal static class Eval
 
         // Initialize attack and king safety bitboards
         ei.attackedBy[Color.WHITE, PieceType.ALL_PIECES] =
-            ei.attackedBy[Color.BLACK, PieceType.ALL_PIECES] = new Bitboard(0);
+            ei.attackedBy[Color.BLACK, PieceType.ALL_PIECES] = Bitboard.Create(0);
         init_eval_info(Color.WHITE, pos, ei);
         init_eval_info(Color.BLACK, pos, ei);
 
         // Pawns blocked or on ranks 2 and 3. Will be excluded from the mobility area
-        Bitboard[] blockedPawns =
+        BitboardT[] blockedPawns =
         {
             pos.pieces_CtPt(Color.WHITE, PieceType.PAWN)
             & (Bitboard.shift_bb(Square.DELTA_S, pos.pieces()) | Bitboard.Rank2BB
@@ -802,7 +802,7 @@ internal static class Eval
 
         // Do not include in mobility squares protected by enemy pawns, or occupied
         // by our blocked pawns or king.
-        Bitboard[] mobilityArea =
+        BitboardT[] mobilityArea =
         {
             ~(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
               | pos.square(PieceType.KING, Color.WHITE)),
@@ -828,7 +828,7 @@ internal static class Eval
         // If both sides have only pawns, score for potential unstoppable pawns
         if (pos.non_pawn_material(Color.WHITE) == 0 && pos.non_pawn_material(Color.BLACK) == 0)
         {
-            Bitboard b;
+            BitboardT b;
             if ((b = ei.pi.passed_pawns(Color.WHITE)) != 0)
             {
                 score += Rank.relative_rank_CtSt(Color.WHITE, Utils.frontmost_sq(Color.WHITE, b)) * Unstoppable;

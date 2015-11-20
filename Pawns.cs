@@ -59,7 +59,7 @@ internal static class Pawns
     private static readonly ScoreT UnsupportedPawnPenalty = Score.make_score(20, 10);
 
     // Center bind bonus: Two pawns controlling the same central square
-    private static readonly Bitboard[] CenterBindMask =
+    private static readonly BitboardT[] CenterBindMask =
     {
         (Bitboard.FileDBB | Bitboard.FileEBB)
         & (Bitboard.Rank5BB | Bitboard.Rank6BB | Bitboard.Rank7BB),
@@ -220,14 +220,14 @@ internal static class Pawns
         var Right = (Us == Color.WHITE ? Square.DELTA_NE : Square.DELTA_SW);
         var Left = (Us == Color.WHITE ? Square.DELTA_NW : Square.DELTA_SE);
 
-        Bitboard b;
+        BitboardT b;
 
         var score = Score.SCORE_ZERO;
         
         var ourPawns = pos.pieces_CtPt(Us, PieceType.PAWN);
         var theirPawns = pos.pieces_CtPt(Them, PieceType.PAWN);
 
-        e.passedPawns[Us] = new Bitboard(0);
+        e.passedPawns[Us] = Bitboard.Create(0);
         e.kingSquares[Us] = Square.SQ_NONE;
         e.semiopenFiles[Us] = 0xFF;
         e.pawnAttacks[Us] = Bitboard.shift_bb(Right, ourPawns) | Bitboard.shift_bb(Left, ourPawns);
@@ -332,7 +332,7 @@ internal static class Pawns
             }
         }
 
-        b = new Bitboard((uint) (e.semiopenFiles[Us] ^ 0xFF));
+        b = Bitboard.Create((uint) (e.semiopenFiles[Us] ^ 0xFF));
         e.pawnSpan[Us] = b ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
 
         // Center binds: Two pawns controlling the same central square
@@ -401,9 +401,9 @@ internal static class Pawns
 
         internal SquareT[] kingSquares = new SquareT[Color.COLOR_NB];
 
-        internal Bitboard[] passedPawns = new Bitboard[Color.COLOR_NB];
+        internal BitboardT[] passedPawns = new BitboardT[Color.COLOR_NB];
 
-        internal Bitboard[] pawnAttacks = new Bitboard[Color.COLOR_NB];
+        internal BitboardT[] pawnAttacks = new BitboardT[Color.COLOR_NB];
 
         internal int[,] pawnsOnSquares = new int[Color.COLOR_NB, Color.COLOR_NB]; // [color][light/dark squares]
 
@@ -418,12 +418,12 @@ internal static class Pawns
             return score;
         }
 
-        internal Bitboard pawn_attacks(ColorT c)
+        internal BitboardT pawn_attacks(ColorT c)
         {
             return pawnAttacks[c];
         }
 
-        internal Bitboard passed_pawns(ColorT c)
+        internal BitboardT passed_pawns(ColorT c)
         {
             return passedPawns[c];
         }

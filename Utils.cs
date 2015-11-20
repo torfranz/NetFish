@@ -16,7 +16,7 @@ using SquareT = System.Int32;
 
 internal static class Utils
 {
-    internal delegate uint Fn(SquareT s, Bitboard occ);
+    internal delegate uint Fn(SquareT s, BitboardT occ);
 
     // De Bruijn sequences. See chessprogramming.wikispaces.com/BitScan
     private const ulong DeBruijn64 = 0x3F79D71B4CB0A89UL;
@@ -25,47 +25,47 @@ internal static class Utils
 
     internal static int[,] SquareDistance = new int[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[] RookMasks = new Bitboard[Square.SQUARE_NB];
+    internal static BitboardT[] RookMasks = new BitboardT[Square.SQUARE_NB];
 
-    internal static Bitboard[] RookMagics = new Bitboard[Square.SQUARE_NB];
+    internal static BitboardT[] RookMagics = new BitboardT[Square.SQUARE_NB];
 
-    internal static Bitboard[][] RookAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static BitboardT[][] RookAttacks = new BitboardT[Square.SQUARE_NB][];
 
     internal static uint[] RookShifts = new uint[Square.SQUARE_NB];
 
-    internal static Bitboard[] BishopMasks = new Bitboard[Square.SQUARE_NB];
+    internal static BitboardT[] BishopMasks = new BitboardT[Square.SQUARE_NB];
 
-    internal static Bitboard[] BishopMagics = new Bitboard[Square.SQUARE_NB];
+    internal static BitboardT[] BishopMagics = new BitboardT[Square.SQUARE_NB];
 
-    internal static Bitboard[][] BishopAttacks = new Bitboard[Square.SQUARE_NB][];
+    internal static BitboardT[][] BishopAttacks = new BitboardT[Square.SQUARE_NB][];
 
     internal static uint[] BishopShifts = new uint[Square.SQUARE_NB];
 
-    internal static Bitboard[] SquareBB = new Bitboard[Square.SQUARE_NB];
+    internal static BitboardT[] SquareBB = new BitboardT[Square.SQUARE_NB];
 
-    internal static Bitboard[] FileBB = new Bitboard[File.FILE_NB];
+    internal static BitboardT[] FileBB = new BitboardT[File.FILE_NB];
 
-    internal static Bitboard[] AdjacentFilesBB = new Bitboard[File.FILE_NB];
+    internal static BitboardT[] AdjacentFilesBB = new BitboardT[File.FILE_NB];
 
-    internal static Bitboard[] RankBB = new Bitboard[Rank.RANK_NB];
+    internal static BitboardT[] RankBB = new BitboardT[Rank.RANK_NB];
 
-    internal static Bitboard[,] InFrontBB = new Bitboard[Color.COLOR_NB, Rank.RANK_NB];
+    internal static BitboardT[,] InFrontBB = new BitboardT[Color.COLOR_NB, Rank.RANK_NB];
 
-    internal static Bitboard[,] StepAttacksBB = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] StepAttacksBB = new BitboardT[Piece.PIECE_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] BetweenBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] BetweenBB = new BitboardT[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] LineBB = new Bitboard[Square.SQUARE_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] LineBB = new BitboardT[Square.SQUARE_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] DistanceRingBB = new Bitboard[Square.SQUARE_NB, 8];
+    internal static BitboardT[,] DistanceRingBB = new BitboardT[Square.SQUARE_NB, 8];
 
-    internal static Bitboard[,] ForwardBB = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] ForwardBB = new BitboardT[Color.COLOR_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] PassedPawnMask = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] PassedPawnMask = new BitboardT[Color.COLOR_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] PawnAttackSpan = new Bitboard[Color.COLOR_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] PawnAttackSpan = new BitboardT[Color.COLOR_NB, Square.SQUARE_NB];
 
-    internal static Bitboard[,] PseudoAttacks = new Bitboard[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal static BitboardT[,] PseudoAttacks = new BitboardT[Piece.PIECE_NB, Square.SQUARE_NB];
 
     internal static int[] MSBTable = new int[256]; // To implement software msb()
 
@@ -91,7 +91,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard rank_bb_Rt(RankT r)
+    internal static BitboardT rank_bb_Rt(RankT r)
     {
         return RankBB[r];
     }
@@ -99,7 +99,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard rank_bb_St(SquareT s)
+    internal static BitboardT rank_bb_St(SquareT s)
     {
         return RankBB[Square.rank_of(s)];
     }
@@ -107,7 +107,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard file_bb_Ft(FileT f)
+    internal static BitboardT file_bb_Ft(FileT f)
     {
         return FileBB[f];
     }
@@ -115,7 +115,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard file_bb_St(SquareT s)
+    internal static BitboardT file_bb_St(SquareT s)
     {
         return FileBB[Square.file_of(s)];
     }
@@ -125,7 +125,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard adjacent_files_bb(FileT f)
+    internal static BitboardT adjacent_files_bb(FileT f)
     {
         return AdjacentFilesBB[f];
     }
@@ -137,7 +137,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard between_bb(SquareT s1, SquareT s2)
+    internal static BitboardT between_bb(SquareT s1, SquareT s2)
     {
         return BetweenBB[s1, s2];
     }
@@ -148,7 +148,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard in_front_bb(ColorT c, RankT r)
+    internal static BitboardT in_front_bb(ColorT c, RankT r)
     {
         return InFrontBB[c, r];
     }
@@ -159,7 +159,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard forward_bb(ColorT c, SquareT s)
+    internal static BitboardT forward_bb(ColorT c, SquareT s)
     {
         return ForwardBB[c, s];
     }
@@ -171,7 +171,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard pawn_attack_span(ColorT c, SquareT s)
+    internal static BitboardT pawn_attack_span(ColorT c, SquareT s)
     {
         return PawnAttackSpan[c, s];
     }
@@ -182,7 +182,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard passed_pawn_mask(ColorT c, SquareT s)
+    internal static BitboardT passed_pawn_mask(ColorT c, SquareT s)
     {
         return PassedPawnMask[c, s];
     }
@@ -234,12 +234,12 @@ internal static class Utils
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
-    internal static uint magic_index_Rook(SquareT s, Bitboard occupied)
+    internal static uint magic_index_Rook(SquareT s, BitboardT occupied)
     {
         return magic_index(PieceType.ROOK, s, occupied);
     }
 
-    internal static uint magic_index_Bishop(SquareT s, Bitboard occupied)
+    internal static uint magic_index_Bishop(SquareT s, BitboardT occupied)
     {
         return magic_index(PieceType.BISHOP, s, occupied);
     }
@@ -247,7 +247,7 @@ internal static class Utils
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
-    internal static uint magic_index(PieceTypeT Pt, SquareT s, Bitboard occupied)
+    internal static uint magic_index(PieceTypeT Pt, SquareT s, BitboardT occupied)
     {
         var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
         var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
@@ -263,7 +263,7 @@ internal static class Utils
 #endif
     }
 
-    internal static Bitboard attacks_bb_PtSBb(PieceTypeT Pt, SquareT s, Bitboard occupied)
+    internal static BitboardT attacks_bb_PtSBb(PieceTypeT Pt, SquareT s, BitboardT occupied)
     {
         return Pt == PieceType.ROOK
             ? RookAttacks[s][magic_index(Pt, s, occupied)]
@@ -273,7 +273,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static Bitboard attacks_bb_PSBb(PieceT pc, SquareT s, Bitboard occupied)
+    internal static BitboardT attacks_bb_PSBb(PieceT pc, SquareT s, BitboardT occupied)
     {
         switch ((int)Piece.type_of(pc))
         {
@@ -291,7 +291,7 @@ internal static class Utils
     // bsf_index() returns the index into BSFTable[] to look up the bitscan. Uses
     // Matt Taylor's folding for 32 bit case, extended to 64 bit by Kim Walisch.
 
-    internal static uint bsf_index(Bitboard b)
+    internal static uint bsf_index(BitboardT b)
     {
         var value = (ulong)b;
         value ^= value - 1;
@@ -302,12 +302,12 @@ internal static class Utils
 #endif
     }
 
-    internal static SquareT lsb(Bitboard b)
+    internal static SquareT lsb(BitboardT b)
     {
         return BSFTable[bsf_index(b)];
     }
 
-    internal static SquareT msb(Bitboard b)
+    internal static SquareT msb(BitboardT b)
     {
         var value = (ulong)b;
         var result = 0;
@@ -339,13 +339,13 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static SquareT pop_lsb(ref Bitboard b)
+    internal static SquareT pop_lsb(ref BitboardT b)
     {
         var s = lsb(b);
 
         var value = (ulong)b;
         value &= value - 1;
-        b = new Bitboard(value);
+        b = Bitboard.Create(value);
         return s;
     }
 
@@ -354,7 +354,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static SquareT frontmost_sq(ColorT c, Bitboard b)
+    internal static SquareT frontmost_sq(ColorT c, BitboardT b)
     {
         return c == Color.WHITE ? msb(b) : lsb(b);
     }
@@ -362,7 +362,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static SquareT backmost_sq(ColorT c, Bitboard b)
+    internal static SquareT backmost_sq(ColorT c, BitboardT b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
     }

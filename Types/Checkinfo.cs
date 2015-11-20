@@ -4,13 +4,13 @@ using SquareT = System.Int32;
 
 internal class CheckInfo
 {
-    internal readonly Bitboard[] checkSquares = new Bitboard[PieceType.PIECE_TYPE_NB];
+    internal readonly BitboardT[] checkSquares = new BitboardT[PieceType.PIECE_TYPE_NB];
 
     internal readonly SquareT ksq;
 
-    internal Bitboard dcCandidates;
+    internal BitboardT dcCandidates;
 
-    internal Bitboard pinned;
+    internal BitboardT pinned;
 
     internal CheckInfo(Position pos)
     {
@@ -25,6 +25,6 @@ internal class CheckInfo
         checkSquares[PieceType.BISHOP] = pos.attacks_from_PtS(PieceType.BISHOP, ksq);
         checkSquares[PieceType.ROOK] = pos.attacks_from_PtS(PieceType.ROOK, ksq);
         checkSquares[PieceType.QUEEN] = checkSquares[PieceType.BISHOP] | checkSquares[PieceType.ROOK];
-        checkSquares[PieceType.KING] = new Bitboard(0);
+        checkSquares[PieceType.KING] = Bitboard.Create(0);
     }
 };
