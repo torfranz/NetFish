@@ -59,7 +59,7 @@ internal static class Bitboards
                 if (s1 != s2)
                 {
                     Utils.SquareDistance[s1, s2] = Math.Max(Utils.distance_File(s1, s2), Utils.distance_Rank_StSt(s1, s2));
-                    Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] |= s2;
+                    Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] = Bitboard.OrWithSquare(Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] ,s2);
                 }
             }
         }
@@ -84,7 +84,7 @@ internal static class Bitboards
 
                         if (Square.is_ok(to) && Utils.distance_Square(s, to) < 3)
                         {
-                            Utils.StepAttacksBB[Piece.make_piece(c, pt), s] |= to;
+                            Utils.StepAttacksBB[Piece.make_piece(c, pt), s] = Bitboard.OrWithSquare(Utils.StepAttacksBB[Piece.make_piece(c, pt), s], to);
                         }
                     }
                 }
@@ -126,8 +126,8 @@ internal static class Bitboards
                     }
 
                     var piece = Piece.Create(pc);
-                    Utils.LineBB[s1, s2] = (Utils.attacks_bb_PSBb(piece, s1, Bitboard.Create(0))
-                                            & Utils.attacks_bb_PSBb(piece, s2, Bitboard.Create(0))) | s1 | s2;
+                    Utils.LineBB[s1, s2] = Bitboard.OrWithSquare(Bitboard.OrWithSquare((Utils.attacks_bb_PSBb(piece, s1, Bitboard.Create(0))
+                                            & Utils.attacks_bb_PSBb(piece, s2, Bitboard.Create(0))), s1), s2);
                     Utils.BetweenBB[s1, s2] = Utils.attacks_bb_PSBb(piece, s1, Utils.SquareBB[s2])
                                               & Utils.attacks_bb_PSBb(piece, s2, Utils.SquareBB[s1]);
                 }
@@ -143,7 +143,7 @@ internal static class Bitboards
         {
             for (var s = sq + deltas[i]; Square.is_ok(s) && Utils.distance_Square(s, s - deltas[i]) == 1; s += deltas[i])
             {
-                attack |= s;
+                attack = Bitboard.OrWithSquare(attack, s);
 
                 if (Bitboard.AndWithSquare(occupied, s) != 0)
                 {

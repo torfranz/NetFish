@@ -804,10 +804,10 @@ internal static class Eval
         // by our blocked pawns or king.
         BitboardT[] mobilityArea =
         {
-            ~(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
-              | pos.square(PieceType.KING, Color.WHITE)),
-            ~(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
-              | pos.square(PieceType.KING, Color.BLACK))
+            ~(Bitboard.OrWithSquare(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
+              , pos.square(PieceType.KING, Color.WHITE))),
+            ~(Bitboard.OrWithSquare(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
+              , pos.square(PieceType.KING, Color.BLACK)))
         };
 
         // Evaluate pieces and mobility

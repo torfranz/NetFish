@@ -478,7 +478,7 @@ internal static class Movegen
 
         // Generate blocking evasions or captures of the checking piece
         var checksq = Utils.lsb(pos.checkers());
-        var target = Utils.between_bb(checksq, ksq) | checksq;
+        var target = Bitboard.OrWithSquare(Utils.between_bb(checksq, ksq), checksq);
 
         return us == Color.WHITE
             ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)

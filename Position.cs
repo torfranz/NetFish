@@ -496,9 +496,9 @@ internal class Position
     {
         var pt = (int) pieceType;
         board[s] = Piece.make_piece(c, pieceType);
-        byTypeBB[PieceType.ALL_PIECES] |= s;
-        byTypeBB[pt] |= s;
-        byColorBB[c] |= s;
+        byTypeBB[PieceType.ALL_PIECES] = Bitboard.OrWithSquare(byTypeBB[PieceType.ALL_PIECES], s);
+        byTypeBB[pt] = Bitboard.OrWithSquare(byTypeBB[pt], s);
+        byColorBB[c] = Bitboard.OrWithSquare(byColorBB[c], s);
         index[s] = pieceCount[c, pt]++;
         pieceList[c, pt, index[s]] = s;
         pieceCount[c, PieceType.ALL_PIECES]++;
@@ -563,7 +563,7 @@ internal class Position
         {
             if (s != kfrom && s != rfrom)
             {
-                castlingPath[(int) cr] |= s;
+                castlingPath[(int) cr] = Bitboard.OrWithSquare(castlingPath[(int)cr], s);
             }
         }
 
@@ -571,7 +571,7 @@ internal class Position
         {
             if (s != kfrom && s != rfrom)
             {
-                castlingPath[(int) cr] |= s;
+                castlingPath[(int) cr] = Bitboard.OrWithSquare(castlingPath[(int)cr], s);
             }
         }
     }
@@ -708,7 +708,7 @@ internal class Position
             var ksq = square(PieceType.KING, us);
             var to = Move.to_sq(m);
             var capsq = to - Square.pawn_push(us);
-            var occupied = (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq)) | to;
+            var occupied = Bitboard.OrWithSquare(Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq), to);
 
             Debug.Assert(to == ep_square());
             Debug.Assert(moved_piece(m) == Piece.make_piece(us, PieceType.PAWN));
@@ -860,7 +860,7 @@ internal class Position
             case MoveType.ENPASSANT:
             {
                 var capsq = Square.make_square(Square.file_of(to), Square.rank_of(from));
-                var b = (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq)) | to;
+                var b = Bitboard.OrWithSquare(Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), from), capsq), to);
 
                 return (Utils.attacks_bb_PtSBb(PieceType.ROOK, ci.ksq, b)
                         & pieces_CtPtPt(sideToMove, PieceType.QUEEN, PieceType.ROOK))
@@ -874,8 +874,9 @@ internal class Position
                 var kto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_G1 : Square.SQ_C1);
                 var rto = Square.relative_square(sideToMove, rfrom > kfrom ? Square.SQ_F1 : Square.SQ_D1);
 
+                var occupied = Bitboard.OrWithSquare(Bitboard.OrWithSquare(Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), kfrom), rfrom), rto), kto);
                 return Bitboard.AndWithSquare(Utils.PseudoAttacks[PieceType.ROOK, rto], ci.ksq)!=0
-                       && Bitboard.AndWithSquare(Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, (Bitboard.XorWithSquare(Bitboard.XorWithSquare(pieces(), kfrom), rfrom)) | rto | kto), ci.ksq)!=0;
+                       && Bitboard.AndWithSquare(Utils.attacks_bb_PtSBb(PieceType.ROOK, rto, occupied), ci.ksq) !=0;
             }
             default:
                 Debug.Assert(false);

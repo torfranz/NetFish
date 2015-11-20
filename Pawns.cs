@@ -292,7 +292,7 @@ internal static class Pawns
             // pawn on each file is considered a true passed pawn.
             if (passed && !doubled)
             {
-                e.passedPawns[Us] |= s;
+                e.passedPawns[Us] = Bitboard.OrWithSquare(e.passedPawns[Us], s);
             }
 
             // Score this pawn
