@@ -2,7 +2,7 @@
 
 #if PRIMITIVE
 using SquareT = System.Int32;
-using SquareT = System.UInt64;
+using BitboardT = System.UInt64;
 #else
 internal struct BitboardT
 {
@@ -67,11 +67,6 @@ internal struct BitboardT
         return Bitboard.Create(~b.Value);
     }
 
-    public static implicit operator bool(BitboardT b)
-    {
-        return b.Value != 0;
-    }
-
     public static implicit operator ulong(BitboardT b)
     {
         return b.Value;
@@ -90,8 +85,41 @@ internal static class Bitboard
 {
 
 #if PRIMITIVE
-    
-    
+
+    internal const BitboardT DarkSquares = 0xAA55AA55AA55AA55UL;
+             
+    internal const BitboardT FileABB = 0x0101010101010101UL;
+             
+    internal const BitboardT FileBBB = FileABB << 1;
+             
+    internal const BitboardT FileCBB = FileABB << 2;
+             
+    internal const BitboardT FileDBB = FileABB << 3;
+             
+    internal const BitboardT FileEBB = FileABB << 4;
+             
+    internal const BitboardT FileFBB = FileABB << 5;
+             
+    internal const BitboardT FileGBB = FileABB << 6;
+             
+    internal const BitboardT FileHBB = FileABB << 7;
+             
+    internal const BitboardT Rank1BB = 0xFF;
+             
+    internal const BitboardT Rank2BB = Rank1BB << (8 * 1);
+             
+    internal const BitboardT Rank3BB = Rank1BB << (8 * 2);
+             
+    internal const BitboardT Rank4BB = Rank1BB << (8 * 3);
+             
+    internal const BitboardT Rank5BB = Rank1BB << (8 * 4);
+             
+    internal const BitboardT Rank6BB = Rank1BB << (8 * 5);
+             
+    internal const BitboardT Rank7BB = Rank1BB << (8 * 6);
+
+    internal const BitboardT Rank8BB = Rank1BB << (8 * 7);
+
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

@@ -66,7 +66,7 @@ internal class MovePicker
         depth = d;
         Debug.Assert(d > Depth.DEPTH_ZERO);
 
-        stage = pos.checkers() ? Stages.EVASION : Stages.MAIN_SEARCH;
+        stage = pos.checkers() != 0 ? Stages.EVASION : Stages.MAIN_SEARCH;
         ttMove = ttm != 0 && pos.pseudo_legal(ttm) ? ttm : Move.MOVE_NONE;
         endMoves += ttMove != Move.MOVE_NONE ? 1 : 0;
     }
@@ -83,7 +83,7 @@ internal class MovePicker
 
         Debug.Assert(d <= Depth.DEPTH_ZERO_C);
 
-        if (pos.checkers())
+        if (pos.checkers() != 0)
         {
             stage = Stages.EVASION;
         }
@@ -120,7 +120,7 @@ internal class MovePicker
         counterMovesHistory = cmh;
         threshold = th;
 
-        Debug.Assert(!pos.checkers());
+        Debug.Assert(pos.checkers() == 0);
 
         stage = Stages.PROBCUT;
 

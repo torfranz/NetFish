@@ -177,7 +177,7 @@ internal class Material
         var npm_w = pos.non_pawn_material(Color.WHITE);
         var npm_b = pos.non_pawn_material(Color.BLACK);
 
-        if (npm_w + npm_b == Value.VALUE_ZERO && pos.pieces_Pt(PieceType.PAWN)) // Only pawns on the board
+        if (npm_w + npm_b == Value.VALUE_ZERO && (pos.pieces_Pt(PieceType.PAWN) != 0)) // Only pawns on the board
         {
             if (pos.count(PieceType.PAWN, Color.BLACK) == 0)
             {

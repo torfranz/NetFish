@@ -1,6 +1,9 @@
 ﻿// Struct EvalInfo contains various information computed and collected
 // by the evaluation functions.
 
+#if PRIMITIVE
+using BitboardT = System.UInt64;
+#endif
 internal class EvalInfo
 {
     // attackedBy[color][piece type] is a bitboard representing all squares

@@ -12,6 +12,7 @@ using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using PieceT = System.Int32;
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
 
 internal static class Utils

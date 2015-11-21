@@ -5,7 +5,9 @@ using System.Linq;
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
+
 internal static class Movegen
 {
     internal static ExtMoveArrayWrapper generate_castling(
@@ -31,13 +33,13 @@ internal static class Movegen
         var kto = Square.relative_square(us, KingSide ? Square.SQ_G1 : Square.SQ_C1);
         var enemies = pos.pieces_Ct(Color.opposite(us));
 
-        Debug.Assert(!pos.checkers());
+        Debug.Assert(pos.checkers() == 0);
 
         var K = Chess960 ? kto > kfrom ? Square.DELTA_W : Square.DELTA_E : KingSide ? Square.DELTA_W : Square.DELTA_E;
 
         for (var s = kto; s != kfrom; s += K)
         {
-            if (pos.attackers_to(s) & enemies)
+            if ((pos.attackers_to(s) & enemies) != 0)
             {
                 return moveList;
             }
@@ -47,8 +49,8 @@ internal static class Movegen
         // when moving the castling rook we do not discover some hidden checker.
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
-            && (Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.XorWithSquare(pos.pieces(), rfrom))
-                & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))
+            && ((Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.XorWithSquare(pos.pieces(), rfrom))
+                & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))!= 0)
         {
             return moveList;
         }
@@ -145,7 +147,7 @@ internal static class Movegen
                 // if the pawn is not on the same file as the enemy king, because we
                 // don't generate captures. Note that a possible discovery check
                 // promotion has been already generated amongst the captures.
-                if (pawnsNotOn7 & ci.dcCandidates)
+                if ((pawnsNotOn7 & ci.dcCandidates) != 0)
                 {
                     var dc1 = Bitboard.shift_bb(Up, pawnsNotOn7 & ci.dcCandidates) & emptySquares
                               & ~Utils.file_bb_St(ci.ksq);
@@ -156,13 +158,13 @@ internal static class Movegen
                 }
             }
 
-            while (b1)
+            while (b1 != 0)
             {
                 var to = Utils.pop_lsb(ref b1);
                 (moveList).Add(Move.make_move(to - Up, to));
             }
 
-            while (b2)
+            while (b2 != 0)
             {
                 var to = Utils.pop_lsb(ref b2);
                 (moveList).Add(Move.make_move(to - Up - Up, to));
@@ -170,7 +172,7 @@ internal static class Movegen
         }
 
         // Promotions and underpromotions
-        if (pawnsOn7 && (Type != GenType.EVASIONS || (target & TRank8BB)))
+        if (pawnsOn7 != 0 && (Type != GenType.EVASIONS || ((target & TRank8BB) != 0)))
         {
             if (Type == GenType.CAPTURES)
             {
@@ -186,17 +188,17 @@ internal static class Movegen
             var b2 = Bitboard.shift_bb(Left, pawnsOn7) & enemies;
             var b3 = Bitboard.shift_bb(Up, pawnsOn7) & emptySquares;
 
-            while (b1)
+            while (b1 != 0)
             {
                 moveList = make_promotions(Type, Right, moveList, Utils.pop_lsb(ref b1), ci);
             }
 
-            while (b2)
+            while (b2 != 0)
             {
                 moveList = make_promotions(Type, Left, moveList, Utils.pop_lsb(ref b2), ci);
             }
 
-            while (b3)
+            while (b3 != 0)
             {
                 moveList = make_promotions(Type, Up, moveList, Utils.pop_lsb(ref b3), ci);
             }
@@ -208,13 +210,13 @@ internal static class Movegen
             var b1 = Bitboard.shift_bb(Right, pawnsNotOn7) & enemies;
             var b2 = Bitboard.shift_bb(Left, pawnsNotOn7) & enemies;
 
-            while (b1)
+            while (b1 != 0)
             {
                 var to = Utils.pop_lsb(ref b1);
                 (moveList).Add(Move.make_move(to - Right, to));
             }
 
-            while (b2)
+            while (b2 != 0)
             {
                 var to = Utils.pop_lsb(ref b2);
                 (moveList).Add(Move.make_move(to - Left, to));
@@ -234,9 +236,9 @@ internal static class Movegen
 
                 b1 = pawnsNotOn7 & pos.attacks_from_PS(PieceType.PAWN, pos.ep_square(), Them);
 
-                Debug.Assert(b1);
+                Debug.Assert(b1 != 0);
 
-                while (b1)
+                while (b1 != 0)
                 {
                     (moveList).Add(Move.make(MoveType.ENPASSANT, Utils.pop_lsb(ref b1), pos.ep_square()));
                 }
@@ -269,12 +271,12 @@ internal static class Movegen
             if (Checks)
             {
                 if ((Pt == PieceType.BISHOP || Pt == PieceType.ROOK || Pt == PieceType.QUEEN)
-                    && !(Utils.PseudoAttacks[Pt, square] & target & ci.checkSquares[Pt]))
+                    && (Utils.PseudoAttacks[Pt, square] & target & ci.checkSquares[Pt]) == 0)
                 {
                     continue;
                 }
 
-                if ((bool) ci.dcCandidates && Bitboard.AndWithSquare(ci.dcCandidates, square)!=0)
+                if (ci.dcCandidates != 0 && Bitboard.AndWithSquare(ci.dcCandidates, square)!=0)
                 {
                     continue;
                 }
@@ -287,7 +289,7 @@ internal static class Movegen
                 b &= ci.checkSquares[Pt];
             }
 
-            while (b)
+            while (b != 0)
             {
                 (moveList).Add(Move.make_move(square, Utils.pop_lsb(ref b)));
             }
@@ -316,7 +318,7 @@ internal static class Movegen
         {
             var ksq = pos.square(PieceType.KING, Us);
             var b = pos.attacks_from_PtS(PieceType.KING, ksq) & target;
-            while (b)
+            while (b != 0)
             {
                 (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
             }
@@ -387,7 +389,7 @@ internal static class Movegen
         }
 
         Debug.Assert(Type == GenType.CAPTURES || Type == GenType.QUIETS || Type == GenType.NON_EVASIONS);
-        Debug.Assert(!pos.checkers());
+        Debug.Assert(pos.checkers() == 0);
 
         var us = pos.side_to_move();
 
@@ -408,13 +410,13 @@ internal static class Movegen
     ///     underpromotions that give check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
     {
-        Debug.Assert(!pos.checkers());
+        Debug.Assert(pos.checkers() == 0);
 
         var us = pos.side_to_move();
         var ci = new CheckInfo(pos);
         var dc = ci.dcCandidates;
 
-        while (dc)
+        while (dc != 0)
         {
             var from = Utils.pop_lsb(ref dc);
             var pt = Piece.type_of(pos.piece_on(from));
@@ -431,7 +433,7 @@ internal static class Movegen
                 b &= ~Utils.PseudoAttacks[PieceType.QUEEN, ci.ksq];
             }
 
-            while (b)
+            while (b != 0)
             {
                 (moveList).Add(Move.make_move(from, Utils.pop_lsb(ref b)));
             }
@@ -448,7 +450,7 @@ internal static class Movegen
     ///     to move is in check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
     {
-        Debug.Assert(pos.checkers());
+        Debug.Assert(pos.checkers() != 0);
 
         var us = pos.side_to_move();
         var ksq = pos.square(PieceType.KING, us);
@@ -458,7 +460,7 @@ internal static class Movegen
         // Find all the squares attacked by slider checkers. We will remove them from
         // the king evasions in order to skip known illegal moves, which avoids any
         // useless legality checks later on.
-        while (sliders)
+        while (sliders != 0)
         {
             var checksq1 = Utils.pop_lsb(ref sliders);
             sliderAttacks |= Bitboard.XorWithSquare(Utils.LineBB[checksq1, ksq], checksq1);
@@ -466,7 +468,7 @@ internal static class Movegen
 
         // Generate evasions for king, capture and non capture moves
         var b = pos.attacks_from_PtS(PieceType.KING, ksq) & ~pos.pieces_Ct(us) & ~sliderAttacks;
-        while (b)
+        while (b != 0)
         {
             (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
         }
@@ -493,13 +495,13 @@ internal static class Movegen
         var ksq = pos.square(PieceType.KING, pos.side_to_move());
         var cur = moveList.current;
 
-        moveList = pos.checkers()
+        moveList = pos.checkers() != 0
             ? generate(GenType.EVASIONS, pos, moveList)
             : generate(GenType.NON_EVASIONS, pos, moveList);
 
         while (cur != moveList.current)
         {
-            if ((pinned || Move.from_sq(moveList[cur]) == ksq || Move.type_of(moveList[cur]) == MoveType.ENPASSANT)
+            if ((pinned != 0 || Move.from_sq(moveList[cur]) == ksq || Move.type_of(moveList[cur]) == MoveType.ENPASSANT)
                 && !pos.legal(moveList[cur], pinned))
             {
                 for (var idx = cur; idx < moveList.current; idx++)

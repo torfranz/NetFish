@@ -141,7 +141,7 @@ internal static class Search
         {
             RootMoves.Add(new RootMove(Move.MOVE_NONE));
             Output.WriteLine(
-                $"info depth 0 score {UCI.value(RootPos.checkers() ? -Value.VALUE_MATE : Value.VALUE_DRAW)}");
+                $"info depth 0 score {UCI.value(RootPos.checkers() != 0 ? -Value.VALUE_MATE : Value.VALUE_DRAW)}");
         }
         else
         {
@@ -575,7 +575,7 @@ internal static class Search
 
         // Step 1. Initialize node
         var thisThread = pos.this_thread();
-        bool inCheck = pos.checkers();
+        bool inCheck = pos.checkers() != 0;
 
         if (SpNode)
         {
@@ -899,7 +899,7 @@ internal static class Search
             var extension = Depth.DEPTH_ZERO;
             var captureOrPromotion = pos.capture_or_promotion(move);
 
-            var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
+            var givesCheck = Move.type_of(move) == MoveType.NORMAL && ci.dcCandidates == 0
                 ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
                 : pos.gives_check(move, ci);
 
@@ -1241,7 +1241,7 @@ internal static class Search
         var PvNode = NT == NodeType.PV;
 
         Debug.Assert(NT == NodeType.PV || NT == NodeType.NonPV);
-        Debug.Assert(InCheck == pos.checkers());
+        Debug.Assert(InCheck == (pos.checkers() != 0));
         Debug.Assert(alpha >= -Value.VALUE_INFINITE && alpha < beta && beta <= Value.VALUE_INFINITE);
         Debug.Assert(PvNode || (alpha == beta - 1));
         Debug.Assert(depth <= Depth.DEPTH_ZERO_C);
@@ -1350,7 +1350,7 @@ internal static class Search
         {
             Debug.Assert(Move.is_ok(move));
 
-            var givesCheck = Move.type_of(move) == MoveType.NORMAL && !ci.dcCandidates
+            var givesCheck = Move.type_of(move) == MoveType.NORMAL && ci.dcCandidates == 0
                 ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
                 : pos.gives_check(move, ci);
 

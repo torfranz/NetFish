@@ -41,11 +41,11 @@ internal class KPKPosition
 
         // Immediate draw if it is a stalemate or a king captures undefended pawn
         else if (us == Color.BLACK
-                 && (!(Utils.StepAttacksBB[PieceType.KING, ksq[us]]
+                 && ((Utils.StepAttacksBB[PieceType.KING, ksq[us]]
                        & ~(Utils.StepAttacksBB[PieceType.KING, ksq[Color.opposite(us)]]
-                           | Utils.StepAttacksBB[PieceType.PAWN, psq]))
+                           | Utils.StepAttacksBB[PieceType.PAWN, psq])) == 0
                      || (Bitboard.AndWithSquare(Utils.StepAttacksBB[PieceType.KING, ksq[us]], psq)
-                         & ~Utils.StepAttacksBB[PieceType.KING, ksq[Color.opposite(us)]])))
+                         & ~Utils.StepAttacksBB[PieceType.KING, ksq[Color.opposite(us)]]) != 0))
         {
             result = Result.DRAW;
         }
@@ -91,7 +91,7 @@ internal class KPKPosition
         var r = Result.INVALID;
         var b = Utils.StepAttacksBB[PieceType.KING, ksq[Us]];
 
-        while (b)
+        while (b != 0)
         {
             r |= Us == Color.WHITE
                 ? db[Bitbases.index(Them, ksq[Them], Utils.pop_lsb(ref b), psq)]

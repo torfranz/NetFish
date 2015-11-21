@@ -3,6 +3,7 @@
 
 #if PRIMITIVE
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
 internal static class Bitboards
 {
@@ -213,7 +214,7 @@ internal static class Bitboards
 
                 size++;
                 b = (b - masks[s]) & masks[s];
-            } while (b);
+            } while (b != 0);
 
             // Set the offset for the table of the next square. We have individual
             // table sizes for each square with "Fancy Magic Bitboards".

@@ -132,7 +132,7 @@ internal class EndgameKXK : EndgameValue
     internal override ValueT GetValue(Position pos)
     {
         Debug.Assert(verify_material(pos, weakSide, Value.VALUE_ZERO, 0));
-        Debug.Assert(!pos.checkers()); // Eval is never called when in check
+        Debug.Assert(pos.checkers()==0); // Eval is never called when in check
 
         // Stalemate detection with lone king
         if (pos.side_to_move() == weakSide && new MoveList(GenType.LEGAL, pos).size() == 0)
@@ -421,7 +421,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
         var pawnsFile = Square.file_of(Utils.lsb(pawns));
 
         // All pawns are on a single rook file?
-        if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && !(pawns & ~Utils.file_bb_Ft(pawnsFile)))
+        if ((pawnsFile == File.FILE_A || pawnsFile == File.FILE_H) && (pawns & ~Utils.file_bb_Ft(pawnsFile))==0)
         {
             var bishopSq = pos.square(PieceType.BISHOP, strongSide);
             var queeningSq = Square.relative_square(strongSide, Square.make_square(pawnsFile, Rank.RANK_8));
@@ -435,7 +435,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
 
         // If all the pawns are on the same B or G file, then it's potentially a draw
         if ((pawnsFile == File.FILE_B || pawnsFile == File.FILE_G)
-            && !(pos.pieces_Pt(PieceType.PAWN) & ~Utils.file_bb_Ft(pawnsFile)) && pos.non_pawn_material(weakSide) == 0
+            && (pos.pieces_Pt(PieceType.PAWN) & ~Utils.file_bb_Ft(pawnsFile))==0 && pos.non_pawn_material(weakSide) == 0
             && pos.count(PieceType.PAWN, weakSide) >= 1)
         {
             // Get weakSide pawn that is closest to the home rank
@@ -494,7 +494,7 @@ internal class EndgameKQKRPs : EndgameScaleFactor
             && Rank.relative_rank_CtSt(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
             && Rank.relative_rank_CtSt(weakSide, rsq) == Rank.RANK_3
             && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from_PtS(PieceType.KING, kingSq)
-                & pos.attacks_from_PS(PieceType.PAWN, rsq, strongSide)))
+                & pos.attacks_from_PS(PieceType.PAWN, rsq, strongSide))!=0)
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -627,7 +627,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
         Debug.Assert(verify_material(pos, weakSide, Value.BishopValueMg, 0));
 
         // Test for a rook pawn
-        if (pos.pieces_Pt(PieceType.PAWN) & (Bitboard.FileABB | Bitboard.FileHBB))
+        if ((pos.pieces_Pt(PieceType.PAWN) & (Bitboard.FileABB | Bitboard.FileHBB))!=0)
         {
             var ksq = pos.square(PieceType.KING, weakSide);
             var bsq = pos.square(PieceType.BISHOP, weakSide);
@@ -736,8 +736,8 @@ internal class EndgameKPsK : EndgameScaleFactor
 
         // If all pawns are ahead of the king, on a single rook file and
         // the king is within one file of the pawns, it's a draw.
-        if (!(pawns & ~Utils.in_front_bb(weakSide, Square.rank_of(ksq)))
-            && !((bool) (pawns & ~Bitboard.FileABB) && (pawns & ~Bitboard.FileHBB))
+        if ((pawns & ~Utils.in_front_bb(weakSide, Square.rank_of(ksq)))==0
+            && !((pawns & ~Bitboard.FileABB)!=0 && (pawns & ~Bitboard.FileHBB)!=0)
             && Utils.distance_File(ksq, Utils.lsb(pawns)) <= 1)
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -796,12 +796,12 @@ internal class EndgameKBPKB : EndgameScaleFactor
             }
             var path = Utils.forward_bb(strongSide, pawnSq);
 
-            if (path & pos.pieces_CtPt(weakSide, PieceType.KING))
+            if ((path & pos.pieces_CtPt(weakSide, PieceType.KING))!=0)
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
             }
 
-            if ((pos.attacks_from_PtS(PieceType.BISHOP, weakBishopSq) & path)
+            if ((pos.attacks_from_PtS(PieceType.BISHOP, weakBishopSq) & path)!=0
                 && Utils.distance_Square(weakBishopSq, pawnSq) >= 3)
             {
                 return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -869,7 +869,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
                 // behind this square on the file of the other pawn.
                 if (ksq == blockSq1 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq2
-                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq2) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))
+                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq2) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))!=0
                         || Utils.distance_Rank(r1, r2) >= 2))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
@@ -877,7 +877,7 @@ internal class EndgameKBPPKB : EndgameScaleFactor
 
                 if (ksq == blockSq2 && Square.opposite_colors(ksq, wbsq)
                     && (bbsq == blockSq1
-                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq1) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))))
+                        || (pos.attacks_from_PtS(PieceType.BISHOP, blockSq1) & pos.pieces_CtPt(weakSide, PieceType.BISHOP))!=0))
                 {
                     return ScaleFactor.SCALE_FACTOR_DRAW;
                 }
@@ -965,7 +965,7 @@ internal class EndgameKNPKB : EndgameScaleFactor
 
         // King needs to get close to promoting pawn to prevent knight from blocking.
         // Rules for this are very tricky, so just approximate.
-        if (Utils.forward_bb(strongSide, pawnSq) & pos.attacks_from_PtS(PieceType.BISHOP, bishopSq))
+        if ((Utils.forward_bb(strongSide, pawnSq) & pos.attacks_from_PtS(PieceType.BISHOP, bishopSq))!=0)
         {
             return (ScaleFactor) (Utils.distance_Square(weakKingSq, pawnSq));
         }

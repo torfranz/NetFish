@@ -3,6 +3,7 @@ using PieceTypeT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
 
 /// StateInfo struct stores information needed to restore a Position object to

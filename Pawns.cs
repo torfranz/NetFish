@@ -8,6 +8,7 @@ using ColorT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
 
 internal static class Pawns
@@ -253,20 +254,20 @@ internal static class Pawns
             // Flag the pawn
             var neighbours = ourPawns & Utils.adjacent_files_bb(f);
             var doubled = ourPawns & Utils.forward_bb(Us, s);
-            bool opposed = theirPawns & Utils.forward_bb(Us, s);
-            var passed = !(theirPawns & Utils.passed_pawn_mask(Us, s));
-            bool lever = theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), s];
+            bool opposed = (theirPawns & Utils.forward_bb(Us, s)) != 0;
+            var passed = (theirPawns & Utils.passed_pawn_mask(Us, s)) == 0;
+            bool lever = (theirPawns & Utils.StepAttacksBB[Piece.make_piece(Us, PieceType.PAWN), s]) != 0;
             var phalanx = neighbours & Utils.rank_bb_St(s);
             var supported = neighbours & Utils.rank_bb_St(s - Up);
-            bool connected = supported | phalanx;
-            var isolated = !neighbours;
+            bool connected = (supported | phalanx) != 0;
+            var isolated = neighbours == 0;
 
             // Test for backward pawn.
             // If the pawn is passed, isolated, lever or connected it cannot be
             // backward. If there are friendly pawns behind on adjacent files
             // or if it is sufficiently advanced, it cannot be backward either.
             bool backward;
-            if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s))
+            if ((passed | isolated | lever | connected) || (ourPawns & Utils.pawn_attack_span(Them, s)) != 0
                 || (Rank.relative_rank_CtSt(Us, s) >= Rank.RANK_5))
             {
                 backward = false;
@@ -282,15 +283,15 @@ internal static class Pawns
 
                 // If we have an enemy pawn in the same or next rank, the pawn is
                 // backward because it cannot advance without being captured.
-                backward = (b | Bitboard.shift_bb(Up, b)) & theirPawns;
+                backward = ((b | Bitboard.shift_bb(Up, b)) & theirPawns) != 0;
             }
 
-            Debug.Assert(opposed | passed | (Utils.pawn_attack_span(Us, s) & theirPawns));
+            Debug.Assert(opposed | passed | (Utils.pawn_attack_span(Us, s) & theirPawns) != 0);
 
             // Passed pawns will be properly scored in evaluation because we need
             // full attack info to evaluate passed pawns. Only the frontmost passed
             // pawn on each file is considered a true passed pawn.
-            if (passed && !doubled)
+            if (passed && doubled == 0)
             {
                 e.passedPawns[Us] = Bitboard.OrWithSquare(e.passedPawns[Us], s);
             }
@@ -306,7 +307,7 @@ internal static class Pawns
                 score -= Backward[opposed ? 1 : 0];
             }
 
-            else if (!supported)
+            else if (supported == 0)
             {
                 score -= UnsupportedPawnPenalty;
             }
@@ -316,12 +317,12 @@ internal static class Pawns
                 score +=
                     Connected[
                         opposed ? 1 : 0,
-                        phalanx ? 1 : 0,
+                        phalanx != 0 ? 1 : 0,
                         Bitboard.more_than_one(supported) ? 1 : 0,
                         Rank.relative_rank_CtSt(Us, s)];
             }
 
-            if (doubled)
+            if (doubled != 0)
             {
                 score -= Score.Divide(Doubled[f], Utils.distance_Rank_StSt(s, Utils.frontmost_sq(Us, doubled)));
             }
@@ -333,7 +334,7 @@ internal static class Pawns
         }
 
         b = Bitboard.Create((uint) (e.semiopenFiles[Us] ^ 0xFF));
-        e.pawnSpan[Us] = b ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
+        e.pawnSpan[Us] = b != 0 ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
 
         // Center binds: Two pawns controlling the same central square
         b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us];
@@ -464,9 +465,9 @@ internal static class Pawns
             var minKingPawnDistance = 0;
 
             var pawns = pos.pieces_CtPt(Us, PieceType.PAWN);
-            if (pawns)
+            if (pawns != 0)
             {
-                while (!(Utils.DistanceRingBB[ksq, minKingPawnDistance++] & pawns))
+                while ((Utils.DistanceRingBB[ksq, minKingPawnDistance++] & pawns) == 0)
                 {
                 }
             }
@@ -513,10 +514,10 @@ internal static class Pawns
             for (var f = center - 1; f <= (int)center + 1; ++f)
             {
                 b = ourPawns & Utils.file_bb_Ft(File.Create(f));
-                var rkUs = b ? Rank.relative_rank_CtSt(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
+                var rkUs = b != 0 ? Rank.relative_rank_CtSt(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
 
                 b = theirPawns & Utils.file_bb_Ft(File.Create(f));
-                var rkThem = b ? Rank.relative_rank_CtSt(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
+                var rkThem = b != 0 ? Rank.relative_rank_CtSt(Us, Utils.frontmost_sq(Them, b)) : Rank.RANK_1;
 
                 safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger[

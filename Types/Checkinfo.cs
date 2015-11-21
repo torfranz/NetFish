@@ -1,5 +1,6 @@
 ﻿#if PRIMITIVE
 using SquareT = System.Int32;
+using BitboardT = System.UInt64;
 #endif
 
 internal class CheckInfo
