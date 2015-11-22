@@ -7,10 +7,10 @@ using SquareT = System.Int32;
 internal static class Bitbases
 {
     // There are 24 possible pawn squares: the first 4 files and ranks from 2 to 7
-    private const uint MAX_INDEX = 2*24*64*64; // stm * psq * wksq * bksq = 196608
+    private const int MAX_INDEX = 2*24*64*64; // stm * psq * wksq * bksq = 196608
 
     // Each uint32_t stores results of 32 positions, one per bit
-    internal static uint[] KPKBitbase = new uint[MAX_INDEX/32];
+    internal static int[] KPKBitbase = new int[MAX_INDEX/32];
 
     // A KPK bitbase index is an integer in [0, IndexMax] range
     //
@@ -21,11 +21,9 @@ internal static class Bitbases
     // bit    12: side to move (WHITE or BLACK)
     // bit 13-14: white pawn file (from FILE_A to FILE_D)
     // bit 15-17: white pawn RANK_7 - rank (from RANK_7 - RANK_7 to RANK_7 - RANK_2)
-    internal static uint index(ColorT us, SquareT bksq, SquareT wksq, SquareT psq)
+    internal static int index(ColorT us, SquareT bksq, SquareT wksq, SquareT psq)
     {
-        return
-            (uint)
-                (wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) |
+        return (wksq | (bksq << 6) | (us << 12) | (Square.file_of(psq) << 13) |
                  ((Rank.RANK_7 - Square.rank_of(psq)) << 15));
     }
 
@@ -40,7 +38,7 @@ internal static class Bitbases
     internal static void init()
     {
         var db = new KPKPosition[MAX_INDEX];
-        uint idx, repeat = 1;
+        int idx, repeat = 1;
 
         // Initialize db with known win / draw positions
         for (idx = 0; idx < MAX_INDEX; ++idx)
@@ -54,7 +52,7 @@ internal static class Bitbases
         {
             for (repeat = idx = 0; idx < MAX_INDEX; ++idx)
             {
-                repeat |= ((db[idx] == Result.UNKNOWN && db[idx].classify(db) != Result.UNKNOWN)) ? 1u : 0;
+                repeat |= ((db[idx] == Result.UNKNOWN && db[idx].classify(db) != Result.UNKNOWN)) ? 1 : 0;
             }
         }
 
@@ -63,7 +61,7 @@ internal static class Bitbases
         {
             if (db[idx] == Result.WIN)
             {
-                KPKBitbase[idx/32] |= (uint) (1 << (int) (idx & 0x1F));
+                KPKBitbase[idx/32] |= (1 << (int) (idx & 0x1F));
             }
         }
     }

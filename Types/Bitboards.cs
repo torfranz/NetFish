@@ -165,7 +165,7 @@ internal static class Bitboards
         BitboardT[][] attacks,
         BitboardT[] magics,
         BitboardT[] masks,
-        uint[] shifts,
+        int[] shifts,
         SquareT[] deltas,
         Utils.Fn index)
     {
@@ -195,9 +195,9 @@ internal static class Bitboards
             masks[s] = sliding_attack(deltas, s, Bitboard.Create(0)) & ~edges;
 
 #if X64
-            shifts[(int)s] = (uint) (64 - Bitcount.popcount_Max15(masks[(int)s]));
+            shifts[(int)s] = (64 - Bitcount.popcount_Max15(masks[(int)s]));
 #else
-            shifts[s] = (uint)(32 - Bitcount.popcount_Max15(masks[s]));
+            shifts[s] = (32 - Bitcount.popcount_Max15(masks[s]));
 #endif
 
             // Use Carry-Rippler trick to enumerate all subsets of masks[s] and

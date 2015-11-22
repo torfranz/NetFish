@@ -20,7 +20,7 @@ internal static class Search
 
     internal static StateInfoWrapper SetupStates;
 
-    internal static uint PVIdx;
+    internal static int PVIdx;
 
     private static readonly EasyMoveManager EasyMove = new EasyMoveManager();
 
@@ -257,7 +257,7 @@ internal static class Search
 
         TranspositionTable.new_search();
 
-        var multiPV = uint.Parse(OptionMap.Instance["MultiPV"].v);
+        var multiPV = int.Parse(OptionMap.Instance["MultiPV"].v);
         var skill = new Skill(int.Parse(OptionMap.Instance["Skill Level"].v));
 
         // When playing with strength handicap enable MultiPV search that we will
@@ -269,7 +269,7 @@ internal static class Search
             multiPV = Math.Max(multiPV, 4);
         }
 
-        multiPV = (uint) Math.Min(multiPV, RootMoves.Count);
+        multiPV = Math.Min(multiPV, RootMoves.Count);
 
         // Iterative deepening loop until requested to stop or target depth reached;
         while (++depth < _.MAX_PLY && !Signals.stop && (Limits.depth == 0 || depth <= Limits.depth))

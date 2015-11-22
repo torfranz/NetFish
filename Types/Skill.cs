@@ -27,7 +27,7 @@ internal struct Skill
         return depth/Depth.ONE_PLY == 1 + level;
     }
 
-    internal MoveT best_move(uint multiPV)
+    internal MoveT best_move(int multiPV)
     {
         return best != 0 ? best : pick_best(multiPV);
     }
@@ -35,10 +35,10 @@ internal struct Skill
     // When playing with strength handicap, choose best move among a set of RootMoves
     // using a statistical rule dependent on 'level'. Idea by Heinz van Saanen.
 
-    internal MoveT pick_best(uint multiPV)
+    internal MoveT pick_best(int multiPV)
     {
         // RootMoves are already sorted by score in descending order
-        var variance = Math.Min(Search.RootMoves[0].score - Search.RootMoves[(int) multiPV - 1].score, Value.PawnValueMg);
+        var variance = Math.Min(Search.RootMoves[0].score - Search.RootMoves[multiPV - 1].score, Value.PawnValueMg);
         var weakness = 120 - 2*level;
         int maxScore = -Value.VALUE_INFINITE;
 
@@ -48,7 +48,7 @@ internal struct Skill
         for (var i = 0; i < multiPV; ++i)
         {
             // This is our magic formula
-            var push = (weakness*(int) (Search.RootMoves[0].score - Search.RootMoves[i].score)
+            var push = (weakness* (Search.RootMoves[0].score - Search.RootMoves[i].score)
                         + variance*((int) rng.rand()%weakness))/128;
 
             if (Search.RootMoves[i].score + push > maxScore)

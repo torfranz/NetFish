@@ -440,7 +440,7 @@ internal static class Eval
             // the pawn shelter (current 'score' value).
             var attackUnits = Math.Min(72, ei.kingAttackersCount[Them] *ei.kingAttackersWeight[Them])
                               + 9*ei.kingAdjacentZoneAttacksCount[Them] + 27*Bitcount.popcount_Max15(undefended)
-                              + 11*((ulong)ei.pinnedPieces[Us] != 0 ? 1 : 0)
+                              + 11*(ei.pinnedPieces[Us] != 0 ? 1 : 0)
                               - 64*(pos.count(PieceType.QUEEN, Them) == 0 ? 1 : 0) - Score.mg_value(score)/8;
 
             // Analyse the enemy's safe queen contact checks. Firstly, find the
@@ -745,7 +745,7 @@ internal static class Eval
         behind |= (Us == Color.WHITE ? behind >> 16 : behind << 16);
 
         // Since SpaceMask[Us.Value] is fully on our half of the board...
-        Debug.Assert((uint) (safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
+        Debug.Assert((uint)(safe >> (Us == Color.WHITE ? 32 : 0)) == 0);
 
         // ...count safe + (behind & safe) with a single popcount
         var bonus = Bitcount.popcount_Full((Us == Color.WHITE ? safe << 32 : safe >> 32) | (behind & safe));

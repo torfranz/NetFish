@@ -144,45 +144,45 @@ internal static class Value
     }
 
 #else
-    internal static ValueT VALUE_ZERO = Value.Create(0);
+    internal static ValueT VALUE_ZERO = Create(0);
 
-    internal static ValueT VALUE_DRAW = Value.Create(0);
+    internal static ValueT VALUE_DRAW = Create(0);
 
-    internal static ValueT VALUE_KNOWN_WIN = Value.Create(10000);
+    internal static ValueT VALUE_KNOWN_WIN = Create(10000);
 
-    internal static ValueT VALUE_MATE = Value.Create(32000);
+    internal static ValueT VALUE_MATE = Create(32000);
 
-    internal static ValueT VALUE_INFINITE = Value.Create(32001);
+    internal static ValueT VALUE_INFINITE = Create(32001);
 
-    internal static ValueT VALUE_NONE = Value.Create(32002);
+    internal static ValueT VALUE_NONE = Create(32002);
 
-    internal static ValueT VALUE_MATE_IN_MAX_PLY = Value.Create(VALUE_MATE - 2 * _.MAX_PLY);
+    internal static ValueT VALUE_MATE_IN_MAX_PLY = Create(VALUE_MATE - 2 * _.MAX_PLY);
 
-    internal static ValueT VALUE_MATED_IN_MAX_PLY = Value.Create(-VALUE_MATE + 2 * _.MAX_PLY);
+    internal static ValueT VALUE_MATED_IN_MAX_PLY = Create(-VALUE_MATE + 2 * _.MAX_PLY);
 
-    internal static ValueT PawnValueMg = Value.Create(198);
+    internal static ValueT PawnValueMg = Create(198);
 
-    internal static ValueT PawnValueEg = Value.Create(258);
+    internal static ValueT PawnValueEg = Create(258);
 
-    internal static ValueT KnightValueMg = Value.Create(817);
+    internal static ValueT KnightValueMg = Create(817);
 
-    internal static ValueT KnightValueEg = Value.Create(846);
+    internal static ValueT KnightValueEg = Create(846);
 
-    internal static ValueT BishopValueMg = Value.Create(836);
+    internal static ValueT BishopValueMg = Create(836);
 
-    internal static ValueT BishopValueEg = Value.Create(857);
+    internal static ValueT BishopValueEg = Create(857);
 
-    internal static ValueT RookValueMg = Value.Create(1270);
+    internal static ValueT RookValueMg = Create(1270);
 
-    internal static ValueT RookValueEg = Value.Create(1281);
+    internal static ValueT RookValueEg = Create(1281);
 
-    internal static ValueT QueenValueMg = Value.Create(2521);
+    internal static ValueT QueenValueMg = Create(2521);
 
-    internal static ValueT QueenValueEg = Value.Create(2558);
+    internal static ValueT QueenValueEg = Create(2558);
 
-    internal static ValueT MidgameLimit = Value.Create(15581);
+    internal static ValueT MidgameLimit = Create(15581);
 
-    internal static ValueT EndgameLimit = Value.Create(3998);
+    internal static ValueT EndgameLimit = Create(3998);
 
     internal static ValueT Create(int value)
     {
@@ -213,7 +213,7 @@ internal static class Value
 #endif
     internal static ValueT mate_in(int ply)
     {
-        return Value.Create(VALUE_MATE - ply);
+        return Create(VALUE_MATE - ply);
     }
 
 #if FORCEINLINE
@@ -221,6 +221,6 @@ internal static class Value
 #endif
     internal static ValueT mated_in(int ply)
     {
-        return Value.Create(-VALUE_MATE + ply);
+        return Create(-VALUE_MATE + ply);
     }
 }

@@ -333,8 +333,8 @@ internal static class Pawns
             }
         }
 
-        b = Bitboard.Create((uint) (e.semiopenFiles[Us] ^ 0xFF));
-        e.pawnSpan[Us] = b != 0 ? Utils.msb(b) - (int)Utils.lsb(b) : 0;
+        b = Bitboard.Create((ulong)(e.semiopenFiles[Us] ^ 0xFF));
+        e.pawnSpan[Us] = b != 0 ? Utils.msb(b) - Utils.lsb(b) : 0;
 
         // Center binds: Two pawns controlling the same central square
         b = Bitboard.shift_bb(Right, ourPawns) & Bitboard.shift_bb(Left, ourPawns) & CenterBindMask[Us];
@@ -372,7 +372,7 @@ internal static class Pawns
     internal static Entry probe(Position pos)
     {
         var key = pos.pawn_key();
-        var hashKey = (uint) key & (Size - 1);
+        var hashKey = key & (Size - 1);
         Entry e;
         if ((e = pos.this_thread().pawnsTable[hashKey]) == null)
         {
@@ -511,7 +511,7 @@ internal static class Pawns
             var safety = MaxSafetyBonus;
             var center = File.Create(Math.Max(File.FILE_B, Math.Min(File.FILE_G, Square.file_of(ksq))));
 
-            for (var f = center - 1; f <= (int)center + 1; ++f)
+            for (var f = center - 1; f <= center + 1; ++f)
             {
                 b = ourPawns & Utils.file_bb_Ft(File.Create(f));
                 var rkUs = b != 0 ? Rank.relative_rank_CtSt(Us, Utils.backmost_sq(Us, b)) : Rank.RANK_1;
@@ -521,9 +521,9 @@ internal static class Pawns
 
                 safety -= ShelterWeakness[Math.Min(f, File.FILE_H - f)][rkUs]
                           + StormDanger[
-                              f == (int)Square.file_of(ksq) && rkThem == Rank.relative_rank_CtSt(Us, ksq) + 1
+                              f == Square.file_of(ksq) && rkThem == Rank.relative_rank_CtSt(Us, ksq) + 1
                                   ? BlockedByKing
-                                  : (int)rkUs == Rank.RANK_1
+                                  : rkUs == Rank.RANK_1
                                       ? NoFriendlyPawn
                                       : rkThem == rkUs + 1 ? BlockedByPawn : Unblocked][Math.Min(f, File.FILE_H - f)][rkThem];
             }

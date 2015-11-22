@@ -133,7 +133,7 @@ internal static class Score
 #endif
     internal static ScoreT make_score(int mg, int eg)
     {
-        return Score.Create((mg << 16) + eg);
+        return Create((mg << 16) + eg);
     }
 
 }

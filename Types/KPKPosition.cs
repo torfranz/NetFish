@@ -15,7 +15,7 @@ internal class KPKPosition
 
     private Result result;
 
-    internal KPKPosition(uint idx)
+    internal KPKPosition(int idx)
     {
         ksq[Color.WHITE] = Square.Create(((int)idx >> 0) & 0x3F);
         ksq[Color.BLACK] = Square.Create(((int)idx >> 6) & 0x3F);

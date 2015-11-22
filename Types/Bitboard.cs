@@ -129,9 +129,9 @@ internal static class Bitboard
     }
 
 #else
-    internal static readonly BitboardT DarkSquares = Bitboard.Create(0xAA55AA55AA55AA55UL);
+    internal static readonly BitboardT DarkSquares = Create(0xAA55AA55AA55AA55UL);
 
-    internal static readonly BitboardT FileABB = Bitboard.Create(0x0101010101010101UL);
+    internal static readonly BitboardT FileABB = Create(0x0101010101010101UL);
 
     internal static readonly BitboardT FileBBB = FileABB << 1;
 
@@ -147,7 +147,7 @@ internal static class Bitboard
 
     internal static readonly BitboardT FileHBB = FileABB << 7;
 
-    internal static readonly BitboardT Rank1BB = Bitboard.Create(0xFF);
+    internal static readonly BitboardT Rank1BB = Create(0xFF);
 
     internal static readonly BitboardT Rank2BB = Rank1BB << (8 * 1);
 
@@ -193,7 +193,7 @@ internal static class Bitboard
                         ? (b & ~FileHBB) >> 7
                         : Delta == Square.DELTA_NW
                             ? (b & ~FileABB) << 7
-                            : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : Bitboard.Create(0);
+                            : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : Create(0);
     }
 
     /// Overloads of bitwise operators between a Bitboard and a Square for testing
@@ -203,7 +203,7 @@ internal static class Bitboard
 #endif
     public static BitboardT AndWithSquare(BitboardT b, SquareT s)
     {
-        return Bitboard.Create(b & Utils.SquareBB[s]);
+        return Create(b & Utils.SquareBB[s]);
     }
 
 #if FORCEINLINE
@@ -211,7 +211,7 @@ internal static class Bitboard
 #endif
     public static BitboardT XorWithSquare(BitboardT b, SquareT s)
     {
-        return Bitboard.Create(b ^ Utils.SquareBB[s]);
+        return Create(b ^ Utils.SquareBB[s]);
     }
 
 #if FORCEINLINE
@@ -219,6 +219,6 @@ internal static class Bitboard
 #endif
     public static BitboardT OrWithSquare(BitboardT b, SquareT s)
     {
-        return Bitboard.Create(b | Utils.SquareBB[s]);
+        return Create(b | Utils.SquareBB[s]);
     }
 }

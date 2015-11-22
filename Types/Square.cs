@@ -287,157 +287,157 @@ internal static class Square
     }
 
 #else
-    internal static SquareT SQ_A1 = Square.Create(0);
+    internal static SquareT SQ_A1 = Create(0);
 
-    internal static SquareT SQ_B1 = Square.Create(1);
+    internal static SquareT SQ_B1 = Create(1);
 
-    internal static SquareT SQ_C1 = Square.Create(2);
+    internal static SquareT SQ_C1 = Create(2);
 
-    internal static SquareT SQ_D1 = Square.Create(3);
+    internal static SquareT SQ_D1 = Create(3);
 
-    internal static SquareT SQ_E1 = Square.Create(4);
+    internal static SquareT SQ_E1 = Create(4);
 
-    internal static SquareT SQ_F1 = Square.Create(5);
+    internal static SquareT SQ_F1 = Create(5);
 
-    internal static SquareT SQ_G1 = Square.Create(6);
+    internal static SquareT SQ_G1 = Create(6);
 
-    internal static SquareT SQ_H1 = Square.Create(7);
+    internal static SquareT SQ_H1 = Create(7);
 
-    internal static SquareT SQ_A2 = Square.Create(8);
+    internal static SquareT SQ_A2 = Create(8);
 
-    internal static SquareT SQ_B2 = Square.Create(9);
+    internal static SquareT SQ_B2 = Create(9);
 
-    internal static SquareT SQ_C2 = Square.Create(10);
+    internal static SquareT SQ_C2 = Create(10);
 
-    internal static SquareT SQ_D2 = Square.Create(11);
+    internal static SquareT SQ_D2 = Create(11);
 
-    internal static SquareT SQ_E2 = Square.Create(12);
+    internal static SquareT SQ_E2 = Create(12);
 
-    internal static SquareT SQ_F2 = Square.Create(13);
+    internal static SquareT SQ_F2 = Create(13);
 
-    internal static SquareT SQ_G2 = Square.Create(14);
+    internal static SquareT SQ_G2 = Create(14);
 
-    internal static SquareT SQ_H2 = Square.Create(15);
+    internal static SquareT SQ_H2 = Create(15);
 
-    internal static SquareT SQ_A3 = Square.Create(16);
+    internal static SquareT SQ_A3 = Create(16);
 
-    internal static SquareT SQ_B3 = Square.Create(17);
+    internal static SquareT SQ_B3 = Create(17);
 
-    internal static SquareT SQ_C3 = Square.Create(18);
+    internal static SquareT SQ_C3 = Create(18);
 
-    internal static SquareT SQ_D3 = Square.Create(19);
+    internal static SquareT SQ_D3 = Create(19);
 
-    internal static SquareT SQ_E3 = Square.Create(20);
+    internal static SquareT SQ_E3 = Create(20);
 
-    internal static SquareT SQ_F3 = Square.Create(21);
+    internal static SquareT SQ_F3 = Create(21);
 
-    internal static SquareT SQ_G3 = Square.Create(22);
+    internal static SquareT SQ_G3 = Create(22);
 
-    internal static SquareT SQ_H3 = Square.Create(23);
+    internal static SquareT SQ_H3 = Create(23);
 
-    internal static SquareT SQ_A4 = Square.Create(24);
+    internal static SquareT SQ_A4 = Create(24);
 
-    internal static SquareT SQ_B4 = Square.Create(25);
+    internal static SquareT SQ_B4 = Create(25);
 
-    internal static SquareT SQ_C4 = Square.Create(26);
+    internal static SquareT SQ_C4 = Create(26);
 
-    internal static SquareT SQ_D4 = Square.Create(27);
+    internal static SquareT SQ_D4 = Create(27);
 
-    internal static SquareT SQ_E4 = Square.Create(28);
+    internal static SquareT SQ_E4 = Create(28);
 
-    internal static SquareT SQ_F4 = Square.Create(29);
+    internal static SquareT SQ_F4 = Create(29);
 
-    internal static SquareT SQ_G4 = Square.Create(30);
+    internal static SquareT SQ_G4 = Create(30);
 
-    internal static SquareT SQ_H4 = Square.Create(31);
+    internal static SquareT SQ_H4 = Create(31);
 
-    internal static SquareT SQ_A5 = Square.Create(32);
+    internal static SquareT SQ_A5 = Create(32);
 
-    internal static SquareT SQ_B5 = Square.Create(33);
+    internal static SquareT SQ_B5 = Create(33);
 
-    internal static SquareT SQ_C5 = Square.Create(34);
+    internal static SquareT SQ_C5 = Create(34);
 
-    internal static SquareT SQ_D5 = Square.Create(35);
+    internal static SquareT SQ_D5 = Create(35);
 
-    internal static SquareT SQ_E5 = Square.Create(36);
+    internal static SquareT SQ_E5 = Create(36);
 
-    internal static SquareT SQ_F5 = Square.Create(37);
+    internal static SquareT SQ_F5 = Create(37);
 
-    internal static SquareT SQ_G5 = Square.Create(38);
+    internal static SquareT SQ_G5 = Create(38);
 
-    internal static SquareT SQ_H5 = Square.Create(39);
+    internal static SquareT SQ_H5 = Create(39);
 
-    internal static SquareT SQ_A6 = Square.Create(40);
+    internal static SquareT SQ_A6 = Create(40);
 
-    internal static SquareT SQ_B6 = Square.Create(41);
+    internal static SquareT SQ_B6 = Create(41);
 
-    internal static SquareT SQ_C6 = Square.Create(42);
+    internal static SquareT SQ_C6 = Create(42);
 
-    internal static SquareT SQ_D6 = Square.Create(43);
+    internal static SquareT SQ_D6 = Create(43);
 
-    internal static SquareT SQ_E6 = Square.Create(44);
+    internal static SquareT SQ_E6 = Create(44);
 
-    internal static SquareT SQ_F6 = Square.Create(45);
+    internal static SquareT SQ_F6 = Create(45);
 
-    internal static SquareT SQ_G6 = Square.Create(46);
+    internal static SquareT SQ_G6 = Create(46);
 
-    internal static SquareT SQ_H6 = Square.Create(47);
+    internal static SquareT SQ_H6 = Create(47);
 
-    internal static SquareT SQ_A7 = Square.Create(48);
+    internal static SquareT SQ_A7 = Create(48);
 
-    internal static SquareT SQ_B7 = Square.Create(49);
+    internal static SquareT SQ_B7 = Create(49);
 
-    internal static SquareT SQ_C7 = Square.Create(50);
+    internal static SquareT SQ_C7 = Create(50);
 
-    internal static SquareT SQ_D7 = Square.Create(51);
+    internal static SquareT SQ_D7 = Create(51);
 
-    internal static SquareT SQ_E7 = Square.Create(52);
+    internal static SquareT SQ_E7 = Create(52);
 
-    internal static SquareT SQ_F7 = Square.Create(53);
+    internal static SquareT SQ_F7 = Create(53);
 
-    internal static SquareT SQ_G7 = Square.Create(54);
+    internal static SquareT SQ_G7 = Create(54);
 
-    internal static SquareT SQ_H7 = Square.Create(55);
+    internal static SquareT SQ_H7 = Create(55);
 
-    internal static SquareT SQ_A8 = Square.Create(56);
+    internal static SquareT SQ_A8 = Create(56);
 
-    internal static SquareT SQ_B8 = Square.Create(57);
+    internal static SquareT SQ_B8 = Create(57);
 
-    internal static SquareT SQ_C8 = Square.Create(58);
+    internal static SquareT SQ_C8 = Create(58);
 
-    internal static SquareT SQ_D8 = Square.Create(59);
+    internal static SquareT SQ_D8 = Create(59);
 
-    internal static SquareT SQ_E8 = Square.Create(60);
+    internal static SquareT SQ_E8 = Create(60);
 
-    internal static SquareT SQ_F8 = Square.Create(61);
+    internal static SquareT SQ_F8 = Create(61);
 
-    internal static SquareT SQ_G8 = Square.Create(62);
+    internal static SquareT SQ_G8 = Create(62);
 
-    internal static SquareT SQ_H8 = Square.Create(63);
+    internal static SquareT SQ_H8 = Create(63);
 
-    internal static SquareT SQ_NONE = Square.Create(64);
+    internal static SquareT SQ_NONE = Create(64);
 
-    internal static SquareT SQUARE_NB = Square.Create(64);
+    internal static SquareT SQUARE_NB = Create(64);
 
-    internal static SquareT DELTA_N = Square.Create(8);
+    internal static SquareT DELTA_N = Create(8);
 
-    internal static SquareT DELTA_E = Square.Create(1);
+    internal static SquareT DELTA_E = Create(1);
 
-    internal static SquareT DELTA_S = Square.Create(-8);
+    internal static SquareT DELTA_S = Create(-8);
 
-    internal static SquareT DELTA_W = Square.Create(-1);
+    internal static SquareT DELTA_W = Create(-1);
 
-    internal static SquareT DELTA_NN = Square.Create(DELTA_N + DELTA_N);
+    internal static SquareT DELTA_NN = Create(DELTA_N + DELTA_N);
 
-    internal static SquareT DELTA_NE = Square.Create(DELTA_N + DELTA_E);
+    internal static SquareT DELTA_NE = Create(DELTA_N + DELTA_E);
 
-    internal static SquareT DELTA_SE = Square.Create(DELTA_S + DELTA_E);
+    internal static SquareT DELTA_SE = Create(DELTA_S + DELTA_E);
 
-    internal static SquareT DELTA_SS = Square.Create(DELTA_S + DELTA_S);
+    internal static SquareT DELTA_SS = Create(DELTA_S + DELTA_S);
 
-    internal static SquareT DELTA_SW = Square.Create(DELTA_S + DELTA_W);
+    internal static SquareT DELTA_SW = Create(DELTA_S + DELTA_W);
 
-    internal static SquareT DELTA_NW = Square.Create(DELTA_N + DELTA_W);
+    internal static SquareT DELTA_NW = Create(DELTA_N + DELTA_W);
 
     public static SquareT Create(int value)
     {
@@ -450,7 +450,7 @@ internal static class Square
 #endif
     public static SquareT opposite(SquareT s)
     {
-        return Square.Create(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
+        return Create(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
     }
 
 #if FORCEINLINE
@@ -475,7 +475,7 @@ internal static class Square
 #endif
     internal static SquareT relative_square(ColorT c, SquareT s)
     {
-        return Square.Create(s ^ (c * 56));
+        return Create(s ^ (c * 56));
     }
 
 #if FORCEINLINE
@@ -483,7 +483,7 @@ internal static class Square
 #endif
     internal static SquareT make_square(FileT f, RankT r)
     {
-        return Square.Create((r << 3) | f);
+        return Create((r << 3) | f);
     }
 
 #if FORCEINLINE

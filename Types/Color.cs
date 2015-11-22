@@ -12,7 +12,7 @@ internal class ColorT
 
     internal ColorT(int value)
     {
-        this.Value = value;
+        Value = value;
     }
 #endregion
 
@@ -45,19 +45,19 @@ internal static class Color
     
     public static ColorT Create(int value)
     {
-        return value != 0 ? Color.BLACK : Color.WHITE;
+        return value != 0 ? BLACK : WHITE;
     }
 #endif
 
     internal const int COLOR_NB = 2;
-    internal static ColorT[] AllColors = { Color.WHITE, Color.BLACK};
+    internal static ColorT[] AllColors = { WHITE, BLACK};
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
     public static ColorT opposite(ColorT c)
     {
-        return c == Color.WHITE ? Color.BLACK : Color.WHITE;
+        return c == WHITE ? BLACK : WHITE;
     }
 
 #if FORCEINLINE

@@ -309,7 +309,7 @@ internal static class PSQT
 
             for (var s = Square.SQ_A1; s <= Square.SQ_H8; ++s)
             {
-                int edgeDistance = (int)Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
+                int edgeDistance = Square.file_of(s) < File.FILE_E ? Square.file_of(s) : File.FILE_H - Square.file_of(s);
                 psq[Color.BLACK, pt, Square.opposite(s)] = -(psq[Color.WHITE, pt, s] = v + Bonus[pt][Square.rank_of(s)][edgeDistance]);
             }
         }

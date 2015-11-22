@@ -544,7 +544,7 @@ internal class EndgameKRPKR : EndgameScaleFactor
         // The defending side saves a draw by checking from behind in case the pawn
         // has advanced to the 6th rank with the king behind.
         if (r == Rank.RANK_6 && Utils.distance_Square(bksq, queeningSq) <= 1
-            && (int)Square.rank_of(wksq) + tempo <= Rank.RANK_6
+            && Square.rank_of(wksq) + tempo <= Rank.RANK_6
             && (Square.rank_of(brsq) == Rank.RANK_1 || (tempo == 0 && Utils.distance_File(brsq, wpsq) >= 3)))
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;

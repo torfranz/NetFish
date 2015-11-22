@@ -32,7 +32,7 @@ internal static class Utils
 
     internal static BitboardT[][] RookAttacks = new BitboardT[Square.SQUARE_NB][];
 
-    internal static uint[] RookShifts = new uint[Square.SQUARE_NB];
+    internal static int[] RookShifts = new int[Square.SQUARE_NB];
 
     internal static BitboardT[] BishopMasks = new BitboardT[Square.SQUARE_NB];
 
@@ -40,7 +40,7 @@ internal static class Utils
 
     internal static BitboardT[][] BishopAttacks = new BitboardT[Square.SQUARE_NB][];
 
-    internal static uint[] BishopShifts = new uint[Square.SQUARE_NB];
+    internal static int[] BishopShifts = new int[Square.SQUARE_NB];
 
     internal static BitboardT[] SquareBB = new BitboardT[Square.SQUARE_NB];
 
@@ -89,13 +89,6 @@ internal static class Utils
 
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-    internal static BitboardT rank_bb_Rt(RankT r)
-    {
-        return RankBB[r];
-    }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -97,7 +97,7 @@ internal class Position
 
     internal Position(string f, bool c960, Thread th)
     {
-        this.clearBoard();
+        clearBoard();
 
         set(f, c960, th);
     }
@@ -493,10 +493,9 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void put_piece(ColorT c, PieceTypeT pieceType, SquareT s)
+    private void put_piece(ColorT c, PieceTypeT pt, SquareT s)
     {
-        var pt = (int) pieceType;
-        board[s] = Piece.make_piece(c, pieceType);
+        board[s] = Piece.make_piece(c, pt);
         byTypeBB[PieceType.ALL_PIECES] = Bitboard.OrWithSquare(byTypeBB[PieceType.ALL_PIECES], s);
         byTypeBB[pt] = Bitboard.OrWithSquare(byTypeBB[pt], s);
         byColorBB[c] = Bitboard.OrWithSquare(byColorBB[c], s);
@@ -508,9 +507,8 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void remove_piece(ColorT c, PieceTypeT pieceType, SquareT s)
+    private void remove_piece(ColorT c, PieceTypeT pt, SquareT s)
     {
-        var pt = (int) pieceType;
         // WARNING: This is not a reversible operation. If we remove a piece in
         // do_move() and then replace it in undo_move() we will put it at the end of
         // the list and not in its original place, it means index[] and pieceList[]
@@ -529,9 +527,8 @@ internal class Position
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private void move_piece(ColorT c, PieceTypeT pieceType, SquareT from, SquareT to)
+    private void move_piece(ColorT c, PieceTypeT pt, SquareT from, SquareT to)
     {
-        var pt = (int) pieceType;
         // index[from] is not updated and becomes stale. This works as long as index[]
         // is accessed just by known occupied squares.
         var from_to_bb = Utils.SquareBB[from] ^ Utils.SquareBB[to];
@@ -539,7 +536,7 @@ internal class Position
         byTypeBB[pt] ^= from_to_bb;
         byColorBB[c] ^= from_to_bb;
         board[from] = Piece.NO_PIECE;
-        board[to] = Piece.make_piece(c, pieceType);
+        board[to] = Piece.make_piece(c, pt);
         index[to] = index[from];
         pieceList[c, pt, index[to]] = to;
     }
@@ -594,7 +591,7 @@ internal class Position
             var s = Utils.pop_lsb(ref b);
             var pc = piece_on(s);
             var color = Piece.color_of(pc);
-            var pieceType = (int) Piece.type_of(pc);
+            var pieceType = Piece.type_of(pc);
             si.key ^= Zobrist.psq[color, pieceType, s];
             si.psq += PSQT.psq[color, pieceType, s];
         }
@@ -632,7 +629,7 @@ internal class Position
         {
             for (var pt = (int)PieceType.KNIGHT; pt <= PieceType.QUEEN; ++pt)
             {
-                si.nonPawnMaterial[c] += pieceCount[c, pt]*Value.PieceValue[(int) Phase.MG][pt];
+                si.nonPawnMaterial[c] += pieceCount[c, pt]*Value.PieceValue[(int)Phase.MG][pt];
             }
         }
     }
@@ -914,7 +911,7 @@ internal class Position
         var them = Color.opposite(us);
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = (int)Piece.type_of(piece_on(from));
+        var pt = Piece.type_of(piece_on(from));
         var captured = Move.type_of(m) == MoveType.ENPASSANT ? PieceType.PAWN : Piece.type_of(piece_on(to));
 
         Debug.Assert(Piece.color_of(piece_on(from)) == us);
@@ -1014,7 +1011,7 @@ internal class Position
 
             else if (Move.type_of(m) == MoveType.PROMOTION)
             {
-                var promotion = (int)Move.promotion_type(m);
+                var promotion = Move.promotion_type(m);
 
                 Debug.Assert(Rank.relative_rank_CtSt(us, to) == Rank.RANK_8);
                 Debug.Assert(promotion >= PieceType.KNIGHT && promotion <= PieceType.QUEEN);
@@ -1222,8 +1219,8 @@ internal class Position
         var us = sideToMove;
         var from = Move.from_sq(m);
         var to = Move.to_sq(m);
-        var pt = (int)Piece.type_of(piece_on(from));
-        var captured = (int)Piece.type_of(piece_on(to));
+        var pt = Piece.type_of(piece_on(from));
+        var captured = Piece.type_of(piece_on(to));
         var k = st.key ^ Zobrist.side;
 
         if (captured!=0)
@@ -1297,7 +1294,7 @@ internal class Position
         // destination square, where the sides alternately capture, and always
         // capture with the least valuable piece. After each capture, we look for
         // new X-ray attacks from behind the capturing piece.
-        var captured = (int)Piece.type_of(piece_on(@from));
+        var captured = Piece.type_of(piece_on(from));
 
         do
         {
@@ -1403,15 +1400,9 @@ internal class Position
                     return false;
                 }
 
-                foreach (var p1 in PieceType.AllPieceTypes)
+                if (PieceType.AllPieceTypes.Any(p1 => PieceType.AllPieceTypes.Any(p2 => p1 != p2 && ((pieces_Pt(p1) & pieces_Pt(p2)) != 0))))
                 {
-                    foreach (var p2 in PieceType.AllPieceTypes)
-                    {
-                        if (p1 != p2 && ((pieces_Pt(p1) & pieces_Pt(p2)) != 0))
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
 
@@ -1740,7 +1731,7 @@ internal class Position
     /// empty board, white to move, and no castling rights.
     internal void clear()
     {
-        this.clearBoard();
+        clearBoard();
 
         byColorBB = new BitboardT[Color.COLOR_NB];
 

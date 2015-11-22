@@ -257,7 +257,7 @@ internal static class Movegen
         BitboardT target,
         CheckInfo ci)
     {
-        var Pt = (int) pieceType;
+        var Pt = pieceType;
         Debug.Assert(Pt != PieceType.KING && Pt != PieceType.PAWN);
 
         for(var idx=0; idx<16;idx++)

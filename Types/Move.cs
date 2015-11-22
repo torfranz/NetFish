@@ -73,9 +73,9 @@ internal static class Move
     }
 
 #else
-    internal static MoveT MOVE_NONE = Move.Create(0);
+    internal static MoveT MOVE_NONE = Create(0);
 
-    internal static MoveT MOVE_NULL = Move.Create(65);
+    internal static MoveT MOVE_NULL = Create(65);
 
     public static MoveT Create(int value)
     {
@@ -120,7 +120,7 @@ internal static class Move
 #endif
     internal static MoveT make_move(SquareT from, SquareT to)
     {
-        return Move.Create(to | (from << 6));
+        return Create(to | (from << 6));
     }
 
 #if FORCEINLINE
@@ -136,7 +136,7 @@ internal static class Move
 #endif
     internal static MoveT make(MoveType moveType, SquareT from, SquareT to, PieceTypeT pt)
     {
-        return Move.Create(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
+        return Create(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
     }
 
 #if FORCEINLINE

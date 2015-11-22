@@ -19,9 +19,10 @@ internal class RankT
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
     }
 
-#endregion
+    #endregion
 
-#region base operators
+    #region base operators
+    
     public static RankT operator +(RankT v1, int v2)
     {
         return Rank.Create(v1.Value + v2);
@@ -119,7 +120,7 @@ internal static class Rank
 #endif
     internal static RankT relative_rank_CtRt(ColorT c, RankT r)
     {
-        return Rank.Create(r ^ (c * 7));
+        return Create(r ^ (c * 7));
     }
 
 #if FORCEINLINE
