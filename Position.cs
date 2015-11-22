@@ -560,7 +560,7 @@ internal class Position
         var kto = Square.relative_square(c, cs == CastlingSide.KING_SIDE ? Square.SQ_G1 : Square.SQ_C1);
         var rto = Square.relative_square(c, cs == CastlingSide.KING_SIDE ? Square.SQ_F1 : Square.SQ_D1);
 
-        for (var s = rfrom < rto ? rfrom : rto; s <= (kfrom > kto ? kfrom : kto); ++s)
+        for (var s = rfrom < rto ? rfrom : rto; s <= (rfrom > rto ? rfrom : rto); ++s)
         {
             if (s != kfrom && s != rfrom)
             {
@@ -568,7 +568,7 @@ internal class Position
             }
         }
 
-        for (var s = rfrom < rto ? rfrom : rto; s <= (kfrom > kto ? kfrom : kto); ++s)
+        for (var s = kfrom < kto ? kfrom : kto; s <= (kfrom > kto ? kfrom : kto); ++s)
         {
             if (s != kfrom && s != rfrom)
             {
