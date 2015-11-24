@@ -82,7 +82,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -108,6 +110,7 @@
     <Compile Include="Types\DepthTests.cs" />
     <Compile Include="Types\SquareTests.cs" />
     <Compile Include="Types\ValueTests.cs" />
+    <Compile Include="PerftTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetFish.csproj">

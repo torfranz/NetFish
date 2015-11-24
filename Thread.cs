@@ -182,7 +182,7 @@ internal class Thread : ThreadBase
         var this_sp = splitPointsSize > 0 ? activeSplitPoint : null;
         Debug.Assert(this_sp == null || (this_sp.master == this && searching));
 
-        while (!exit && this_sp == null && (this_sp.slavesMask == 0))
+        while (!exit && !(this_sp != null && this_sp.slavesMask == 0))
         {
             // If this thread has been assigned work, launch a search
             while (searching)
@@ -362,9 +362,9 @@ internal class Thread : ThreadBase
 
         // No split points means that the thread is available as a slave for any
         // other thread otherwise apply the "helpful master" concept if possible.
-        var bitIsSet = (splitPoints[size - 1].slavesMask & (1u << sp.master.idx)) != 0;
+        
         //splitPoints[size - 1].slavesMask.test(sp.master.idx)
-        return size > 0 || bitIsSet;
+        return size == 0 || ((splitPoints[size - 1].slavesMask & (1u << sp.master.idx)) != 0);
     }
 
     // Thread::split() does the actual work of distributing the work at a node between
