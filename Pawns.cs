@@ -293,7 +293,7 @@ internal static class Pawns
             // pawn on each file is considered a true passed pawn.
             if (passed && doubled == 0)
             {
-                e.passedPawns[Us] = Bitboard.OrWithSquare(e.passedPawns[Us], s);
+                e.passedPawns[Us] = Bitboard.OccupySquare(e.passedPawns[Us], s);
             }
 
             // Score this pawn
@@ -446,7 +446,7 @@ internal static class Pawns
 
         internal int pawns_on_same_color_squares(ColorT c, SquareT s)
         {
-            return pawnsOnSquares[c, Bitboard.AndWithSquare(Bitboard.DarkSquares, s)!=0 ? 1 : 0];
+            return pawnsOnSquares[c, Bitboard.IsOccupied(Bitboard.DarkSquares, s) ? 1 : 0];
         }
 
         internal ScoreT king_safety(ColorT Us, Position pos, SquareT ksq)
@@ -497,7 +497,7 @@ internal static class Pawns
 
         /// Entry::shelter_storm() calculates shelter and storm penalties for the file
         /// the king is on, as well as the two adjacent files.
-        private ValueT shelter_storm(ColorT Us, Position pos, SquareT ksq)
+        private static ValueT shelter_storm(ColorT Us, Position pos, SquareT ksq)
         {
             const int NoFriendlyPawn = 0;
             const int Unblocked = 1;

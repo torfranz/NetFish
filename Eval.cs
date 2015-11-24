@@ -15,15 +15,12 @@ internal static class Eval
     internal static ValueT Tempo = Value.Create(17); // Must be visible to search
 
     // Evaluation weights, indexed by the corresponding evaluation term
-    private static readonly int Mobility = 0;
+    private const int Mobility = 0;
 
-    private static readonly int PawnStructure = 1;
-
-    private static readonly int PassedPawns = 2;
-
-    private static readonly int Space = 3;
-
-    private static readonly int KingSafety = 4;
+    private const int PawnStructure = 1;
+    private const int PassedPawns = 2;
+    private const int Space = 3;
+    private const int KingSafety = 4;
 
     internal static Weight[] Weights =
     {
@@ -300,7 +297,7 @@ internal static class Eval
                         pos.pieces() ^ pos.pieces_CtPtPt(Us, PieceType.ROOK, PieceType.QUEEN))
                     : pos.attacks_from_PtS(pieceType, s);
 
-            if (Bitboard.AndWithSquare(ei.pinnedPieces[Us], s)!=0)
+            if (Bitboard.IsOccupied(ei.pinnedPieces[Us], s))
             {
                 b &= Utils.LineBB[pos.square(PieceType.KING, Us), s];
             }
@@ -338,11 +335,11 @@ internal static class Eval
                     && (pos.pieces_CtPt(Them, PieceType.PAWN) & Utils.pawn_attack_span(Us, s))==0)
                 {
                     score +=
-                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][Bitboard.AndWithSquare(ei.attackedBy[Us, PieceType.PAWN], s)!=0 ? 1 : 0];
+                        Outpost[Pt == PieceType.BISHOP ? 1 : 0][Bitboard.IsOccupied(ei.attackedBy[Us, PieceType.PAWN], s) ? 1 : 0];
                 }
 
                 // Bonus when behind a pawn
-                if (Rank.relative_rank_CtSt(Us, s) < Rank.RANK_5 && Bitboard.AndWithSquare(pos.pieces_Pt(PieceType.PAWN), (s + Square.pawn_push(Us)))!=0)
+                if (Rank.relative_rank_CtSt(Us, s) < Rank.RANK_5 && Bitboard.IsOccupied(pos.pieces_Pt(PieceType.PAWN), (s + Square.pawn_push(Us))))
                 {
                     score += MinorBehindPawn;
                 }
@@ -682,7 +679,7 @@ internal static class Eval
 
                     // If there aren't any enemy attacks, assign a big bonus. Otherwise
                     // assign a smaller bonus if the block square isn't attacked.
-                    var k = unsafeSquares == 0 ? 18 : Bitboard.AndWithSquare(unsafeSquares, blockSq)==0 ? 8 : 0;
+                    var k = unsafeSquares == 0 ? 18 : !Bitboard.IsOccupied(unsafeSquares, blockSq) ? 8 : 0;
 
                     // If the path to queen is fully defended, assign a big bonus.
                     // Otherwise assign a smaller bonus if the block square is defended.
@@ -691,7 +688,7 @@ internal static class Eval
                         k += 6;
                     }
 
-                    else if (Bitboard.AndWithSquare(defendedSquares, blockSq)!=0)
+                    else if (Bitboard.IsOccupied(defendedSquares, blockSq))
                     {
                         k += 4;
                     }
@@ -699,7 +696,7 @@ internal static class Eval
                     mbonus += k*rr;
                     ebonus += k*rr;
                 }
-                else if (Bitboard.AndWithSquare(pos.pieces_Ct(Us), blockSq)!=0)
+                else if (Bitboard.IsOccupied(pos.pieces_Ct(Us), blockSq))
                 {
                     mbonus += rr*3 + r*2 + 3;
                     ebonus += rr + r*2;
@@ -805,9 +802,9 @@ internal static class Eval
         // by our blocked pawns or king.
         BitboardT[] mobilityArea =
         {
-            ~(Bitboard.OrWithSquare(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
+            ~(Bitboard.OccupySquare(ei.attackedBy[Color.BLACK, PieceType.PAWN] | blockedPawns[Color.WHITE]
               , pos.square(PieceType.KING, Color.WHITE))),
-            ~(Bitboard.OrWithSquare(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
+            ~(Bitboard.OccupySquare(ei.attackedBy[Color.WHITE, PieceType.PAWN] | blockedPawns[Color.BLACK]
               , pos.square(PieceType.KING, Color.BLACK)))
         };
 

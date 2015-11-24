@@ -25,7 +25,7 @@ internal class KPKPosition
         // Check if two pieces are on the same square or if a king can be captured
         if (Utils.distance_Square(ksq[Color.WHITE], ksq[Color.BLACK]) <= 1
             || ksq[Color.WHITE] == psq || ksq[Color.BLACK] == psq
-            || (us == Color.WHITE && Bitboard.AndWithSquare(Utils.StepAttacksBB[PieceType.PAWN, psq], ksq[Color.BLACK])!=0))
+            || (us == Color.WHITE && Bitboard.IsOccupied(Utils.StepAttacksBB[PieceType.PAWN, psq], ksq[Color.BLACK])))
         {
             result = Result.INVALID;
         }
@@ -34,7 +34,7 @@ internal class KPKPosition
         else if (us == Color.WHITE && Square.rank_of(psq) == Rank.RANK_7
                  && ksq[us] != psq + Square.DELTA_N
                  && (Utils.distance_Square(ksq[Color.opposite(us)], psq + Square.DELTA_N) > 1
-                     || Bitboard.AndWithSquare(Utils.StepAttacksBB[PieceType.KING, ksq[us]], (psq + Square.DELTA_N))!=0))
+                     || Bitboard.IsOccupied(Utils.StepAttacksBB[PieceType.KING, ksq[us]], (psq + Square.DELTA_N))))
         {
             result = Result.WIN;
         }
@@ -44,7 +44,7 @@ internal class KPKPosition
                  && ((Utils.StepAttacksBB[PieceType.KING, ksq[us]]
                        & ~(Utils.StepAttacksBB[PieceType.KING, ksq[Color.opposite(us)]]
                            | Utils.StepAttacksBB[PieceType.PAWN, psq])) == 0
-                     || (Bitboard.AndWithSquare(Utils.StepAttacksBB[PieceType.KING, ksq[us]], psq)
+                     || (Bitboard.IsOccupied2(Utils.StepAttacksBB[PieceType.KING, ksq[us]], psq)
                          & ~Utils.StepAttacksBB[PieceType.KING, ksq[Color.opposite(us)]]) != 0))
         {
             result = Result.DRAW;

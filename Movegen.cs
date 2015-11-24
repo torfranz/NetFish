@@ -10,7 +10,7 @@ using BitboardT = System.UInt64;
 
 internal static class Movegen
 {
-    internal static ExtMoveArrayWrapper generate_castling(
+    private static ExtMoveArrayWrapper generate_castling(
         CastlingRight Cr,
         bool Checks,
         bool Chess960,
@@ -49,7 +49,7 @@ internal static class Movegen
         // when moving the castling rook we do not discover some hidden checker.
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
-            && ((Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.XorWithSquare(pos.pieces(), rfrom))
+            && ((Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.ToggleSquare(pos.pieces(), rfrom))
                 & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))!= 0)
         {
             return moveList;
@@ -66,7 +66,7 @@ internal static class Movegen
         return moveList;
     }
 
-    internal static ExtMoveArrayWrapper make_promotions(
+    private static ExtMoveArrayWrapper make_promotions(
         GenType Type,
         SquareT Delta,
         ExtMoveArrayWrapper moveList,
@@ -75,29 +75,29 @@ internal static class Movegen
     {
         if (Type == GenType.CAPTURES || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
+            moveList.Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.QUEEN));
         }
 
         if (Type == GenType.QUIETS || Type == GenType.EVASIONS || Type == GenType.NON_EVASIONS)
         {
-            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
+            moveList.Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.ROOK));
 
-            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
+            moveList.Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.BISHOP));
 
-            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            moveList.Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
 
         // Knight promotion is the only promotion that can give a direct check
         // that's not already included in the queen promotion.
-        if (Type == GenType.QUIET_CHECKS && Bitboard.AndWithSquare(Utils.StepAttacksBB[Piece.W_KNIGHT, to], ci.ksq)!=0)
+        if (Type == GenType.QUIET_CHECKS && Bitboard.IsOccupied(Utils.StepAttacksBB[Piece.W_KNIGHT, to], ci.ksq))
         {
-            (moveList).Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
+            moveList.Add(Move.make(MoveType.PROMOTION, to - Delta, to, PieceType.KNIGHT));
         }
 
         return moveList;
     }
 
-    internal static ExtMoveArrayWrapper generate_pawn_moves(
+    private static ExtMoveArrayWrapper generate_pawn_moves(
         ColorT Us,
         GenType Type,
         Position pos,
@@ -140,8 +140,8 @@ internal static class Movegen
 
             if (Type == GenType.QUIET_CHECKS)
             {
-                b1 &= pos.attacks_from_PS(PieceType.PAWN, ci.ksq, Them);
-                b2 &= pos.attacks_from_PS(PieceType.PAWN, ci.ksq, Them);
+                b1 &= Position.attacks_from_Pawn(ci.ksq, Them);
+                b2 &= Position.attacks_from_Pawn(ci.ksq, Them);
 
                 // Add pawn pushes which give discovered check. This is possible only
                 // if the pawn is not on the same file as the enemy king, because we
@@ -161,13 +161,13 @@ internal static class Movegen
             while (b1 != 0)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (moveList).Add(Move.make_move(to - Up, to));
+                (moveList).Add(Move.make(to - Up, to));
             }
 
             while (b2 != 0)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (moveList).Add(Move.make_move(to - Up - Up, to));
+                (moveList).Add(Move.make(to - Up - Up, to));
             }
         }
 
@@ -213,13 +213,13 @@ internal static class Movegen
             while (b1 != 0)
             {
                 var to = Utils.pop_lsb(ref b1);
-                (moveList).Add(Move.make_move(to - Right, to));
+                (moveList).Add(Move.make(to - Right, to));
             }
 
             while (b2 != 0)
             {
                 var to = Utils.pop_lsb(ref b2);
-                (moveList).Add(Move.make_move(to - Left, to));
+                (moveList).Add(Move.make(to - Left, to));
             }
 
             if (pos.ep_square() != Square.SQ_NONE)
@@ -229,12 +229,12 @@ internal static class Movegen
                 // An en passant capture can be an evasion only if the checking piece
                 // is the double pushed pawn and so is in the target. Otherwise this
                 // is a discovery check and we are forced to do otherwise.
-                if (Type == GenType.EVASIONS && Bitboard.AndWithSquare(target, (pos.ep_square() - Up))==0)
+                if (Type == GenType.EVASIONS && !Bitboard.IsOccupied(target, (pos.ep_square() - Up)))
                 {
                     return moveList;
                 }
 
-                b1 = pawnsNotOn7 & pos.attacks_from_PS(PieceType.PAWN, pos.ep_square(), Them);
+                b1 = pawnsNotOn7 & Position.attacks_from_Pawn(pos.ep_square(), Them);
 
                 Debug.Assert(b1 != 0);
 
@@ -248,7 +248,7 @@ internal static class Movegen
         return moveList;
     }
 
-    internal static ExtMoveArrayWrapper generate_moves(
+    private static ExtMoveArrayWrapper generate_moves(
         PieceTypeT pieceType,
         bool Checks,
         Position pos,
@@ -276,7 +276,7 @@ internal static class Movegen
                     continue;
                 }
 
-                if (ci.dcCandidates != 0 && Bitboard.AndWithSquare(ci.dcCandidates, square)!=0)
+                if (ci.dcCandidates != 0 && Bitboard.IsOccupied(ci.dcCandidates, square))
                 {
                     continue;
                 }
@@ -291,14 +291,14 @@ internal static class Movegen
 
             while (b != 0)
             {
-                (moveList).Add(Move.make_move(square, Utils.pop_lsb(ref b)));
+                (moveList).Add(Move.make(square, Utils.pop_lsb(ref b)));
             }
         }
 
         return moveList;
     }
 
-    internal static ExtMoveArrayWrapper generate_all(
+    private static ExtMoveArrayWrapper generate_all(
         ColorT Us,
         GenType Type,
         Position pos,
@@ -320,7 +320,7 @@ internal static class Movegen
             var b = pos.attacks_from_PtS(PieceType.KING, ksq) & target;
             while (b != 0)
             {
-                (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+                (moveList).Add(Move.make(ksq, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -435,7 +435,7 @@ internal static class Movegen
 
             while (b != 0)
             {
-                (moveList).Add(Move.make_move(from, Utils.pop_lsb(ref b)));
+                (moveList).Add(Move.make(from, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -463,14 +463,14 @@ internal static class Movegen
         while (sliders != 0)
         {
             var checksq1 = Utils.pop_lsb(ref sliders);
-            sliderAttacks |= Bitboard.XorWithSquare(Utils.LineBB[checksq1, ksq], checksq1);
+            sliderAttacks |= Bitboard.ToggleSquare(Utils.LineBB[checksq1, ksq], checksq1);
         }
 
         // Generate evasions for king, capture and non capture moves
         var b = pos.attacks_from_PtS(PieceType.KING, ksq) & ~pos.pieces_Ct(us) & ~sliderAttacks;
         while (b != 0)
         {
-            (moveList).Add(Move.make_move(ksq, Utils.pop_lsb(ref b)));
+            (moveList).Add(Move.make(ksq, Utils.pop_lsb(ref b)));
         }
 
         if (Bitboard.more_than_one(pos.checkers()))
@@ -480,7 +480,7 @@ internal static class Movegen
 
         // Generate blocking evasions or captures of the checking piece
         var checksq = Utils.lsb(pos.checkers());
-        var target = Bitboard.OrWithSquare(Utils.between_bb(checksq, ksq), checksq);
+        var target = Bitboard.OccupySquare(Utils.between_bb(checksq, ksq), checksq);
 
         return us == Color.WHITE
             ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)

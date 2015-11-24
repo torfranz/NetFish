@@ -60,7 +60,7 @@ internal static class Bitboards
                 if (s1 != s2)
                 {
                     Utils.SquareDistance[s1, s2] = Math.Max(Utils.distance_File(s1, s2), Utils.distance_Rank_StSt(s1, s2));
-                    Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] = Bitboard.OrWithSquare(Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] ,s2);
+                    Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] = Bitboard.OccupySquare(Utils.DistanceRingBB[s1, Utils.SquareDistance[s1, s2] - 1] ,s2);
                 }
             }
         }
@@ -85,7 +85,7 @@ internal static class Bitboards
 
                         if (Square.is_ok(to) && Utils.distance_Square(s, to) < 3)
                         {
-                            Utils.StepAttacksBB[Piece.make_piece(c, pt), s] = Bitboard.OrWithSquare(Utils.StepAttacksBB[Piece.make_piece(c, pt), s], to);
+                            Utils.StepAttacksBB[Piece.make_piece(c, pt), s] = Bitboard.OccupySquare(Utils.StepAttacksBB[Piece.make_piece(c, pt), s], to);
                         }
                     }
                 }
@@ -101,14 +101,14 @@ internal static class Bitboards
             Utils.RookMasks,
             Utils.RookShifts,
             RookDeltas,
-            Utils.magic_index_Rook);
+            (s, occupied) => Utils.magic_index(s, occupied, Utils.RookMasks, Utils.RookMagics, Utils.RookShifts));
         init_magics(
             Utils.BishopAttacks,
             Utils.BishopMagics,
             Utils.BishopMasks,
             Utils.BishopShifts,
             BishopDeltas,
-            Utils.magic_index_Bishop);
+            (s, occupied) => Utils.magic_index(s, occupied, Utils.BishopMasks, Utils.BishopMagics, Utils.BishopShifts));
 
         for (var s1 = Square.SQ_A1; s1 <= Square.SQ_H8; ++s1)
         {
@@ -121,13 +121,13 @@ internal static class Bitboards
             {
                 for (var s2 = Square.SQ_A1; s2 <= Square.SQ_H8; ++s2)
                 {
-                    if (Bitboard.AndWithSquare(Utils.PseudoAttacks[pc, s1], s2)==0)
+                    if (!Bitboard.IsOccupied(Utils.PseudoAttacks[pc, s1], s2))
                     {
                         continue;
                     }
 
                     var piece = Piece.Create(pc);
-                    Utils.LineBB[s1, s2] = Bitboard.OrWithSquare(Bitboard.OrWithSquare((Utils.attacks_bb_PSBb(piece, s1, Bitboard.Create(0))
+                    Utils.LineBB[s1, s2] = Bitboard.OccupySquare(Bitboard.OccupySquare((Utils.attacks_bb_PSBb(piece, s1, Bitboard.Create(0))
                                             & Utils.attacks_bb_PSBb(piece, s2, Bitboard.Create(0))), s1), s2);
                     Utils.BetweenBB[s1, s2] = Utils.attacks_bb_PSBb(piece, s1, Utils.SquareBB[s2])
                                               & Utils.attacks_bb_PSBb(piece, s2, Utils.SquareBB[s1]);
@@ -144,9 +144,9 @@ internal static class Bitboards
         {
             for (var s = sq + deltas[i]; Square.is_ok(s) && Utils.distance_Square(s, s - deltas[i]) == 1; s += deltas[i])
             {
-                attack = Bitboard.OrWithSquare(attack, s);
+                attack = Bitboard.OccupySquare(attack, s);
 
-                if (Bitboard.AndWithSquare(occupied, s) != 0)
+                if (Bitboard.IsOccupied(occupied, s))
                 {
                     break;
                 }

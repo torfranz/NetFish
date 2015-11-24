@@ -15,7 +15,7 @@ namespace Tests
         [TestMethod()]
         public void MakeMoveTests()
         {
-            var v1 = Move.make_move(Square.SQ_A1, Square.SQ_H8);
+            var v1 = Move.make(Square.SQ_A1, Square.SQ_H8);
             Assert.AreEqual(Square.SQ_A1, Move.from_sq(v1));
             Assert.AreEqual(Square.SQ_H8, Move.to_sq(v1));
             Assert.AreEqual(MoveType.NORMAL, Move.type_of(v1));

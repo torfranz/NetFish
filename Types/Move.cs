@@ -118,7 +118,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    internal static MoveT make_move(SquareT from, SquareT to)
+    internal static MoveT make(SquareT from, SquareT to)
     {
         return Create(to | (from << 6));
     }

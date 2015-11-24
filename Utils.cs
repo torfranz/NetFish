@@ -188,7 +188,7 @@ internal static class Utils
 #endif
     internal static bool aligned(SquareT s1, SquareT s2, SquareT s3)
     {
-        return Bitboard.AndWithSquare(LineBB[s1, s2], s3)!=0;
+        return Bitboard.IsOccupied(LineBB[s1, s2], s3);
     }
 
     /// distance() functions return the distance between x and y, defined as the
@@ -228,25 +228,15 @@ internal static class Utils
         return xFile > yFile ? xFile - yFile : yFile - xFile;
     }
 
-    internal static uint magic_index_Rook(SquareT s, BitboardT occupied)
-    {
-        return magic_index(PieceType.ROOK, s, occupied);
-    }
-
-    internal static uint magic_index_Bishop(SquareT s, BitboardT occupied)
-    {
-        return magic_index(PieceType.BISHOP, s, occupied);
-    }
-
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
-    internal static uint magic_index(PieceTypeT Pt, SquareT s, BitboardT occupied)
+    internal static uint magic_index(SquareT s, BitboardT occupied, BitboardT[] Masks, BitboardT[] Magics, int[] Shifts)
     {
-        var Masks = Pt == PieceType.ROOK ? RookMasks : BishopMasks;
-        var Magics = Pt == PieceType.ROOK ? RookMagics : BishopMagics;
-        var Shifts = Pt == PieceType.ROOK ? RookShifts : BishopShifts;
-
+        
 #if X64
         return (uint) ((((occupied & Masks[(int)s])*Magics[(int)s]) >> (int) Shifts[(int)s]));
 #else
@@ -257,11 +247,14 @@ internal static class Utils
 #endif
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     internal static BitboardT attacks_bb_PtSBb(PieceTypeT Pt, SquareT s, BitboardT occupied)
     {
         return Pt == PieceType.ROOK
-            ? RookAttacks[s][magic_index(Pt, s, occupied)]
-            : BishopAttacks[s][magic_index(Pt, s, occupied)];
+            ? RookAttacks[s][magic_index(s, occupied, Utils.RookMasks, Utils.RookMagics, Utils.RookShifts)]
+            : BishopAttacks[s][magic_index(s, occupied, Utils.BishopMasks, Utils.BishopMagics, Utils.BishopShifts)];
     }
 
 #if FORCEINLINE
@@ -269,7 +262,7 @@ internal static class Utils
 #endif
     internal static BitboardT attacks_bb_PSBb(PieceT pc, SquareT s, BitboardT occupied)
     {
-        switch ((int)Piece.type_of(pc))
+        switch (Piece.type_of(pc))
         {
             case 3 /*PieceType.BISHOP*/:
                 return attacks_bb_PtSBb(PieceType.BISHOP, s, occupied);
@@ -284,7 +277,9 @@ internal static class Utils
 
     // bsf_index() returns the index into BSFTable[] to look up the bitscan. Uses
     // Matt Taylor's folding for 32 bit case, extended to 64 bit by Kim Walisch.
-
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     internal static uint bsf_index(BitboardT b)
     {
         var value = (ulong)b;
@@ -296,6 +291,9 @@ internal static class Utils
 #endif
     }
 
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     internal static SquareT lsb(BitboardT b)
     {
         return BSFTable[bsf_index(b)];

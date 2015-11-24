@@ -53,9 +53,9 @@ namespace Tests
             Assert.AreEqual(4311810306UL, Utils.RookAttacks[0][1]);
 
             // check some RookShifts fields
-            Assert.AreEqual(20u, Utils.RookShifts[0]);
-            Assert.AreEqual(21u, Utils.RookShifts[1]);
-            Assert.AreEqual(21u, Utils.RookShifts[2]);
+            Assert.AreEqual(20, Utils.RookShifts[0]);
+            Assert.AreEqual(21, Utils.RookShifts[1]);
+            Assert.AreEqual(21, Utils.RookShifts[2]);
 
             // check SquareBB values
             Assert.AreEqual(8589934592ul, Utils.SquareBB[33]);

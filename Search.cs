@@ -900,7 +900,7 @@ internal static class Search
             var captureOrPromotion = pos.capture_or_promotion(move);
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && ci.dcCandidates == 0
-                ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
+                ? Bitboard.IsOccupied(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))
                 : pos.gives_check(move, ci);
 
             // Step 12. Extend checks
@@ -1024,7 +1024,7 @@ internal static class Search
                 if (stack.reduction > 0
                     && Move.type_of(move) == MoveType.NORMAL
                     && Piece.type_of(pos.piece_on(Move.to_sq(move))) != PieceType.PAWN
-                    && pos.see(Move.make_move(Move.to_sq(move), Move.from_sq(move))) < Value.VALUE_ZERO)
+                    && pos.see(Move.make(Move.to_sq(move), Move.from_sq(move))) < Value.VALUE_ZERO)
                     stack.reduction =
                         new Depth(Math.Max(Depth.DEPTH_ZERO_C, stack.reduction - Depth.ONE_PLY_C));
 
@@ -1351,7 +1351,7 @@ internal static class Search
             Debug.Assert(Move.is_ok(move));
 
             var givesCheck = Move.type_of(move) == MoveType.NORMAL && ci.dcCandidates == 0
-                ? Bitboard.AndWithSquare(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))!=0
+                ? Bitboard.IsOccupied(ci.checkSquares[Piece.type_of(pos.piece_on(Move.from_sq(move)))], Move.to_sq(move))
                 : pos.gives_check(move, ci);
 
             // Futility pruning

@@ -349,7 +349,7 @@ internal class EndgameKQKP : EndgameValue
         var result = Value.Create(PushClose[Utils.distance_Square(winnerKSq, loserKSq)]);
 
         if (Rank.relative_rank_CtSt(weakSide, pawnSq) != Rank.RANK_7 || Utils.distance_Square(loserKSq, pawnSq) != 1
-            || Bitboard.AndWithSquare((Bitboard.FileABB | Bitboard.FileCBB | Bitboard.FileFBB | Bitboard.FileHBB), pawnSq)==0)
+            || !Bitboard.IsOccupied((Bitboard.FileABB | Bitboard.FileCBB | Bitboard.FileFBB | Bitboard.FileHBB), pawnSq))
         {
             result += Value.QueenValueEg - Value.PawnValueEg;
         }
@@ -448,7 +448,7 @@ internal class EndgameKBPsK : EndgameScaleFactor
             // There's potential for a draw if our pawn is blocked on the 7th rank,
             // the bishop cannot attack it or they only have one pawn left
             if (Rank.relative_rank_CtSt(strongSide, weakPawnSq) == Rank.RANK_7
-                && Bitboard.AndWithSquare(pos.pieces_CtPt(strongSide, PieceType.PAWN), (weakPawnSq + Square.pawn_push(weakSide)))!=0
+                && Bitboard.IsOccupied(pos.pieces_CtPt(strongSide, PieceType.PAWN), (weakPawnSq + Square.pawn_push(weakSide)))
                 && (Square.opposite_colors(bishopSq, weakPawnSq) || pos.count(PieceType.PAWN, strongSide) == 1))
             {
                 var strongKingDist = Utils.distance_Square(weakPawnSq, strongKingSq);
@@ -494,7 +494,7 @@ internal class EndgameKQKRPs : EndgameScaleFactor
             && Rank.relative_rank_CtSt(weakSide, pos.square(PieceType.KING, strongSide)) >= Rank.RANK_4
             && Rank.relative_rank_CtSt(weakSide, rsq) == Rank.RANK_3
             && (pos.pieces_CtPt(weakSide, PieceType.PAWN) & pos.attacks_from_PtS(PieceType.KING, kingSq)
-                & pos.attacks_from_PS(PieceType.PAWN, rsq, strongSide))!=0)
+                & Position.attacks_from_Pawn(rsq, strongSide)) !=0)
         {
             return ScaleFactor.SCALE_FACTOR_DRAW;
         }
@@ -656,7 +656,7 @@ internal class EndgameKRPKB : EndgameScaleFactor
             // pawn from a reasonable distance and the defending king is near
             // the corner
             if (rk == Rank.RANK_6 && Utils.distance_Square(psq + 2*push, ksq) <= 1
-                && Bitboard.AndWithSquare(Utils.PseudoAttacks[PieceType.BISHOP, bsq], (psq + push))!=0 && Utils.distance_File(bsq, psq) >= 2)
+                && Bitboard.IsOccupied(Utils.PseudoAttacks[PieceType.BISHOP, bsq], (psq + push)) && Utils.distance_File(bsq, psq) >= 2)
             {
                 return (ScaleFactor) (8);
             }

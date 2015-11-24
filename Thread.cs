@@ -172,10 +172,10 @@ internal class Thread : ThreadBase
         // Signal done
         initEvent?.Set();
 
-        base_idle_loop(initEvent);
+        base_idle_loop();
     }
 
-    internal void base_idle_loop(ManualResetEvent initEvent)
+    internal void base_idle_loop()
     {
         // Pointer 'this_sp' is not null only if we are called from split(), and not
         // at the thread creation. This means we are the split point's master.
@@ -447,7 +447,7 @@ internal class Thread : ThreadBase
         // their work at this split point.
         ThreadHelper.lock_release(sp.spinLock);
 
-        base_idle_loop(null); // Force a call to base class idle_loop()
+        base_idle_loop(); // Force a call to base class idle_loop()
 
         // In the helpful master concept, a master can help only a sub-tree of its
         // split point and because everything is finished here, it's not possible

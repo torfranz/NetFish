@@ -11,12 +11,14 @@ internal class Program
     {
         // Setup an 8k inputBuffer because really long UCI strings were getting truncated
         var inputStream = Console.OpenStandardInput(inputBuffer.Length);
-        Console.SetIn(new StreamReader(inputStream, Encoding.ASCII, false, inputBuffer.Length));
+        {
+            Console.SetIn(new StreamReader(inputStream, Encoding.ASCII, false, inputBuffer.Length));
 
-        Console.WriteLine(Utils.engine_info());
+            Console.WriteLine(Utils.engine_info());
 
-        var t = new System.Threading.Thread(Run);
-        t.Start(args);
+            var t = new System.Threading.Thread(Run);
+            t.Start(args);
+        }
     }
 
     private static void Run(object arguments)

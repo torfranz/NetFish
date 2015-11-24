@@ -114,13 +114,13 @@ internal static class Benchmark
 
         else
         {
-            var sr = new StreamReader(fenFile, true);
-            var fensFromFile = sr.ReadToEnd();
-            sr.Close();
-            sr.Dispose();
+            using (var sr = new StreamReader(fenFile, true))
+            {
+                var fensFromFile = sr.ReadToEnd();
 
-            var split = fensFromFile.Replace("\r", "").Split('\n');
-            fens.AddRange(from fen in split where fen.Trim().Length > 0 select fen.Trim());
+                var split = fensFromFile.Replace("\r", "").Split('\n');
+                fens.AddRange(from fen in split where fen.Trim().Length > 0 select fen.Trim());
+            }
         }
 
         var time = Stopwatch.StartNew();

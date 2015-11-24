@@ -10,7 +10,7 @@ internal static class Bitbases
     private const int MAX_INDEX = 2*24*64*64; // stm * psq * wksq * bksq = 196608
 
     // Each uint32_t stores results of 32 positions, one per bit
-    internal static int[] KPKBitbase = new int[MAX_INDEX/32];
+    internal static uint[] KPKBitbase = new uint[MAX_INDEX/32];
 
     // A KPK bitbase index is an integer in [0, IndexMax] range
     //
@@ -61,7 +61,7 @@ internal static class Bitbases
         {
             if (db[idx] == Result.WIN)
             {
-                KPKBitbase[idx/32] |= (1 << (int) (idx & 0x1F));
+                KPKBitbase[idx/32] |= (uint)(1 << (idx & 0x1F));
             }
         }
     }

@@ -201,7 +201,15 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static BitboardT AndWithSquare(BitboardT b, SquareT s)
+    public static bool IsOccupied(BitboardT b, SquareT s)
+    {
+        return (b & Utils.SquareBB[s]) != 0;
+    }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static BitboardT IsOccupied2(BitboardT b, SquareT s)
     {
         return Create(b & Utils.SquareBB[s]);
     }
@@ -209,7 +217,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static BitboardT XorWithSquare(BitboardT b, SquareT s)
+    public static BitboardT ToggleSquare(BitboardT b, SquareT s)
     {
         return Create(b ^ Utils.SquareBB[s]);
     }
@@ -217,7 +225,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    public static BitboardT OrWithSquare(BitboardT b, SquareT s)
+    public static BitboardT OccupySquare(BitboardT b, SquareT s)
     {
         return Create(b | Utils.SquareBB[s]);
     }
