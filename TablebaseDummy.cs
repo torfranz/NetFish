@@ -14,7 +14,6 @@ internal static class Tablebases
 
     internal static int Cardinality;
 
-
     internal static int MaxCardinality;
 
     internal static bool RootInTB;

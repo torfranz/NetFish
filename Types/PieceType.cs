@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using PieceTypeT = System.Int32;
 #else
 internal class PieceTypeT
 {
-    private int Value;
-   
+    private readonly int Value;
+
     #region constructors
-    
+
     internal PieceTypeT(int value)
     {
-        Value = value;
-        Debug.Assert(Value >= 0 && Value <= 8);
+        this.Value = value;
+        Debug.Assert(this.Value >= 0 && this.Value <= 8);
     }
+
     #endregion
 
     #region base operators
@@ -29,10 +29,10 @@ internal class PieceTypeT
     {
         return pt.Value;
     }
-    
+
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
     #endregion
@@ -41,7 +41,6 @@ internal class PieceTypeT
 
 internal static class PieceType
 {
-
 #if PRIMITIVE
     internal const PieceTypeT PAWN = 1;
 
@@ -82,6 +81,7 @@ internal static class PieceType
     internal static PieceTypeT KING = new PieceTypeT(6);
 
     internal static PieceTypeT NO_PIECE_TYPE = new PieceTypeT(0);
+
     internal static PieceTypeT ALL_PIECES = new PieceTypeT(0);
 
     internal static PieceTypeT Create(int value)
@@ -109,6 +109,6 @@ internal static class PieceType
 #endif
 
     internal static PieceTypeT[] AllPieceTypes = { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+
     internal const int PIECE_TYPE_NB = 8;
-    
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-static internal class Output
+internal static class Output
 {
     internal static bool showOutput = false;
 

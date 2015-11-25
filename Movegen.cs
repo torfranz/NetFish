@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 
 #if PRIMITIVE
 using ColorT = System.Int32;
@@ -50,7 +49,7 @@ internal static class Movegen
         // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
         if (Chess960
             && ((Utils.attacks_bb_PtSBb(PieceType.ROOK, kto, Bitboard.ToggleSquare(pos.pieces(), rfrom))
-                & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN)))!= 0)
+                 & pos.pieces_CtPtPt(Color.opposite(us), PieceType.ROOK, PieceType.QUEEN))) != 0)
         {
             return moveList;
         }
@@ -121,8 +120,8 @@ internal static class Movegen
         var pawnsNotOn7 = pos.pieces_CtPt(Us, PieceType.PAWN) & ~TRank7BB;
 
         var enemies = (Type == GenType.EVASIONS
-            ? pos.pieces_Ct(Them) & target
-            : Type == GenType.CAPTURES ? target : pos.pieces_Ct(Them));
+                           ? pos.pieces_Ct(Them) & target
+                           : Type == GenType.CAPTURES ? target : pos.pieces_Ct(Them));
 
         // Single and double pawn pushes, no promotions
         if (Type != GenType.CAPTURES)
@@ -260,7 +259,7 @@ internal static class Movegen
         var Pt = pieceType;
         Debug.Assert(Pt != PieceType.KING && Pt != PieceType.PAWN);
 
-        for(var idx=0; idx<16;idx++)
+        for (var idx = 0; idx < 16; idx++)
         {
             var square = pos.square(pieceType, us, idx);
             if (square == Square.SQ_NONE)
@@ -372,8 +371,8 @@ internal static class Movegen
     internal static CastlingRight MakeCastling(ColorT C, CastlingSide S)
     {
         return C == Color.WHITE
-            ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
-            : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
+                   ? S == CastlingSide.QUEEN_SIDE ? CastlingRight.WHITE_OOO : CastlingRight.WHITE_OO
+                   : S == CastlingSide.QUEEN_SIDE ? CastlingRight.BLACK_OOO : CastlingRight.BLACK_OO;
     }
 
     internal static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
@@ -394,20 +393,20 @@ internal static class Movegen
         var us = pos.side_to_move();
 
         var target = Type == GenType.CAPTURES
-            ? pos.pieces_Ct(Color.opposite(us))
-            : Type == GenType.QUIETS
-                ? ~pos.pieces()
-                : Type == GenType.NON_EVASIONS ? ~pos.pieces_Ct(us) : Bitboard.Create(0);
+                         ? pos.pieces_Ct(Color.opposite(us))
+                         : Type == GenType.QUIETS
+                               ? ~pos.pieces()
+                               : Type == GenType.NON_EVASIONS ? ~pos.pieces_Ct(us) : Bitboard.Create(0);
 
         return us == Color.WHITE
-            ? generate_all(Color.WHITE, Type, pos, moveList, target)
-            : generate_all(Color.BLACK, Type, pos, moveList, target);
+                   ? generate_all(Color.WHITE, Type, pos, moveList, target)
+                   : generate_all(Color.BLACK, Type, pos, moveList, target);
     }
 
     /// generate
     /// QUIET_CHECKS
-    ///     generates all pseudo-legal non-captures and knight
-    ///     underpromotions that give check. Returns a pointer to the end of the move list.
+    /// generates all pseudo-legal non-captures and knight
+    /// underpromotions that give check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(pos.checkers() == 0);
@@ -440,14 +439,14 @@ internal static class Movegen
         }
 
         return us == Color.WHITE
-            ? generate_all(Color.WHITE, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci)
-            : generate_all(Color.BLACK, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci);
+                   ? generate_all(Color.WHITE, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci)
+                   : generate_all(Color.BLACK, GenType.QUIET_CHECKS, pos, moveList, ~pos.pieces(), ci);
     }
 
     /// generate
     /// EVASIONS
-    ///     generates all pseudo-legal check evasions when the side
-    ///     to move is in check. Returns a pointer to the end of the move list.
+    /// generates all pseudo-legal check evasions when the side
+    /// to move is in check. Returns a pointer to the end of the move list.
     private static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(pos.checkers() != 0);
@@ -483,8 +482,8 @@ internal static class Movegen
         var target = Bitboard.OccupySquare(Utils.between_bb(checksq, ksq), checksq);
 
         return us == Color.WHITE
-            ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)
-            : generate_all(Color.BLACK, GenType.EVASIONS, pos, moveList, target);
+                   ? generate_all(Color.WHITE, GenType.EVASIONS, pos, moveList, target)
+                   : generate_all(Color.BLACK, GenType.EVASIONS, pos, moveList, target);
     }
 
     /// generate
@@ -496,8 +495,8 @@ internal static class Movegen
         var cur = moveList.current;
 
         moveList = pos.checkers() != 0
-            ? generate(GenType.EVASIONS, pos, moveList)
-            : generate(GenType.NON_EVASIONS, pos, moveList);
+                       ? generate(GenType.EVASIONS, pos, moveList)
+                       : generate(GenType.NON_EVASIONS, pos, moveList);
 
         while (cur != moveList.current)
         {

@@ -22,7 +22,7 @@ internal static class UCI
     /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
     internal static string square(SquareT s)
     {
-        return $"{ (char)('a' + (int)Square.file_of(s))}{ (char)('1' + (int)Square.rank_of(s))}";
+        return $"{(char)('a' + (int)Square.file_of(s))}{(char)('1' + (int)Square.rank_of(s))}";
     }
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
@@ -32,7 +32,7 @@ internal static class UCI
         var ss = new StringBuilder();
         var elapsed = TimeManagement.elapsed() + 1;
         var multiPV = Math.Min(int.Parse(OptionMap.Instance["MultiPV"].v), Search.RootMoves.Count);
-        var selDepth = ThreadPool.threads.Select(th => th.maxPly).Concat(new[] {0}).Max();
+        var selDepth = ThreadPool.threads.Select(th => th.maxPly).Concat(new[] { 0 }).Max();
 
         for (var i = 0; i < multiPV; ++i)
         {
@@ -47,22 +47,24 @@ internal static class UCI
             var v = updated ? Search.RootMoves[i].score : Search.RootMoves[i].previousScore;
 
             var tb = Tablebases.RootInTB && Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY;
-            v = tb? Tablebases.Score : v;
+            v = tb ? Tablebases.Score : v;
 
-            ss.Append($"info depth {d/Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
+            ss.Append($"info depth {d / Depth.ONE_PLY} seldepth {selDepth} multipv {i + 1} score {value(v)}");
 
             if (!tb && i == Search.PVIdx)
             {
                 ss.Append(v >= beta ? " lowerbound" : v <= alpha ? " upperbound" : "");
             }
 
-            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched()*1000/elapsed}");
+            ss.Append($" nodes {pos.nodes_searched()} nps {pos.nodes_searched() * 1000 / elapsed}");
 
             if (elapsed > 1000) // Earlier makes little sense
+            {
                 ss.Append($" hashfull {TranspositionTable.hashfull()}");
+            }
 
             ss.Append($" tbhits {Tablebases.Hits} time {elapsed} pv");
-            
+
             foreach (var m in Search.RootMoves[i].pv)
             {
                 ss.Append($" {move(m, pos.is_chess960())}");
@@ -77,18 +79,18 @@ internal static class UCI
     /// 
     /// cp
     /// x
-    ///     The score from the engine's point of view in centipawns.
-    ///     mate
-    ///     y
-    ///         Mate in y moves, not plies. If the engine is getting mated
-    ///         use negative values for y.
+    /// The score from the engine's point of view in centipawns.
+    /// mate
+    /// y
+    /// Mate in y moves, not plies. If the engine is getting mated
+    /// use negative values for y.
     internal static string value(ValueT v)
     {
         if (Math.Abs(v) < Value.VALUE_MATE - _.MAX_PLY)
         {
-            return $"cp {v*100/Value.PawnValueEg}";
+            return $"cp {v * 100 / Value.PawnValueEg}";
         }
-        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v)/2}";
+        return $"mate {(v > 0 ? Value.VALUE_MATE - v + 1 : -Value.VALUE_MATE - v) / 2}";
     }
 
     // position() is called when engine receives the "position" UCI command.
@@ -98,7 +100,7 @@ internal static class UCI
     internal static void position(Position pos, Stack<string> stack)
     {
         MoveT m;
-        string fen = string.Empty;
+        var fen = string.Empty;
 
         if (stack.Count == 0)
         {
@@ -137,7 +139,6 @@ internal static class UCI
             // Increment pointer to SetupStates circular buffer
             SetupStates++;
         }
-        
     }
 
     /// UCI::move() converts a Move to a string in coordinate notation (g1f3, a7a8q).
@@ -308,7 +309,7 @@ internal static class UCI
     internal static void loop(string args)
     {
         var pos = new Position(StartFEN, false, ThreadPool.main()); // The root position
-        string token = string.Empty;
+        var token = string.Empty;
 
         do
         {
@@ -323,7 +324,7 @@ internal static class UCI
                 {
                     cmd = "quit";
                 }
-                
+
                 var stack = Position.CreateStack(cmd);
                 if (stack.Count == 0)
                 {
@@ -412,7 +413,8 @@ internal static class UCI
             {
                 Console.Error.WriteLine($"An error occurred: {ex}");
             }
-        } while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
+        }
+        while (token != "quit" && args.Length == 0); // Passed args have one-shot behaviour
 
         ThreadPool.main().join(); // Cannot quit whilst the search is running
     }

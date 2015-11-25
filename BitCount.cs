@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-internal static class Bitcount
+﻿internal static class Bitcount
 {
     /// count_1s() counts the number of nonzero bits in a bitboard.
     /// We have different optimized versions according if platform
@@ -12,7 +10,6 @@ internal static class Bitcount
 #endif
     internal static int popcount_Full(ulong b)
     {
-        
 #if X64
         b -= (b >> 1) & 0x5555555555555555UL;
         b = ((b >> 2) & 0x3333333333333333UL) + (b & 0x3333333333333333UL);
@@ -32,6 +29,7 @@ internal static class Bitcount
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static int popcount_Max15(ulong b)
     {
 #if X64

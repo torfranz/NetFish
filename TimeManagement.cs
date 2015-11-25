@@ -3,6 +3,7 @@
 #if PRIMITIVE
 using ColorT = System.Int32;
 #endif
+
 /// The TimeManagement class computes the optimal time to think depending on
 /// the maximum available time, the game move number and other parameters.
 internal static class TimeManagement
@@ -34,7 +35,7 @@ internal static class TimeManagement
         const double XShift = 59.8;
         const double Skew = 0.172;
 
-        return Math.Pow((1 + Math.Exp((ply - XShift)/XScale)), -Skew) + _.DBL_MIN; // Ensure non-zero
+        return Math.Pow((1 + Math.Exp((ply - XShift) / XScale)), -Skew) + _.DBL_MIN; // Ensure non-zero
     }
 
     private static int remaining(TimeType T, int myTime, int movesToGo, int ply, int slowMover)
@@ -42,18 +43,18 @@ internal static class TimeManagement
         var TMaxRatio = (T == TimeType.OptimumTime ? 1 : MaxRatio);
         var TStealRatio = (T == TimeType.OptimumTime ? 0 : StealRatio);
 
-        var moveImportance = (move_importance(ply)*slowMover)/100;
+        var moveImportance = (move_importance(ply) * slowMover) / 100;
         double otherMovesImportance = 0;
 
         for (var i = 1; i < movesToGo; ++i)
         {
-            otherMovesImportance += move_importance(ply + 2*i);
+            otherMovesImportance += move_importance(ply + 2 * i);
         }
 
-        var ratio1 = (TMaxRatio*moveImportance)/(TMaxRatio*moveImportance + otherMovesImportance);
-        var ratio2 = (moveImportance + TStealRatio*otherMovesImportance)/(moveImportance + otherMovesImportance);
+        var ratio1 = (TMaxRatio * moveImportance) / (TMaxRatio * moveImportance + otherMovesImportance);
+        var ratio2 = (moveImportance + TStealRatio * otherMovesImportance) / (moveImportance + otherMovesImportance);
 
-        return (int) (myTime*Math.Min(ratio1, ratio2)); // Intel C++ asks an explicit cast
+        return (int)(myTime * Math.Min(ratio1, ratio2)); // Intel C++ asks an explicit cast
     }
 
     /// init() is called at the beginning of the search and calculates the allowed
@@ -79,11 +80,11 @@ internal static class TimeManagement
         {
             if (availableNodes == 0) // Only once at game start
             {
-                availableNodes = npmsec*limits.time[us]; // Time is in msec
+                availableNodes = npmsec * limits.time[us]; // Time is in msec
             }
 
             // Convert from millisecs to nodes
-            limits.time[us] = (int) availableNodes;
+            limits.time[us] = (int)availableNodes;
             limits.inc[us] *= npmsec;
             limits.npmsec = npmsec;
         }
@@ -100,7 +101,7 @@ internal static class TimeManagement
         for (var hypMTG = 1; hypMTG <= MaxMTG; ++hypMTG)
         {
             // Calculate thinking time for hypothetical "moves to go"-value
-            var hypMyTime = limits.time[us] + limits.inc[us] *(hypMTG - 1) - moveOverhead*(2 + Math.Min(hypMTG, 40));
+            var hypMyTime = limits.time[us] + limits.inc[us] * (hypMTG - 1) - moveOverhead * (2 + Math.Min(hypMTG, 40));
 
             hypMyTime = Math.Max(hypMyTime, 0);
 
@@ -113,7 +114,7 @@ internal static class TimeManagement
 
         if (bool.Parse(OptionMap.Instance["Ponder"].v))
         {
-            optimumTime += optimumTime/4;
+            optimumTime += optimumTime / 4;
         }
 
         optimumTime = Math.Min(optimumTime, maximumTime);
@@ -126,7 +127,7 @@ internal static class TimeManagement
 
     internal static int available()
     {
-        return (int) (optimumTime*unstablePvFactor*0.76);
+        return (int)(optimumTime * unstablePvFactor * 0.76);
     }
 
     internal static int maximum()
@@ -137,8 +138,8 @@ internal static class TimeManagement
     internal static int elapsed()
     {
         return Search.Limits.npmsec != 0
-            ? Search.RootPos.nodes_searched()
-            : (int) (DateTime.Now - start).TotalMilliseconds;
+                   ? Search.RootPos.nodes_searched()
+                   : (int)(DateTime.Now - start).TotalMilliseconds;
     }
 
     private enum TimeType

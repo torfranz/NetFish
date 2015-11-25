@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using RankT = System.Int32;
@@ -9,20 +8,20 @@ using SquareT = System.Int32;
 #else
 internal class RankT
 {
-    private int Value;
+    private readonly int Value;
 
-#region constructors
+    #region constructors
 
     internal RankT(int value)
     {
-        Value = value;
+        this.Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
     }
 
     #endregion
 
     #region base operators
-    
+
     public static RankT operator +(RankT v1, int v2)
     {
         return Rank.Create(v1.Value + v2);
@@ -33,24 +32,22 @@ internal class RankT
         return Rank.Create(v1.Value - v2.Value);
     }
 
-    public static implicit operator int (RankT r)
+    public static implicit operator int(RankT r)
     {
         return r.Value;
     }
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
-#endregion
-
+    #endregion
 }
 #endif
 
 internal static class Rank
 {
-
 #if PRIMITIVE
     internal const RankT RANK_1 = 0;
     internal const RankT RANK_2 = 1;
@@ -113,11 +110,13 @@ internal static class Rank
 #endif
 
     internal const int RANK_NB = 8;
+
     internal static RankT[] AllFiles = { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static RankT relative_rank_CtRt(ColorT c, RankT r)
     {
         return Create(r ^ (c * 7));
@@ -126,6 +125,7 @@ internal static class Rank
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static RankT relative_rank_CtSt(ColorT c, SquareT s)
     {
         return relative_rank_CtRt(c, Square.rank_of(s));

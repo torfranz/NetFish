@@ -31,7 +31,7 @@ internal static class TranspositionTable
     // The lowest order bits of the key are used to get the index of the cluster
     internal static Cluster first_entry(ulong key)
     {
-        var idx = (int) key & (clusterCount - 1);
+        var idx = (int)key & (clusterCount - 1);
         var cluster = table[idx];
         if (cluster == null)
         {
@@ -42,13 +42,12 @@ internal static class TranspositionTable
         return cluster;
     }
 
-    
     /// Returns an approximation of the hashtable occupation during a search. The
     /// hash is x permill full, as per UCI protocol.
     internal static int hashfull()
     {
         var cnt = 0;
-        for (var i = 0; i < 1000/ClusterSize; i++)
+        for (var i = 0; i < 1000 / ClusterSize; i++)
         {
             var cluster = table[i];
             if (cluster == null)
@@ -80,7 +79,7 @@ internal static class TranspositionTable
     /// of clusters and each cluster consists of ClusterSize number of TTEntry.
     internal static void resize(int mbSize)
     {
-        var newClusterCount = mbSize*1024*1024/32;
+        var newClusterCount = mbSize * 1024 * 1024 / 32;
 
         if (newClusterCount == clusterCount)
         {
@@ -101,7 +100,7 @@ internal static class TranspositionTable
     internal static TTEntry probe(ulong key, out bool found)
     {
         var cluster = first_entry(key);
-        var key16 = (ushort) (key >> 48); // Use the high 16 bits as key inside the cluster
+        var key16 = (ushort)(key >> 48); // Use the high 16 bits as key inside the cluster
 
         for (var i = 0; i < ClusterSize; ++i)
         {
@@ -109,7 +108,7 @@ internal static class TranspositionTable
             {
                 if ((cluster.entry[i].genBound8 & 0xFC) != generation8 && cluster.entry[i].key16 != 0)
                 {
-                    cluster.entry[i].genBound8 = (byte) (generation8 | (int) cluster.entry[i].bound()); // Refresh
+                    cluster.entry[i].genBound8 = (byte)(generation8 | (int)cluster.entry[i].bound()); // Refresh
                 }
 
                 found = cluster.entry[i].key16 != 0;
@@ -125,9 +124,9 @@ internal static class TranspositionTable
             // nature we add 259 (256 is the modulus plus 3 to keep the lowest
             // two bound bits from affecting the result) to calculate the entry
             // age correctly even after generation8 overflows into the next cycle.
-            if (replace.depth8 - ((259 + generation8 - replace.genBound8) & 0xFC)*2*Depth.ONE_PLY_C
+            if (replace.depth8 - ((259 + generation8 - replace.genBound8) & 0xFC) * 2 * Depth.ONE_PLY_C
                 > cluster.entry[i].depth8
-                - ((259 + generation8 - cluster.entry[i].genBound8) & 0xFC)*2*Depth.ONE_PLY_C)
+                - ((259 + generation8 - cluster.entry[i].genBound8) & 0xFC) * 2 * Depth.ONE_PLY_C)
             {
                 replace = cluster.entry[i];
             }
@@ -139,6 +138,6 @@ internal static class TranspositionTable
 
     internal class Cluster
     {
-        internal TTEntry[] entry = {new TTEntry(), new TTEntry(), new TTEntry()}; //ClusterSize = 3
+        internal TTEntry[] entry = { new TTEntry(), new TTEntry(), new TTEntry() }; //ClusterSize = 3
     };
 };

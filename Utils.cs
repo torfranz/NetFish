@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 #if PRIMITIVE
@@ -79,8 +78,8 @@ internal static class Utils
     {
         using (
             var sw = firstLog
-                ? System.IO.File.CreateText("Logfile_Netfish.txt")
-                : System.IO.File.AppendText("Logfile_Netfish.txt"))
+                         ? System.IO.File.CreateText("Logfile_Netfish.txt")
+                         : System.IO.File.AppendText("Logfile_Netfish.txt"))
         {
             firstLog = false;
             sw.WriteLine(s);
@@ -89,7 +88,6 @@ internal static class Utils
 
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
-
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -101,6 +99,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static BitboardT file_bb_Ft(FileT f)
     {
         return FileBB[f];
@@ -109,6 +108,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static BitboardT file_bb_St(SquareT s)
     {
         return FileBB[Square.file_of(s)];
@@ -204,15 +204,16 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static int distance_Rank(int x, int y)
     {
-
         return x < y ? y - x : x - y;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static int distance_Rank_StSt(SquareT x, SquareT y)
     {
         return distance_Rank(Square.rank_of(x), Square.rank_of(y));
@@ -221,6 +222,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static int distance_File(SquareT x, SquareT y)
     {
         int xFile = Square.file_of(x);
@@ -231,35 +233,37 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     /// attacks_bb() returns a bitboard representing all the squares attacked by a
     /// piece of type Pt (bishop or rook) placed on 's'. The helper magic_index()
     /// looks up the index using the 'magic bitboards' approach.
     internal static uint magic_index(SquareT s, BitboardT occupied, BitboardT[] Masks, BitboardT[] Magics, int[] Shifts)
     {
-        
 #if X64
         return (uint) ((((occupied & Masks[(int)s])*Magics[(int)s]) >> (int) Shifts[(int)s]));
 #else
 
         var lo = (uint)((occupied & Masks[s]));
         var hi = (uint)((occupied >> 32) & (Masks[s] >> 32));
-        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> (int)Shifts[s];
+        return (lo * (uint)(Magics[s]) ^ hi * (uint)(Magics[s] >> 32)) >> Shifts[s];
 #endif
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static BitboardT attacks_bb_PtSBb(PieceTypeT Pt, SquareT s, BitboardT occupied)
     {
         return Pt == PieceType.ROOK
-            ? RookAttacks[s][magic_index(s, occupied, Utils.RookMasks, Utils.RookMagics, Utils.RookShifts)]
-            : BishopAttacks[s][magic_index(s, occupied, Utils.BishopMasks, Utils.BishopMagics, Utils.BishopShifts)];
+                   ? RookAttacks[s][magic_index(s, occupied, RookMasks, RookMagics, RookShifts)]
+                   : BishopAttacks[s][magic_index(s, occupied, BishopMasks, BishopMagics, BishopShifts)];
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static BitboardT attacks_bb_PSBb(PieceT pc, SquareT s, BitboardT occupied)
     {
         switch (Piece.type_of(pc))
@@ -280,6 +284,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static uint bsf_index(BitboardT b)
     {
         var value = (ulong)b;
@@ -294,6 +299,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT lsb(BitboardT b)
     {
         return BSFTable[bsf_index(b)];
@@ -310,7 +316,7 @@ internal static class Utils
             result = 32;
         }
 
-        var b32 = (uint) value;
+        var b32 = (uint)value;
 
         if (b32 > 0xFFFF)
         {
@@ -354,6 +360,7 @@ internal static class Utils
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT backmost_sq(ColorT c, BitboardT b)
     {
         return c == Color.WHITE ? lsb(b) : msb(b);
@@ -363,8 +370,8 @@ internal static class Utils
     /// This will be either "Portfish YYMMDD" (where YYMMDD is the date when
     /// the program was compiled) or "Portfish
     /// version number
-    ///     ", depending
-    ///     on whether Version is empty.
+    /// ", depending
+    /// on whether Version is empty.
     internal static string engine_info(bool to_uci = false)
     {
 #if X64
@@ -375,10 +382,10 @@ internal static class Utils
         // Assembly and file version
         var assembly = Assembly.GetExecutingAssembly();
         Version fileVersion = null;
-        var attribs = assembly.GetCustomAttributes(typeof (AssemblyFileVersionAttribute), false);
+        var attribs = assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
         if (attribs.Length > 0)
         {
-            var fileVersionRaw = (AssemblyFileVersionAttribute) (attribs[0]);
+            var fileVersionRaw = (AssemblyFileVersionAttribute)(attribs[0]);
             fileVersion = new Version(fileVersionRaw.Version);
         }
 
@@ -391,8 +398,8 @@ internal static class Utils
         var buildDateTime =
             new DateTime(2000, 1, 1).Add(
                 new TimeSpan(
-                    TimeSpan.TicksPerDay*version.Build + // days since 1 January 2000
-                    TimeSpan.TicksPerSecond*2*version.Revision));
+                    TimeSpan.TicksPerDay * version.Build + // days since 1 January 2000
+                    TimeSpan.TicksPerSecond * 2 * version.Revision));
         // seconds since midnight, (multiply by 2 to get original)
 
         // Get version info

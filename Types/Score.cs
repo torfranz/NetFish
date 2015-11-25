@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
@@ -10,13 +9,14 @@ using ScoreT = System.Int32;
 internal struct ScoreT
 {
     private readonly int value;
-    
+
 #if FORCEINLINE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public override string ToString()
     {
-        return $"{value}";
+        return $"{this.value}";
     }
 
     #region constructors
@@ -30,7 +30,7 @@ internal struct ScoreT
 
     #region base operators
 
-    public static implicit operator int (ScoreT s)
+    public static implicit operator int(ScoreT s)
     {
         return s.value;
     }
@@ -52,22 +52,20 @@ internal struct ScoreT
 
     public static ScoreT operator *(int v1, ScoreT v2)
     {
-        return new ScoreT(v1*v2.value);
+        return new ScoreT(v1 * v2.value);
     }
 
     public static ScoreT operator *(ScoreT v1, int v2)
     {
-        return new ScoreT(v1.value*v2);
+        return new ScoreT(v1.value * v2);
     }
 
     #endregion
-    
 }
 #endif
 
 internal static class Score
 {
-
 #if PRIMITIVE
     internal const ScoreT SCORE_ZERO = 0;
     
@@ -113,6 +111,7 @@ internal static class Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static ScoreT Multiply(ScoreT s, Eval.Weight w)
     {
         return make_score(mg_value(s) * w.mg / 256, eg_value(s) * w.eg / 256);
@@ -121,19 +120,20 @@ internal static class Score
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static ValueT eg_value(ScoreT s)
     {
         // union { uint16_t u; int16_t s; }
         // eg = { uint16_t(unsigned(s)) };
-        return Value.Create((short)(int)s);
+        return Value.Create((short)s);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static ScoreT make_score(int mg, int eg)
     {
         return Create((mg << 16) + eg);
     }
-
 }

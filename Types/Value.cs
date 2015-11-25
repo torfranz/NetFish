@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using ValueT = System.Int32;
 #else
@@ -45,12 +44,12 @@ internal struct ValueT
 
     public static ValueT operator *(int v1, ValueT v2)
     {
-        return Value.Create(v1*v2.value);
+        return Value.Create(v1 * v2.value);
     }
 
     public static ValueT operator *(ValueT v1, int v2)
     {
-        return Value.Create(v1.value*v2);
+        return Value.Create(v1.value * v2);
     }
 
     public static implicit operator int(ValueT v)
@@ -74,17 +73,17 @@ internal struct ValueT
 
     public static int operator /(ValueT v1, ValueT v2)
     {
-        return v1.value/v2.value;
+        return v1.value / v2.value;
     }
 
     public static ValueT operator /(ValueT v1, int v2)
     {
-        return Value.Create(v1.value/v2);
+        return Value.Create(v1.value / v2);
     }
 
     public override string ToString()
     {
-        return $"{value}";
+        return $"{this.value}";
     }
 
     #endregion
@@ -93,7 +92,6 @@ internal struct ValueT
 
 internal static class Value
 {
-
 #if PRIMITIVE
     internal const ValueT VALUE_ZERO = 0;
 
@@ -191,26 +189,27 @@ internal static class Value
 #endif
 
     internal static ValueT[][] PieceValue =
-    {
-        new[]
         {
-            VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
-            QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO
-        },
-        new[]
-        {
-            VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
-            QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
-            VALUE_ZERO
-        }
-    };
+            new[]
+                {
+                    VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg,
+                    QueenValueMg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                },
+            new[]
+                {
+                    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg,
+                    QueenValueEg, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO, VALUE_ZERO,
+                    VALUE_ZERO
+                }
+        };
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static ValueT mate_in(int ply)
     {
         return Create(VALUE_MATE - ply);
@@ -219,6 +218,7 @@ internal static class Value
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static ValueT mated_in(int ply)
     {
         return Create(-VALUE_MATE + ply);

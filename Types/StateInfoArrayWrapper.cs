@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-internal class StateInfoWrapper
+﻿internal class StateInfoWrapper
 {
     internal int current;
 
@@ -9,6 +7,7 @@ internal class StateInfoWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal StateInfoWrapper()
         : this(new StateInfo[_.MAX_PLY], 0)
     {
@@ -17,6 +16,7 @@ internal class StateInfoWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal StateInfoWrapper(StateInfo[] table, int current)
     {
         this.table = table;
@@ -28,11 +28,12 @@ internal class StateInfoWrapper
         }
     }
 
-    internal StateInfo this[int index] => table[index];
+    internal StateInfo this[int index] => this.table[index];
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static StateInfoWrapper operator ++(StateInfoWrapper p)
     {
         p.current += 1;
@@ -42,5 +43,4 @@ internal class StateInfoWrapper
         }
         return p;
     }
-    
 }

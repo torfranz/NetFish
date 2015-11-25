@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
     using FileT = System.Int32;
@@ -10,17 +9,17 @@ internal class FileT
 {
     private int Value;
 
-#region constructors
+    #region constructors
 
     internal FileT(int value)
     {
-        Value = value;
+        this.Value = value;
         Debug.Assert(this.Value >= 0 && this.Value <= 7);
     }
 
-#endregion
+    #endregion
 
-#region operators
+    #region operators
 
     public static implicit operator int(FileT f)
     {
@@ -35,17 +34,15 @@ internal class FileT
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
-#endregion
-   
+    #endregion
 }
 #endif
 
 internal static class File
 {
-
 #if PRIMITIVE
     internal const FileT FILE_A = 0;
     internal const FileT FILE_B = 1;
@@ -108,6 +105,6 @@ internal static class File
 #endif
 
     internal const int FILE_NB = 8;
-    internal static FileT[] AllFiles = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 
+    internal static FileT[] AllFiles = { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H };
 }

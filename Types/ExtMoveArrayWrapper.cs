@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using MoveT = System.Int32;
@@ -29,22 +28,30 @@ internal class ExtMoveArrayWrapper
 
     internal ExtMove this[int index]
     {
-        get { return table[index]; }
-        set { table[index] = value; }
+        get
+        {
+            return this.table[index];
+        }
+        set
+        {
+            this.table[index] = value;
+        }
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal void set(ExtMove[] table)
     {
         this.table = table;
-        current = 0;
+        this.current = 0;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static ExtMoveArrayWrapper operator +(ExtMoveArrayWrapper p, int value)
     {
         p.current += value;
@@ -54,6 +61,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator ==(ExtMoveArrayWrapper p1, ExtMoveArrayWrapper p2)
     {
         return p1.table == p2.table && p1.current == p2.current;
@@ -62,6 +70,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator !=(ExtMoveArrayWrapper p1, ExtMoveArrayWrapper p2)
     {
         return p1.table != p2.table || p1.current != p2.current;
@@ -70,6 +79,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static ExtMoveArrayWrapper operator ++(ExtMoveArrayWrapper p)
     {
         p.current += 1;
@@ -79,6 +89,7 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static ExtMoveArrayWrapper operator --(ExtMoveArrayWrapper p)
     {
         p.current -= 1;
@@ -88,26 +99,29 @@ internal class ExtMoveArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal void Add(MoveT m)
     {
-        table[current] = new ExtMove(m, table[current].Value);
-        current++;
+        this.table[this.current] = new ExtMove(m, Value.VALUE_NONE);
+        this.current++;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal void setCurrentMove(MoveT m)
     {
-        table[current] = new ExtMove(m, table[current].Value);
+        this.table[this.current] = new ExtMove(m, Value.VALUE_NONE);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal MoveT getCurrentMove()
     {
-        return table[current].Move;
+        return this.table[this.current].Move;
     }
 
     internal static ExtMoveArrayWrapper Partition(ExtMoveArrayWrapper begin, ExtMoveArrayWrapper end)
@@ -125,13 +139,17 @@ internal class ExtMoveArrayWrapper
             {
             }
             if (_First == _Last)
+            {
                 break; // done
+            }
 
             for (; _First != --_Last && !(begin[_Last].Value > Value.VALUE_ZERO);)
             {
             }
             if (_First == _Last)
+            {
                 break; // done
+            }
 
             var tempValue = begin[_First];
             begin[_First] = begin[_Last];

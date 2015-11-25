@@ -1,6 +1,5 @@
 ﻿/// The MoveList struct is a simple wrapper around generate(). It sometimes comes
 /// in handy to use this class instead of the low level generate() function.
-
 #if PRIMITIVE
 using MoveT = System.Int32;
 #endif
@@ -10,7 +9,7 @@ internal class MoveList
 
     internal MoveList(GenType Type, Position pos)
     {
-        Movegen.generate(Type, pos, moveList);
+        Movegen.generate(Type, pos, this.moveList);
     }
 
     internal int begin()
@@ -20,19 +19,19 @@ internal class MoveList
 
     internal int end()
     {
-        return moveList.current;
+        return this.moveList.current;
     }
 
     internal int size()
     {
-        return moveList.current;
+        return this.moveList.current;
     }
 
     internal bool contains(MoveT move)
     {
-        for (var idx = 0; idx < moveList.current; idx++)
+        for (var idx = 0; idx < this.moveList.current; idx++)
         {
-            if (moveList[idx] == move)
+            if (this.moveList[idx] == move)
             {
                 return true;
             }

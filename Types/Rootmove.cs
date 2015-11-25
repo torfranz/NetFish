@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
 #endif
+
 /// RootMove struct is used for moves at the root of the tree. For each root move
 /// we store a score and a PV (really a refutation in the case of moves which
 /// fail low). Score is normally set at -VALUE_INFINITE for all non-pv moves.
@@ -20,9 +20,10 @@ internal class RootMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal RootMove(MoveT m)
     {
-        pv.Add(m);
+        this.pv.Add(m);
     }
 
     /// RootMove::insert_pv_in_tt() is called at the end of a search iteration, and
@@ -32,7 +33,7 @@ internal class RootMove
     {
         var st = new StateInfoWrapper();
 
-        foreach (var m in pv)
+        foreach (var m in this.pv)
         {
             Debug.Assert(new MoveList(GenType.LEGAL, pos).contains(m));
 
@@ -56,9 +57,9 @@ internal class RootMove
             pos.do_move(m, current, pos.gives_check(m, new CheckInfo(pos)));
         }
 
-        for (var i = pv.Count; i > 0;)
+        for (var i = this.pv.Count; i > 0;)
         {
-            pos.undo_move(pv[--i]);
+            pos.undo_move(this.pv[--i]);
         }
     }
 
@@ -71,18 +72,18 @@ internal class RootMove
         var st = new StateInfo();
         bool ttHit;
 
-        Debug.Assert(pv.Count == 1);
+        Debug.Assert(this.pv.Count == 1);
 
-        pos.do_move(pv[0], st, pos.gives_check(pv[0], new CheckInfo(pos)));
+        pos.do_move(this.pv[0], st, pos.gives_check(this.pv[0], new CheckInfo(pos)));
         var tte = TranspositionTable.probe(pos.key(), out ttHit);
-        pos.undo_move(pv[0]);
+        pos.undo_move(this.pv[0]);
 
         if (ttHit)
         {
             var m = tte.move(); // Local copy to be SMP safe
             if (new MoveList(GenType.LEGAL, pos).contains(m))
             {
-                pv.Add(m);
+                this.pv.Add(m);
                 return true;
             }
         }

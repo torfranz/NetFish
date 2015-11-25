@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using PieceT = System.Int32;
@@ -7,6 +6,7 @@ using ValueT = System.Int32;
 using SquareT = System.Int32;
 using MoveT = System.Int32;
 #endif
+
 /// The Stats struct stores moves statistics. According to the template parameter
 /// the class can store History and Countermoves. History records how often
 /// different moves have been successful or unsuccessful during the current search
@@ -18,15 +18,16 @@ internal class Stats<T>
     where T : new()
 {
     internal static ValueT Max = Value.Create(1 << 28);
+
     internal readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
 
     internal Stats()
     {
-        for (var idx1 = 0; idx1 < table.GetLength(0); idx1++)
+        for (var idx1 = 0; idx1 < this.table.GetLength(0); idx1++)
         {
-            for (var idx2 = 0; idx2 < table.GetLength(1); idx2++)
+            for (var idx2 = 0; idx2 < this.table.GetLength(1); idx2++)
             {
-                table[idx1, idx2] = new T();
+                this.table[idx1, idx2] = new T();
             }
         }
     }
@@ -34,9 +35,10 @@ internal class Stats<T>
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal T value(PieceT p, SquareT to)
     {
-        return table[p, to];
+        return this.table[p, to];
     }
 };
 
@@ -44,7 +46,7 @@ internal class MovesStats : Stats<MoveT>
 {
     internal void update(PieceT pc, SquareT to, MoveT m)
     {
-        table[pc, to] = m;
+        this.table[pc, to] = m;
     }
 }
 
@@ -56,8 +58,8 @@ internal class HistoryStats : Stats<ValueT>
         {
             return;
         }
-        table[pc, to] -= table[pc, to]*Math.Abs(v)/324;
-        table[pc, to] += v*32;
+        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 324;
+        this.table[pc, to] += v * 32;
     }
 
     internal void updateCMH(PieceT pc, SquareT to, ValueT v)
@@ -66,8 +68,8 @@ internal class HistoryStats : Stats<ValueT>
         {
             return;
         }
-        table[pc, to] -= table[pc, to]*Math.Abs(v)/512;
-        table[pc, to] += v*64;
+        this.table[pc, to] -= this.table[pc, to] * Math.Abs(v) / 512;
+        this.table[pc, to] += v * 64;
     }
 }
 

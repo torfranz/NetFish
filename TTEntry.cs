@@ -1,4 +1,5 @@
-﻿#if PRIMITIVE
+﻿
+#if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
 #endif
@@ -28,47 +29,47 @@ internal class TTEntry
 
     internal MoveT move()
     {
-        return Move.Create(move16);
+        return Move.Create(this.move16);
     }
 
     internal ValueT value()
     {
-        return Value.Create(value16);
+        return Value.Create(this.value16);
     }
 
     internal ValueT eval()
     {
-        return Value.Create(eval16);
+        return Value.Create(this.eval16);
     }
 
     internal Depth depth()
     {
-        return new Depth(depth8);
+        return new Depth(this.depth8);
     }
 
     internal Bound bound()
     {
-        return (Bound) ((genBound8 & 0x3));
+        return (Bound)((this.genBound8 & 0x3));
     }
 
     internal void save(ulong k, ValueT v, Bound b, Depth d, MoveT m, ValueT ev, byte g)
     {
         // Preserve any existing move for the same position
-        if ((m != 0) || (k >> 48) != key16)
+        if ((m != 0) || (k >> 48) != this.key16)
         {
-            move16 = (ushort) m;
+            this.move16 = (ushort)m;
         }
 
         // Don't overwrite more valuable entries
-        if ((k >> 48) != key16 || d > depth8 - 2
+        if ((k >> 48) != this.key16 || d > this.depth8 - 2
             /* || g != (genBound8 & 0xFC) // Matching non-zero keys are already refreshed by probe() */
             || b == Bound.BOUND_EXACT)
         {
-            key16 = (ushort) (k >> 48);
-            value16 = (short) v;
-            eval16 = (short) ev;
-            genBound8 = (byte) (g | (int) b);
-            depth8 = d;
+            this.key16 = (ushort)(k >> 48);
+            this.value16 = (short)v;
+            this.eval16 = (short)ev;
+            this.genBound8 = (byte)(g | (int)b);
+            this.depth8 = d;
         }
     }
 }

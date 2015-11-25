@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 #if PRIMITIVE
 using ColorT = System.Int32;
@@ -11,33 +10,31 @@ internal class PieceT
 {
     private readonly int Value;
 
-#region constructors
+    #region constructors
 
     internal PieceT(int value)
     {
-        Value = value;
-        Debug.Assert(Value >= 0 && Value <= 16);
-        Debug.Assert(Value != 7);
-        Debug.Assert(Value != 8);
+        this.Value = value;
+        Debug.Assert(this.Value >= 0 && this.Value <= 16);
+        Debug.Assert(this.Value != 7);
+        Debug.Assert(this.Value != 8);
     }
 
-#endregion
+    #endregion
 
-#region base operators
+    #region base operators
 
     public static implicit operator int(PieceT p)
     {
         return p.Value;
     }
-    
+
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
-#endregion
-
-
+    #endregion
 }
 #endif
 
@@ -110,20 +107,33 @@ internal static class Piece
     {
         switch (value)
         {
-            case 0: return NO_PIECE;
-            case 1: return W_PAWN;
-            case 2: return W_KNIGHT;
-            case 3: return W_BISHOP;
-            case 4: return W_ROOK;
-            case 5: return W_QUEEN;
-            case 6: return W_KING;
+            case 0:
+                return NO_PIECE;
+            case 1:
+                return W_PAWN;
+            case 2:
+                return W_KNIGHT;
+            case 3:
+                return W_BISHOP;
+            case 4:
+                return W_ROOK;
+            case 5:
+                return W_QUEEN;
+            case 6:
+                return W_KING;
 
-            case 9: return B_PAWN;
-            case 10: return B_KNIGHT;
-            case 11: return B_BISHOP;
-            case 12: return B_ROOK;
-            case 13: return B_QUEEN;
-            case 14: return B_KING;
+            case 9:
+                return B_PAWN;
+            case 10:
+                return B_KNIGHT;
+            case 11:
+                return B_BISHOP;
+            case 12:
+                return B_ROOK;
+            case 13:
+                return B_QUEEN;
+            case 14:
+                return B_KING;
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(value));
@@ -136,6 +146,7 @@ internal static class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static PieceTypeT type_of(PieceT p)
     {
         return PieceType.Create(p & 7);
@@ -144,6 +155,7 @@ internal static class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static ColorT color_of(PieceT p)
     {
         return Color.Create(p >> 3);
@@ -152,6 +164,7 @@ internal static class Piece
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static PieceT make_piece(ColorT c, PieceTypeT pt)
     {
         return Create((c << 3) | pt);

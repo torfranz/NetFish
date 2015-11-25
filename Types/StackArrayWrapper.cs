@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-internal class StackArrayWrapper
+﻿internal class StackArrayWrapper
 {
     internal int current;
 
@@ -9,6 +7,7 @@ internal class StackArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal StackArrayWrapper(Stack[] table)
         : this(table, 0)
     {
@@ -17,13 +16,12 @@ internal class StackArrayWrapper
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal StackArrayWrapper(Stack[] table, int current)
     {
         this.table = table;
         this.current = current;
     }
 
-    internal Stack this[int index] => table[index];
-
-    
+    internal Stack this[int index] => this.table[index];
 }

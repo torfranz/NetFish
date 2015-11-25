@@ -54,83 +54,83 @@ internal class MovePicker
         MoveT cm,
         StackArrayWrapper s)
     {
-        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
-        cur = new ExtMoveArrayWrapper(moves);
-        endMoves = new ExtMoveArrayWrapper(moves);
+        this.endBadCaptures = new ExtMoveArrayWrapper(this.moves, _.MAX_MOVES - 1);
+        this.cur = new ExtMoveArrayWrapper(this.moves);
+        this.endMoves = new ExtMoveArrayWrapper(this.moves);
 
-        pos = p;
-        history = h;
-        counterMovesHistory = cmh;
-        ss = s;
-        countermove = cm;
-        depth = d;
+        this.pos = p;
+        this.history = h;
+        this.counterMovesHistory = cmh;
+        this.ss = s;
+        this.countermove = cm;
+        this.depth = d;
         Debug.Assert(d > Depth.DEPTH_ZERO);
 
-        stage = pos.checkers() != 0 ? Stages.EVASION : Stages.MAIN_SEARCH;
-        ttMove = ttm != 0 && pos.pseudo_legal(ttm) ? ttm : Move.MOVE_NONE;
-        endMoves += ttMove != Move.MOVE_NONE ? 1 : 0;
+        this.stage = this.pos.checkers() != 0 ? Stages.EVASION : Stages.MAIN_SEARCH;
+        this.ttMove = ttm != 0 && this.pos.pseudo_legal(ttm) ? ttm : Move.MOVE_NONE;
+        this.endMoves += this.ttMove != Move.MOVE_NONE ? 1 : 0;
     }
 
     internal MovePicker(Position p, MoveT ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
     {
-        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
-        cur = new ExtMoveArrayWrapper(moves);
-        endMoves = new ExtMoveArrayWrapper(moves);
+        this.endBadCaptures = new ExtMoveArrayWrapper(this.moves, _.MAX_MOVES - 1);
+        this.cur = new ExtMoveArrayWrapper(this.moves);
+        this.endMoves = new ExtMoveArrayWrapper(this.moves);
 
-        pos = p;
-        history = h;
-        counterMovesHistory = cmh;
+        this.pos = p;
+        this.history = h;
+        this.counterMovesHistory = cmh;
 
         Debug.Assert(d <= Depth.DEPTH_ZERO_C);
 
-        if (pos.checkers() != 0)
+        if (this.pos.checkers() != 0)
         {
-            stage = Stages.EVASION;
+            this.stage = Stages.EVASION;
         }
 
         else if (d > Depth.DEPTH_QS_NO_CHECKS)
         {
-            stage = Stages.QSEARCH_WITH_CHECKS;
+            this.stage = Stages.QSEARCH_WITH_CHECKS;
         }
 
         else if (d > Depth.DEPTH_QS_RECAPTURES)
         {
-            stage = Stages.QSEARCH_WITHOUT_CHECKS;
+            this.stage = Stages.QSEARCH_WITHOUT_CHECKS;
         }
 
         else
         {
-            stage = Stages.RECAPTURE;
-            recaptureSquare = s;
+            this.stage = Stages.RECAPTURE;
+            this.recaptureSquare = s;
             ttm = Move.MOVE_NONE;
         }
 
-        ttMove = ttm != 0 && pos.pseudo_legal(ttm) ? ttm : Move.MOVE_NONE;
-        endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
+        this.ttMove = ttm != 0 && this.pos.pseudo_legal(ttm) ? ttm : Move.MOVE_NONE;
+        this.endMoves += (this.ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
     internal MovePicker(Position p, MoveT ttm, HistoryStats h, CounterMovesHistoryStats cmh, ValueT th)
     {
-        endBadCaptures = new ExtMoveArrayWrapper(moves, _.MAX_MOVES - 1);
-        cur = new ExtMoveArrayWrapper(moves);
-        endMoves = new ExtMoveArrayWrapper(moves);
+        this.endBadCaptures = new ExtMoveArrayWrapper(this.moves, _.MAX_MOVES - 1);
+        this.cur = new ExtMoveArrayWrapper(this.moves);
+        this.endMoves = new ExtMoveArrayWrapper(this.moves);
 
-        pos = p;
-        history = h;
-        counterMovesHistory = cmh;
-        threshold = th;
+        this.pos = p;
+        this.history = h;
+        this.counterMovesHistory = cmh;
+        this.threshold = th;
 
-        Debug.Assert(pos.checkers() == 0);
+        Debug.Assert(this.pos.checkers() == 0);
 
-        stage = Stages.PROBCUT;
+        this.stage = Stages.PROBCUT;
 
         // In ProbCut we generate captures with SEE higher than the given threshold
-        ttMove = ttm != 0 && pos.pseudo_legal(ttm) && pos.capture(ttm)
-                 && pos.see(ttm) > threshold
-            ? ttm
-            : Move.MOVE_NONE;
+        this.ttMove = ttm != 0 && this.pos.pseudo_legal(ttm) && this.pos.capture(ttm)
+                      && this.pos.see(ttm) > this.threshold
+                          ? ttm
+                          : Move.MOVE_NONE;
 
-        endMoves += (ttMove != Move.MOVE_NONE) ? 1 : 0;
+        this.endMoves += (this.ttMove != Move.MOVE_NONE) ? 1 : 0;
     }
 
     // pick_best() finds the best move in the range (begin, end) and moves it to
@@ -141,41 +141,23 @@ internal class MovePicker
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        ExtMove? maxVal = null; //nullable so this works even if you have all super-low negatives
+        ExtMove maxVal = null; //nullable so this works even if you have all super-low negatives
         var index = -1;
         for (var i = begin.current; i < end.current; i++)
         {
-            var thisNum = moves[i];
-            if (!maxVal.HasValue || thisNum > maxVal.Value)
+            var thisNum = this.moves[i];
+            if (maxVal == null || thisNum > maxVal)
             {
                 maxVal = thisNum;
                 index = i;
             }
         }
 
-        var first = moves[begin.current];
-        moves[begin.current] = moves[index];
-        moves[index] = first;
+        var first = this.moves[begin.current];
+        this.moves[begin.current] = this.moves[index];
+        this.moves[index] = first;
 
-        return moves[begin.current];
-    }
-
-    internal void score(GenType Type)
-    {
-        switch (Type)
-        {
-            case GenType.CAPTURES:
-                score_CAPTURES();
-                return;
-            case GenType.EVASIONS:
-                score_EVASIONS();
-                return;
-            case GenType.QUIETS:
-                score_QUIETS();
-                return;
-        }
-
-        Debug.Assert(false);
+        return this.moves[begin.current];
     }
 
     /// score() assigns a numerical value to each move in a move list. The moves with
@@ -190,28 +172,28 @@ internal class MovePicker
         // badCaptures[] array, but instead of doing it now we delay until the move
         // has been picked up, saving some SEE calls in case we get a cutoff.
 
-        for (var i = 0; i < endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.current; i++)
         {
-            var m = moves[i];
-            moves[i] = new ExtMove(
+            var m = this.moves[i];
+            this.moves[i] = new ExtMove(
                 m,
-                Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                - Value.Create(200 * Rank.relative_rank_CtSt(pos.side_to_move(), Move.to_sq(m))));
+                Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
+                - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), Move.to_sq(m))));
         }
     }
 
     private void score_QUIETS()
     {
-        var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
-        var cmh = counterMovesHistory.value(pos.piece_on(prevSq), prevSq);
+        var prevSq = Move.to_sq(this.ss[this.ss.current - 1].currentMove);
+        var cmh = this.counterMovesHistory.value(this.pos.piece_on(prevSq), prevSq);
 
-        for (var i = 0; i < endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.current; i++)
         {
-            var m = moves[i];
-            moves[i] = new ExtMove(
+            var m = this.moves[i];
+            this.moves[i] = new ExtMove(
                 m,
-                history.value(pos.moved_piece(m), Move.to_sq(m))
-                + cmh.value(pos.moved_piece(m), Move.to_sq(m)));
+                this.history.value(this.pos.moved_piece(m), Move.to_sq(m))
+                + cmh.value(this.pos.moved_piece(m), Move.to_sq(m)));
         }
     }
 
@@ -221,25 +203,25 @@ internal class MovePicker
         // ordered by history value, then bad-captures and quiet moves with a negative
         // SEE ordered by SEE value.
 
-        for (var i = 0; i < endMoves.current; i++)
+        for (var i = 0; i < this.endMoves.current; i++)
         {
-            var m = moves[i];
+            var m = this.moves[i];
             ValueT see;
-            if ((see = pos.see_sign(m)) < Value.VALUE_ZERO)
+            if ((see = this.pos.see_sign(m)) < Value.VALUE_ZERO)
             {
-                moves[i] = new ExtMove(m, see - HistoryStats.Max); // At the bottom
+                this.moves[i] = new ExtMove(m, see - HistoryStats.Max); // At the bottom
             }
 
-            else if (pos.capture(m))
+            else if (this.pos.capture(m))
             {
-                moves[i] = new ExtMove(
+                this.moves[i] = new ExtMove(
                     m,
-                    Value.PieceValue[(int) Phase.MG][pos.piece_on(Move.to_sq(m))]
-                    - Value.Create(Piece.type_of(pos.moved_piece(m))) + HistoryStats.Max);
+                    Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
+                    - Value.Create(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {
-                moves[i] = new ExtMove(m, history.value(pos.moved_piece(m), Move.to_sq(m)));
+                this.moves[i] = new ExtMove(m, this.history.value(this.pos.moved_piece(m), Move.to_sq(m)));
             }
         }
     }
@@ -248,79 +230,78 @@ internal class MovePicker
     /// when there are no more moves to try for the current stage.
     private void generate_next_stage()
     {
-        Debug.Assert(stage != Stages.STOP);
+        Debug.Assert(this.stage != Stages.STOP);
 
-        cur.set(moves);
+        this.cur.set(this.moves);
 
-        switch (++stage)
+        switch (++this.stage)
         {
             case Stages.GOOD_CAPTURES:
             case Stages.QCAPTURES_1:
             case Stages.QCAPTURES_2:
             case Stages.PROBCUT_CAPTURES:
             case Stages.RECAPTURES:
-            {
-                endMoves = Movegen.generate(GenType.CAPTURES, pos, new ExtMoveArrayWrapper(moves));
-                score(GenType.CAPTURES);
-            }
+                {
+                    this.endMoves = Movegen.generate(GenType.CAPTURES, this.pos, new ExtMoveArrayWrapper(this.moves));
+                    this.score_CAPTURES();
+                }
                 break;
 
             case Stages.KILLERS:
-                killers[0] = new ExtMove(ss[ss.current].killers0, killers[0].Value);
-                killers[1] = new ExtMove(ss[ss.current].killers1, killers[1].Value);
-                killers[2] = new ExtMove(countermove, killers[2].Value);
-                cur.set(killers);
-                endMoves = new ExtMoveArrayWrapper(cur.table, cur.current + 2
-                                                              +
-                                                              ((countermove != killers[0] && countermove != killers[1])
-                                                                  ? 1
-                                                                  : 0));
+                this.killers[0] = new ExtMove(this.ss[this.ss.current].killers0, Value.VALUE_NONE);
+                this.killers[1] = new ExtMove(this.ss[this.ss.current].killers1, Value.VALUE_NONE);
+                this.killers[2] = new ExtMove(this.countermove, Value.VALUE_NONE);
+                this.cur.set(this.killers);
+                this.endMoves = new ExtMoveArrayWrapper(
+                    this.cur.table,
+                    this.cur.current + 2
+                    + ((this.countermove != this.killers[0] && this.countermove != this.killers[1]) ? 1 : 0));
                 break;
 
             case Stages.GOOD_QUIETS:
-            {
-                endQuiets = Movegen.generate(GenType.QUIETS, pos, new ExtMoveArrayWrapper(moves));
-                endMoves = endQuiets;
-                score(GenType.QUIETS);
+                {
+                    this.endQuiets = Movegen.generate(GenType.QUIETS, this.pos, new ExtMoveArrayWrapper(this.moves));
+                    this.endMoves = this.endQuiets;
+                    this.score_QUIETS();
 
-                endMoves = ExtMoveArrayWrapper.Partition(cur, endMoves);
-                ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
-            }
+                    this.endMoves = ExtMoveArrayWrapper.Partition(this.cur, this.endMoves);
+                    ExtMoveArrayWrapper.insertion_sort(this.cur, this.endMoves);
+                }
                 break;
 
             case Stages.BAD_QUIETS:
-                cur = new ExtMoveArrayWrapper(endMoves);
-                endMoves = endQuiets;
-                if (depth >= 3*Depth.ONE_PLY_C)
+                this.cur = new ExtMoveArrayWrapper(this.endMoves);
+                this.endMoves = this.endQuiets;
+                if (this.depth >= 3 * Depth.ONE_PLY_C)
                 {
-                    ExtMoveArrayWrapper.insertion_sort(cur, endMoves);
+                    ExtMoveArrayWrapper.insertion_sort(this.cur, this.endMoves);
                 }
                 break;
 
             case Stages.BAD_CAPTURES:
                 // Just pick them in reverse order to get correct ordering
-                cur = new ExtMoveArrayWrapper(moves) + (_.MAX_MOVES - 1);
-                endMoves = endBadCaptures;
+                this.cur = new ExtMoveArrayWrapper(this.moves) + (_.MAX_MOVES - 1);
+                this.endMoves = this.endBadCaptures;
                 break;
 
             case Stages.ALL_EVASIONS:
-            {
-                endMoves = Movegen.generate(GenType.EVASIONS, pos, new ExtMoveArrayWrapper(moves));
-
-                if (endMoves.current > 1)
                 {
-                    score(GenType.EVASIONS);
+                    this.endMoves = Movegen.generate(GenType.EVASIONS, this.pos, new ExtMoveArrayWrapper(this.moves));
+
+                    if (this.endMoves.current > 1)
+                    {
+                        this.score_EVASIONS();
+                    }
                 }
-            }
                 break;
 
             case Stages.CHECKS:
-            {
-                endMoves = Movegen.generate(
-                    GenType.QUIET_CHECKS,
-                    pos,
-                    new ExtMoveArrayWrapper(moves));
-            }
+                {
+                    this.endMoves = Movegen.generate(
+                        GenType.QUIET_CHECKS,
+                        this.pos,
+                        new ExtMoveArrayWrapper(this.moves));
+                }
                 break;
 
             case Stages.EVASION:
@@ -329,7 +310,7 @@ internal class MovePicker
             case Stages.PROBCUT:
             case Stages.RECAPTURE:
             case Stages.STOP:
-                stage = Stages.STOP;
+                this.stage = Stages.STOP;
                 break;
 
             default:
@@ -349,48 +330,48 @@ internal class MovePicker
         // safe so must be lock protected by the caller.
         if (useSplitpoint)
         {
-            return ss[ss.current].splitPoint.movePicker.next_move(false);
+            return this.ss[this.ss.current].splitPoint.movePicker.next_move(false);
         }
 
         while (true)
         {
-            while (cur == endMoves && stage != Stages.STOP)
+            while (this.cur == this.endMoves && this.stage != Stages.STOP)
             {
-                generate_next_stage();
+                this.generate_next_stage();
             }
 
             MoveT move;
-            switch (stage)
+            switch (this.stage)
             {
                 case Stages.MAIN_SEARCH:
                 case Stages.EVASION:
                 case Stages.QSEARCH_WITH_CHECKS:
                 case Stages.QSEARCH_WITHOUT_CHECKS:
                 case Stages.PROBCUT:
-                    ++cur;
-                    return ttMove;
+                    ++this.cur;
+                    return this.ttMove;
 
                 case Stages.GOOD_CAPTURES:
-                    move = pick_best(cur, endMoves);
-                    cur++;
-                    if (move != ttMove)
+                    move = this.pick_best(this.cur, this.endMoves);
+                    this.cur++;
+                    if (move != this.ttMove)
                     {
-                        if (pos.see_sign(move) >= Value.VALUE_ZERO)
+                        if (this.pos.see_sign(move) >= Value.VALUE_ZERO)
                         {
                             return move;
                         }
 
                         // Losing capture, move it to the tail of the array
-                        endBadCaptures.setCurrentMove(move);
-                        --endBadCaptures;
+                        this.endBadCaptures.setCurrentMove(move);
+                        --this.endBadCaptures;
                     }
                     break;
 
                 case Stages.KILLERS:
-                    move = cur.getCurrentMove();
-                    cur++;
-                    if (move != Move.MOVE_NONE && move != ttMove && pos.pseudo_legal(move)
-                        && !pos.capture(move))
+                    move = this.cur.getCurrentMove();
+                    this.cur++;
+                    if (move != Move.MOVE_NONE && move != this.ttMove && this.pos.pseudo_legal(move)
+                        && !this.pos.capture(move))
                     {
                         return move;
                     }
@@ -398,54 +379,54 @@ internal class MovePicker
 
                 case Stages.GOOD_QUIETS:
                 case Stages.BAD_QUIETS:
-                    move = cur.getCurrentMove();
-                    cur++;
-                    if (move != ttMove && move != killers[0] && move != killers[1]
-                        && move != killers[2])
+                    move = this.cur.getCurrentMove();
+                    this.cur++;
+                    if (move != this.ttMove && move != this.killers[0] && move != this.killers[1]
+                        && move != this.killers[2])
                     {
                         return move;
                     }
                     break;
 
                 case Stages.BAD_CAPTURES:
-                {
-                    var move2 = cur.getCurrentMove();
-                    cur--;
-                    return move2;
-                }
+                    {
+                        var move2 = this.cur.getCurrentMove();
+                        this.cur--;
+                        return move2;
+                    }
                 case Stages.ALL_EVASIONS:
                 case Stages.QCAPTURES_1:
                 case Stages.QCAPTURES_2:
-                    move = pick_best(cur, endMoves);
-                    cur++;
-                    if (move != ttMove)
+                    move = this.pick_best(this.cur, this.endMoves);
+                    this.cur++;
+                    if (move != this.ttMove)
                     {
                         return move;
                     }
                     break;
 
                 case Stages.PROBCUT_CAPTURES:
-                    move = pick_best(cur, endMoves);
-                    cur++;
-                    if (move != ttMove && pos.see(move) > threshold)
+                    move = this.pick_best(this.cur, this.endMoves);
+                    this.cur++;
+                    if (move != this.ttMove && this.pos.see(move) > this.threshold)
                     {
                         return move;
                     }
                     break;
 
                 case Stages.RECAPTURES:
-                    move = pick_best(cur, endMoves);
-                    cur++;
-                    if (Move.to_sq(move) == recaptureSquare)
+                    move = this.pick_best(this.cur, this.endMoves);
+                    this.cur++;
+                    if (Move.to_sq(move) == this.recaptureSquare)
                     {
                         return move;
                     }
                     break;
 
                 case Stages.CHECKS:
-                    move = cur.getCurrentMove();
-                    cur++;
-                    if (move != ttMove)
+                    move = this.cur.getCurrentMove();
+                    this.cur++;
+                    if (move != this.ttMove)
                     {
                         return move;
                     }

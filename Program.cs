@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -23,7 +22,7 @@ internal class Program
 
     private static void Run(object arguments)
     {
-        var args = (string[]) arguments;
+        var args = (string[])arguments;
 
         PSQT.init();
         Bitboards.init();
@@ -32,14 +31,14 @@ internal class Program
         Search.init();
         Eval.init();
         Pawns.init();
-        
+
         //Tablebases::init(Options["SyzygyPath"]);
         TranspositionTable.resize(int.Parse(OptionMap.Instance["Hash"].v));
 
         ThreadPool.init();
 
 #if WARMUP
-        // .Net warmup sequence
+    // .Net warmup sequence
         var pos = new Position(UCI.StartFEN, false, ThreadPool.main());
         var stack = Position.CreateStack("go depth 7");
         UCI.go(pos, stack);

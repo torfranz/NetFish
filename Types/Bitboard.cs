@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using SquareT = System.Int32;
 using BitboardT = System.UInt64;
@@ -8,19 +7,19 @@ internal struct BitboardT
 {
     private readonly ulong Value;
 
-#region constructors
+    #region constructors
 
     internal BitboardT(ulong value)
     {
-        Value = value;
+        this.Value = value;
     }
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
-#endregion
+    #endregion
 
     public static BitboardT operator &(BitboardT b1, BitboardT b2)
     {
@@ -49,7 +48,7 @@ internal struct BitboardT
 
     public static BitboardT operator *(BitboardT b1, BitboardT b2)
     {
-        return Bitboard.Create(b1.Value*b2.Value);
+        return Bitboard.Create(b1.Value * b2.Value);
     }
 
     public static bool operator ==(BitboardT b1, BitboardT b2)
@@ -76,14 +75,11 @@ internal struct BitboardT
     {
         return Bitboard.Create(b1.Value ^ b2.Value);
     }
-
-
 }
 #endif
 
 internal static class Bitboard
 {
-
 #if PRIMITIVE
 
     internal const BitboardT DarkSquares = 0xAA55AA55AA55AA55UL;
@@ -172,6 +168,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static bool more_than_one(BitboardT b)
     {
         return (b & (b - 1)) != 0;
@@ -184,16 +181,16 @@ internal static class Bitboard
     internal static BitboardT shift_bb(SquareT Delta, BitboardT b)
     {
         return Delta == Square.DELTA_N
-            ? b << 8
-            : Delta == Square.DELTA_S
-                ? b >> 8
-                : Delta == Square.DELTA_NE
-                    ? (b & ~FileHBB) << 9
-                    : Delta == Square.DELTA_SE
-                        ? (b & ~FileHBB) >> 7
-                        : Delta == Square.DELTA_NW
-                            ? (b & ~FileABB) << 7
-                            : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : Create(0);
+                   ? b << 8
+                   : Delta == Square.DELTA_S
+                         ? b >> 8
+                         : Delta == Square.DELTA_NE
+                               ? (b & ~FileHBB) << 9
+                               : Delta == Square.DELTA_SE
+                                     ? (b & ~FileHBB) >> 7
+                                     : Delta == Square.DELTA_NW
+                                           ? (b & ~FileABB) << 7
+                                           : Delta == Square.DELTA_SW ? (b & ~FileABB) >> 9 : Create(0);
     }
 
     /// Overloads of bitwise operators between a Bitboard and a Square for testing
@@ -209,6 +206,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static BitboardT IsOccupied2(BitboardT b, SquareT s)
     {
         return Create(b & Utils.SquareBB[s]);
@@ -217,6 +215,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static BitboardT ToggleSquare(BitboardT b, SquareT s)
     {
         return Create(b ^ Utils.SquareBB[s]);
@@ -225,6 +224,7 @@ internal static class Bitboard
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static BitboardT OccupySquare(BitboardT b, SquareT s)
     {
         return Create(b | Utils.SquareBB[s]);

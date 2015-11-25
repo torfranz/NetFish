@@ -1,14 +1,16 @@
-﻿using System.Runtime.CompilerServices;
-
-internal struct Depth
+﻿internal struct Depth
 {
     internal const int ONE_PLY_C = 1;
-    internal const int DEPTH_ZERO_C = 0;
-    internal const int DEPTH_QS_CHECKS_C = 0;
-    internal const int DEPTH_QS_NO_CHECKS_C = -1;
-    internal const int DEPTH_QS_RECAPTURESS_C = -5;
-    internal const int DEPTH_NONE_C = -6;
 
+    internal const int DEPTH_ZERO_C = 0;
+
+    internal const int DEPTH_QS_CHECKS_C = 0;
+
+    internal const int DEPTH_QS_NO_CHECKS_C = -1;
+
+    internal const int DEPTH_QS_RECAPTURESS_C = -5;
+
+    internal const int DEPTH_NONE_C = -6;
 
     internal static Depth ONE_PLY = new Depth(ONE_PLY_C);
 
@@ -31,9 +33,10 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal Depth(int value)
     {
-        Value = value;
+        this.Value = value;
     }
 
     #endregion
@@ -43,6 +46,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator +(Depth v1, Depth v2)
     {
         return new Depth(v1.Value + v2.Value);
@@ -51,6 +55,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator +(Depth v1, int v2)
     {
         return new Depth(v1.Value + v2);
@@ -59,6 +64,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator +(int v1, Depth v2)
     {
         return new Depth(v1 + v2.Value);
@@ -67,6 +73,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator -(Depth v1, Depth v2)
     {
         return new Depth(v1.Value - v2.Value);
@@ -75,22 +82,25 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator *(int v1, Depth v2)
     {
-        return new Depth(v1*v2.Value);
+        return new Depth(v1 * v2.Value);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator *(Depth v1, int v2)
     {
-        return new Depth(v1.Value*v2);
+        return new Depth(v1.Value * v2);
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static implicit operator int(Depth d)
     {
         return d.Value;
@@ -99,6 +109,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator <(Depth v1, Depth v2)
     {
         return v1.Value < v2.Value;
@@ -107,6 +118,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator >(Depth v1, Depth v2)
     {
         return v1.Value > v2.Value;
@@ -115,6 +127,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator ++(Depth v1)
     {
         v1.Value += 1;
@@ -124,6 +137,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator ==(Depth v1, Depth v2)
     {
         return v1.Value == v2.Value;
@@ -132,6 +146,7 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator !=(Depth v1, Depth v2)
     {
         return v1.Value != v2.Value;
@@ -144,17 +159,19 @@ internal struct Depth
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static int operator /(Depth v1, Depth v2)
     {
-        return v1.Value/v2.Value;
+        return v1.Value / v2.Value;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static Depth operator /(Depth v1, int v2)
     {
-        return new Depth(v1.Value/v2);
+        return new Depth(v1.Value / v2);
     }
 
     #endregion

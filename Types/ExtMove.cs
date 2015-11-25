@@ -1,11 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
 #endif
 
-internal struct ExtMove
+internal class ExtMove
 {
     internal MoveT Move { get; }
 
@@ -14,15 +13,17 @@ internal struct ExtMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal ExtMove(MoveT move, ValueT value)
     {
-        Move = move;
-        Value = value;
+        this.Move = move;
+        this.Value = value;
     }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static implicit operator MoveT(ExtMove move)
     {
         return move.Move;
@@ -31,6 +32,7 @@ internal struct ExtMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator <(ExtMove f, ExtMove s)
     {
         return f.Value < s.Value;
@@ -39,6 +41,7 @@ internal struct ExtMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static bool operator >(ExtMove f, ExtMove s)
     {
         return f.Value > s.Value;
@@ -47,8 +50,9 @@ internal struct ExtMove
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public override string ToString()
     {
-        return $"{Move},{Value}";
+        return $"{this.Move},{this.Value}";
     }
 };

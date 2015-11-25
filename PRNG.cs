@@ -20,27 +20,27 @@ internal class PRNG
 
     internal PRNG(ulong seed)
     {
-        s = seed;
+        this.s = seed;
         Debug.Assert(seed != 0);
     }
 
     internal ulong rand64()
     {
-        s ^= s >> 12;
-        s ^= s << 25;
-        s ^= s >> 27;
-        return s*2685821657736338717L;
+        this.s ^= this.s >> 12;
+        this.s ^= this.s << 25;
+        this.s ^= this.s >> 27;
+        return this.s * 2685821657736338717L;
     }
 
     internal ulong rand()
     {
-        return rand64();
+        return this.rand64();
     }
 
     /// Special generator used to fast init magic numbers.
     /// Output values only have 1/8th of their bits set on average.
     internal ulong sparse_rand()
     {
-        return (rand64() & rand64() & rand64());
+        return (this.rand64() & this.rand64() & this.rand64());
     }
 };

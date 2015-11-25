@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using PieceTypeT = System.Int32;
 using SquareT = System.Int32;
@@ -22,18 +21,19 @@ internal struct MoveT
 {
     private readonly int Value;
 
-#region constructors
+    #region constructors
 
     internal MoveT(int value)
     {
-        Value = value;
+        this.Value = value;
     }
 
-#endregion
+    #endregion
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static implicit operator int(MoveT m)
     {
         return m.Value;
@@ -51,14 +51,13 @@ internal struct MoveT
 
     public override string ToString()
     {
-        return $"{Value}";
+        return $"{this.Value}";
     }
 }
 #endif
 
 internal static class Move
 {
-
 #if PRIMITIVE
     internal const MoveT MOVE_NONE = 0;
 
@@ -86,6 +85,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT from_sq(MoveT m)
     {
         return Square.Create((m >> 6) & 0x3F);
@@ -94,6 +94,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT to_sq(MoveT m)
     {
         return Square.Create(m & 0x3F);
@@ -102,6 +103,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static MoveType type_of(MoveT m)
     {
         return (MoveType)(m & (3 << 14));
@@ -110,6 +112,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static PieceTypeT promotion_type(MoveT m)
     {
         return PieceType.Create(((m >> 12) & 3) + PieceType.KNIGHT);
@@ -118,6 +121,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static MoveT make(SquareT from, SquareT to)
     {
         return Create(to | (from << 6));
@@ -126,6 +130,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static MoveT make(MoveType moveType, SquareT from, SquareT to)
     {
         return make(moveType, from, to, PieceType.KNIGHT);
@@ -134,6 +139,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static MoveT make(MoveType moveType, SquareT from, SquareT to, PieceTypeT pt)
     {
         return Create(to | (from << 6) | (int)moveType | ((pt - PieceType.KNIGHT) << 12));
@@ -142,6 +148,7 @@ internal static class Move
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static bool is_ok(MoveT m)
     {
         return from_sq(m) != to_sq(m); // Catch MOVE_NULL and MOVE_NONE

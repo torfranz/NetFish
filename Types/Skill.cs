@@ -10,26 +10,26 @@ internal struct Skill
 {
     internal Skill(int l)
     {
-        level = l;
-        best = Move.MOVE_NONE;
+        this.level = l;
+        this.best = Move.MOVE_NONE;
     }
 
     internal bool enabled()
     {
-        return level < 20;
+        return this.level < 20;
     }
 
     // PRNG sequence should be non-deterministic, so we seed it with the time at init
-    private static readonly PRNG rng = new PRNG((ulong) DateTime.Now.Millisecond);
+    private static readonly PRNG rng = new PRNG((ulong)DateTime.Now.Millisecond);
 
     internal bool time_to_pick(Depth depth)
     {
-        return depth/Depth.ONE_PLY == 1 + level;
+        return depth / Depth.ONE_PLY == 1 + this.level;
     }
 
     internal MoveT best_move(int multiPV)
     {
-        return best != 0 ? best : pick_best(multiPV);
+        return this.best != 0 ? this.best : this.pick_best(multiPV);
     }
 
     // When playing with strength handicap, choose best move among a set of RootMoves
@@ -39,7 +39,7 @@ internal struct Skill
     {
         // RootMoves are already sorted by score in descending order
         var variance = Math.Min(Search.RootMoves[0].score - Search.RootMoves[multiPV - 1].score, Value.PawnValueMg);
-        var weakness = 120 - 2*level;
+        var weakness = 120 - 2 * this.level;
         int maxScore = -Value.VALUE_INFINITE;
 
         // Choose best move. For each move score we add two terms both dependent on
@@ -48,16 +48,16 @@ internal struct Skill
         for (var i = 0; i < multiPV; ++i)
         {
             // This is our magic formula
-            var push = (weakness* (Search.RootMoves[0].score - Search.RootMoves[i].score)
-                        + variance*((int) rng.rand()%weakness))/128;
+            var push = (weakness * (Search.RootMoves[0].score - Search.RootMoves[i].score)
+                        + variance * ((int)rng.rand() % weakness)) / 128;
 
             if (Search.RootMoves[i].score + push > maxScore)
             {
                 maxScore = Search.RootMoves[i].score + push;
-                best = Search.RootMoves[i].pv[0];
+                this.best = Search.RootMoves[i].pv[0];
             }
         }
-        return best;
+        return this.best;
     }
 
     private readonly int level;

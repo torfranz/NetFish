@@ -1,4 +1,5 @@
-﻿#if PRIMITIVE
+﻿
+#if PRIMITIVE
 using ColorT = System.Int32;
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
@@ -29,32 +30,32 @@ internal class MaterialEntry
 
     internal void reset()
     {
-        evaluationFunction = null;
-        factor = new ushort[Color.COLOR_NB];
-        gamePhase = Phase.PHASE_ENDGAME;
-        key = 0;
-        scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
-        value = 0;
+        this.evaluationFunction = null;
+        this.factor = new ushort[Color.COLOR_NB];
+        this.gamePhase = Phase.PHASE_ENDGAME;
+        this.key = 0;
+        this.scalingFunction = new EndgameScaleFactor[Color.COLOR_NB];
+        this.value = 0;
     }
 
     internal ScoreT imbalance()
     {
-        return Score.make_score(value, value);
+        return Score.make_score(this.value, this.value);
     }
 
     internal Phase game_phase()
     {
-        return gamePhase;
+        return this.gamePhase;
     }
 
     internal bool specialized_eval_exists()
     {
-        return evaluationFunction != null;
+        return this.evaluationFunction != null;
     }
 
     internal ValueT evaluate(Position pos)
     {
-        return evaluationFunction.GetValue(pos);
+        return this.evaluationFunction.GetValue(pos);
     }
 
     // scale_factor takes a position and a color as input and returns a scale factor
@@ -64,12 +65,12 @@ internal class MaterialEntry
     // for rook pawns and wrong-colored bishops.
     internal ScaleFactor scale_factor(Position pos, ColorT c)
     {
-        if (scalingFunction[c] == null)
+        if (this.scalingFunction[c] == null)
         {
-            return (ScaleFactor) (factor[c]);
+            return (ScaleFactor)(this.factor[c]);
         }
-        return scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
-            ? (ScaleFactor) (factor[c])
-            : scalingFunction[c].GetScaleFactor(pos);
+        return this.scalingFunction[c].GetScaleFactor(pos) == ScaleFactor.SCALE_FACTOR_NONE
+                   ? (ScaleFactor)(this.factor[c])
+                   : this.scalingFunction[c].GetScaleFactor(pos);
     }
 }

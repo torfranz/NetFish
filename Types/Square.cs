@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
-
+﻿
 #if PRIMITIVE
 using FileT = System.Int32;
 using RankT = System.Int32;
@@ -11,12 +9,13 @@ using SquareT = System.Int32;
 internal struct SquareT
 {
     private int Value;
-    
-#region constructors
+
+    #region constructors
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal SquareT(SquareT value)
         : this(value.Value)
     {
@@ -24,13 +23,13 @@ internal struct SquareT
 
     internal SquareT(int value)
     {
-        Value = value;
+        this.Value = value;
         // Debug.Assert(this.Value >= -9 && this.Value <= 64);
     }
 
-#endregion
+    #endregion
 
-#region base operators
+    #region base operators
 
     public static SquareT operator +(SquareT v1, SquareT v2)
     {
@@ -54,7 +53,7 @@ internal struct SquareT
 
     public static SquareT operator *(int v1, SquareT v2)
     {
-        return new SquareT(v1*v2.Value);
+        return new SquareT(v1 * v2.Value);
     }
 
     public static implicit operator int(SquareT s)
@@ -76,16 +75,16 @@ internal struct SquareT
 
     public override string ToString()
     {
-        return Value.ToString();
+        return this.Value.ToString();
     }
 
-#endregion
+    #endregion
 
-#region extended operators
+    #region extended operators
 
     public static SquareT operator /(SquareT v1, int v2)
     {
-        return new SquareT(v1.Value/v2);
+        return new SquareT(v1.Value / v2);
     }
 
     public static bool operator ==(SquareT v1, SquareT v2)
@@ -117,13 +116,13 @@ internal struct SquareT
     {
         return v1.Value > v2.Value;
     }
-#endregion
+
+    #endregion
 }
 #endif
 
 internal static class Square
 {
-
 #if PRIMITIVE
 
     internal const SquareT SQ_A1 = 0;
@@ -444,10 +443,11 @@ internal static class Square
         return new SquareT(value);
     }
 #endif
-    
+
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     public static SquareT opposite(SquareT s)
     {
         return Create(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
@@ -456,6 +456,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static bool is_ok(SquareT s)
     {
         return s >= SQ_A1 && s <= SQ_H8;
@@ -464,6 +465,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static bool opposite_colors(SquareT s1, SquareT s2)
     {
         var s = s1 ^ s2;
@@ -473,6 +475,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT relative_square(ColorT c, SquareT s)
     {
         return Create(s ^ (c * 56));
@@ -481,6 +484,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT make_square(FileT f, RankT r)
     {
         return Create((r << 3) | f);
@@ -489,6 +493,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static FileT file_of(SquareT s)
     {
         return File.Create(s & 7);
@@ -497,6 +502,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static RankT rank_of(SquareT s)
     {
         return Rank.Create(s >> 3);
@@ -505,6 +511,7 @@ internal static class Square
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+
     internal static SquareT pawn_push(ColorT c)
     {
         return c == Color.WHITE ? DELTA_N : DELTA_S;
