@@ -1,5 +1,7 @@
 ﻿
 #if PRIMITIVE
+using System.Runtime.CompilerServices;
+
 using SquareT = System.Int32;
 using BitboardT = System.UInt64;
 #else

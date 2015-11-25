@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Runtime.CompilerServices;
 #if PRIMITIVE
 using PieceT = System.Int32;
 using ValueT = System.Int32;

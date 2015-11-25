@@ -1,4 +1,6 @@
-﻿internal static class Bitcount
+﻿using System.Runtime.CompilerServices;
+
+internal static class Bitcount
 {
     /// count_1s() counts the number of nonzero bits in a bitboard.
     /// We have different optimized versions according if platform

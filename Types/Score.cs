@@ -1,5 +1,7 @@
 ﻿
 #if PRIMITIVE
+using System.Runtime.CompilerServices;
+
 using ValueT = System.Int32;
 using ScoreT = System.Int32;
 #else

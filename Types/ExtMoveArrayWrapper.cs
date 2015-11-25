@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-
+using System.Runtime.CompilerServices;
 #if PRIMITIVE
 using MoveT = System.Int32;
 #endif

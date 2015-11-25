@@ -141,14 +141,14 @@ internal class MovePicker
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        ExtMove maxVal = null; //nullable so this works even if you have all super-low negatives
-        var index = -1;
+        ValueT maxVal = Value.Create(-100000); //nullable so this works even if you have all super-low negatives
+        var index = begin.current;
         for (var i = begin.current; i < end.current; i++)
         {
-            var thisNum = this.moves[i];
-            if (maxVal == null || thisNum > maxVal)
+            var value = this.moves[i].Value;
+            if (value > maxVal)
             {
-                maxVal = thisNum;
+                maxVal = value;
                 index = i;
             }
         }
@@ -175,10 +175,7 @@ internal class MovePicker
         for (var i = 0; i < this.endMoves.current; i++)
         {
             var m = this.moves[i];
-            this.moves[i] = new ExtMove(
-                m,
-                Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
-                - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), Move.to_sq(m))));
+            m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))] - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), Move.to_sq(m)));
         }
     }
 
@@ -190,10 +187,7 @@ internal class MovePicker
         for (var i = 0; i < this.endMoves.current; i++)
         {
             var m = this.moves[i];
-            this.moves[i] = new ExtMove(
-                m,
-                this.history.value(this.pos.moved_piece(m), Move.to_sq(m))
-                + cmh.value(this.pos.moved_piece(m), Move.to_sq(m)));
+            m.Value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m)) + cmh.value(this.pos.moved_piece(m), Move.to_sq(m));
         }
     }
 
@@ -209,19 +203,16 @@ internal class MovePicker
             ValueT see;
             if ((see = this.pos.see_sign(m)) < Value.VALUE_ZERO)
             {
-                this.moves[i] = new ExtMove(m, see - HistoryStats.Max); // At the bottom
+                m.Value = see - HistoryStats.Max; // At the bottom
             }
 
             else if (this.pos.capture(m))
             {
-                this.moves[i] = new ExtMove(
-                    m,
-                    Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))]
-                    - Value.Create(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max);
+                m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))] - Value.Create(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max;
             }
             else
             {
-                this.moves[i] = new ExtMove(m, this.history.value(this.pos.moved_piece(m), Move.to_sq(m)));
+                m.Value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m));
             }
         }
     }
@@ -248,8 +239,9 @@ internal class MovePicker
                 break;
 
             case Stages.KILLERS:
-                this.killers[0] = new ExtMove(this.ss[this.ss.current].killers0, Value.VALUE_NONE);
-                this.killers[1] = new ExtMove(this.ss[this.ss.current].killers1, Value.VALUE_NONE);
+                var stack = this.ss[this.ss.current];
+                this.killers[0] = new ExtMove(stack.killers0, Value.VALUE_NONE);
+                this.killers[1] = new ExtMove(stack.killers1, Value.VALUE_NONE);
                 this.killers[2] = new ExtMove(this.countermove, Value.VALUE_NONE);
                 this.cur.set(this.killers);
                 this.endMoves = new ExtMoveArrayWrapper(
