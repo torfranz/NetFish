@@ -904,7 +904,7 @@ internal static class Search
         moves_loop: // When in check and at SpNode search starts from here
 
         var prevMoveSq = Move.to_sq(stackMinus1.currentMove);
-        var countermove = Countermoves.table[pos.piece_on(prevMoveSq), prevMoveSq];
+        var countermove = Countermoves.value(pos.piece_on(prevMoveSq), prevMoveSq);
 
         var mp = new MovePicker(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
         var ci = new CheckInfo(pos);
@@ -1084,18 +1084,18 @@ internal static class Search
                 stack.reduction = reduction(PvNode, improving, depth, moveCount);
 
                 if ((!PvNode && cutNode)
-                    || (History.table[pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] < Value.VALUE_ZERO
-                        && CounterMovesHistory.table[pos.piece_on(prevMoveSq), prevMoveSq].table[
+                    || (History.value(pos.piece_on(Move.to_sq(move)), Move.to_sq(move)) < Value.VALUE_ZERO
+                        && CounterMovesHistory.value(pos.piece_on(prevMoveSq), prevMoveSq).value(
                             pos.piece_on(Move.to_sq(move)),
-                               Move.to_sq(move)] <= Value.VALUE_ZERO))
+                               Move.to_sq(move)) <= Value.VALUE_ZERO))
                 {
                     stack.reduction += Depth.ONE_PLY;
                 }
 
-                if (History.table[pos.piece_on(Move.to_sq(move)), Move.to_sq(move)] > Value.VALUE_ZERO
-                    && CounterMovesHistory.table[pos.piece_on(prevMoveSq), prevMoveSq].table[
+                if (History.value(pos.piece_on(Move.to_sq(move)), Move.to_sq(move)) > Value.VALUE_ZERO
+                    && CounterMovesHistory.value(pos.piece_on(prevMoveSq), prevMoveSq).value(
                         pos.piece_on(Move.to_sq(move)),
-                           Move.to_sq(move)] > Value.VALUE_ZERO)
+                           Move.to_sq(move)) > Value.VALUE_ZERO)
                 {
                     stack.reduction = Depth.Create(Math.Max(Depth.DEPTH_ZERO, stack.reduction - Depth.ONE_PLY));
                 }
@@ -1367,7 +1367,7 @@ internal static class Search
                 var bonus = Value.Create((depth / Depth.ONE_PLY) * (depth / Depth.ONE_PLY));
                 var prevSq = Move.to_sq(stackMinus1.currentMove);
                 var prevPrevSq = Move.to_sq(stackMinus2.currentMove);
-                var flMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
+                var flMoveCmh = CounterMovesHistory.value(pos.piece_on(prevPrevSq), prevPrevSq);
                 flMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, bonus);
             }
         }
@@ -1671,7 +1671,7 @@ internal static class Search
         var bonus = Value.Create((depth / Depth.ONE_PLY) * (depth / Depth.ONE_PLY));
 
         var prevSq = Move.to_sq(ss[ss.current - 1].currentMove);
-        var cmh = CounterMovesHistory.table[pos.piece_on(prevSq), prevSq];
+        var cmh = CounterMovesHistory.value(pos.piece_on(prevSq), prevSq);
 
         History.updateH(pos.moved_piece(move), Move.to_sq(move), bonus);
 
@@ -1697,7 +1697,7 @@ internal static class Search
             && pos.captured_piece_type() == 0)
         {
             var prevPrevSq = Move.to_sq(ss[ss.current - 2].currentMove);
-            var ttMoveCmh = CounterMovesHistory.table[pos.piece_on(prevPrevSq), prevPrevSq];
+            var ttMoveCmh = CounterMovesHistory.value(pos.piece_on(prevPrevSq), prevPrevSq);
             ttMoveCmh.updateCMH(pos.piece_on(prevSq), prevSq, -bonus - 2 * depth / Depth.ONE_PLY - 1);
         }
     }
