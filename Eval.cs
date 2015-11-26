@@ -266,7 +266,7 @@ internal static class Eval
     // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
 
     private static ScoreT evaluate_pieces(
-        PieceTypeT Pt,
+        PieceTypeT pieceType,
         ColorT Us,
         bool DoTrace,
         Position pos,
@@ -274,20 +274,21 @@ internal static class Eval
         ScoreT[] mobility,
         BitboardT[] mobilityArea)
     {
+        int Pt = pieceType;
         if (Pt == PieceType.KING)
         {
             return Score.SCORE_ZERO;
         }
         var score = Score.SCORE_ZERO;
 
-        var NextPt = (Us == Color.WHITE ? Pt : Pt + 1);
+        var NextPt = (Us == Color.WHITE ? pieceType : pieceType + 1);
         var Them = (Us == Color.WHITE ? Color.BLACK : Color.WHITE);
 
         ei.attackedBy[Us, Pt] = Bitboard.Create(0);
 
         for (var idx = 0; idx < 16; idx++)
         {
-            var s = pos.square(Pt, Us, idx);
+            var s = pos.square(pieceType, Us, idx);
             if (s == Square.SQ_NONE)
             {
                 break;
@@ -303,7 +304,7 @@ internal static class Eval
                                   PieceType.ROOK,
                                   s,
                                   pos.pieces() ^ pos.pieces_CtPtPt(Us, PieceType.ROOK, PieceType.QUEEN))
-                              : pos.attacks_from_PtS(Pt, s);
+                              : pos.attacks_from_PtS(pieceType, s);
 
             if (Bitboard.IsOccupied(ei.pinnedPieces[Us], s))
             {

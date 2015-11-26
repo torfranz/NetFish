@@ -19,9 +19,19 @@ internal class Stats<T>
 {
     internal static ValueT Max = Value.Create(1 << 28);
 
-    protected readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
+    internal readonly T[,] table = new T[Piece.PIECE_NB, Square.SQUARE_NB];
 
-    
+    internal Stats()
+    {
+        for (var idx1 = 0; idx1 < this.table.GetLength(0); idx1++)
+        {
+            for (var idx2 = 0; idx2 < this.table.GetLength(1); idx2++)
+            {
+                this.table[idx1, idx2] = new T();
+            }
+        }
+    }
+
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -65,19 +75,4 @@ internal class HistoryStats : Stats<ValueT>
 
 internal class CounterMovesHistoryStats : Stats<HistoryStats>
 {
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-
-    internal HistoryStats value(PieceT p, SquareT to)
-    {
-        var stats = this.table[p, to];
-        if (stats == null)
-        {
-            stats = new HistoryStats();
-            this.table[p, to] = stats;
-        }
-
-        return stats;
-    }
 }
