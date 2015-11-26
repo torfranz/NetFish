@@ -795,7 +795,7 @@ internal class Position
         // Use a slower but simpler function for uncommon cases
         if (Move.type_of(m) != MoveType.NORMAL)
         {
-            return new MoveList(GenType.LEGAL, this).contains(m);
+            return new MoveList(this).contains(m);
         }
 
         // Is not a promotion, so promotion piece must be empty
@@ -1403,7 +1403,7 @@ internal class Position
     /// or by repetition. It does not detect stalemates.
     internal bool is_draw()
     {
-        if (this.st.rule50 > 99 && (this.checkers() == 0 || new MoveList(GenType.LEGAL, this).size() > 0))
+        if (this.st.rule50 > 99 && (this.checkers() == 0 || new MoveList(this).size() > 0))
         {
             return true;
         }

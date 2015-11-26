@@ -7,9 +7,9 @@ internal class MoveList
 {
     internal readonly ExtMoveArrayWrapper moveList = new ExtMoveArrayWrapper(new ExtMove[_.MAX_MOVES]);
 
-    internal MoveList(GenType Type, Position pos)
+    internal MoveList(Position pos)
     {
-        Movegen.generate(Type, pos, this.moveList);
+        Movegen.generate_LEGAL(pos, this.moveList);
     }
 
     internal int begin()

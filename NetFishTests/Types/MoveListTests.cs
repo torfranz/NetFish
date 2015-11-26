@@ -20,7 +20,7 @@ namespace Tests
             Position.init();
 
             var pos = new Position("rnbqkbnr/1ppppppp/p7/7Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2", false, null);
-            var ml = new MoveList(GenType.LEGAL, pos);
+            var ml = new MoveList(pos);
             Assert.AreEqual(16, ml.size());
         }
         

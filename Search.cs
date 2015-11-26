@@ -8,6 +8,7 @@ using Key = System.UInt64;
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
+using DepthT = System.Int32;
 #endif
 
 internal static class Search
@@ -43,7 +44,7 @@ internal static class Search
     // Futility and reductions lookup tables, initialized at startup
     private static readonly int[,] FutilityMoveCounts = new int[2, 16]; // [improving][depth]
 
-    private static readonly Depth[,,,] Reductions = new Depth[2, 2, 64, 64]; // [pv][improving][depth][moveNumber]
+    private static readonly DepthT[,,,] Reductions = new DepthT[2, 2, 64, 64]; // [pv][improving][depth][moveNumber]
 
     internal static void check_time()
     {
@@ -51,7 +52,7 @@ internal static class Search
 
         if (elapsed >= 1000)
         {
-            //TODO: enable db_print?
+            // TODO: enable db_print?
             //dbg_print();
         }
 
@@ -133,14 +134,14 @@ internal static class Search
         Tablebases.Hits = 0;
         Tablebases.RootInTB = false;
         Tablebases.UseRule50 = bool.Parse(OptionMap.Instance["Syzygy50MoveRule"].v);
-        Tablebases.ProbeDepth = int.Parse(OptionMap.Instance["SyzygyProbeDepth"].v) * Depth.ONE_PLY_C;
+        Tablebases.ProbeDepth = int.Parse(OptionMap.Instance["SyzygyProbeDepth"].v) * Depth.ONE_PLY;
         Tablebases.Cardinality = int.Parse(OptionMap.Instance["SyzygyProbeLimit"].v);
 
         // Skip TB probing when no TB found: !TBLargest . !Tablebases.Cardinality
         if (Tablebases.Cardinality > Tablebases.MaxCardinality)
         {
             Tablebases.Cardinality = Tablebases.MaxCardinality;
-            Tablebases.ProbeDepth = Depth.DEPTH_ZERO_C;
+            Tablebases.ProbeDepth = Depth.DEPTH_ZERO;
         }
 
         if (RootMoves.Count == 0)
@@ -259,9 +260,6 @@ internal static class Search
         var easyMove = EasyMove.get(pos.key());
         EasyMove.clear();
 
-        //TODO: need to memset?
-        //Math.Memset(ss - 2, 0, 5 * sizeof(Stack));
-
         var depth = Depth.DEPTH_ZERO;
         BestMoveChanges = 0;
         var bestValue = delta = alpha = -Value.VALUE_INFINITE;
@@ -276,8 +274,6 @@ internal static class Search
         // use behind the scenes to retrieve a set of possible moves.
         if (skill.enabled())
         {
-            multiPV = Math.Max(multiPV, 4);
-            multiPV = Math.Max(multiPV, 4);
             multiPV = Math.Max(multiPV, 4);
         }
 
@@ -300,7 +296,7 @@ internal static class Search
             for (PVIdx = 0; PVIdx < multiPV && !Signals.stop; ++PVIdx)
             {
                 // Reset aspiration window starting size
-                if (depth >= 5 * Depth.ONE_PLY_C)
+                if (depth >= 5 * Depth.ONE_PLY)
                 {
                     delta = Value.Create(16);
                     alpha = Value.Create(Math.Max(RootMoves[PVIdx].previousScore - delta, -Value.VALUE_INFINITE));
@@ -321,10 +317,8 @@ internal static class Search
                     // new PV that goes to the front. Note that in case of MultiPV
                     // search the already searched PV lines are preserved.
 
-                    //TODO: Check for stable sort replacement
                     Utils.stable_sort(RootMoves, PVIdx, RootMoves.Count);
-                    //std::stable_sort(RootMoves.begin() + PVIdx, RootMoves.end());
-
+                    
                     // Write PV back to transposition table in case the relevant
                     // entries have been overwritten during the search.
                     for (var i = 0; i <= PVIdx; ++i)
@@ -373,10 +367,8 @@ internal static class Search
                 }
 
                 // Sort the PV lines searched so far and update the GUI
-                //TODO: Check for stable sort replacement
                 Utils.stable_sort(RootMoves, 0, PVIdx + 1);
-                //std::stable_sort(RootMoves.begin(), RootMoves.begin() + PVIdx + 1);
-
+                
                 if (Signals.stop)
                 {
                     Output.WriteLine($"info nodes {RootPos.nodes_searched()} time {TimeManagement.elapsed()}");
@@ -463,19 +455,19 @@ internal static class Search
 
     /// Search::perft() is our utility to verify move generation. All the leaf nodes
     /// up to the given depth are generated and counted and the sum returned.
-    internal static long perft(bool Root, Position pos, Depth depth)
+    internal static long perft(bool Root, Position pos, DepthT depth)
     {
         var st = new StateInfo();
         long nodes = 0;
         var ci = new CheckInfo(pos);
         var leaf = (depth == 2 * Depth.ONE_PLY);
 
-        var ml = new MoveList(GenType.LEGAL, pos);
+        var ml = new MoveList(pos);
         for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
             long cnt;
-            if (Root && depth <= Depth.ONE_PLY_C)
+            if (Root && depth <= Depth.ONE_PLY)
             {
                 cnt = 1;
                 nodes++;
@@ -483,7 +475,7 @@ internal static class Search
             else
             {
                 pos.do_move(m, st, pos.gives_check(m, ci));
-                cnt = leaf ? new MoveList(GenType.LEGAL, pos).size() : perft(false, pos, depth - Depth.ONE_PLY);
+                cnt = leaf ? new MoveList(pos).size() : perft(false, pos, depth - Depth.ONE_PLY);
                 nodes += cnt;
                 pos.undo_move(m);
             }
@@ -497,19 +489,19 @@ internal static class Search
 
     /// Search::init() is called during startup to initialize various lookup tables
     // Razoring and futility margin based on depth
-    private static ValueT razor_margin(Depth d)
+    private static ValueT razor_margin(DepthT d)
     {
         return Value.Create(512 + 32 * (int)d);
     }
 
-    private static ValueT futility_margin(Depth d)
+    private static ValueT futility_margin(DepthT d)
     {
         return Value.Create(200 * (int)d);
     }
 
-    private static Depth reduction(bool PvNode, bool i, Depth d, int mn)
+    private static DepthT reduction(bool PvNode, bool i, DepthT d, int mn)
     {
-        return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min(d, 63 * Depth.ONE_PLY_C), Math.Min(mn, 63)];
+        return Reductions[PvNode ? 1 : 0, i ? 1 : 0, Math.Min(d, 63 * Depth.ONE_PLY), Math.Min(mn, 63)];
     }
 
     internal static void init()
@@ -528,11 +520,11 @@ internal static class Search
 
                         if (r >= 1.5)
                         {
-                            Reductions[pv, imp, d, mc] = new Depth((int)(r * Depth.ONE_PLY_C));
+                            Reductions[pv, imp, d, mc] = Depth.Create((int)(r * Depth.ONE_PLY));
                         }
 
                         // Increase reduction when eval is not improving
-                        if (pv == 0 && imp == 0 && Reductions[pv, imp, d, mc] >= 2 * Depth.ONE_PLY_C)
+                        if (pv == 0 && imp == 0 && Reductions[pv, imp, d, mc] >= 2 * Depth.ONE_PLY)
                         {
                             Reductions[pv, imp, d, mc] += Depth.ONE_PLY;
                         }
@@ -573,7 +565,7 @@ internal static class Search
         StackArrayWrapper ss,
         ValueT alpha,
         ValueT beta,
-        Depth depth,
+        DepthT depth,
         bool cutNode)
     {
         Utils.WriteToLog(
@@ -709,7 +701,7 @@ internal static class Search
                         posKey,
                         value_to_tt(value, stack.ply),
                         Bound.BOUND_EXACT,
-                        new Depth(Math.Min(_.MAX_PLY - Depth.ONE_PLY_C, (int)depth + 6 * Depth.ONE_PLY_C)),
+                        Depth.Create(Math.Min(_.MAX_PLY - Depth.ONE_PLY, (int)depth + 6 * Depth.ONE_PLY)),
                         Move.MOVE_NONE,
                         Value.VALUE_NONE,
                         TranspositionTable.generation());
@@ -769,7 +761,7 @@ internal static class Search
         // Step 6. Razoring (skipped when in check)
         if (!PvNode && depth < 4 * Depth.ONE_PLY && eval + razor_margin(depth) <= alpha && ttMove == Move.MOVE_NONE)
         {
-            if (depth <= Depth.ONE_PLY_C && eval + razor_margin(3 * Depth.ONE_PLY) <= alpha)
+            if (depth <= Depth.ONE_PLY && eval + razor_margin(3 * Depth.ONE_PLY) <= alpha)
             {
                 return qsearch(NodeType.NonPV, false, pos, ss, alpha, beta, Depth.DEPTH_ZERO);
             }
@@ -791,7 +783,7 @@ internal static class Search
         }
 
         // Step 8. Null move search with verification search (is omitted in PV nodes)
-        if (!PvNode && depth >= 2 * Depth.ONE_PLY_C && eval >= beta && pos.non_pawn_material(pos.side_to_move()) != 0)
+        if (!PvNode && depth >= 2 * Depth.ONE_PLY && eval >= beta && pos.non_pawn_material(pos.side_to_move()) != 0)
         {
             stack.currentMove = Move.MOVE_NULL;
 
@@ -854,12 +846,12 @@ internal static class Search
         // If we have a very good capture (i.e. SEE > seeValues[captured_piece_type])
         // and a reduced search returns a value much above beta, we can (almost) safely
         // prune the previous move.
-        if (!PvNode && depth >= 5 * Depth.ONE_PLY_C && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
+        if (!PvNode && depth >= 5 * Depth.ONE_PLY && Math.Abs(beta) < Value.VALUE_MATE_IN_MAX_PLY)
         {
             var rbeta = Value.Create(Math.Min(beta + 200, Value.VALUE_INFINITE));
             var rdepth = depth - 4 * Depth.ONE_PLY;
 
-            Debug.Assert(rdepth >= Depth.ONE_PLY_C);
+            Debug.Assert(rdepth >= Depth.ONE_PLY);
             Debug.Assert(stackMinus1.currentMove != Move.MOVE_NONE);
             Debug.Assert(stackMinus1.currentMove != Move.MOVE_NULL);
 
@@ -897,7 +889,7 @@ internal static class Search
         }
 
         // Step 10. Internal iterative deepening (skipped when in check)
-        if (depth >= (PvNode ? 5 * Depth.ONE_PLY_C : 8 * Depth.ONE_PLY_C) && ttMove == 0
+        if (depth >= (PvNode ? 5 * Depth.ONE_PLY : 8 * Depth.ONE_PLY) && ttMove == 0
             && (PvNode || stack.staticEval + 256 >= beta))
         {
             var d = depth - 2 * Depth.ONE_PLY - (PvNode ? Depth.DEPTH_ZERO : depth / 4);
@@ -920,12 +912,12 @@ internal static class Search
         var improving = stack.staticEval >= stackMinus2.staticEval || stack.staticEval == Value.VALUE_NONE
                         || stackMinus2.staticEval == Value.VALUE_NONE;
 
-        var singularExtensionNode = !RootNode && !SpNode && depth >= 8 * Depth.ONE_PLY_C && ttMove != Move.MOVE_NONE
+        var singularExtensionNode = !RootNode && !SpNode && depth >= 8 * Depth.ONE_PLY && ttMove != Move.MOVE_NONE
                                     /*  &&  ttValue != Value.VALUE_NONE Already implicit in the next condition */
                                     && Math.Abs(ttValue) < Value.VALUE_KNOWN_WIN && excludedMove == 0
                                     // Recursive singular search is not allowed
                                     && ((tte.bound() & Bound.BOUND_LOWER) != 0)
-                                    && tte.depth() >= depth - 3 * Depth.ONE_PLY_C;
+                                    && tte.depth() >= depth - 3 * Depth.ONE_PLY;
 
         var quietsSearched = new MoveT[64];
         // Step 11. Loop through moves
@@ -1086,7 +1078,7 @@ internal static class Search
             // Step 15. Reduced depth search (LMR). If the move fails high it will be
             // re-searched at full depth.
             bool doFullDepthSearch;
-            if (depth >= 3 * Depth.ONE_PLY_C && moveCount > 1 && !captureOrPromotion && move != stack.killers0
+            if (depth >= 3 * Depth.ONE_PLY && moveCount > 1 && !captureOrPromotion && move != stack.killers0
                 && move != stack.killers1)
             {
                 stack.reduction = reduction(PvNode, improving, depth, moveCount);
@@ -1105,7 +1097,7 @@ internal static class Search
                         pos.piece_on(Move.to_sq(move)),
                            Move.to_sq(move)] > Value.VALUE_ZERO)
                 {
-                    stack.reduction = new Depth(Math.Max(Depth.DEPTH_ZERO_C, stack.reduction - Depth.ONE_PLY_C));
+                    stack.reduction = Depth.Create(Math.Max(Depth.DEPTH_ZERO, stack.reduction - Depth.ONE_PLY));
                 }
 
                 // Decrease reduction for moves that escape a capture
@@ -1113,10 +1105,10 @@ internal static class Search
                     && Piece.type_of(pos.piece_on(Move.to_sq(move))) != PieceType.PAWN
                     && pos.see(Move.make(Move.to_sq(move), Move.from_sq(move))) < Value.VALUE_ZERO)
                 {
-                    stack.reduction = new Depth(Math.Max(Depth.DEPTH_ZERO_C, stack.reduction - Depth.ONE_PLY_C));
+                    stack.reduction = Depth.Create(Math.Max(Depth.DEPTH_ZERO, stack.reduction - Depth.ONE_PLY));
                 }
 
-                var d = new Depth(Math.Max(newDepth - (int)stack.reduction, Depth.ONE_PLY_C));
+                var d = Depth.Create(Math.Max(newDepth - (int)stack.reduction, Depth.ONE_PLY));
                 if (SpNode)
                 {
                     alpha = Value.Create(splitPoint.alpha);
@@ -1370,7 +1362,7 @@ internal static class Search
         else if (bestMove == 0)
         {
             if (Move.is_ok(stackMinus2.currentMove) && Move.is_ok(stackMinus1.currentMove)
-                && pos.captured_piece_type() == 0 && !inCheck && depth >= 3 * Depth.ONE_PLY_C)
+                && pos.captured_piece_type() == 0 && !inCheck && depth >= 3 * Depth.ONE_PLY)
             {
                 var bonus = Value.Create((depth / Depth.ONE_PLY) * (depth / Depth.ONE_PLY));
                 var prevSq = Move.to_sq(stackMinus1.currentMove);
@@ -1401,7 +1393,7 @@ internal static class Search
         StackArrayWrapper ss,
         ValueT alpha,
         ValueT beta,
-        Depth depth)
+        DepthT depth)
     {
         Utils.WriteToLog(
             $"qsearch(NT={(int)NT}, InCheck={(InCheck ? 1 : 0)}, pos={pos.key()}, ss, alpha={alpha}, beta={beta}, depth={(int)depth})");
@@ -1411,7 +1403,7 @@ internal static class Search
         Debug.Assert(InCheck == (pos.checkers() != 0));
         Debug.Assert(alpha >= -Value.VALUE_INFINITE && alpha < beta && beta <= Value.VALUE_INFINITE);
         Debug.Assert(PvNode || (alpha == beta - 1));
-        Debug.Assert(depth <= Depth.DEPTH_ZERO_C);
+        Debug.Assert(depth <= Depth.DEPTH_ZERO);
 
         var currentStack = ss[ss.current];
         var nextStack = ss[ss.current + 1];
@@ -1438,7 +1430,7 @@ internal static class Search
         // Decide whether or not to include checks: this fixes also the type of
         // TT entry depth that we are going to use. Note that in qsearch we use
         // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
-        var ttDepth = InCheck || (int)depth >= Depth.DEPTH_QS_CHECKS_C
+        var ttDepth = InCheck || (int)depth >= Depth.DEPTH_QS_CHECKS
                           ? Depth.DEPTH_QS_CHECKS
                           : Depth.DEPTH_QS_NO_CHECKS;
 
@@ -1666,7 +1658,7 @@ internal static class Search
         Position pos,
         StackArrayWrapper ss,
         MoveT move,
-        Depth depth,
+        DepthT depth,
         MoveT[] quiets,
         int quietsCnt)
     {
