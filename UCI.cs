@@ -403,7 +403,10 @@ internal static class UCI
                             $"{OptionMap.Instance["Hash"].v} {OptionMap.Instance["Threads"].v} {token} current perft");
                     Benchmark.benchmark(pos, ss);
                 }
-
+                else if (token == "writelog")
+                {
+                    Utils.WriteLogToFile();
+                }
                 else
                 {
                     Output.Write("Unknown command: ");

@@ -142,6 +142,7 @@ internal class MovePicker
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
+        /*
         var maxVal = Value.Create(-100000); //nullable so this works even if you have all super-low negatives
         var index = begin.current;
         for (var i = begin.current; i < end.current; i++)
@@ -150,6 +151,18 @@ internal class MovePicker
             if (value > maxVal)
             {
                 maxVal = value;
+                index = i;
+            }
+        }
+        */
+        ExtMove maxVal = null; //nullable so this works even if you have all super-low negatives
+        var index = -1;
+        for (var i = begin.current; i < end.current; i++)
+        {
+            var thisNum = this.moves[i];
+            if (maxVal == null || thisNum > maxVal)
+            {
+                maxVal = thisNum;
                 index = i;
             }
         }
@@ -177,7 +190,8 @@ internal class MovePicker
         {
             var m = this.moves[i];
             var toSquare = Move.to_sq(m);
-            m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(toSquare)] - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), toSquare));
+            this.moves[i] = new ExtMove(
+                m, Value.PieceValue[(int)Phase.MG][this.pos.piece_on(toSquare)] - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), toSquare)));
         }
     }
 
@@ -191,7 +205,8 @@ internal class MovePicker
             var m = this.moves[i];
             var movedPiece = this.pos.moved_piece(m);
             var toSquare = Move.to_sq(m);
-            m.Value = this.history.value(movedPiece, toSquare) + cmh.value(movedPiece, toSquare);
+            this.moves[i] = new ExtMove(
+                m, this.history.value(movedPiece, toSquare) + cmh.value(movedPiece, toSquare));
         }
     }
 
@@ -207,16 +222,19 @@ internal class MovePicker
             ValueT see;
             if ((see = this.pos.see_sign(m)) < Value.VALUE_ZERO)
             {
-                m.Value = see - HistoryStats.Max; // At the bottom
+                this.moves[i] = new ExtMove(
+                 m, see - HistoryStats.Max); // At the bottom
             }
 
             else if (this.pos.capture(m))
             {
-                m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))] - Value.Create(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max;
+                this.moves[i] = new ExtMove(
+                m, Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))] - Value.Create(Piece.type_of(this.pos.moved_piece(m))) + HistoryStats.Max);
             }
             else
             {
-                m.Value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m));
+                this.moves[i] = new ExtMove(
+                m, this.history.value(this.pos.moved_piece(m), Move.to_sq(m)));
             }
         }
     }

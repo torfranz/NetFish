@@ -72,21 +72,22 @@ internal static class Utils
 
     internal static SquareT[] BSFTable = new SquareT[Square.SQUARE_NB]; // To implement software bitscan
 
-    private static bool firstLog = true;
+    private static StringBuilder logContent = new StringBuilder();
 
     [Conditional("DEBUG")]
     internal static void WriteToLog(string s)
     {
-        using (
-            var sw = firstLog
-                         ? System.IO.File.CreateText("Logfile_Netfish.txt")
-                         : System.IO.File.AppendText("Logfile_Netfish.txt"))
-        {
-            firstLog = false;
-            sw.WriteLine(s);
-        }
+        logContent.AppendLine(s);
     }
 
+    [Conditional("DEBUG")]
+    internal static void WriteLogToFile()
+    {
+        using (var sw = System.IO.File.CreateText("Logfile_Netfish.txt"))
+        {
+            sw.Write(logContent.ToString());
+        }
+    }
     /// rank_bb() and file_bb() return a bitboard representing all the squares on
     /// the given file or rank.
 #if FORCEINLINE
