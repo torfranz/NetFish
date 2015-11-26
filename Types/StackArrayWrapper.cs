@@ -25,5 +25,18 @@ internal class StackArrayWrapper
         this.current = current;
     }
 
-    internal Stack this[int index] => this.table[index];
+    internal Stack this[int index]
+    {
+        get
+        {
+            var stack = this.table[index];
+            if (stack == null)
+            {
+                stack = new Stack();
+                this.table[index] = stack;
+            }
+
+            return stack;
+        }
+    }
 }
