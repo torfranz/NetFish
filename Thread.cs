@@ -203,7 +203,7 @@ internal class Thread : ThreadBase
                 // copy first 5 entries
                 for (int i = 0; i < 5; ++i)
                 {
-                    sp.ss.table[i] = new Stack(ss.table[i]);
+                    ss.table[i] = new Stack(sp.ss[i]);
                 }
 
                 ss[ss.current].splitPoint = sp;
@@ -216,20 +216,17 @@ internal class Thread : ThreadBase
 
                 if (sp.nodeType == NodeType.NonPV)
                 {
-                    //enable call to search
-                    //search < NonPV, true > (pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode)
+                    Search.search(NodeType.NonPV, true, pos, ss, Value.Create(sp.alpha), sp.beta, sp.depth, sp.cutNode);
                 }
 
                 else if (sp.nodeType == NodeType.PV)
                 {
-                    //enable call to search
-                    //search < PV, true > (pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode)
+                    Search.search(NodeType.PV, true, pos, ss, Value.Create(sp.alpha), sp.beta, sp.depth, sp.cutNode);
                 }
 
                 else if (sp.nodeType == NodeType.Root)
                 {
-                    //enable call to search
-                    //search < Root, true > (pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode);
+                    Search.search(NodeType.Root, true,pos, ss, Value.Create(sp.alpha), sp.beta, sp.depth, sp.cutNode);
                 }
 
                 else

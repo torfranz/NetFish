@@ -552,7 +552,7 @@ internal static class Search
     // repeat all this work again. We also don't need to store anything to the hash
     // table here: This is taken care of after we return from the split point.
 
-    private static ValueT search(
+    internal static ValueT search(
         NodeType NT,
         bool SpNode,
         Position pos,
