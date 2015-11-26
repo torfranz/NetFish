@@ -7,6 +7,7 @@ using System.Text;
 using ValueT = System.Int32;
 using SquareT = System.Int32;
 using MoveT = System.Int32;
+using DepthT = System.Int32;
 #endif
 
 internal static class UCI
@@ -27,7 +28,7 @@ internal static class UCI
 
     /// UCI::pv() formats PV information according to the UCI protocol. UCI requires
     /// that all (if any) unsearched PV lines are sent using a previous search score.
-    internal static string pv(Position pos, Depth depth, ValueT alpha, ValueT beta)
+    internal static string pv(Position pos, DepthT depth, ValueT alpha, ValueT beta)
     {
         var ss = new StringBuilder();
         var elapsed = TimeManagement.elapsed() + 1;
@@ -186,7 +187,7 @@ internal static class UCI
             str = new string(chars);
         }
 
-        var ml = new MoveList(GenType.LEGAL, pos);
+        var ml = new MoveList(pos);
         for (var index = ml.begin(); index < ml.end(); index++)
         {
             var extMove = ml.moveList.table[index];

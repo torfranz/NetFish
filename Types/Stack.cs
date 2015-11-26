@@ -3,6 +3,7 @@
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
+using DepthT = System.Int32;
 #endif
 
 /// Stack struct keeps track of the information we need to remember from nodes
@@ -24,7 +25,7 @@ internal class Stack
 
     internal List<MoveT> pv = new List<MoveT>();
 
-    internal Depth reduction;
+    internal DepthT reduction;
 
     internal bool skipEarlyPruning;
 
