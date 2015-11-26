@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-internal class StateInfoWrapper
+﻿internal class StateInfoWrapper
 {
     internal int current;
 

@@ -1,7 +1,5 @@
 ﻿
 #if PRIMITIVE
-using System.Runtime.CompilerServices;
-
 using ColorT = System.Int32;
 #else
 

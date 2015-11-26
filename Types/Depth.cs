@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-internal struct Depth
+﻿internal struct Depth
 {
     internal const int ONE_PLY_C = 1;
 

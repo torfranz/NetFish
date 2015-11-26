@@ -1,16 +1,14 @@
 ﻿
 #if PRIMITIVE
-using System.Runtime.CompilerServices;
-
 using ValueT = System.Int32;
 using MoveT = System.Int32;
 #endif
 
 internal class ExtMove
 {
-    internal MoveT Move;
+    internal MoveT Move { get; }
 
-    internal ValueT Value;
+    internal ValueT Value { get; }
 
 #if FORCEINLINE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +46,10 @@ internal class ExtMove
     {
         return f.Value > s.Value;
     }
+
+#if FORCEINLINE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 
     public override string ToString()
     {

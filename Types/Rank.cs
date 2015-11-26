@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+
 #if PRIMITIVE
 using RankT = System.Int32;
 using ColorT = System.Int32;

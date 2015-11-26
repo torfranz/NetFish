@@ -1,7 +1,5 @@
 ﻿
 #if PRIMITIVE
-using System.Runtime.CompilerServices;
-
 using FileT = System.Int32;
 using RankT = System.Int32;
 using ColorT = System.Int32;
