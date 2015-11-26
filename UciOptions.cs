@@ -84,8 +84,8 @@ internal static class UCIOptionChanges
 {
     internal static void on_tb_path(UCIOption opt)
     {
-        // TODO: enable call, Tablebases::init(o);
-        //Tablebases.init(opt);
+        //TODO: enable call, Tablebases::init(o);
+        //Tablebases::init(o);
     }
 
     internal static void on_threads(UCIOption opt)

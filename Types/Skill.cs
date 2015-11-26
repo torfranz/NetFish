@@ -4,7 +4,6 @@ using System;
 
 #if PRIMITIVE
 using MoveT = System.Int32;
-using DepthT = System.Int32;
 #endif
 
 internal struct Skill
@@ -23,7 +22,7 @@ internal struct Skill
     // PRNG sequence should be non-deterministic, so we seed it with the time at init
     private static readonly PRNG rng = new PRNG((ulong)DateTime.Now.Millisecond);
 
-    internal bool time_to_pick(DepthT depth)
+    internal bool time_to_pick(Depth depth)
     {
         return depth / Depth.ONE_PLY == 1 + this.level;
     }

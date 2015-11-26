@@ -2,7 +2,6 @@
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
-using DepthT = System.Int32;
 #endif
 
 /// TTEntry struct is the 10 bytes transposition table entry, defined as below:
@@ -43,9 +42,9 @@ internal class TTEntry
         return Value.Create(this.eval16);
     }
 
-    internal DepthT depth()
+    internal Depth depth()
     {
-        return Depth.Create(this.depth8);
+        return new Depth(this.depth8);
     }
 
     internal Bound bound()
@@ -53,7 +52,7 @@ internal class TTEntry
         return (Bound)((this.genBound8 & 0x3));
     }
 
-    internal void save(ulong k, ValueT v, Bound b, DepthT d, MoveT m, ValueT ev, byte g)
+    internal void save(ulong k, ValueT v, Bound b, Depth d, MoveT m, ValueT ev, byte g)
     {
         // Preserve any existing move for the same position
         if ((m != 0) || (k >> 48) != this.key16)

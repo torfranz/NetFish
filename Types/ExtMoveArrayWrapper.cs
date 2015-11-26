@@ -10,25 +10,16 @@ internal class ExtMoveArrayWrapper
 
     internal ExtMove[] table;
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     internal ExtMoveArrayWrapper(ExtMoveArrayWrapper wrapper)
         : this(wrapper.table, wrapper.current)
     {
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     internal ExtMoveArrayWrapper(ExtMove[] table)
         : this(table, 0)
     {
     }
 
-#if FORCEINLINE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     internal ExtMoveArrayWrapper(ExtMove[] table, int current)
     {
         this.table = table;
@@ -91,7 +82,7 @@ internal class ExtMoveArrayWrapper
 
     public static ExtMoveArrayWrapper operator ++(ExtMoveArrayWrapper p)
     {
-        p.current++;
+        p.current += 1;
         return p;
     }
 
@@ -101,7 +92,7 @@ internal class ExtMoveArrayWrapper
 
     public static ExtMoveArrayWrapper operator --(ExtMoveArrayWrapper p)
     {
-        p.current--;
+        p.current -= 1;
         return p;
     }
 
@@ -138,34 +129,33 @@ internal class ExtMoveArrayWrapper
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        var table = begin.table;
-        var first = begin.current;
-        var last = end.current;
+        var _First = begin.current;
+        var _Last = end.current;
 
-        for (;; ++first)
+        for (;; ++_First)
         {
             // find any out-of-order pair
-            for (; first != last && (table[first].Value > Value.VALUE_ZERO); ++first)
+            for (; _First != _Last && (begin[_First].Value > Value.VALUE_ZERO); ++_First)
             {
             }
-            if (first == last)
-            {
-                break; // done
-            }
-
-            for (; first != --last && !(table[last].Value > Value.VALUE_ZERO);)
-            {
-            }
-            if (first == last)
+            if (_First == _Last)
             {
                 break; // done
             }
 
-            var tempValue = table[first];
-            table[first] = table[last];
-            table[last] = tempValue;
+            for (; _First != --_Last && !(begin[_Last].Value > Value.VALUE_ZERO);)
+            {
+            }
+            if (_First == _Last)
+            {
+                break; // done
+            }
+
+            var tempValue = begin[_First];
+            begin[_First] = begin[_Last];
+            begin[_Last] = tempValue;
         }
-        return new ExtMoveArrayWrapper(begin.table, first);
+        return new ExtMoveArrayWrapper(begin.table, _First);
     }
 
     // Our insertion sort, which is guaranteed to be stable, as it should be
@@ -174,17 +164,16 @@ internal class ExtMoveArrayWrapper
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current <= end.current);
 
-        var table = begin.table;
         for (var p = begin.current + 1; p < end.current; ++p)
         {
-            var tmp = table[p];
+            var tmp = begin[p];
             int q;
-            for (q = p; q != begin.current && table[q - 1].Value < tmp.Value; --q)
+            for (q = p; q != begin.current && begin[q - 1].Value < tmp.Value; --q)
             {
-                table[q] = table[q - 1];
+                begin[q] = begin[q - 1];
             }
 
-            table[q] = tmp;
+            begin[q] = tmp;
         }
     }
 }

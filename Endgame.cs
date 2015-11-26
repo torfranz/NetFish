@@ -136,7 +136,7 @@ internal class EndgameKXK : EndgameValue
         Debug.Assert(pos.checkers() == 0); // Eval is never called when in check
 
         // Stalemate detection with lone king
-        if (pos.side_to_move() == this.weakSide && new MoveList(pos).size() == 0)
+        if (pos.side_to_move() == this.weakSide && new MoveList(GenType.LEGAL, pos).size() == 0)
         {
             return Value.VALUE_DRAW;
         }

@@ -35,7 +35,7 @@ internal class RootMove
 
         foreach (var m in this.pv)
         {
-            Debug.Assert(new MoveList(pos).contains(m));
+            Debug.Assert(new MoveList(GenType.LEGAL, pos).contains(m));
 
             bool ttHit;
             var tte = TranspositionTable.probe(pos.key(), out ttHit);
@@ -81,7 +81,7 @@ internal class RootMove
         if (ttHit)
         {
             var m = tte.move(); // Local copy to be SMP safe
-            if (new MoveList(pos).contains(m))
+            if (new MoveList(GenType.LEGAL, pos).contains(m))
             {
                 this.pv.Add(m);
                 return true;

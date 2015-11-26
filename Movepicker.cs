@@ -4,7 +4,6 @@
 using ValueT = System.Int32;
 using SquareT = System.Int32;
 using MoveT = System.Int32;
-using DepthT = System.Int32;
 #endif
 
 internal class MovePicker
@@ -13,7 +12,7 @@ internal class MovePicker
 
     private readonly CounterMovesHistoryStats counterMovesHistory;
 
-    private readonly DepthT depth;
+    private readonly Depth depth;
 
     private readonly HistoryStats history;
 
@@ -49,7 +48,7 @@ internal class MovePicker
     internal MovePicker(
         Position p,
         MoveT ttm,
-        DepthT d,
+        Depth d,
         HistoryStats h,
         CounterMovesHistoryStats cmh,
         MoveT cm,
@@ -72,7 +71,7 @@ internal class MovePicker
         this.endMoves += this.ttMove != Move.MOVE_NONE ? 1 : 0;
     }
 
-    internal MovePicker(Position p, MoveT ttm, DepthT d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
+    internal MovePicker(Position p, MoveT ttm, Depth d, HistoryStats h, CounterMovesHistoryStats cmh, SquareT s)
     {
         this.endBadCaptures = new ExtMoveArrayWrapper(this.moves, _.MAX_MOVES - 1);
         this.cur = new ExtMoveArrayWrapper(this.moves);
@@ -82,7 +81,7 @@ internal class MovePicker
         this.history = h;
         this.counterMovesHistory = cmh;
 
-        Debug.Assert(d <= Depth.DEPTH_ZERO);
+        Debug.Assert(d <= Depth.DEPTH_ZERO_C);
 
         if (this.pos.checkers() != 0)
         {
@@ -142,7 +141,7 @@ internal class MovePicker
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        var maxVal = Value.Create(-100000); //nullable so this works even if you have all super-low negatives
+        ValueT maxVal = Value.Create(-100000); //nullable so this works even if you have all super-low negatives
         var index = begin.current;
         for (var i = begin.current; i < end.current; i++)
         {
@@ -176,8 +175,7 @@ internal class MovePicker
         for (var i = 0; i < this.endMoves.current; i++)
         {
             var m = this.moves[i];
-            var toSquare = Move.to_sq(m);
-            m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(toSquare)] - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), toSquare));
+            m.Value = Value.PieceValue[(int)Phase.MG][this.pos.piece_on(Move.to_sq(m))] - Value.Create(200 * Rank.relative_rank_CtSt(this.pos.side_to_move(), Move.to_sq(m)));
         }
     }
 
@@ -189,9 +187,7 @@ internal class MovePicker
         for (var i = 0; i < this.endMoves.current; i++)
         {
             var m = this.moves[i];
-            var movedPiece = this.pos.moved_piece(m);
-            var toSquare = Move.to_sq(m);
-            m.Value = this.history.value(movedPiece, toSquare) + cmh.value(movedPiece, toSquare);
+            m.Value = this.history.value(this.pos.moved_piece(m), Move.to_sq(m)) + cmh.value(this.pos.moved_piece(m), Move.to_sq(m));
         }
     }
 
@@ -257,7 +253,7 @@ internal class MovePicker
             case Stages.GOOD_QUIETS:
                 {
                     this.endQuiets = Movegen.generate(GenType.QUIETS, this.pos, new ExtMoveArrayWrapper(this.moves));
-                    this.endMoves = Movegen.generate(GenType.QUIETS, this.pos, new ExtMoveArrayWrapper(this.moves));
+                    this.endMoves = this.endQuiets;
                     this.score_QUIETS();
 
                     this.endMoves = ExtMoveArrayWrapper.Partition(this.cur, this.endMoves);
@@ -268,7 +264,7 @@ internal class MovePicker
             case Stages.BAD_QUIETS:
                 this.cur = new ExtMoveArrayWrapper(this.endMoves);
                 this.endMoves = this.endQuiets;
-                if (this.depth >= 3 * Depth.ONE_PLY)
+                if (this.depth >= 3 * Depth.ONE_PLY_C)
                 {
                     ExtMoveArrayWrapper.insertion_sort(this.cur, this.endMoves);
                 }
@@ -282,7 +278,7 @@ internal class MovePicker
 
             case Stages.ALL_EVASIONS:
                 {
-                    this.endMoves = Movegen.generate_EVASIONS(this.pos, new ExtMoveArrayWrapper(this.moves));
+                    this.endMoves = Movegen.generate(GenType.EVASIONS, this.pos, new ExtMoveArrayWrapper(this.moves));
 
                     if (this.endMoves.current > 1)
                     {
@@ -293,7 +289,10 @@ internal class MovePicker
 
             case Stages.CHECKS:
                 {
-                    this.endMoves = Movegen.generate_QUIET_CHECKS(this.pos, new ExtMoveArrayWrapper(this.moves));
+                    this.endMoves = Movegen.generate(
+                        GenType.QUIET_CHECKS,
+                        this.pos,
+                        new ExtMoveArrayWrapper(this.moves));
                 }
                 break;
 

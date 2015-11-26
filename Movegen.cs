@@ -290,7 +290,7 @@ internal static class Movegen
 
             while (b != 0)
             {
-                moveList.Add(Move.make(square, Utils.pop_lsb(ref b)));
+                (moveList).Add(Move.make(square, Utils.pop_lsb(ref b)));
             }
         }
 
@@ -377,6 +377,16 @@ internal static class Movegen
 
     internal static ExtMoveArrayWrapper generate(GenType Type, Position pos, ExtMoveArrayWrapper moveList)
     {
+        switch (Type)
+        {
+            case GenType.EVASIONS:
+                return generate_EVASIONS(pos, moveList);
+            case GenType.LEGAL:
+                return generate_LEGAL(pos, moveList);
+            case GenType.QUIET_CHECKS:
+                return generate_QUIET_CHECKS(pos, moveList);
+        }
+
         Debug.Assert(Type == GenType.CAPTURES || Type == GenType.QUIETS || Type == GenType.NON_EVASIONS);
         Debug.Assert(pos.checkers() == 0);
 
@@ -397,7 +407,7 @@ internal static class Movegen
     /// QUIET_CHECKS
     /// generates all pseudo-legal non-captures and knight
     /// underpromotions that give check. Returns a pointer to the end of the move list.
-    internal static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
+    private static ExtMoveArrayWrapper generate_QUIET_CHECKS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(pos.checkers() == 0);
 
@@ -437,7 +447,7 @@ internal static class Movegen
     /// EVASIONS
     /// generates all pseudo-legal check evasions when the side
     /// to move is in check. Returns a pointer to the end of the move list.
-    internal static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
+    private static ExtMoveArrayWrapper generate_EVASIONS(Position pos, ExtMoveArrayWrapper moveList)
     {
         Debug.Assert(pos.checkers() != 0);
 
@@ -478,14 +488,14 @@ internal static class Movegen
 
     /// generate
     /// LEGAL generates all the legal moves in the given position
-    internal static ExtMoveArrayWrapper generate_LEGAL(Position pos, ExtMoveArrayWrapper moveList)
+    private static ExtMoveArrayWrapper generate_LEGAL(Position pos, ExtMoveArrayWrapper moveList)
     {
         var pinned = pos.pinned_pieces(pos.side_to_move());
         var ksq = pos.square(PieceType.KING, pos.side_to_move());
         var cur = moveList.current;
 
         moveList = pos.checkers() != 0
-                       ? generate_EVASIONS(pos, moveList)
+                       ? generate(GenType.EVASIONS, pos, moveList)
                        : generate(GenType.NON_EVASIONS, pos, moveList);
 
         while (cur != moveList.current)

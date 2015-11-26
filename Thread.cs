@@ -8,7 +8,6 @@ using System.Threading;
 #if PRIMITIVE
 using ValueT = System.Int32;
 using MoveT = System.Int32;
-using DepthT = System.Int32;
 #endif
 
 internal sealed class SplitPoint
@@ -30,7 +29,7 @@ internal sealed class SplitPoint
 
     internal volatile bool cutoff;
 
-    internal DepthT depth;
+    internal Depth depth;
 
     internal Thread master;
 
@@ -387,7 +386,7 @@ internal class Thread : ThreadBase
         ValueT beta,
         ref ValueT bestValue,
         ref MoveT bestMove,
-        DepthT depth,
+        Depth depth,
         int moveCount,
         MovePicker movePicker,
         NodeType nodeType,
@@ -545,7 +544,7 @@ internal sealed class MainThread : Thread
 
             while (!this.thinking && !this.exit)
             {
-                // TODO: correct replacement for sleepCondition.notify_one();?
+                //TODO: correct replacement for sleepCondition.notify_one();?
                 ThreadHelper.cond_signal(this.sleepCondition); // Wake up the UI thread if needed, 
                 ThreadHelper.cond_wait(this.sleepCondition, this.spinlock /*mutex*/);
             }
@@ -594,7 +593,7 @@ internal static class ThreadPool
 
     internal static TimerThread timer;
 
-    internal static DepthT minimumSplitDepth;
+    internal static Depth minimumSplitDepth;
 
     internal static MainThread main()
     {
@@ -644,7 +643,7 @@ internal static class ThreadPool
 
         th.notify_one();
 
-        // TODO: is call needed?
+        //TODO: is call needed?
         //th.join(); // Wait for thread termination
     }
 
@@ -714,7 +713,7 @@ internal static class ThreadPool
             Debug.Assert(current != null);
         }
 
-        var ml = new MoveList(pos);
+        var ml = new MoveList(GenType.LEGAL, pos);
         for (var index = ml.begin(); index < ml.end(); index++)
         {
             var m = ml.moveList.table[index];
