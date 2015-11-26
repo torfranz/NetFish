@@ -142,9 +142,9 @@ internal class MovePicker
         Debug.Assert(begin.table == end.table);
         Debug.Assert(begin.current < end.current);
 
-        var maxVal = this.moves[0].Value; //nullable so this works even if you have all super-low negatives
+        var maxVal = Value.Create(-100000); //nullable so this works even if you have all super-low negatives
         var index = begin.current;
-        for (var i = begin.current + 1; i < end.current; i++)
+        for (var i = begin.current; i < end.current; i++)
         {
             var value = this.moves[i].Value;
             if (value > maxVal)
@@ -154,12 +154,9 @@ internal class MovePicker
             }
         }
 
-        if (index > begin.current)
-        {
-            var first = this.moves[begin.current];
-            this.moves[begin.current] = this.moves[index];
-            this.moves[index] = first;
-        }
+        var first = this.moves[begin.current];
+        this.moves[begin.current] = this.moves[index];
+        this.moves[index] = first;
 
         return this.moves[begin.current];
     }
