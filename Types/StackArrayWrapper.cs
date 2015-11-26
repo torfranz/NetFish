@@ -1,4 +1,6 @@
-﻿internal class StackArrayWrapper
+﻿using System.Runtime.CompilerServices;
+
+internal class StackArrayWrapper
 {
     internal int current;
 

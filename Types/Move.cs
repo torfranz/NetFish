@@ -1,5 +1,7 @@
 ﻿
 #if PRIMITIVE
+using System.Runtime.CompilerServices;
+
 using PieceTypeT = System.Int32;
 using SquareT = System.Int32;
 using MoveT = System.Int32;

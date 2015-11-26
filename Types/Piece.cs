@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.Runtime.CompilerServices;
 #if PRIMITIVE
 using ColorT = System.Int32;
 using PieceTypeT = System.Int32;
