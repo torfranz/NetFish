@@ -197,11 +197,15 @@ internal class Thread : ThreadBase
 
                 ThreadHelper.lock_release(this.spinlock);
 
-                var stack = new StackArrayWrapper(new Stack[_.MAX_PLY + 4]);
-                var ss = new StackArrayWrapper(stack.table, 2);
+                var ss = new StackArrayWrapper(new Stack[_.MAX_PLY + 4], 2);
                 var pos = new Position(sp.pos, this);
 
-                Array.Copy(sp.ss.table, ss.table, 5);
+                // copy first 5 entries
+                for (int i = 0; i < 5; ++i)
+                {
+                    sp.ss.table[i] = new Stack(ss.table[i]);
+                }
+                
                 ss[ss.current].splitPoint = sp;
 
                 ThreadHelper.lock_grab(sp.spinLock);
