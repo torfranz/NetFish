@@ -247,13 +247,7 @@ internal static class Search
 
     private static void id_loop(Position pos)
     {
-        var stack = new Stack[_.MAX_PLY + 4];
-        for (var idx = 0; idx < stack.Length; idx++)
-        {
-            stack[idx] = new Stack();
-        }
-
-        var ss = new StackArrayWrapper(stack, 2); // To allow referencing (ss-2) and (ss+2)
+        var ss = new StackArrayWrapper(new Stack[_.MAX_PLY + 4], 2); // To allow referencing (ss-2) and (ss+2)
 
         ValueT alpha, delta;
 
